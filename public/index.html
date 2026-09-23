@@ -165,6 +165,24 @@
     .byte-counter.over{color:var(--danger);font-weight:700;}
     .byte-counter.under{color:var(--warning);font-weight:700;}
 
+    /* [需核实] 高亮预览区 */
+    .verify-preview{
+        display:none;margin-top:-8px;margin-bottom:14px;
+        background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;
+        padding:10px 12px;border-radius:0 7px 7px 0;
+    }
+    .verify-preview .vp-title{
+        font-size:11.5px;color:#b45309;font-weight:700;margin-bottom:6px;
+    }
+    .verify-preview .vp-body{
+        font-size:12.5px;color:#0f172a;line-height:1.7;white-space:pre-wrap;word-break:break-word;
+    }
+    .verify-tag{
+        background:#fee2e2;color:#b91c1c;padding:1px 5px;border-radius:3px;
+        font-weight:700;border-bottom:2px wavy #ef4444;
+        text-decoration:underline wavy #ef4444;text-underline-offset:3px;
+    }
+
     .bp-item{
         border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;
         background:#f0fdf4;transition:border-color .2s;
@@ -306,6 +324,7 @@
                     <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="verifyTitleText" class="verify-preview"></div>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
 
                 <div class="copy-section-header">
@@ -313,6 +332,7 @@
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="verifyIhText" class="verify-preview"></div>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
 
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
@@ -327,6 +347,7 @@
                             <button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button>
                         </div>
                         <textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="verifyBp0" class="verify-preview"></div>
                         <div id="bpCounter0" class="byte-counter">0 / 255 字符</div>
                     </div>
                     <div class="bp-item">
@@ -335,6 +356,7 @@
                             <button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button>
                         </div>
                         <textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="verifyBp1" class="verify-preview"></div>
                         <div id="bpCounter1" class="byte-counter">0 / 255 字符</div>
                     </div>
                     <div class="bp-item">
@@ -343,6 +365,7 @@
                             <button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button>
                         </div>
                         <textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="verifyBp2" class="verify-preview"></div>
                         <div id="bpCounter2" class="byte-counter">0 / 255 字符</div>
                     </div>
                     <div class="bp-item">
@@ -351,6 +374,7 @@
                             <button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button>
                         </div>
                         <textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="verifyBp3" class="verify-preview"></div>
                         <div id="bpCounter3" class="byte-counter">0 / 255 字符</div>
                     </div>
                     <div class="bp-item">
@@ -359,17 +383,19 @@
                             <button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button>
                         </div>
                         <textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="verifyBp4" class="verify-preview"></div>
                         <div id="bpCounter4" class="byte-counter">0 / 255 字符</div>
                     </div>
                 </div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
 
                 <div class="copy-section-header" style="margin-top:10px;">
-                    <span>优化后的详细描述 (Description · 2000-5000字符)</span>
+                    <span>优化后的详细描述 (Description · ≤5000字符，无下限)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
-                <div id="descByteCounter" class="byte-counter">0 / 5000 字符（下限 2000）</div>
+                <div id="verifyDescText" class="verify-preview"></div>
+                <div id="descByteCounter" class="byte-counter">0 / 5000 字符</div>
 
                 <div class="copy-section-header">
                     <span>优化后的后台搜索词 (Search Terms · 240-250字节)</span>
@@ -418,7 +444,6 @@ const L = {
     emotion:   ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
 };
 
-/* ================= 15 锚点定义 ================= */
 const ANCHORS = [
     { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
     { cluster:'功能集群', name:'used_to',       cn:'达成使用目标', kws:L.goal },
@@ -437,7 +462,6 @@ const ANCHORS = [
     { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
 ];
 
-/* 本地兜底优化模板 */
 const FALLBACK = {
     'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
     'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and hassle, keep your space looking its best, and deliver consistent results without extra effort.',
@@ -464,7 +488,6 @@ const FALLBACK_BULLETS = [
     'PEACE OF MIND: Enjoy a space that finally feels effortless, delivering everyday satisfaction you can count on'
 ];
 
-/* ================= 违禁词库 ================= */
 const PROHIBITED_WORDS = {
     subjective: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
     promotional: ['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
@@ -533,7 +556,6 @@ function detectProhibitedWords(text) {
     return [...hits];
 }
 
-/* ================= 工具函数 ================= */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
 const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -586,26 +608,104 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ================= 通用打分函数（可复用于原始文案和优化后文案） ================= */
+/* ================= [需核实] 高亮预览 ================= */
+const VERIFY_REGEX = /\[需核实[:：][^\]]+\]/g;
+
+function renderVerifyPreview(inputId, previewId){
+    const el = $(inputId);
+    const preview = $(previewId);
+    if (!el || !preview) return;
+    const text = el.value || '';
+    const matches = text.match(VERIFY_REGEX);
+    if (!matches || !matches.length){
+        preview.style.display = 'none';
+        preview.innerHTML = '';
+        return;
+    }
+    // 高亮渲染（先 escapeHtml 再替换）
+    const escaped = escapeHtml(text);
+    const highlighted = escaped.replace(/\[需核实[:：][^\]]+\]/g, function(m){
+        return '<span class="verify-tag">' + m + '</span>';
+    });
+    preview.style.display = 'block';
+    preview.innerHTML =
+        '<div class="vp-title">⚠️ 检测到 ' + matches.length + ' 处待人工核实信息（已用红色下划线标出，请核实后手动删除或替换 [需核实:xxx] 标签）：</div>' +
+        '<div class="vp-body">' + highlighted + '</div>';
+}
+
+function renderAllVerifyPreviews(){
+    renderVerifyPreview('optTitleText','verifyTitleText');
+    renderVerifyPreview('optIhText','verifyIhText');
+    renderVerifyPreview('optBp0','verifyBp0');
+    renderVerifyPreview('optBp1','verifyBp1');
+    renderVerifyPreview('optBp2','verifyBp2');
+    renderVerifyPreview('optBp3','verifyBp3');
+    renderVerifyPreview('optBp4','verifyBp4');
+    renderVerifyPreview('optDescText','verifyDescText');
+}
+
+/* ================= 五点描述自动裁剪 ================= */
+function autoTrimBulletsToLimit(limit){
+    let bullets = [];
+    for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
+    let total = bullets.reduce((a,b) => a + b.length, 0);
+    if (total <= limit) return { trimmed: false, before: total, after: total };
+
+    const before = total;
+    let safety = 0;
+    while (total > limit && safety < 500){
+        safety++;
+        // 找到当前最长的 bullet
+        let maxIdx = 0, maxLen = 0;
+        for (let i = 0; i < 5; i++){
+            if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
+        }
+        let text = bullets[maxIdx];
+        // 优先按句子删（句号/问号/感叹号后的空格）
+        const sentences = text.split(/(?<=[.!?])\s+/);
+        if (sentences.length > 1){
+            sentences.pop();
+            bullets[maxIdx] = sentences.join(' ').trim();
+        } else {
+            // 按空格词删
+            const words = text.split(/\s+/);
+            if (words.length > 1){
+                words.pop();
+                bullets[maxIdx] = words.join(' ');
+            } else {
+                // 单句，按字符截断
+                bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
+            }
+        }
+        total = bullets.reduce((a,b) => a + b.length, 0);
+        // 安全阀：如果所有点都低于 200 了，停止
+        if (bullets.every(b => b.length < 200)) break;
+    }
+
+    // 写回
+    for (let i = 0; i < 5; i++){
+        const el = $('optBp' + i);
+        if (el) el.value = bullets[i];
+        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+    }
+    updateBpTotal();
+    return { trimmed: true, before: before, after: total };
+}
+
+/* ================= 打分 ================= */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let rawScore = 0, green = 0, yellow = 0, red = 0;
     const anchorResults = [];
-
     ANCHORS.forEach(a => {
         const hits = uniq(a.kws.filter(k => full.includes(k)));
         let level, score;
-        if (hits.length === 0){
-            level='red'; score=0; red++;
-        } else if (hits.length <= 2){
-            level='yellow'; score=hits.length===1?4:5; yellow++;
-        } else {
-            level='green'; score=7; green++;
-        }
+        if (hits.length === 0){ level='red'; score=0; red++; }
+        else if (hits.length <= 2){ level='yellow'; score=hits.length===1?4:5; yellow++; }
+        else { level='green'; score=7; green++; }
         rawScore += score;
         anchorResults.push({ ...a, level, score, hits });
     });
-
     const totalScore = Math.round(rawScore / 105 * 100);
     let grade, lv;
     if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
@@ -614,11 +714,9 @@ function scoreText(title, bp, desc, st){
     else if (totalScore >= 70) { grade='B';  lv='lv-b'; }
     else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
     else                       { grade='D';  lv='lv-d'; }
-
     return { totalScore, grade, lv, green, yellow, red, anchorResults };
 }
 
-/* ================= 警告提示 ================= */
 function showProhibitedWarning(hits, targetName) {
     if (!hits.length) return;
     const existing = document.getElementById('prohibited-warning');
@@ -688,13 +786,18 @@ function initByteCounters(){
     const bindings = [
         { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符', min: null },
         { input: 'optIhText',    counter: 'ihByteCounter',    max: 125, unit: '字符', min: null },
-        { input: 'optDescText',  counter: 'descByteCounter',  max: 5000,unit: '字符', min: 2000 },
+        { input: 'optDescText',  counter: 'descByteCounter',  max: 5000,unit: '字符', min: null },
         { input: 'optStText',    counter: 'stByteCounter',    max: 250, unit: '字节', min: 240 }
     ];
     bindings.forEach(function(b){
         const el = $(b.input);
         if (!el) return;
-        const handler = function(){ updateByteCounter(b.input, b.counter, b.max, b.unit, b.min); };
+        const handler = function(){
+            updateByteCounter(b.input, b.counter, b.max, b.unit, b.min);
+            if (b.input === 'optDescText' || b.input === 'optTitleText' || b.input === 'optIhText'){
+                renderAllVerifyPreviews();
+            }
+        };
         el.addEventListener('input', handler);
         el.addEventListener('paste', function(){ setTimeout(handler, 0); });
         el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
@@ -706,6 +809,7 @@ function initByteCounters(){
             const handler = function(){
                 updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 200);
                 updateBpTotal();
+                renderVerifyPreview('optBp' + idx, 'verifyBp' + idx);
             };
             el.addEventListener('input', handler);
             el.addEventListener('paste', function(){ setTimeout(handler, 0); });
@@ -730,24 +834,20 @@ async function runAnalysis(){
     if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
 
-    // 清空旧的警告
     ['prohibited-warning','length-warning','coverage-warning'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.remove();
     });
 
-    // 回填左侧
     $('origTitleView').value = titleRaw;
     $('origBpView').value    = bpRaw;
     $('origDescView').value  = descRaw;
     $('origStView').value    = stRaw;
 
-    // 原始文案打分
     const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
     const totalScore = beforeResult.totalScore;
     const green = beforeResult.green, yellow = beforeResult.yellow, red = beforeResult.red;
 
-    // 渲染诊断矩阵
     const rows = beforeResult.anchorResults.map(a => {
         const shownHits = a.hits.slice(0, 5);
         const chips = shownHits.map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('')
@@ -768,10 +868,6 @@ async function runAnalysis(){
             fixBlock = '<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>';
         }
 
-        const reason = a.hits.length === 0
-            ? '文案中完全没有出现与「' + a.cn + '」相关的语义信号，COSMO 知识图谱无法建立该维度的关联。'
-            : '仅部分覆盖「' + a.cn + '」，语义信号密度不足，权重较低。';
-
         return '<tr>' +
             '<td><span class="cluster-tag">' + a.cluster + '</span></td>' +
             '<td>' +
@@ -784,12 +880,10 @@ async function runAnalysis(){
         '</tr>';
     }).join('');
 
-    // 顶部分数渲染
     const beforeBadge = $('scoreBefore');
     beforeBadge.className = 'score-badge small ' + beforeResult.lv;
     beforeBadge.textContent = totalScore + ' · ' + beforeResult.grade;
 
-    // 优化后分数暂显 --
     const afterBadge = $('scoreAfter');
     afterBadge.className = 'score-badge small';
     afterBadge.textContent = '--';
@@ -799,7 +893,6 @@ async function runAnalysis(){
     $('statGreen').textContent  = '🟢 完美覆盖 ' + green;
     $('statYellow').textContent = '🟡 部分覆盖 ' + yellow;
     $('statRed').textContent    = '🔴 严重缺失 ' + red;
-
     $('statAfterGreen').textContent  = '🟢 完美覆盖 --';
     $('statAfterYellow').textContent = '🟡 部分覆盖 --';
     $('statAfterRed').textContent    = '🔴 严重缺失 --';
@@ -820,7 +913,6 @@ async function runAnalysis(){
     card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
-    // 调用 DeepSeek（带重试）
     const btn = $('analyzeBtn');
     const status = $('aiStatus');
     btn.disabled = true;
@@ -837,7 +929,6 @@ async function runAnalysis(){
     } catch (err){
         console.error('所有重试均失败：', err);
         applyFallback(beforeResult.anchorResults);
-        // 即使降级也要给优化后评分
         applyAfterScore(beforeResult);
         status.className = 'ai-status error';
         status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。请刷新页面重试';
@@ -848,7 +939,6 @@ async function runAnalysis(){
     }
 }
 
-/* ================= 带重试的 DeepSeek 调用 ================= */
 async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, maxRetries){
     let lastError = null;
     const status = $('aiStatus');
@@ -857,22 +947,16 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
             if (status && attempt > 1){
                 status.textContent = '🤖 DeepSeek 重试中 (第 ' + attempt + ' / ' + maxRetries + ' 次)…';
             }
-            const result = await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
-            if (attempt > 1) console.log('DeepSeek 第 ' + attempt + ' 次重试成功');
-            return result;
+            return await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
         } catch (err){
             lastError = err;
             console.warn('DeepSeek 第 ' + attempt + ' / ' + maxRetries + ' 次尝试失败：', err.message);
-            if (attempt < maxRetries){
-                // 等待 2 秒后重试
-                await new Promise(r => setTimeout(r, 2000));
-            }
+            if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
         }
     }
     throw lastError || new Error('DeepSeek 调用失败');
 }
 
-/* ================= 调用 DeepSeek ================= */
 async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     const notPassed = anchorResults.filter(a => a.level !== 'green');
     const anchorList = notPassed.length
@@ -893,28 +977,45 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '',
         '⚠️ 最重要规则：你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号真正融入进去。不能只在 anchorFixes 里单独写一句英文，那些句子只是参考。最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
         '',
+        '════════ 防杜撰的绝对红线 ════════',
+        '⚠️ 绝对不可以编造任何【原则性信息】。原则性信息包括：',
+        '  - 具体尺寸（长宽高、厚度、直径、重量）',
+        '  - 具体颜色',
+        '  - 具体材质成分（如 100% cotton 之类精确表述，除非原文已提及）',
+        '  - 认证与合规（如 FDA approved, BPA-free, CE certified 等）',
+        '  - 特殊功能等级（如防水等级 IPX7，抗菌等）',
+        '  - 具体性能参数（如承重 200 斤，吸水量 500ml 等）',
+        '  - 具体数量（如包含 3 件装）',
+        '  - 使用寿命年限',
+        '',
+        '如果必须提及上述原则性信息但原文未提供，请使用占位符 [需核实:具体属性名] 标注，例如 [需核实:尺寸]、[需核实:颜色]、[需核实:材质成分]。',
+        '宁可不写、宁可字数偏少，也绝对不要编造。',
+        '写入 [需核实:xxx] 的信息会被系统用红色下划线高亮，由人工核实。',
+        '【允许推断的内容】：通用应用场景（如 entryway, office）、通用使用方式、目标人群、情感价值。这些非原则信息可以谨慎拓展。',
+        '',
         '【你的任务】',
         '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，作为参考列出）。',
         '2. 生成优化后的商品标题（英文）：',
         '   - 总字符数（含空格）不超过 75 个字符。',
         '   - 禁止促销内容、特殊字符、全大写。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
-        '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词，特别是 used_for_func / is_a / capable_of / used_in_location / body_part。',
+        '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词。',
         '   - ⚠️ 严禁使用：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
-        '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。必须融入缺失锚点。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。',
         '4. 生成优化后的五点描述（英文）：',
         '   - 输出 5 个独立的要点，每个一段，不合并。',
         '   - ⚠️ 每点字符数（含空格）不低于 200，不超过 255。',
-        '   - 五点总字符数尽可能接近但不超过 1000。',
+        '   - 五点总字符数不超过 1000（若超过，系统会自动裁剪）。',
         '   - 每点采用「标题 + 冒号 + 描述」结构，结尾不加标点。',
-        '   - ⚠️ 五点是融入缺失锚点最重要的阵地，请把缺失锚点分散到 5 点里。',
-        '   - ⚠️ 防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能）如果原文未提供，必须用 [需核实:属性] 占位，不得编造。',
-        '   - 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
+        '   - ⚠️ 五点是融入缺失锚点最重要的阵地。',
+        '   - ⚠️ 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
+        '   - ⚠️ 严格遵循防杜撰红线：原则性信息缺失时用 [需核实:属性] 占位。',
         '5. 生成优化后的详细描述（Description）：',
-        '   - 字符数不低于 2000，不超过 5000。',
-        '   - 建议 5-8 个自然段，覆盖功能、材质、场景、人群、使用保养。',
-        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地。',
-        '   - 同样适用防杜撰规则。',
+        '   - ⚠️ 不再有硬性字数下限。请根据已知信息自然展开，避免为凑字数而编造。',
+        '   - 字符数上限 5000。',
+        '   - ⚠️ 如果信息不足，宁可写短，也绝对不要编造原则性信息。',
+        '   - ⚠️ 严格遵循防杜撰红线：原则性信息缺失时用 [需核实:属性] 占位。',
+        '   - 建议组织为若干自然段，覆盖功能、材质、场景、人群等维度（有几段写几段，不必强行凑数）。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250 之间。',
         '   - 只使用空格分隔，全小写，无标点。',
@@ -935,9 +1036,8 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '⚠️ optimizedBullets 必须是包含 5 个字符串的数组。'
     ].join('\n');
 
-    // 使用 AbortController 加超时保护
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90秒超时
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     let resp;
     try {
@@ -946,7 +1046,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述至少 2000 字符。搜索词 240-250 字节。严格防杜撰，原则性信息用 [需核实] 占位。' },
+                    { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述无硬性下限。搜索词 240-250 字节。严格防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命）绝对不可编造，缺失时用 [需核实:属性] 占位，宁可不写也不要瞎写。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -972,13 +1072,12 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     try {
         parsed = JSON.parse(content);
     } catch (e) {
-        console.error('AI 返回内容解析失败，原始内容：', content.substring(0, 500));
+        console.error('AI 返回内容解析失败：', content.substring(0, 500));
         throw new Error('DeepSeek 返回格式异常');
     }
     return parsed;
 }
 
-/* ================= Search Terms 自动补丁 ================= */
 function patchSearchTerms(anchorResults){
     const el = $('optStText');
     let st = (el.value || '').trim().toLowerCase();
@@ -1002,11 +1101,11 @@ function patchSearchTerms(anchorResults){
     });
 
     const extras = [
-        'indoor outdoor', 'heavy duty', 'all season', 'easy to use', 'multi purpose',
-        'daily use', 'home essential', 'high traffic', 'easy clean', 'long lasting',
-        'pet friendly', 'commercial grade', 'year round', 'versatile use', 'floor protector',
-        'home office', 'entry mat', 'door mat', 'shoe mat', 'floor mat', 'utility mat',
-        'modern home', 'home decor', 'interior design', 'floor covering', 'home improvement'
+        'indoor outdoor','heavy duty','all season','easy to use','multi purpose',
+        'daily use','home essential','high traffic','easy clean','long lasting',
+        'pet friendly','commercial grade','year round','versatile use','floor protector',
+        'home office','entry mat','door mat','shoe mat','floor mat','utility mat',
+        'modern home','home decor','interior design','floor covering','home improvement'
     ];
     extras.forEach(e => {
         if (!seen.has(e)) {
@@ -1029,7 +1128,6 @@ function patchSearchTerms(anchorResults){
     return { added: added, bytes: getByteLength(st) };
 }
 
-/* ================= 覆盖度自检 + 详细描述补丁 ================= */
 function selfCoverageCheck(anchorResults){
     let title = $('optTitleText').value || '';
     let ih = $('optIhText').value || '';
@@ -1050,7 +1148,7 @@ function selfCoverageCheck(anchorResults){
 
     let patch = '';
     stillMissing.forEach(a => {
-        const sentence = buildPatchSentence(a, a.kws.slice(0, 6));
+        const sentence = buildPatchSentence(a);
         if (sentence) patch += sentence + ' ';
     });
 
@@ -1058,7 +1156,7 @@ function selfCoverageCheck(anchorResults){
         const currentDesc = $('optDescText').value || '';
         if (currentDesc.length + patch.length <= 5000){
             $('optDescText').value = currentDesc.trim() + '\n\n' + patch.trim();
-            updateByteCounter('optDescText', 'descByteCounter', 5000, '字符', 2000);
+            updateByteCounter('optDescText', 'descByteCounter', 5000, '字符', null);
             const newFull = (title + ' ' + ih + ' ' + bpText + ' ' + $('optDescText').value + ' ' + st).toLowerCase();
             const nowFixed = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length > 0);
             const remaining = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length === 0);
@@ -1068,7 +1166,7 @@ function selfCoverageCheck(anchorResults){
     return { fixed: 0, missing: stillMissing };
 }
 
-function buildPatchSentence(anchor, kws){
+function buildPatchSentence(anchor){
     const templates = {
         'used_for_func': 'The product is purpose-built to deliver reliable daily performance.',
         'used_to':       'It helps prevent everyday mess and keeps your space clean and organized.',
@@ -1089,7 +1187,6 @@ function buildPatchSentence(anchor, kws){
     return templates[anchor.name] || '';
 }
 
-/* ================= 对优化后文案评分并渲染 ================= */
 function applyAfterScore(beforeResult){
     const title = $('optTitleText').value || '';
     let bpText = '';
@@ -1103,7 +1200,6 @@ function applyAfterScore(beforeResult){
     afterBadge.className = 'score-badge small ' + afterResult.lv;
     afterBadge.textContent = afterResult.totalScore + ' · ' + afterResult.grade;
 
-    // 显示提升幅度
     const improve = afterResult.totalScore - beforeResult.totalScore;
     const improveEl = $('scoreImprove');
     if (improve > 0){
@@ -1126,7 +1222,6 @@ function applyAfterScore(beforeResult){
     return afterResult;
 }
 
-/* ================= 应用 AI 结果 ================= */
 function applyAIResults(aiResult, anchorResults, beforeResult){
     const fixes = aiResult.anchorFixes || {};
 
@@ -1134,11 +1229,9 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
-
         let suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
         suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
-
         cell.innerHTML =
             '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
                 '<div class="gemini-box">' +
@@ -1194,7 +1287,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
         let desc = replaceProhibitedWords(aiResult.optimizedDesc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
     }
     if (aiResult.optimizedST) {
         let st = replaceProhibitedWords(aiResult.optimizedST);
@@ -1203,7 +1296,13 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // 覆盖度自检 + 详细描述补丁
+    // ⭐ 五点自动裁剪（超 1000 字符时）
+    const trimResult = autoTrimBulletsToLimit(1000);
+    if (trimResult.trimmed){
+        showCoverageWarning('五点描述总字符超限，已自动裁剪：' + trimResult.before + ' → ' + trimResult.after + ' 字符（保留 5 点，从最长的点开始删减）。');
+    }
+
+    // 覆盖度自检
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0){
         showCoverageWarning('检测到 ' + coverage.fixed + ' 个锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落。');
@@ -1219,15 +1318,15 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
         showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个相关长尾词，当前 ' + stPatch.bytes + ' 字节。');
     }
 
-    // 长度下限检查
+    // 渲染 [需核实] 高亮预览
+    renderAllVerifyPreviews();
+
+    // 长度警告（Description 已取消下限）
     const lengthWarnings = [];
     const descLen = $('optDescText').value.length;
-    if (descLen > 0 && descLen < 2000) lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于下限 2000。');
+    if (descLen > 5000) lengthWarnings.push('详细描述超过 5000 字符上限。');
     const stLen = getByteLength($('optStText').value);
     if (stLen > 0 && stLen < 240) lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于下限 240。');
-    let bpTotal = 0;
-    for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el) bpTotal += el.value.length; }
-    if (bpTotal > 0 && bpTotal < 800) lengthWarnings.push('五点描述总字符仅 ' + bpTotal + '，建议接近 1000。');
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
     // 违禁词复查
@@ -1239,24 +1338,20 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
     const prohibitedHits = detectProhibitedWords(allOutput);
     if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案（自动替换后仍有残留）');
 
-    // ⭐ 最后一步：对优化后文案立即评分
+    // 优化后评分
     applyAfterScore(beforeResult);
 }
 
-/* ================= 本地降级 ================= */
 function applyFallback(anchorResults){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
-
         let suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
         suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
-
         cell.innerHTML =
             '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
-                '<p><b>扣分原因：</b>' + escapeHtml(a.reason || '') + '</p>' +
                 '<div class="gemini-box">' +
                     '<p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>' +
                     '<code>' + escapeHtml(suggestion) + '</code>' +
@@ -1297,7 +1392,7 @@ function applyFallback(anchorResults){
     if (!$('optDescText').value.trim()) {
         let desc = replaceProhibitedWords(descRaw) || 'Well-made product built for long-lasting everyday performance.';
         $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
     }
     if (!$('optStText').value.trim()) {
         let st = replaceProhibitedWords(stRaw) || 'heavy duty product all season indoor outdoor';
@@ -1306,14 +1401,20 @@ function applyFallback(anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
+    const trimResult = autoTrimBulletsToLimit(1000);
+    if (trimResult.trimmed){
+        showCoverageWarning('五点描述总字符超限，已自动裁剪：' + trimResult.before + ' → ' + trimResult.after + ' 字符。');
+    }
+
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
 
     const stPatch = patchSearchTerms(anchorResults);
     if (stPatch.added > 0) showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个长尾词。');
+
+    renderAllVerifyPreviews();
 }
 
-/* ================= 复制全部五点 ================= */
 async function copyAllBullets(btn){
     const parts = [];
     for (let i = 0; i < 5; i++){
@@ -1341,14 +1442,11 @@ async function copyAllBullets(btn){
     } else showToast('复制失败');
 }
 
-/* ================= 示例加载 ================= */
 function loadSampleByUrl(){
     const url = $('productUrl').value.trim();
     if (!url){ showToast('请先粘贴一个亚马逊商品链接'); return; }
-
     const u = url.toLowerCase();
     let s;
-
     if (u.includes('doormat') || u.includes('disinfect') || u.includes('mat')){
         s = {
             title:'Commercial Disinfecting Doormat for Entrance - Heavy Duty Shoe Sanitizing Mat for Indoor Outdoor',
@@ -1371,21 +1469,17 @@ function loadSampleByUrl(){
             st:'household utility product daily essentials multi functional tool'
         };
     }
-
     $('productTitle').value = s.title;
     $('bulletPoints').value = s.bp;
     $('description').value  = s.desc;
     $('searchTerms').value  = s.st;
-
     runAnalysis();
 }
 
-/* ================= 复制 / 清空 ================= */
 async function copyTextElement(elementId, btn){
     const el = $(elementId);
     const text = el.value || '';
     if (!text.trim()){ showToast('内容为空'); return; }
-
     let ok = false;
     if (navigator.clipboard && window.isSecureContext){
         try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
@@ -1398,9 +1492,7 @@ async function copyTextElement(elementId, btn){
             window.getSelection().removeAllRanges();
         } catch(e){ ok = false; }
     }
-
     if (!ok){ showToast('复制失败'); return; }
-
     const original = btn.dataset.label || btn.innerText;
     btn.dataset.label = original;
     btn.innerText = '复制成功 ✓';
