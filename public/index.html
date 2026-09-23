@@ -175,6 +175,7 @@
         margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;
     }
     .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
+    .bp-item-header .bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px;}
     .bp-item textarea{
         width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;
         font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;
@@ -316,14 +317,14 @@
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
 
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
-                    <span>优化后的 5 点描述 (每点 ≤255字符，总 ≤1000字符)</span>
+                    <span>优化后的 5 点描述 (每点 150-255 字符，总 ≤1000)</span>
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
 
                 <div id="bulletPointsContainer">
                     <div class="bp-item">
                         <div class="bp-item-header">
-                            <span class="bp-label">第 1 点</span>
+                            <span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 包装内容</span></span>
                             <button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button>
                         </div>
                         <textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea>
@@ -331,7 +332,7 @@
                     </div>
                     <div class="bp-item">
                         <div class="bp-item-header">
-                            <span class="bp-label">第 2 点</span>
+                            <span><span class="bp-label">第 2 点</span><span class="bp-role">核心痛点 / 人群</span></span>
                             <button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button>
                         </div>
                         <textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea>
@@ -339,7 +340,7 @@
                     </div>
                     <div class="bp-item">
                         <div class="bp-item-header">
-                            <span class="bp-label">第 3 点</span>
+                            <span><span class="bp-label">第 3 点</span><span class="bp-role">特点 + 收益</span></span>
                             <button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button>
                         </div>
                         <textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea>
@@ -347,7 +348,7 @@
                     </div>
                     <div class="bp-item">
                         <div class="bp-item-header">
-                            <span class="bp-label">第 4 点</span>
+                            <span><span class="bp-label">第 4 点</span><span class="bp-role">功能原理 + 攻心</span></span>
                             <button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button>
                         </div>
                         <textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea>
@@ -355,7 +356,7 @@
                     </div>
                     <div class="bp-item">
                         <div class="bp-item-header">
-                            <span class="bp-label">第 5 点</span>
+                            <span><span class="bp-label">第 5 点</span><span class="bp-role">保证 / 风险逆转</span></span>
                             <button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button>
                         </div>
                         <textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea>
@@ -455,11 +456,11 @@ const FALLBACK = {
 };
 
 const FALLBACK_BULLETS = [
-    'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for',
-    'HEAVY-DUTY CONSTRUCTION: Made from durable, weather-resistant materials that hold up to daily use and high-traffic conditions',
-    'EASY TO USE: Lightweight, hassle-free and simple to set up, so anyone can get it working in seconds without extra tools',
-    'VERSATILE APPLICATION: Perfect for indoor and outdoor use across entryways, patios, gardens, hallways, offices and more',
-    'PEACE OF MIND: Enjoy a space that finally feels effortless, delivering everyday satisfaction you can count on'
+    'WHAT YOU GET: The set includes the main product and all essential accessories needed for immediate use, ready to set up right out of the box',
+    'PERFECT FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
+    'BUILT TO LAST: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
+    'SMART ENGINEERING: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
+    'BUY WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
 ];
 
 const PROHIBITED_WORDS = {
@@ -530,16 +531,11 @@ function detectProhibitedWords(text) {
     return [...hits];
 }
 
-/* ================= 【新增】清理 AI 可能残留的 [需核实:xxx] 标签 ================= */
 function sanitizeVerifyTags(text){
     if (!text) return '';
     let result = text;
-    // 场景1：整句里只有 [需核实:xxx]，直接删掉这句
-    // 1a. "标签。" 或 "标签." 这种独立句
     result = result.replace(/[^.!?]*\[需核实[:：][^\]]+\][^.!?]*[.!?]\s*/g, '');
-    // 1b. 残留的孤立标签（句尾/句中）
     result = result.replace(/\[需核实[:：][^\]]+\]/g, '');
-    // 1c. "Color: ," 或 "Dimensions: ." 这种残缺（因为标签被删了）
     result = result.replace(/[,;]\s*[,;]/g, ',');
     result = result.replace(/\(\s*\)/g, '');
     result = result.replace(/:\s*([,.])/g, '$1');
@@ -602,7 +598,7 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ================= 五点描述自动裁剪 ================= */
+/* 五点总字符裁剪：最小保留 150，超 1000 时从最长的点删减 */
 function autoTrimBulletsToLimit(limit){
     let bullets = [];
     for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
@@ -632,18 +628,18 @@ function autoTrimBulletsToLimit(limit){
             }
         }
         total = bullets.reduce((a,b) => a + b.length, 0);
-        if (bullets.every(b => b.length < 200)) break;
+        // 安全阀：每点不低于 150 字符
+        if (bullets.every(b => b.length <= 150)) break;
     }
     for (let i = 0; i < 5; i++){
         const el = $('optBp' + i);
         if (el) el.value = bullets[i];
-        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
     }
     updateBpTotal();
     return { trimmed: true, before: before, after: total };
 }
 
-/* ================= 打分 ================= */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let rawScore = 0, green = 0, yellow = 0, red = 0;
@@ -752,7 +748,7 @@ function initByteCounters(){
             const el = $('optBp' + idx);
             if (!el) return;
             const handler = function(){
-                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 200);
+                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 150);
                 updateBpTotal();
             };
             el.addEventListener('input', handler);
@@ -762,7 +758,6 @@ function initByteCounters(){
     }
 }
 
-/* ================= 主流程 ================= */
 async function runAnalysis(){
     const url      = $('productUrl').value.trim();
     const titleRaw = $('productTitle').value.trim();
@@ -790,7 +785,6 @@ async function runAnalysis(){
 
     const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
     const totalScore = beforeResult.totalScore;
-    const green = beforeResult.green, yellow = beforeResult.yellow, red = beforeResult.red;
 
     const rows = beforeResult.anchorResults.map(a => {
         const shownHits = a.hits.slice(0, 5);
@@ -834,9 +828,9 @@ async function runAnalysis(){
     $('scoreImprove').textContent = '';
     $('scoreBar').style.width = totalScore + '%';
 
-    $('statGreen').textContent  = '🟢 完美覆盖 ' + green;
-    $('statYellow').textContent = '🟡 部分覆盖 ' + yellow;
-    $('statRed').textContent    = '🔴 严重缺失 ' + red;
+    $('statGreen').textContent  = '🟢 完美覆盖 ' + beforeResult.green;
+    $('statYellow').textContent = '🟡 部分覆盖 ' + beforeResult.yellow;
+    $('statRed').textContent    = '🔴 严重缺失 ' + beforeResult.red;
     $('statAfterGreen').textContent  = '🟢 完美覆盖 --';
     $('statAfterYellow').textContent = '🟡 部分覆盖 --';
     $('statAfterRed').textContent    = '🔴 严重缺失 --';
@@ -921,24 +915,10 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '',
         '⚠️ 最重要规则：你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号真正融入进去。不能只在 anchorFixes 里单独写一句英文，那些句子只是参考。最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
         '',
-        '════════ 防杜撰的绝对红线（非常重要）════════',
-        '⚠️ 绝对不可以编造任何【原则性信息】。原则性信息包括：',
-        '  - 具体尺寸（长宽高、厚度、直径、重量）',
-        '  - 具体颜色',
-        '  - 具体材质成分（如 100% cotton 之类精确表述，除非原文已提及）',
-        '  - 认证与合规（如 FDA approved, BPA-free, CE certified 等）',
-        '  - 特殊功能等级（如防水等级 IPX7，抗菌等）',
-        '  - 具体性能参数（如承重 200 斤，吸水量 500ml 等）',
-        '  - 具体数量（如包含 3 件装）',
-        '  - 使用寿命年限',
-        '',
-        '⚠️ 如果原文没有提供这些原则性信息，请在文案中【直接跳过，不要提及】，绝对不要写占位符（比如不要写 [需核实:xxx]、不要写 TBD、不要写 N/A）。宁可整段话少写几句，也绝对不要编造。',
-        '',
-        '示例：',
-        '  ❌ 错误做法：Color: [需核实:颜色]. Dimensions: [需核实:尺寸].',
-        '  ✅ 正确做法：（直接省略关于颜色和尺寸的句子，不要写任何相关内容）',
-        '',
-        '【允许推断的内容】：通用应用场景（如 entryway, office）、通用使用方式、目标人群、情感价值。这些非原则信息可以谨慎拓展。',
+        '════════ 防杜撰的绝对红线 ════════',
+        '⚠️ 绝对不可以编造任何【原则性信息】。原则性信息包括：具体尺寸、具体颜色、具体材质成分、认证与合规、特殊功能等级、具体性能参数、具体数量、使用寿命年限。',
+        '⚠️ 如果原文没有提供这些原则性信息，请在文案中【直接跳过，不要提及】，绝对不要写占位符（不要写 [需核实:xxx]、TBD、N/A）。宁可整段话少写几句，也绝对不要编造。',
+        '【允许推断的内容】：通用应用场景、通用使用方式、目标人群、情感价值。',
         '',
         '【你的任务】',
         '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，作为参考列出）。',
@@ -949,19 +929,42 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词。',
         '   - ⚠️ 严禁使用：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
         '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。',
-        '4. 生成优化后的五点描述（英文）：',
-        '   - 输出 5 个独立的要点，每个一段，不合并。',
-        '   - ⚠️ 每点字符数（含空格）不低于 200，不超过 255。',
-        '   - 五点总字符数不超过 1000（若超过，系统会自动裁剪）。',
-        '   - 每点采用「标题 + 冒号 + 描述」结构，结尾不加标点。',
-        '   - ⚠️ 五点是融入缺失锚点最重要的阵地。',
-        '   - ⚠️ 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
-        '   - ⚠️ 严格遵循防杜撰红线：原则性信息缺失时直接跳过不写，不要写占位符。',
+        '4. 生成优化后的五点描述（英文）。**必须严格按以下结构组织**：',
+        '',
+        '   ▸ 每点的字符数（含空格）不低于 150，不超过 255。五点总字符数不超过 1000。',
+        '   ▸ 所有 5 个要点都必须以【好处优先】为核心 —— 标题部分全部大写，包含买家最关心的利益点，而不仅仅描述功能。',
+        '   ▸ 每点格式：「全大写标题: 具体描述内容」，结尾不加标点。',
+        '',
+        '   【第 1 点 · 基本属性 + 包装内容】',
+        '   - 标题要求：以买家最关心的核心价值为标题，全大写。',
+        '   - 内容：写商品的基本属性（尺寸、颜色、材质等，如果原文已提供）以及订单中具体包含什么物品。',
+        '   - ⚠️ 如果原文没有提供尺寸/颜色/材质等具体信息，请在内容中【跳过这些信息，直接写包装包含什么】。绝不编造具体尺寸、颜色、材质成分。',
+        '',
+        '   【第 2 点 · 核心痛点 / 人群】',
+        '   - 标题要求：以买家最关心的痛点为标题，全大写（例如：PERFECT FOR BUSY HOMES、END THE DAILY MESS）。',
+        '   - 内容：描述这款商品针对的是哪类人群、解决什么核心痛点，让目标买家产生"这就是为我设计的"的共鸣。',
+        '',
+        '   【第 3 点 · 商品特点 + 收益】',
+        '   - 标题要求：以商品的核心特点带来的好处为标题，全大写（例如：BUILT TO LAST、SAVE TIME EVERY DAY）。',
+        '   - 内容：写商品的核心特点，并明确写出来买之后带来的好处、收益点是什么。让买家感受到"买了它，我能得到什么"。',
+        '',
+        '   【第 4 点 · 功能性 / 原理性 + 攻心】',
+        '   - 标题要求：以功能原理带来的价值为标题，全大写（例如：SMART ENGINEERING、ADVANCED PROTECTION）。',
+        '   - 内容：写商品的功能性、原理性（例如材质如何工作、结构如何设计），继续说服买家，攻破买家心智，让买家相信"它真的有效"。',
+        '   - ⚠️ 不要编造具体的性能参数（如承重数字、吸水升数）。可以描述工作原理，但不编造量化指标。',
+        '',
+        '   【第 5 点 · 保证 / 担保 / 风险逆转】',
+        '   - 标题要求：以让买家放心的承诺为标题，全大写（例如：BUY WITH CONFIDENCE、RISK-FREE PURCHASE）。',
+        '   - 内容：包含保证、担保或风险逆转声明，让买家觉得"买了没有风险"（例如：可靠的质量、满意的设计、无忧的使用体验）。',
+        '   - ⚠️ 不要写具体的退款天数、保修年限等承诺，除非原文已提供。可以用"可靠的质量保证"、"以客户满意为核心的设计"等柔和的表述。',
+        '',
+        '   ▸ ⚠️ 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
+        '   ▸ ⚠️ 严格遵循防杜撰红线：原则性信息缺失时直接跳过不写。',
+        '',
         '5. 生成优化后的详细描述（Description）：',
         '   - ⚠️ 不再有硬性字数下限。请根据已知信息自然展开，避免为凑字数而编造。',
         '   - 字符数上限 5000。',
         '   - ⚠️ 如果信息不足，宁可写短，也绝对不要编造原则性信息。',
-        '   - ⚠️ 严格遵循防杜撰红线：原则性信息缺失时直接跳过不写，不要写占位符。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250 之间。',
         '   - 只使用空格分隔，全小写，无标点。',
@@ -979,7 +982,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
         '}',
-        '⚠️ optimizedBullets 必须是包含 5 个字符串的数组。'
+        '⚠️ optimizedBullets 必须是包含 5 个字符串的数组，按上述【第1点】到【第5点】的结构一一对应。'
     ].join('\n');
 
     const controller = new AbortController();
@@ -992,7 +995,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述无硬性下限。搜索词 240-250 字节。⚠️ 严格防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命）绝对不可编造，如果原文没有就直接跳过不写，绝对不要写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊 Listing 优化专家。五点描述必须严格按指定结构组织：第1点基本属性+包装、第2点痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点以全大写好处优先标题开头，格式为"标题: 内容"。每点 150-255 字符。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。⚠️ 严格防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命）绝对不可编造，如果原文没有就直接跳过不写，绝对不要写任何占位符。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1206,7 +1209,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
     } else {
@@ -1217,7 +1220,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
     }
@@ -1304,20 +1307,15 @@ function applyFallback(anchorResults){
     }
 
     if (!$('optBp0').value.trim()) {
-        let sourceBullets = [];
-        if (bpRaw) {
-            sourceBullets = bpRaw.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-            if (sourceBullets.length < 3) sourceBullets = bpRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
-        }
         for (let i = 0; i < 5; i++){
-            let text = sourceBullets[i] || FALLBACK_BULLETS[i] || '';
+            let text = FALLBACK_BULLETS[i] || '';
             text = replaceProhibitedWords(text);
             text = sanitizeVerifyTags(text);
             text = text.replace(/[.。;；,，]+$/, '');
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
     }
