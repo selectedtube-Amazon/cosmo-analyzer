@@ -365,6 +365,49 @@ const FALLBACK = {
     'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
 };
 
+/* ================= 违禁词库 ================= */
+const PROHIBITED_WORDS = {
+    subjective: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
+    promotional: ['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
+    regulated: ['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free'],
+    temporary: ['new','brand new','just launched','latest','current','available now','this week','this month','this year','today','last chance','last minute'],
+    customer_service: ['contact us','24 hours','reply','respond','our team','our company','we will','we offer','we are'],
+    first_person: ['our','we','my','i'],
+    trademark: ['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
+};
+
+const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
+
+function detectProhibitedWords(text) {
+    if (!text) return [];
+    const lowerText = text.toLowerCase();
+    const hits = new Set();
+    ALL_PROHIBITED_WORDS.forEach(word => {
+        if (lowerText.includes(word)) hits.add(word);
+    });
+    return [...hits];
+}
+
+function showProhibitedWarning(hits, targetName) {
+    if (!hits.length) return;
+    const existing = document.getElementById('prohibited-warning');
+    if (existing) existing.remove();
+
+    const warning = document.createElement('div');
+    warning.id = 'prohibited-warning';
+    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML =
+        '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '）</div>' +
+        '<div style="font-size:13px;color:#991b1b;margin-bottom:6px;">以下词汇可能触发 Amazon 审核，导致 Listing 被抑制或下架：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+            hits.map(function(h){ return '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>'; }).join('') +
+        '</div>' +
+        '<div style="font-size:12px;color:#991b1b;margin-top:8px;font-style:italic;">建议手动修改这些词汇，或使用更中性、客观的描述替代。</div>';
+
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 /* ================= 工具函数 ================= */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -385,7 +428,6 @@ function escapeHtml(str){
     }[s]));
 }
 
-/* 计算字节数（一个英文字母算1个，一个汉字算3个） */
 function getByteLength(str) {
     let len = 0;
     for (let i = 0; i < str.length; i++) {
@@ -398,30 +440,23 @@ function getByteLength(str) {
     return len;
 }
 
-/* 按字符数自动裁剪 */
 function trimToMaxChars(str, maxChars) {
     if (!str) return '';
     if (str.length <= maxChars) return str;
     let trimmed = str.substring(0, maxChars);
     const lastSpace = trimmed.lastIndexOf(' ');
-    if (lastSpace > maxChars * 0.7) {
-        trimmed = trimmed.substring(0, lastSpace);
-    }
+    if (lastSpace > maxChars * 0.7) trimmed = trimmed.substring(0, lastSpace);
     return trimmed.trim();
 }
 
-/* 按字节数自动裁剪 */
 function trimToMaxBytes(str, maxBytes) {
     if (!str) return '';
     const words = str.split(/\s+/).filter(Boolean);
     let result = '';
     for (let w of words) {
         const candidate = result ? result + ' ' + w : w;
-        if (getByteLength(candidate) <= maxBytes) {
-            result = candidate;
-        } else {
-            break;
-        }
+        if (getByteLength(candidate) <= maxBytes) result = candidate;
+        else break;
     }
     return result.trim();
 }
@@ -439,9 +474,10 @@ async function runAnalysis(){
         return;
     }
 
-    if (!bpRaw && titleRaw){
-        showToast('⚠️ 您未填写5点描述，AI将根据标题推测生成，请务必核实后再使用！');
-    }
+    if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将根据标题推测生成，请务必核实后再使用！');
+
+    const oldWarning = document.getElementById('prohibited-warning');
+    if (oldWarning) oldWarning.remove();
 
     const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
 
@@ -643,9 +679,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
     const firstBrace = content.indexOf('{');
     const lastBrace = content.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) {
-        content = content.substring(firstBrace, lastBrace + 1);
-    }
+    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
 
     let parsed;
     try {
@@ -689,16 +723,27 @@ function applyAIResults(aiResult, anchorResults){
         $('optIhText').value = trimmedIH;
         updateByteCounter('optIhText','ihByteCounter',125,'字符');
     }
-    if (aiResult.optimizedBullets) { $('optBpText').value = aiResult.optimizedBullets; }
-    if (aiResult.optimizedDesc)    { $('optDescText').value = aiResult.optimizedDesc; }
+    if (aiResult.optimizedBullets) $('optBpText').value = aiResult.optimizedBullets;
+    if (aiResult.optimizedDesc)    $('optDescText').value = aiResult.optimizedDesc;
     if (aiResult.optimizedST) {
         const trimmedST = trimToMaxBytes(aiResult.optimizedST, 250);
         $('optStText').value = trimmedST;
         updateByteCounter('optStText','stByteCounter',250,'字节');
     }
+
+    // ===== 违禁词过滤检测 =====
+    const allOutput = [
+        aiResult.optimizedTitle || '',
+        aiResult.optimizedItemHighlights || '',
+        aiResult.optimizedBullets || '',
+        aiResult.optimizedDesc || '',
+        aiResult.optimizedST || ''
+    ].join(' ');
+
+    const prohibitedHits = detectProhibitedWords(allOutput);
+    if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案');
 }
 
-/* 更新字节计数器 */
 function updateByteCounter(inputId, counterId, max, unit){
     const el = $(inputId);
     const counter = $(counterId);
@@ -750,6 +795,18 @@ function applyFallback(anchorResults){
         $('optStText').value = trimToMaxBytes(stRaw || 'heavy duty product all season indoor outdoor', 250);
         updateByteCounter('optStText','stByteCounter',250,'字节');
     }
+
+    // ===== 违禁词过滤检测（降级方案） =====
+    const fallbackOutput = [
+        $('optTitleText').value,
+        $('optIhText').value,
+        $('optBpText').value,
+        $('optDescText').value,
+        $('optStText').value
+    ].join(' ');
+
+    const fallbackHits = detectProhibitedWords(fallbackOutput);
+    if (fallbackHits.length > 0) showProhibitedWarning(fallbackHits, '优化文案（本地模板）');
 }
 
 /* ================= 示例加载 ================= */
