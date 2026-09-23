@@ -398,7 +398,7 @@ function getByteLength(str) {
     return len;
 }
 
-/* 按字符数自动裁剪（用于标题和 Item Highlights） */
+/* 按字符数自动裁剪 */
 function trimToMaxChars(str, maxChars) {
     if (!str) return '';
     if (str.length <= maxChars) return str;
@@ -410,7 +410,7 @@ function trimToMaxChars(str, maxChars) {
     return trimmed.trim();
 }
 
-/* 按字节数自动裁剪（用于 Search Terms） */
+/* 按字节数自动裁剪 */
 function trimToMaxBytes(str, maxBytes) {
     if (!str) return '';
     const words = str.split(/\s+/).filter(Boolean);
@@ -439,20 +439,17 @@ async function runAnalysis(){
         return;
     }
 
-    // 防杜撰提醒
     if (!bpRaw && titleRaw){
         showToast('⚠️ 您未填写5点描述，AI将根据标题推测生成，请务必核实后再使用！');
     }
 
     const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
 
-    // 回填左侧
     $('origTitleView').value = titleRaw;
     $('origBpView').value    = bpRaw;
     $('origDescView').value  = descRaw;
     $('origStView').value    = stRaw;
 
-    // 本地关键词评分
     let rawScore = 0, green = 0, yellow = 0, red = 0;
     const anchorResults = [];
     const rows = [];
@@ -472,39 +469,38 @@ async function runAnalysis(){
         rawScore += score;
 
         const shownHits = hits.slice(0, 5);
-        const chips = shownHits.map(h => `<span class="kw-chip hit">${escapeHtml(h)}</span>`).join('')
-                    + (hits.length > 5 ? `<span class="kw-chip miss">+${hits.length-5}</span>` : '');
+        const chips = shownHits.map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('')
+                    + (hits.length > 5 ? '<span class="kw-chip miss">+' + (hits.length-5) + '</span>' : '');
         const hitBlock = hits.length
-            ? `<div style="margin-bottom:5px;">${chips}</div><div style="font-size:12px;color:#64748b;">共命中 ${hits.length} 个语义信号词</div>`
-            : `<div style="font-size:12px;color:#b91c1c;">未检测到任何相关语义信号词</div>`;
+            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + hits.length + ' 个语义信号词</div>'
+            : '<div style="font-size:12px;color:#b91c1c;">未检测到任何相关语义信号词</div>';
 
         let fixBlock;
         if (level === 'green'){
-            fixBlock = `<div class="suggestion-cell ok">✅ 该锚点已充分覆盖，无需修改。</div>`;
+            fixBlock = '<div class="suggestion-cell ok">✅ 该锚点已充分覆盖，无需修改。</div>';
         } else {
-            fixBlock = `<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>`;
+            fixBlock = '<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>';
         }
 
         const reason = hits.length === 0
-            ? `文案中完全没有出现与「${a.cn}」相关的语义信号，COSMO 知识图谱无法建立该维度的关联。`
-            : `仅部分覆盖「${a.cn}」，语义信号密度不足，权重较低。`;
+            ? '文案中完全没有出现与「' + a.cn + '」相关的语义信号，COSMO 知识图谱无法建立该维度的关联。'
+            : '仅部分覆盖「' + a.cn + '」，语义信号密度不足，权重较低。';
 
         anchorResults.push({ ...a, level, score, hits, reason });
 
-        rows.push(`
-            <tr>
-                <td><span class="cluster-tag">${a.cluster}</span></td>
-                <td>
-                    <span class="anchor-name">${escapeHtml(a.name)}</span>
-                    <span class="anchor-cn">${a.cn}</span>
-                </td>
-                <td class="${statusClass}">${statusText}<span class="score-mini">${score} / 7 分</span></td>
-                <td>${hitBlock}</td>
-                <td id="fix-cell-${safeId(a.name)}">${fixBlock}</td>
-            </tr>`);
+        rows.push(
+            '<tr>' +
+                '<td><span class="cluster-tag">' + a.cluster + '</span></td>' +
+                '<td>' +
+                    '<span class="anchor-name">' + escapeHtml(a.name) + '</span>' +
+                    '<span class="anchor-cn">' + a.cn + '</span>' +
+                '</td>' +
+                '<td class="' + statusClass + '">' + statusText + '<span class="score-mini">' + score + ' / 7 分</span></td>' +
+                '<td>' + hitBlock + '</td>' +
+                '<td id="fix-cell-' + safeId(a.name) + '">' + fixBlock + '</td>' +
+            '</tr>');
     });
 
-    // 总分
     const totalScore = Math.round(rawScore / 105 * 100);
     let grade, lv;
     if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
@@ -516,19 +512,18 @@ async function runAnalysis(){
 
     const badge = $('totalScoreBadge');
     badge.className = 'score-badge ' + lv;
-    badge.textContent = `总分 ${totalScore} · ${grade}`;
+    badge.textContent = '总分 ' + totalScore + ' · ' + grade;
     $('scoreBar').style.width = totalScore + '%';
 
-    $('statGreen').textContent  = `🟢 完美覆盖 ${green}`;
-    $('statYellow').textContent = `🟡 部分覆盖 ${yellow}`;
-    $('statRed').textContent    = `🔴 严重缺失 ${red}`;
+    $('statGreen').textContent  = '🟢 完美覆盖 ' + green;
+    $('statYellow').textContent = '🟡 部分覆盖 ' + yellow;
+    $('statRed').textContent    = '🔴 严重缺失 ' + red;
 
     $('matrixTableBody').innerHTML = rows.join('');
 
-    // 目标链接
     if (url){
         $('targetUrlDisplay').innerHTML =
-            `当前分析目标链接：<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+            '当前分析目标链接：<a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
     } else {
         $('targetUrlDisplay').textContent = '当前分析目标链接：未绑定（基于本地文本进行独立评估）';
     }
@@ -540,7 +535,6 @@ async function runAnalysis(){
     card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
-    // 调用 DeepSeek（失败自动降级本地模板）
     const btn = $('analyzeBtn');
     const status = $('aiStatus');
     btn.disabled = true;
@@ -570,61 +564,63 @@ async function runAnalysis(){
 async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     const notPassed = anchorResults.filter(a => a.level !== 'green');
     const anchorList = notPassed.length
-        ? notPassed.map(a => `- ${a.name}（${a.cn}）：${a.level === 'red' ? '严重缺失' : '部分覆盖'}，命中词：${a.hits.length ? a.hits.join(', ') : '无'}`).join('\n')
+        ? notPassed.map(a => '- ' + a.name + '（' + a.cn + '）：' + (a.level === 'red' ? '严重缺失' : '部分覆盖') + '，命中词：' + (a.hits.length ? a.hits.join(', ') : '无')).join('\n')
         : '（无，所有锚点均达标）';
 
-    const prompt = `你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。请严格按照以下规则优化商品文案。
-
-【商品原始文案】
-标题：${titleRaw || '（未提供）'}
-五点描述：${bpRaw || '（未提供）'}
-详细描述：${descRaw || '（未提供）'}
-后台搜索词：${stRaw || '（未提供）'}
-
-【15 锚点诊断结果（仅列出未达标项）】
-${anchorList}
-
-【你的任务】
-1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，可直接用于 Listing，不要中英混排，不要解释，只输出英文句子）。
-2. 生成优化后的商品标题（英文）。**严格遵守以下规则**：
-   - 总字符数（含空格）**不得超过 75 个字符**。
-   - 禁止包含促销内容（如 free shipping, 100% quality guaranteed, sale, discount, best, top）。
-   - 禁止使用特殊字符（! $ ? _ { } ^ ¬ ¦）。~ # < > * 仅限用于产品标识或尺寸。
-   - 同一个单词出现**不能超过两次**（介词、冠词、连词除外）。
-   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。
-   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。
-   - 不要在标题中重复品牌名。
-3. 生成优化后的 Item Highlights（英文，**不超过 125 个字符**）。用于补充说明材质、推荐用途等，不能是标题的简单重复。
-4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。
-   ⚠️ 极其重要的防杜撰规则：
-   - 如果用户**提供了**原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。
-   - 如果用户**没有提供**原始五点描述（即原文为空白），你只能根据标题进行**谨慎推断**。并且必须在每个生成的新点开头加上 `[AI推测] ` 字样（例如：`1. [AI推测] NON-SLIP: ...`），提醒用户这些并非事实，需要人工核实修改。
-5. 生成优化后的详细描述（英文，2-4 句）。
-6. 生成优化后的后台搜索词（Search Terms）。**严格遵守以下规则**：
-   - 总长度必须**小于 250 字节**（美国站标准），超出则整个字段失效。
-   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。
-   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词（如 best, top, premium）、促销词（如 free, sale）。
-   - **严禁重复**标题、五点描述、品牌名中已经出现过的任何单词。
-   - **核心拓展策略**：
-     1. 大词/类目词：如果标题中没有占据，补上核心大词。
-     2. 长尾词：挖掘搜索意图明确但竞争较小的长尾词。
-     3. 场景词/应用词：买家会在什么场景下用？
-     4. 上下游关联词：买家买这个商品时，还会搜什么关联词？
-   - 优先级排序：核心词 > 长尾词 > 场景词 > 相关词。
-
-【输出格式要求】
-必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：
-{
-  "anchorFixes": {
-    "used_for_func": "英文优化句子",
-    ...
-  },
-  "optimizedTitle": "...",
-  "optimizedItemHighlights": "...",
-  "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",
-  "optimizedDesc": "...",
-  "optimizedST": "..."
-}`;
+    const prompt = [
+        '你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。请严格按照以下规则优化商品文案。',
+        '',
+        '【商品原始文案】',
+        '标题：' + (titleRaw || '（未提供）'),
+        '五点描述：' + (bpRaw || '（未提供）'),
+        '详细描述：' + (descRaw || '（未提供）'),
+        '后台搜索词：' + (stRaw || '（未提供）'),
+        '',
+        '【15 锚点诊断结果（仅列出未达标项）】',
+        anchorList,
+        '',
+        '【你的任务】',
+        '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，可直接用于 Listing，不要中英混排，不要解释，只输出英文句子）。',
+        '2. 生成优化后的商品标题（英文）。严格遵守以下规则：',
+        '   - 总字符数（含空格）不得超过 75 个字符。',
+        '   - 禁止包含促销内容（如 free shipping, 100% quality guaranteed, sale, discount, best, top）。',
+        '   - 禁止使用特殊字符（! $ ? _ { } ^ ¬ ¦）。~ # < > * 仅限用于产品标识或尺寸。',
+        '   - 同一个单词出现不能超过两次（介词、冠词、连词除外）。',
+        '   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。',
+        '   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。',
+        '   - 不要在标题中重复品牌名。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。',
+        '4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。',
+        '   ⚠️ 极其重要的防杜撰规则：',
+        '   - 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
+        '   - 如果用户没有提供原始五点描述（即原文为空白），你只能根据标题进行谨慎推断。并且必须在每个生成的新点开头加上 [AI推测] 字样（例如：1. [AI推测] NON-SLIP: ...），提醒用户这些并非事实，需要人工核实修改。',
+        '5. 生成优化后的详细描述（英文，2-4 句）。',
+        '6. 生成优化后的后台搜索词（Search Terms）。严格遵守以下规则：',
+        '   - 总长度必须小于 250 字节（美国站标准），超出则整个字段失效。',
+        '   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。',
+        '   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词（如 best, top, premium）、促销词（如 free, sale）。',
+        '   - 严禁重复标题、五点描述、品牌名中已经出现过的任何单词。',
+        '   - 核心拓展策略：',
+        '     1. 大词/类目词：如果标题中没有占据，补上核心大词。',
+        '     2. 长尾词：挖掘搜索意图明确但竞争较小的长尾词。',
+        '     3. 场景词/应用词：买家会在什么场景下用？',
+        '     4. 上下游关联词：买家买这个商品时，还会搜什么关联词？',
+        '   - 优先级排序：核心词 > 长尾词 > 场景词 > 相关词。',
+        '',
+        '【输出格式要求】',
+        '必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：',
+        '{',
+        '  "anchorFixes": {',
+        '    "used_for_func": "英文优化句子",',
+        '    ...',
+        '  },',
+        '  "optimizedTitle": "...",',
+        '  "optimizedItemHighlights": "...",',
+        '  "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",',
+        '  "optimizedDesc": "...",',
+        '  "optimizedST": "..."',
+        '}'
+    ].join('\n');
 
     const resp = await fetch('/api/deepseek', {
         method: 'POST',
@@ -644,7 +640,6 @@ ${anchorList}
     if (!result.success) throw new Error(result.error || '未知错误');
 
     let content = result.data.choices[0].message.content.trim();
-    // 增强容错：去掉可能残留的 markdown 代码块标记，并提取最外层的 JSON 大括号
     content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
     const firstBrace = content.indexOf('{');
     const lastBrace = content.lastIndexOf('}');
@@ -668,23 +663,22 @@ function applyAIResults(aiResult, anchorResults){
 
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
-        const cell = $(`fix-cell-${safeId(a.name)}`);
+        const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
 
         const suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
         const isRed = a.level === 'red';
 
-        cell.innerHTML = `
-            <div class="suggestion-cell ${isRed ? 'red' : ''}">
-                <p><b>扣分原因：</b>${escapeHtml(a.reason)}</p>
-                <div class="gemini-box">
-                    <p class="ttl">✨ DeepSeek 优化方案：</p>
-                    <code>${escapeHtml(suggestion)}</code>
-                </div>
-            </div>`;
+        cell.innerHTML =
+            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
+                '<p><b>扣分原因：</b>' + escapeHtml(a.reason) + '</p>' +
+                '<div class="gemini-box">' +
+                    '<p class="ttl">✨ DeepSeek 优化方案：</p>' +
+                    '<code>' + escapeHtml(suggestion) + '</code>' +
+                '</div>' +
+            '</div>';
     });
 
-    // 填充右侧优化文案并自动裁剪
     if (aiResult.optimizedTitle) {
         const trimmedTitle = trimToMaxChars(aiResult.optimizedTitle, 75);
         $('optTitleText').value = trimmedTitle;
@@ -710,7 +704,7 @@ function updateByteCounter(inputId, counterId, max, unit){
     const counter = $(counterId);
     if (!el || !counter) return;
     const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
-    counter.textContent = `${len} / ${max} ${unit}`;
+    counter.textContent = len + ' / ' + max + ' ' + unit;
     counter.className = 'byte-counter' + (len > max ? ' over' : '');
 }
 
@@ -718,20 +712,20 @@ function updateByteCounter(inputId, counterId, max, unit){
 function applyFallback(anchorResults){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
-        const cell = $(`fix-cell-${safeId(a.name)}`);
+        const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
 
         const suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
         const isRed = a.level === 'red';
 
-        cell.innerHTML = `
-            <div class="suggestion-cell ${isRed ? 'red' : ''}">
-                <p><b>扣分原因：</b>${escapeHtml(a.reason)}</p>
-                <div class="gemini-box">
-                    <p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>
-                    <code>${escapeHtml(suggestion)}</code>
-                </div>
-            </div>`;
+        cell.innerHTML =
+            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
+                '<p><b>扣分原因：</b>' + escapeHtml(a.reason) + '</p>' +
+                '<div class="gemini-box">' +
+                    '<p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>' +
+                    '<code>' + escapeHtml(suggestion) + '</code>' +
+                '</div>' +
+            '</div>';
     });
 
     const titleRaw = $('productTitle').value.trim();
@@ -745,11 +739,11 @@ function applyFallback(anchorResults){
     }
     if (!$('optBpText').value.trim()){
         $('optBpText').value =
-`1. PURPOSE-BUILT: Engineered for reliable everyday performance.
-2. HEAVY-DUTY: Made from durable, weather-resistant materials.
-3. EASY TO USE: Simple setup and hassle-free operation.
-4. MULTI-SCENE: Perfect for indoor and outdoor use.
-5. PEACE OF MIND: Delivers everyday satisfaction you can count on.`;
+'1. PURPOSE-BUILT: Engineered for reliable everyday performance.\n\n' +
+'2. HEAVY-DUTY: Made from durable, weather-resistant materials.\n\n' +
+'3. EASY TO USE: Simple setup and hassle-free operation.\n\n' +
+'4. MULTI-SCENE: Perfect for indoor and outdoor use.\n\n' +
+'5. PEACE OF MIND: Delivers everyday satisfaction you can count on.';
     }
     if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
     if (!$('optStText').value.trim()) {
@@ -775,8 +769,8 @@ function loadSampleByUrl(){
         };
     } else if (u.includes('goose')){
         s = {
-            title:'Holiday Valentine Halloween Christmas Clothing for Porch Goose - Seasonal Decorative Yard Statue Outfits',
-            bp:'1. VERSATILE HOLIDAY STYLES: Dress up your porch goose for Valentine\'s Day, Halloween, Christmas, and all year round.\n2. EASY TO WEAR: Designed for quick and hassle-free dressing on standard decorative yard geese.\n3. PREMIUM FABRIC: Made with durable, weather-friendly materials suitable for outdoor porch and lawn display.\n4. CHARMING DESIGN: Adds instant festive cheer, humor, and a welcoming touch to your front porch and garden.\n5. GREAT GIFT IDEA: A delightful present for garden and porch decor enthusiasts who love seasonal transformations.',
+            title:"Holiday Valentine Halloween Christmas Clothing for Porch Goose - Seasonal Decorative Yard Statue Outfits",
+            bp:"1. VERSATILE HOLIDAY STYLES: Dress up your porch goose for Valentine's Day, Halloween, Christmas, and all year round.\n2. EASY TO WEAR: Designed for quick and hassle-free dressing on standard decorative yard geese.\n3. PREMIUM FABRIC: Made with durable, weather-friendly materials suitable for outdoor porch and lawn display.\n4. CHARMING DESIGN: Adds instant festive cheer, humor, and a welcoming touch to your front porch and garden.\n5. GREAT GIFT IDEA: A delightful present for garden and porch decor enthusiasts who love seasonal transformations.",
             desc:'Bring your favorite porch goose to life through every season! This collection of holiday outfits covers everything from spooky Halloween vibes to cozy Christmas cheer.',
             st:'porch goose clothes holiday outfits seasonal yard statue decor halloween christmas'
         };
