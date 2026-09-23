@@ -40,6 +40,18 @@
     .url-box{background:#f8fafc;padding:16px;border-radius:10px;margin-bottom:20px;border:1px dashed #94a3b8;}
     .url-box .hint{font-size:12px;color:var(--muted);margin-top:6px;}
     .url-flex{display:flex;gap:10px;}
+
+    /* 热词库输入区 */
+    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;margin-bottom:20px;border:1px dashed #f59e0b;}
+    .keywords-box .hint{font-size:12px;color:#92400e;margin-top:6px;}
+    .keywords-box label{color:#92400e;margin-bottom:8px;}
+    .keywords-box textarea{
+        background:#fffbeb;border-color:#fde68a;
+    }
+    .keywords-box textarea:focus{
+        border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.15);
+    }
+
     .btn-sm{
         background:#0f172a;color:#fff;border:none;padding:0 18px;height:41px;
         font-size:13px;font-weight:600;border-radius:9px;cursor:pointer;
@@ -183,6 +195,25 @@
     }
     .bp-item textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
 
+    /* 埋词命中统计 */
+    .kw-hit-report{
+        margin-top:20px;padding:14px 18px;border-radius:10px;
+        background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;
+    }
+    .kw-hit-report .report-ttl{
+        font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px;
+    }
+    .kw-hit-report .report-stats{
+        font-size:12.5px;color:#0c4a6e;margin-bottom:8px;
+    }
+    .kw-hit-report .report-stats b{color:#0ea5e9;font-size:15px;}
+    .kw-hit-report .kw-tag{
+        display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;
+        padding:2px 7px;border-radius:4px;margin:2px 4px 2px 0;
+    }
+    .kw-hit-report .kw-tag.used{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+    .kw-hit-report .kw-tag.miss{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
@@ -201,7 +232,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点智能打分系统</h1>
-        <p>关键词命中式语义评估 · DeepSeek 智能生成优化文案 · 双栏比对一键复制</p>
+        <p>关键词命中式语义评估 · DeepSeek 智能生成优化文案 · 埋词策略 · 双栏比对一键复制</p>
     </header>
 
     <div class="card">
@@ -214,6 +245,13 @@
                 <button class="btn-sm" onclick="loadSampleByUrl()">载入示例文案</button>
             </div>
             <div class="hint">提示：本工具不会真实抓取亚马逊页面；该按钮仅根据链接关键词匹配内置示例数据，方便快速体验。</div>
+        </div>
+
+        <!-- ⭐ 新增：品类热词库 -->
+        <div class="keywords-box">
+            <label for="hotKeywords">🎯 品类热词 / 长尾词库（可选，每行一个或用逗号/空格分隔）</label>
+            <textarea id="hotKeywords" placeholder="例如（从卖家精灵/Helium 10/品牌分析 导出）：&#10;doormat&#10;front door mat&#10;entryway rug&#10;non slip mat&#10;absorbent floor mat&#10;pet friendly door mat&#10;shoe mat indoor"></textarea>
+            <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词，AI 会优先将这些词自然埋入标题、五点、描述和 Search Terms。不填则 AI 用通用相关词推断。</div>
         </div>
 
         <div class="form-group">
@@ -378,6 +416,9 @@
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="stByteCounter" class="byte-counter">0 / 250 字节（下限 240）</div>
+
+                <!-- ⭐ 埋词命中报告 -->
+                <div id="kwHitReport" class="kw-hit-report hidden"></div>
             </div>
         </div>
 
@@ -546,6 +587,62 @@ function sanitizeVerifyTags(text){
     return result.trim();
 }
 
+/* ================= 热词库解析 ================= */
+function parseHotKeywords(){
+    const raw = ($('hotKeywords').value || '').trim();
+    if (!raw) return [];
+    // 支持换行、逗号、分号、竖线、制表符分隔
+    return raw.split(/[\n,;|\t]+/)
+        .map(w => w.trim().toLowerCase())
+        .filter(w => w.length >= 2 && w.length <= 60)
+        .filter((w, i, arr) => arr.indexOf(w) === i);  // 去重
+}
+
+/* 埋词命中统计 */
+function analyzeKeywordCoverage(hotKeywords, optimizedText){
+    if (!hotKeywords.length) return null;
+    const lower = optimizedText.toLowerCase();
+    const used = [], miss = [];
+    hotKeywords.forEach(kw => {
+        // 用整词或短语匹配
+        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\b' + escaped + '\\b', 'i');
+        if (regex.test(lower)) used.push(kw);
+        else miss.push(kw);
+    });
+    return { used, miss, total: hotKeywords.length };
+}
+
+function renderKwHitReport(hotKeywords){
+    const report = $('kwHitReport');
+    if (!report) return;
+    if (!hotKeywords.length){
+        report.classList.add('hidden');
+        return;
+    }
+    const title = $('optTitleText').value || '';
+    const ih = $('optIhText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + ' ';
+    const desc = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+    const allText = [title, ih, bpText, desc, st].join(' ');
+
+    const coverage = analyzeKeywordCoverage(hotKeywords, allText);
+    if (!coverage) { report.classList.add('hidden'); return; }
+
+    const usedTags = coverage.used.map(k => '<span class="kw-tag used">✓ ' + escapeHtml(k) + '</span>').join('');
+    const missTags = coverage.miss.map(k => '<span class="kw-tag miss">✗ ' + escapeHtml(k) + '</span>').join('');
+
+    let html = '<div class="report-ttl">🎯 热词埋词命中报告（共 ' + coverage.total + ' 个热词）</div>';
+    html += '<div class="report-stats">已埋入：<b>' + coverage.used.length + '</b> / ' + coverage.total + ' &nbsp;&nbsp; 未埋入：<b>' + coverage.miss.length + '</b></div>';
+    if (usedTags) html += '<div style="margin-bottom:6px;">' + usedTags + '</div>';
+    if (missTags) html += '<div style="margin-top:6px;"><div style="font-size:11.5px;color:#991b1b;margin-bottom:4px;">以下词未能埋入（可能因为字符限制或语义不匹配）：</div>' + missTags + '</div>';
+
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
 const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -598,7 +695,6 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* 五点总字符裁剪：最小保留 150，超 1000 时从最长的点删减 */
 function autoTrimBulletsToLimit(limit){
     let bullets = [];
     for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
@@ -628,7 +724,6 @@ function autoTrimBulletsToLimit(limit){
             }
         }
         total = bullets.reduce((a,b) => a + b.length, 0);
-        // 安全阀：每点不低于 150 字符
         if (bullets.every(b => b.length <= 150)) break;
     }
     for (let i = 0; i < 5; i++){
@@ -764,6 +859,7 @@ async function runAnalysis(){
     const bpRaw    = $('bulletPoints').value.trim();
     const descRaw  = $('description').value.trim();
     const stRaw    = $('searchTerms').value.trim();
+    const hotKeywords = parseHotKeywords();
 
     if (!titleRaw && !bpRaw && !descRaw && !stRaw){
         showToast('请先填写标题或文案内容，或点击「载入示例文案」');
@@ -772,6 +868,7 @@ async function runAnalysis(){
 
     if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
+    if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，AI 将优先埋入文案');
 
     ['prohibited-warning','length-warning','coverage-warning'].forEach(id => {
         const el = document.getElementById(id);
@@ -860,14 +957,15 @@ async function runAnalysis(){
     status.textContent = '🤖 DeepSeek 生成中…';
 
     try {
-        const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, 5);
-        applyAIResults(aiResult, beforeResult.anchorResults, beforeResult);
+        const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, 5);
+        applyAIResults(aiResult, beforeResult.anchorResults, beforeResult, hotKeywords);
         status.className = 'ai-status done';
         status.textContent = '✅ DeepSeek 生成完成';
     } catch (err){
         console.error('所有重试均失败：', err);
-        applyFallback(beforeResult.anchorResults);
+        applyFallback(beforeResult.anchorResults, hotKeywords);
         applyAfterScore(beforeResult);
+        renderKwHitReport(hotKeywords);
         status.className = 'ai-status error';
         status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。请刷新页面重试';
         showToast('DeepSeek 调用失败：' + err.message);
@@ -877,7 +975,7 @@ async function runAnalysis(){
     }
 }
 
-async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, maxRetries){
+async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, maxRetries){
     let lastError = null;
     const status = $('aiStatus');
     for (let attempt = 1; attempt <= maxRetries; attempt++){
@@ -885,7 +983,7 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
             if (status && attempt > 1){
                 status.textContent = '🤖 DeepSeek 重试中 (第 ' + attempt + ' / ' + maxRetries + ' 次)…';
             }
-            return await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
+            return await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords);
         } catch (err){
             lastError = err;
             console.warn('DeepSeek 第 ' + attempt + ' / ' + maxRetries + ' 次尝试失败：', err.message);
@@ -895,14 +993,35 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
     throw lastError || new Error('DeepSeek 调用失败');
 }
 
-async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
+async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords){
     const notPassed = anchorResults.filter(a => a.level !== 'green');
     const anchorList = notPassed.length
         ? notPassed.map(a => '- ' + a.name + '（' + a.cn + '）：' + (a.level === 'red' ? '严重缺失' : '部分覆盖') + '，命中词：' + (a.hits.length ? a.hits.join(', ') : '无')).join('\n')
         : '（无，所有锚点均达标）';
 
+    // ⭐ 热词库段落
+    let hotKeywordsSection = '';
+    if (hotKeywords && hotKeywords.length){
+        hotKeywordsSection = [
+            '',
+            '════════ 用户提供的品类热词/长尾词库（最高优先级，必须优先埋入）════════',
+            '以下 ' + hotKeywords.length + ' 个词是用户从选品工具（卖家精灵/Helium 10/品牌分析等）导出的真实热门搜索词和长尾词。',
+            '⚠️ 你必须尽最大努力把这些词【自然埋入】标题、五点描述、详细描述和 Search Terms，让 A9/A10 搜索算法能匹配到这些词。',
+            '⚠️ 埋词要求：',
+            '  1. 标题优先埋入：最多容纳 3-5 个核心热词（按字符预算）。',
+            '  2. 五点描述：每个点尽量埋入 1-2 个热词，分散埋入，不要硬塞。',
+            '  3. 详细描述：把剩余没埋进去的热词尽量自然融入。',
+            '  4. Search Terms：这是埋词的"回收站"，把标题、五点、描述里还没埋进去的热词全部塞进去（用空格分隔，控制在 240-250 字节）。',
+            '  5. 埋词必须自然，不能堆砌。如果某个词与商品完全无关，可以跳过，但要在 anchorFixes 中不体现即可，不必强行塞。',
+            '  6. ⚠️ 埋入时保持词的原始形式（不要单复数变换、不要拆词、不要改词序），因为亚马逊搜索是按精确匹配和词干匹配走的。',
+            '',
+            '【用户提供的热词库】',
+            hotKeywords.join('\n')
+        ].join('\n');
+    }
+
     const prompt = [
-        '你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。请严格按照以下规则优化商品文案。',
+        '你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法和 A9/A10 搜索算法。请严格按照以下规则优化商品文案。',
         '',
         '【商品原始文案】',
         '标题：' + (titleRaw || '（未提供）'),
@@ -912,6 +1031,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '',
         '【15 锚点诊断结果（仅列出未达标项）】',
         anchorList,
+        hotKeywordsSection,
         '',
         '⚠️ 最重要规则：你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号真正融入进去。不能只在 anchorFixes 里单独写一句英文，那些句子只是参考。最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
         '',
@@ -927,50 +1047,53 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 禁止促销内容、特殊字符、全大写。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
         '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词。',
+        '   - ⚠️ 如果用户提供了热词库，标题里必须优先埋入 3-5 个核心热词（按字符预算选取）。',
         '   - ⚠️ 严禁使用：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
-        '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。尽量埋入热词。',
         '4. 生成优化后的五点描述（英文）。**必须严格按以下结构组织**：',
         '',
         '   ▸ 每点的字符数（含空格）不低于 150，不超过 255。五点总字符数不超过 1000。',
-        '   ▸ 所有 5 个要点都必须以【好处优先】为核心 —— 标题部分全部大写，包含买家最关心的利益点，而不仅仅描述功能。',
+        '   ▸ 所有 5 个要点都必须以【好处优先】为核心 —— 标题部分全部大写，包含买家最关心的利益点。',
         '   ▸ 每点格式：「全大写标题: 具体描述内容」，结尾不加标点。',
         '',
         '   【第 1 点 · 基本属性 + 包装内容】',
-        '   - 标题要求：以买家最关心的核心价值为标题，全大写。',
+        '   - 标题：以买家最关心的核心价值为标题，全大写。',
         '   - 内容：写商品的基本属性（尺寸、颜色、材质等，如果原文已提供）以及订单中具体包含什么物品。',
-        '   - ⚠️ 如果原文没有提供尺寸/颜色/材质等具体信息，请在内容中【跳过这些信息，直接写包装包含什么】。绝不编造具体尺寸、颜色、材质成分。',
+        '   - ⚠️ 如果原文没有提供尺寸/颜色/材质等具体信息，请【跳过这些信息，直接写包装包含什么】。',
         '',
         '   【第 2 点 · 核心痛点 / 人群】',
-        '   - 标题要求：以买家最关心的痛点为标题，全大写（例如：PERFECT FOR BUSY HOMES、END THE DAILY MESS）。',
-        '   - 内容：描述这款商品针对的是哪类人群、解决什么核心痛点，让目标买家产生"这就是为我设计的"的共鸣。',
+        '   - 标题：以买家最关心的痛点为标题，全大写（例如：PERFECT FOR BUSY HOMES）。',
+        '   - 内容：描述商品针对哪类人群、解决什么核心痛点。',
         '',
         '   【第 3 点 · 商品特点 + 收益】',
-        '   - 标题要求：以商品的核心特点带来的好处为标题，全大写（例如：BUILT TO LAST、SAVE TIME EVERY DAY）。',
-        '   - 内容：写商品的核心特点，并明确写出来买之后带来的好处、收益点是什么。让买家感受到"买了它，我能得到什么"。',
+        '   - 标题：以商品核心特点带来的好处为标题，全大写（例如：BUILT TO LAST）。',
+        '   - 内容：写商品核心特点，并明确写出买之后带来的好处、收益点。',
         '',
         '   【第 4 点 · 功能性 / 原理性 + 攻心】',
-        '   - 标题要求：以功能原理带来的价值为标题，全大写（例如：SMART ENGINEERING、ADVANCED PROTECTION）。',
-        '   - 内容：写商品的功能性、原理性（例如材质如何工作、结构如何设计），继续说服买家，攻破买家心智，让买家相信"它真的有效"。',
-        '   - ⚠️ 不要编造具体的性能参数（如承重数字、吸水升数）。可以描述工作原理，但不编造量化指标。',
+        '   - 标题：以功能原理带来的价值为标题，全大写（例如：SMART ENGINEERING）。',
+        '   - 内容：写商品的功能性、原理性，继续说服买家，攻破买家心智。',
+        '   - ⚠️ 不要编造具体的性能参数。',
         '',
         '   【第 5 点 · 保证 / 担保 / 风险逆转】',
-        '   - 标题要求：以让买家放心的承诺为标题，全大写（例如：BUY WITH CONFIDENCE、RISK-FREE PURCHASE）。',
-        '   - 内容：包含保证、担保或风险逆转声明，让买家觉得"买了没有风险"（例如：可靠的质量、满意的设计、无忧的使用体验）。',
-        '   - ⚠️ 不要写具体的退款天数、保修年限等承诺，除非原文已提供。可以用"可靠的质量保证"、"以客户满意为核心的设计"等柔和的表述。',
+        '   - 标题：以让买家放心的承诺为标题，全大写（例如：BUY WITH CONFIDENCE）。',
+        '   - 内容：包含保证、担保或风险逆转声明，让买家觉得买了没有风险。',
+        '   - ⚠️ 不要写具体的退款天数、保修年限等承诺，除非原文已提供。',
         '',
+        '   ▸ ⚠️ 五点描述里必须分散埋入热词库中的词（每点 1-2 个），不要全部堆在一点里。',
         '   ▸ ⚠️ 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
-        '   ▸ ⚠️ 严格遵循防杜撰红线：原则性信息缺失时直接跳过不写。',
+        '   ▸ ⚠️ 严格遵循防杜撰红线。',
         '',
         '5. 生成优化后的详细描述（Description）：',
-        '   - ⚠️ 不再有硬性字数下限。请根据已知信息自然展开，避免为凑字数而编造。',
-        '   - 字符数上限 5000。',
+        '   - ⚠️ 无硬性字数下限，根据已知信息自然展开。字符数上限 5000。',
         '   - ⚠️ 如果信息不足，宁可写短，也绝对不要编造原则性信息。',
+        '   - ⚠️ 把五点中没有埋完的热词，在详细描述里尽量自然融入。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250 之间。',
         '   - 只使用空格分隔，全小写，无标点。',
         '   - 剔除停用词，不含竞品品牌/夸大词/促销词。',
+        '   - ⚠️ 这是埋词的"回收站"：把标题、五点、描述里还没埋进去的【用户热词】全部塞进 Search Terms，优先用热词库的词填满 240-250 字节。',
         '   - 严禁重复标题/五点/品牌名中已出现的词。',
-        '   - 拓展策略：大词 > 长尾词 > 场景词 > 上下游关联词。',
+        '   - 拓展策略：用户热词 > 大词 > 长尾词 > 场景词 > 上下游关联词。',
         '',
         '【输出格式要求】',
         '必须严格返回合法 JSON，不要 markdown 代码块，结构如下：',
@@ -982,7 +1105,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
         '}',
-        '⚠️ optimizedBullets 必须是包含 5 个字符串的数组，按上述【第1点】到【第5点】的结构一一对应。'
+        '⚠️ optimizedBullets 必须是包含 5 个字符串的数组。'
     ].join('\n');
 
     const controller = new AbortController();
@@ -995,7 +1118,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 Listing 优化专家。五点描述必须严格按指定结构组织：第1点基本属性+包装、第2点痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点以全大写好处优先标题开头，格式为"标题: 内容"。每点 150-255 字符。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。⚠️ 严格防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命）绝对不可编造，如果原文没有就直接跳过不写，绝对不要写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义，并优先埋入用户提供的热词库。五点描述是包含 5 个字符串的数组，每点 150-255 字符，按指定结构组织。详细描述无硬性下限。搜索词 240-250 字节。⚠️ 严格防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命）绝对不可编造，如果原文没有就直接跳过不写，绝对不要写任何占位符。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1027,15 +1150,36 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     return parsed;
 }
 
-function patchSearchTerms(anchorResults){
+/* ⭐ Search Terms 补丁：优先用用户热词填满 */
+function patchSearchTerms(anchorResults, hotKeywords){
     const el = $('optStText');
     let st = (el.value || '').trim().toLowerCase();
-    if (!st) return { added: 0, bytes: 0 };
+    if (!st) st = '';
+
     let bytes = getByteLength(st);
     if (bytes >= 240) return { added: 0, bytes: bytes };
 
     const seen = new Set();
+    const existingWords = st.split(/\s+/).filter(Boolean);
+    existingWords.forEach(w => seen.add(w));
+
     const candidates = [];
+
+    // 1. 优先用户热词（去重、未出现过的）
+    if (hotKeywords && hotKeywords.length){
+        hotKeywords.forEach(kw => {
+            const clean = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+            if (!clean || clean.length < 2) return;
+            if (seen.has(clean)) return;
+            if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
+            // 检查含违禁词就跳过
+            if (detectProhibitedWords(clean).length > 0) return;
+            seen.add(clean);
+            candidates.push(clean);
+        });
+    }
+
+    // 2. 补充未达标锚点关键词
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         a.kws.forEach(k => {
@@ -1043,15 +1187,17 @@ function patchSearchTerms(anchorResults){
             if (!clean || clean.length < 3) return;
             if (seen.has(clean)) return;
             if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
-            seen.add(clean); candidates.push(clean);
+            if (detectProhibitedWords(clean).length > 0) return;
+            seen.add(clean);
+            candidates.push(clean);
         });
     });
+
+    // 3. 通用长尾词兜底
     const extras = [
         'indoor outdoor','heavy duty','all season','easy to use','multi purpose',
         'daily use','home essential','high traffic','easy clean','long lasting',
-        'pet friendly','commercial grade','year round','versatile use','floor protector',
-        'home office','entry mat','door mat','shoe mat','floor mat','utility mat',
-        'modern home','home decor','interior design','floor covering','home improvement'
+        'pet friendly','commercial grade','year round','versatile use','floor protector'
     ];
     extras.forEach(e => {
         if (!seen.has(e)) {
@@ -1059,13 +1205,14 @@ function patchSearchTerms(anchorResults){
             seen.add(e); candidates.push(e);
         }
     });
-    const filtered = candidates.filter(c => detectProhibitedWords(c).length === 0);
+
     let added = 0;
-    for (const c of filtered) {
-        const candidate = st + ' ' + c;
+    for (const c of candidates) {
+        const candidate = st ? st + ' ' + c : c;
         if (getByteLength(candidate) <= 248) { st = candidate; added++; }
         if (getByteLength(st) >= 240) break;
     }
+
     el.value = st;
     updateByteCounter('optStText', 'stByteCounter', 250, '字节', 240);
     return { added: added, bytes: getByteLength(st) };
@@ -1160,7 +1307,7 @@ function applyAfterScore(beforeResult){
     return afterResult;
 }
 
-function applyAIResults(aiResult, anchorResults, beforeResult){
+function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
     const fixes = aiResult.anchorFixes || {};
 
     anchorResults.forEach(a => {
@@ -1253,9 +1400,9 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
         showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。');
     }
 
-    const stPatch = patchSearchTerms(anchorResults);
+    const stPatch = patchSearchTerms(anchorResults, hotKeywords);
     if (stPatch.added > 0){
-        showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个相关长尾词，当前 ' + stPatch.bytes + ' 字节。');
+        showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词（优先用户热词），当前 ' + stPatch.bytes + ' 字节。');
     }
 
     const lengthWarnings = [];
@@ -1273,10 +1420,13 @@ function applyAIResults(aiResult, anchorResults, beforeResult){
     const prohibitedHits = detectProhibitedWords(allOutput);
     if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案（自动替换后仍有残留）');
 
+    // ⭐ 渲染热词埋词命中报告
+    renderKwHitReport(hotKeywords);
+
     applyAfterScore(beforeResult);
 }
 
-function applyFallback(anchorResults){
+function applyFallback(anchorResults, hotKeywords){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
@@ -1327,7 +1477,7 @@ function applyFallback(anchorResults){
         updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
     }
     if (!$('optStText').value.trim()) {
-        let st = replaceProhibitedWords(stRaw) || 'heavy duty product all season indoor outdoor';
+        let st = replaceProhibitedWords(stRaw) || '';
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
@@ -1341,8 +1491,8 @@ function applyFallback(anchorResults){
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
 
-    const stPatch = patchSearchTerms(anchorResults);
-    if (stPatch.added > 0) showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个长尾词。');
+    const stPatch = patchSearchTerms(anchorResults, hotKeywords);
+    if (stPatch.added > 0) showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词，当前 ' + stPatch.bytes + ' 字节。');
 }
 
 async function copyAllBullets(btn){
@@ -1382,27 +1532,31 @@ function loadSampleByUrl(){
             title:'Commercial Disinfecting Doormat for Entrance - Heavy Duty Shoe Sanitizing Mat for Indoor Outdoor',
             bp:'1. HEAVY DUTY SANITIZING: Designed to clean and disinfect shoe soles effectively at any commercial or home entrance.\n2. ABSORBENT & NON-SLIP: Keeps floors dry and secure with a reliable rubber backing.\n3. EASY MAINTENANCE: Simple to wash and reuse for high-traffic entryways.\n4. MULTI-SCENE APPLICATION: Perfect for offices, restaurants, and front doors.\n5. DURABLE FABRIC: Built to withstand daily wear and tear.',
             desc:'Ensure a clean and hygienic environment from the moment guests step inside. This commercial disinfecting doormat absorbs liquid sanitizers and traps dirt efficiently.',
-            st:'disinfecting doormat shoe sanitizing mat commercial entrance floor mat'
+            st:'disinfecting doormat shoe sanitizing mat commercial entrance floor mat',
+            hotKeywords:'doormat\nfront door mat\nentryway rug\nnon slip mat\nabsorbent floor mat\npet friendly door mat\nshoe mat indoor\ncommercial floor mat\nheavy duty mat\nmudroom mat'
         };
     } else if (u.includes('goose')){
         s = {
             title:"Holiday Valentine Halloween Christmas Clothing for Porch Goose - Seasonal Decorative Yard Statue Outfits",
             bp:"1. VERSATILE HOLIDAY STYLES: Dress up your porch goose for Valentine's Day, Halloween, Christmas, and all year round.\n2. EASY TO WEAR: Designed for quick and hassle-free dressing on standard decorative yard geese.\n3. PREMIUM FABRIC: Made with durable, weather-friendly materials suitable for outdoor porch and lawn display.\n4. CHARMING DESIGN: Adds instant festive cheer, humor, and a welcoming touch to your front porch and garden.\n5. GREAT GIFT IDEA: A delightful present for garden and porch decor enthusiasts who love seasonal transformations.",
             desc:'Bring your favorite porch goose to life through every season! This collection of holiday outfits covers everything from spooky Halloween vibes to cozy Christmas cheer.',
-            st:'porch goose clothes holiday outfits seasonal yard statue decor halloween christmas'
+            st:'porch goose clothes holiday outfits seasonal yard statue decor halloween christmas',
+            hotKeywords:'porch goose clothes\nporch goose outfit\nholiday yard decor\ngoose statue clothes\nchristmas goose outfit\nhalloween goose costume\nvalentine goose\nseasonal yard statue'
         };
     } else {
         s = {
             title:'Premium Household Utility Product - Multi-functional Design for Everyday Living',
             bp:'1. HIGH QUALITY: Manufactured with premium materials for long-lasting durability.\n2. EASY TO USE: Simple setup and convenient operation for daily tasks.\n3. VERSATILE DESIGN: Fits seamlessly into various home and office environments.\n4. RELIABLE PERFORMANCE: Engineered to deliver consistent and efficient results.\n5. GREAT VALUE: An ideal choice for household upgrades and practical needs.',
             desc:'Enhance your daily routines with this expertly designed product. Built for reliability, style, and maximum efficiency across different scenarios.',
-            st:'household utility product daily essentials multi functional tool'
+            st:'household utility product daily essentials multi functional tool',
+            hotKeywords:''
         };
     }
     $('productTitle').value = s.title;
     $('bulletPoints').value = s.bp;
     $('description').value  = s.desc;
     $('searchTerms').value  = s.st;
+    $('hotKeywords').value  = s.hotKeywords || '';
     runAnalysis();
 }
 
@@ -1431,7 +1585,7 @@ async function copyTextElement(elementId, btn){
 }
 
 function clearAll(){
-    ['productUrl','productTitle','bulletPoints','description','searchTerms'].forEach(id => {
+    ['productUrl','productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => {
         const el = $(id);
         if (el) el.value = '';
     });
