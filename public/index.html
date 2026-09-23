@@ -152,6 +152,8 @@
         white-space:pre-wrap;word-break:break-word;margin-bottom:15px;resize:vertical;
     }
     .optimized-textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+    .byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right;}
+    .byte-counter.over{color:var(--danger);font-weight:700;}
 
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
@@ -253,10 +255,18 @@
                 <h3>✨ DeepSeek 优化文案（一键复制）</h3>
 
                 <div class="copy-section-header">
-                    <span>优化后的商品标题 (Title)</span>
+                    <span>优化后的商品标题 (Title · ≤75字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
+
+                <div class="copy-section-header">
+                    <span>Item Highlights (≤125字符)</span>
+                    <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
+                </div>
+                <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
 
                 <div class="copy-section-header">
                     <span>优化后的 5 点描述 (Bullet Points)</span>
@@ -275,6 +285,7 @@
                     <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="stByteCounter" class="byte-counter">0 / 250 字节</div>
             </div>
         </div>
 
@@ -372,6 +383,19 @@ function escapeHtml(str){
     return String(str).replace(/[&<>"']/g, s => ({
         '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[s]));
+}
+
+/* 计算字节数（一个英文字母算1个，一个汉字算3个） */
+function getByteLength(str) {
+    let len = 0;
+    for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (code <= 0x7f) len += 1;
+        else if (code <= 0x7ff) len += 2;
+        else if (code <= 0xffff) len += 3;
+        else len += 4;
+    }
+    return len;
 }
 
 /* ================= 主流程 ================= */
@@ -516,7 +540,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         ? notPassed.map(a => `- ${a.name}（${a.cn}）：${a.level === 'red' ? '严重缺失' : '部分覆盖'}，命中词：${a.hits.length ? a.hits.join(', ') : '无'}`).join('\n')
         : '（无，所有锚点均达标）';
 
-    const prompt = `你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。
+    const prompt = `你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。请严格按照以下规则优化商品文案。
 
 【商品原始文案】
 标题：${titleRaw || '（未提供）'}
@@ -529,20 +553,38 @@ ${anchorList}
 
 【你的任务】
 1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，可直接用于 Listing，不要中英混排，不要解释，只输出英文句子）。
-2. 生成优化后的商品标题（英文，不超过 200 字符）。
-3. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。
-4. 生成优化后的详细描述（英文，2-4 句）。
-5. 生成优化后的后台搜索词（英文，小写，不超过 250 字符）。
+2. 生成优化后的商品标题（英文）。**严格遵守以下规则**：
+   - 总字符数（含空格）**不得超过 75 个字符**。
+   - 禁止包含促销内容（如 free shipping, 100% quality guaranteed, sale, discount, best, top）。
+   - 禁止使用特殊字符（! $ ? _ { } ^ ¬ ¦）。~ # < > * 仅限用于产品标识或尺寸。
+   - 同一个单词出现**不能超过两次**（介词、冠词、连词除外）。
+   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。
+   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。
+   - 不要在标题中重复品牌名。
+3. 生成优化后的 Item Highlights（英文，**不超过 125 个字符**）。用于补充说明材质、推荐用途等，不能是标题的简单重复。
+4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。
+5. 生成优化后的详细描述（英文，2-4 句）。
+6. 生成优化后的后台搜索词（Search Terms）。**严格遵守以下规则**：
+   - 总长度必须**小于 250 字节**（美国站标准），超出则整个字段失效。
+   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。
+   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词（如 best, top, premium）、促销词（如 free, sale）。
+   - **严禁重复**标题、五点描述、品牌名中已经出现过的任何单词。
+   - **核心拓展策略**：
+     1. 大词/类目词：如果标题中没有占据，补上核心大词。
+     2. 长尾词：挖掘搜索意图明确但竞争较小的长尾词。
+     3. 场景词/应用词：买家会在什么场景下用？
+     4. 上下游关联词：买家买这个商品时，还会搜什么关联词？
+   - 优先级排序：核心词 > 长尾词 > 场景词 > 相关词。
 
 【输出格式要求】
 必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：
 {
   "anchorFixes": {
     "used_for_func": "英文优化句子",
-    "used_to": "英文优化句子",
-    ... 仅包含未达标锚点
+    ...
   },
   "optimizedTitle": "...",
+  "optimizedItemHighlights": "...",
   "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",
   "optimizedDesc": "...",
   "optimizedST": "..."
@@ -566,7 +608,6 @@ ${anchorList}
     if (!result.success) throw new Error(result.error || '未知错误');
 
     let content = result.data.choices[0].message.content.trim();
-    // 容错：去掉可能残留的 ```json ... ```
     content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
 
     let parsed;
@@ -600,10 +641,22 @@ function applyAIResults(aiResult, anchorResults){
             </div>`;
     });
 
-    if (aiResult.optimizedTitle)   $('optTitleText').value = aiResult.optimizedTitle;
-    if (aiResult.optimizedBullets) $('optBpText').value    = aiResult.optimizedBullets;
-    if (aiResult.optimizedDesc)    $('optDescText').value  = aiResult.optimizedDesc;
-    if (aiResult.optimizedST)      $('optStText').value    = aiResult.optimizedST;
+    // 填充右侧优化文案并更新字节计数器
+    if (aiResult.optimizedTitle)   { $('optTitleText').value = aiResult.optimizedTitle; updateByteCounter('optTitleText','titleByteCounter',75,'字符'); }
+    if (aiResult.optimizedItemHighlights) { $('optIhText').value = aiResult.optimizedItemHighlights; updateByteCounter('optIhText','ihByteCounter',125,'字符'); }
+    if (aiResult.optimizedBullets) { $('optBpText').value = aiResult.optimizedBullets; }
+    if (aiResult.optimizedDesc)    { $('optDescText').value = aiResult.optimizedDesc; }
+    if (aiResult.optimizedST)      { $('optStText').value = aiResult.optimizedST; updateByteCounter('optStText','stByteCounter',250,'字节'); }
+}
+
+/* 更新字节计数器 */
+function updateByteCounter(inputId, counterId, max, unit){
+    const el = $(inputId);
+    const counter = $(counterId);
+    if (!el || !counter) return;
+    const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
+    counter.textContent = `${len} / ${max} ${unit}`;
+    counter.className = 'byte-counter' + (len > max ? ' over' : '');
 }
 
 /* ================= 本地降级 ================= */
@@ -626,13 +679,15 @@ function applyFallback(anchorResults){
             </div>`;
     });
 
-    // 右侧文案降级
     const titleRaw = $('productTitle').value.trim();
     const bpRaw    = $('bulletPoints').value.trim();
     const descRaw  = $('description').value.trim();
     const stRaw    = $('searchTerms').value.trim();
 
-    if (!$('optTitleText').value.trim()) $('optTitleText').value = titleRaw + ' - Premium Heavy Duty Design';
+    if (!$('optTitleText').value.trim()) {
+        $('optTitleText').value = titleRaw.slice(0, 75);
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符');
+    }
     if (!$('optBpText').value.trim()){
         $('optBpText').value =
 `1. PURPOSE-BUILT: Engineered for reliable everyday performance.
@@ -642,7 +697,10 @@ function applyFallback(anchorResults){
 5. PEACE OF MIND: Delivers everyday satisfaction you can count on.`;
     }
     if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
-    if (!$('optStText').value.trim())   $('optStText').value   = stRaw || 'heavy duty product all season indoor outdoor';
+    if (!$('optStText').value.trim()) {
+        $('optStText').value = stRaw || 'heavy duty product all season indoor outdoor';
+        updateByteCounter('optStText','stByteCounter',250,'字节');
+    }
 }
 
 /* ================= 示例加载 ================= */
