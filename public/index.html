@@ -156,7 +156,6 @@
     .byte-counter.over{color:var(--danger);font-weight:700;}
     .byte-counter.under{color:var(--warning);font-weight:700;}
 
-    /* 五点描述独立卡片样式 */
     .bp-item{
         border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;
         background:#f0fdf4;transition:border-color .2s;
@@ -287,7 +286,6 @@
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
 
-                <!-- 五点描述：拆分为 5 个独立输入框 -->
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
                     <span>优化后的 5 点描述 (每点 ≤255字符，总 ≤1000字符)</span>
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
@@ -532,6 +530,17 @@ function showLengthWarning(message) {
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
+function showCoverageWarning(message) {
+    const existing = document.getElementById('coverage-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'coverage-warning';
+    warning.style.cssText = 'background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#0369a1;font-size:13px;">🔁 ' + message + '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 /* ================= 工具函数 ================= */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -598,7 +607,6 @@ function updateByteCounter(inputId, counterId, max, unit, min){
     counter.className = cls;
 }
 
-/* 五点描述总字符更新 */
 function updateBpTotal(){
     let total = 0;
     for (let i = 0; i < 5; i++){
@@ -627,7 +635,6 @@ function initByteCounters(){
         el.addEventListener('paste', function(){ setTimeout(handler, 0); });
         el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
     });
-    // 五点描述独立计数器
     for (let i = 0; i < 5; i++){
         (function(idx){
             const el = $('optBp' + idx);
@@ -663,6 +670,8 @@ async function runAnalysis(){
     if (oldWarning) oldWarning.remove();
     const oldLenWarning = document.getElementById('length-warning');
     if (oldLenWarning) oldLenWarning.remove();
+    const oldCovWarning = document.getElementById('coverage-warning');
+    if (oldCovWarning) oldCovWarning.remove();
 
     const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
 
@@ -800,8 +809,16 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '【15 锚点诊断结果（仅列出未达标项）】',
         anchorList,
         '',
+        '⚠️⚠️⚠️ 最重要的一条规则：',
+        '你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号**真正融入进去**。',
+        '不能只在 anchorFixes 字段里单独写一句英文，那些句子只是给你自己参考的。',
+        '最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
+        '例如：如果 used_in_location 缺失，你的标题/五点/描述里必须真的出现 entryway / indoor / outdoor / porch / office 等场景词。',
+        '如果 used_to 缺失，必须真的出现 prevent / help / ensure / reduce / keep ... clean 等目标词。',
+        '如果 body_part 缺失，必须在标题或描述里提及 size / dimension / inch 等尺寸相关词，如果原文没有具体尺寸，请用 [需核实:尺寸] 占位。',
+        '',
         '【你的任务】',
-        '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，可直接用于 Listing，不要中英混排，不要解释，只输出英文句子）。',
+        '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，作为参考列出）。',
         '2. 生成优化后的商品标题（英文）。严格遵守以下规则：',
         '   - 总字符数（含空格）不得超过 75 个字符。',
         '   - 禁止包含促销内容（如 free shipping, 100% quality guaranteed, sale, discount, best, top）。',
@@ -810,8 +827,9 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。',
         '   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。',
         '   - 不要在标题中重复品牌名。',
+        '   - ⚠️ 标题里必须尽可能融入缺失锚点的核心词，特别是 used_for_func / is_a / capable_of / used_in_location / body_part。',
         '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
-        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。同样禁止使用上述违禁词。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等。同样必须融入缺失锚点。',
         '4. 生成优化后的五点描述（英文）。**严格遵守以下亚马逊最新规则**：',
         '   - 输出 5 个独立的要点，每个要点一段，不要合并。',
         '   - ⚠️ 每个要点的字符数（含空格）**不得低于 200 字符，不得超过 255 字符**。',
@@ -820,45 +838,36 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 格式为句段，**结尾不要使用句号或其他标点符号**。',
         '   - 数字 1~9 用文字表示（名称、型号、测量值除外），数字和单位之间用空格隔开（如 "60 ml"）。',
         '   - 每个要点只讲一个卖点，不要重复。',
+        '   - ⚠️ 五点描述是你融入缺失锚点最重要的阵地。请把缺失的锚点分散到 5 个要点里，确保每个锚点的关键词或同义表达都真实出现在文案中。',
         '   - 禁止使用促销信息、保证类信息、公司信息、外部链接、特殊字符、表情符号。',
         '   - ⚠️ 极其重要的防杜撰规则（分级管控）：',
         '     * 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
-        '     * 如果用户没有提供原始五点描述，你只能基于已知信息（标题、详细描述）进行谨慎推断。',
-        '     * 【允许推断的内容】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
-        '     * 【绝对禁止编造的内容】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
-        '     * 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注，不要编造具体值。',
+        '     * 如果用户没有提供原始五点描述，你只能基于已知信息进行谨慎推断。',
+        '     * 【允许推断】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
+        '     * 【绝对禁止编造】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
+        '     * 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注。',
         '     * 如果用户没有提供原始五点描述，每个生成的新点开头加上 [AI推测] 字样。',
         '   - 同样禁止使用上述违禁词。',
-        '5. 生成优化后的详细描述（Description）。这是本任务最重要的输出，必须认真对待：',
-        '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符（亚马逊官方限制）。',
-        '   - 你必须生成至少 2000 个字符的详细描述，否则视为任务失败。',
-        '   - 建议组织为 5-8 个自然段，每段 200-400 字符，覆盖以下维度：',
-        '     * 产品核心功能与用途（2 段，深入描述如何解决用户痛点）',
-        '     * 材质与工艺细节（1-2 段，介绍材质、结构、工艺、耐用性）',
-        '     * 适用场景与目标人群（1-2 段，覆盖家庭、办公室、商业场所等）',
-        '     * 使用与保养说明（1 段，包括清洁、收纳、注意事项）',
-        '     * 为什么选择这款产品 / 与其他产品的区别（1 段）',
-        '   - 语言风格：专业、有说服力、避免夸张、融入 COSMO 语义（场景、受众、情感等）。',
-        '   - ⚠️ 同样适用防杜撰规则：对于原则性信息（具体尺寸、重量、颜色、材质成分、认证、特殊功能），如果原文未提供，必须使用 [需核实:具体属性] 占位，不得编造。',
-        '   - 禁止使用上述违禁词。不要与五点描述内容重复。',
-        '6. 生成优化后的后台搜索词（Search Terms）。严格遵守以下规则：',
-        '   - 字节数范围必须控制在 240-250 字节（美国站标准，250 字节是上限，不足 240 视为浪费，超出 250 整个字段失效）。',
-        '   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。',
-        '   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词、促销词。',
-        '   - 严禁重复标题、五点描述、品牌名中已经出现过的任何单词。',
-        '   - 核心拓展策略（按优先级）：',
-        '     1. 大词/类目词：如果标题中没有占据，补上核心大词。',
-        '     2. 长尾词：挖掘搜索意图明确但竞争较小的长尾词。',
-        '     3. 场景词/应用词：买家会在什么场景下用？',
-        '     4. 上下游关联词：买家买这个商品时，还会搜什么关联词？',
-        '   - ⚠️ 请尽可能填满 240-250 字节，充分利用每一个字节，但不要超出 250。',
+        '5. 生成优化后的详细描述（Description）。',
+        '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符。',
+        '   - 建议组织为 5-8 个自然段，覆盖产品功能、材质、场景、人群、使用保养、产品对比等维度。',
+        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地。请把五点中没有完全覆盖的锚点，在描述里补上，确保每个锚点都有对应的语义信号词。',
+        '   - 语言风格：专业、有说服力、避免夸张。',
+        '   - ⚠️ 同样适用防杜撰规则：原则性信息缺失时用 [需核实:具体属性] 占位。',
+        '6. 生成优化后的后台搜索词（Search Terms）。',
+        '   - 字节数范围必须控制在 240-250 字节。',
+        '   - 仅使用空格分隔，全部小写，禁止标点符号。',
+        '   - 剔除停用词，不包含竞品品牌、主观夸大词、促销词。',
+        '   - 严禁重复标题、五点描述、品牌名中已出现过的词。',
+        '   - 核心拓展策略（按优先级）：大词/类目词 > 长尾词 > 场景词 > 上下游关联词。',
+        '   - ⚠️ 尽可能填满 240-250 字节。',
         '',
         '【输出格式要求】',
         '必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：',
         '{',
         '  "anchorFixes": {',
         '    "used_for_func": "英文优化句子",',
-        '    ...',
+        '    ...（仅包含未达标锚点）',
         '  },',
         '  "optimizedTitle": "...",',
         '  "optimizedItemHighlights": "...",',
@@ -867,7 +876,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '  "optimizedST": "..."',
         '}',
         '',
-        '⚠️ 特别注意：optimizedBullets 必须是一个包含 5 个字符串的数组，每个字符串是一个独立的要点，不能合并成一个字符串。'
+        '⚠️ optimizedBullets 必须是一个包含 5 个字符串的数组。'
     ].join('\n');
 
     const resp = await fetch('/api/deepseek', {
@@ -875,7 +884,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。五点描述必须输出为包含 5 个字符串的数组，每个要点 200-255 字符。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。严格遵循防杜撰分级规则：非原则信息可谨慎推断，原则信息（尺寸、重量、颜色、材质具体成分、认证、特殊功能）绝对不可编造，缺失时用 [需核实] 占位。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家。你必须在最终输出的标题、五点、描述、搜索词里真实融入每一个未达标锚点的语义信号，不能只在 anchorFixes 单独列出。五点描述必须是包含 5 个字符串的数组，每个 200-255 字符。详细描述至少 2000 字符。严格遵循防杜撰规则。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -903,6 +912,80 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     return parsed;
 }
 
+/* ================= 覆盖度自检 + 自动补丁 ================= */
+function selfCoverageCheck(anchorResults){
+    // 收集所有优化后的文案
+    let title = $('optTitleText').value || '';
+    let ih = $('optIhText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ' ' + ($('optBp' + i).value || '');
+    let desc = $('optDescText').value || '';
+    let st = $('optStText').value || '';
+    let full = (title + ' ' + ih + ' ' + bpText + ' ' + desc + ' ' + st).toLowerCase();
+
+    const stillMissing = [];
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const hits = uniq(a.kws.filter(k => full.includes(k)));
+        if (hits.length === 0) {
+            stillMissing.push(a);
+        }
+    });
+
+    if (stillMissing.length === 0){
+        return { fixed: 0, missing: [] };
+    }
+
+    // 尝试自动补丁：把每个仍缺失锚点的语义，以「补充说明段落」形式追加到详细描述末尾
+    let patch = '';
+    stillMissing.forEach(a => {
+        const kws = a.kws.slice(0, 6);
+        // 用锚点对应的关键词构造一句自然的英文句子
+        const sentence = buildPatchSentence(a, kws);
+        patch += sentence + ' ';
+    });
+
+    if (patch){
+        const currentDesc = $('optDescText').value || '';
+        // 若加入补丁后不超过 5000 字符，则追加
+        if (currentDesc.length + patch.length <= 5000){
+            $('optDescText').value = currentDesc.trim() + '\n\n' + patch.trim();
+            updateByteCounter('optDescText', 'descByteCounter', 5000, '字符', 2000);
+            // 重新检测
+            const newDesc = $('optDescText').value;
+            const newFull = (title + ' ' + ih + ' ' + bpText + ' ' + newDesc + ' ' + st).toLowerCase();
+            const nowFixed = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length > 0);
+            const remaining = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length === 0);
+            return { fixed: nowFixed.length, missing: remaining };
+        }
+    }
+
+    return { fixed: 0, missing: stillMissing };
+}
+
+/* 为仍然缺失的锚点构造补丁句子 */
+function buildPatchSentence(anchor, kws){
+    const kwList = kws.join(', ');
+    const templates = {
+        'used_for_func': 'The product is purpose-built to deliver reliable daily performance.',
+        'used_to':       'It helps prevent everyday mess and keeps your space clean and organized.',
+        'capable_of':    'Made from durable, water-resistant materials that withstand daily use.',
+        'is_a':          'A well-crafted product designed for long-lasting everyday performance.',
+        'used_as':       'Works as both a practical everyday essential and a decorative piece.',
+        'target_audience': 'Perfect for homeowners, families, guests and everyday users.',
+        'used_by':       'Easy to set up and use — lightweight, hassle-free and user-friendly.',
+        'body_part':     'Standard size and dimension — please check the size chart for a perfect fit.',
+        'used_in_location': 'Ideal for entryways, patios, gardens, hallways, offices and indoor outdoor use.',
+        'used_for_eve/occasion': 'Great for holidays, parties, weddings and everyday use.',
+        'used_at_time/season': 'Designed for year-round use across spring, summer, fall and winter.',
+        'lifestyle_support': 'Brings a cleaner, cozier and more stylish feel to your everyday routine.',
+        'used_with':     'Pairs perfectly with standard accessories and existing setups.',
+        'self_image':    'A refined, professional touch that shows guests you care about the details.',
+        'emotional_outcome': 'Delivers peace of mind, satisfaction and everyday joy you can count on.'
+    };
+    return templates[anchor.name] || '';
+}
+
 /* ================= 应用 AI 结果 ================= */
 function applyAIResults(aiResult, anchorResults){
     const fixes = aiResult.anchorFixes || {};
@@ -920,7 +1003,7 @@ function applyAIResults(aiResult, anchorResults){
             '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
                 '<p><b>扣分原因：</b>' + escapeHtml(a.reason) + '</p>' +
                 '<div class="gemini-box">' +
-                    '<p class="ttl">✨ DeepSeek 优化方案：</p>' +
+                    '<p class="ttl">✨ DeepSeek 优化方案（已融入右侧文案）：</p>' +
                     '<code>' + escapeHtml(suggestion) + '</code>' +
                 '</div>' +
             '</div>';
@@ -939,25 +1022,18 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
 
-    // 五点描述：填充 5 个独立输入框
     if (aiResult.optimizedBullets) {
         let bullets = aiResult.optimizedBullets;
-        // 兼容 AI 返回字符串或数组的情况
         if (typeof bullets === 'string') {
-            // 按换行拆分
             bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-            // 如果拆分后不是 5 个，尝试按单换行拆分
             if (bullets.length !== 5) {
                 bullets = aiResult.optimizedBullets.split(/\n/).map(s => s.trim()).filter(Boolean);
             }
         }
-        // 确保有 5 个
         for (let i = 0; i < 5; i++){
             let text = bullets[i] || '';
             text = replaceProhibitedWords(text);
-            // 去掉结尾标点（亚马逊要求）
             text = text.replace(/[.。;；,，]+$/, '');
-            // 限制 255 字符
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
@@ -965,7 +1041,6 @@ function applyAIResults(aiResult, anchorResults){
         }
         updateBpTotal();
     } else {
-        // 没有 AI 五点描述时用兜底
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
             text = replaceProhibitedWords(text);
@@ -991,21 +1066,30 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
+    // ============ 覆盖度自检 + 自动补丁 ============
+    const coverage = selfCoverageCheck(anchorResults);
+    if (coverage.fixed > 0){
+        showCoverageWarning('检测到 ' + coverage.fixed + ' 个锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落，确保闭环。');
+    }
+    if (coverage.missing.length > 0){
+        const missingNames = coverage.missing.map(a => a.cn).join('、');
+        showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。建议手动在标题或五点中补充，或点击「开始执行」重新生成。');
+    }
+
     // 长度下限检查
     const lengthWarnings = [];
     const descLen = $('optDescText').value.length;
     if (descLen > 0 && descLen < 2000) {
-        lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于建议下限 2000 字符。建议点击「开始执行」重新生成，或手动补充内容。');
+        lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于建议下限 2000 字符。');
     }
     const stLen = getByteLength($('optStText').value);
     if (stLen > 0 && stLen < 240) {
-        lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于建议下限 240 字节，未充分利用后台字段空间。');
+        lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于建议下限 240 字节。');
     }
-    // 五点总字符检查
     let bpTotal = 0;
     for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el) bpTotal += el.value.length; }
     if (bpTotal > 0 && bpTotal < 800) {
-        lengthWarnings.push('五点描述总字符仅 ' + bpTotal + ' 字符，建议接近 1000 字符以充分利用空间。');
+        lengthWarnings.push('五点描述总字符仅 ' + bpTotal + ' 字符，建议接近 1000 字符。');
     }
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
@@ -1054,7 +1138,6 @@ function applyFallback(anchorResults){
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
 
-    // 五点描述降级：尝试从原始五点描述拆分
     if (!$('optBp0').value.trim()) {
         let sourceBullets = [];
         if (bpRaw) {
@@ -1074,7 +1157,7 @@ function applyFallback(anchorResults){
     }
 
     if (!$('optDescText').value.trim()) {
-        let desc = replaceProhibitedWords(descRaw) || 'Premium quality product built for long-lasting everyday performance.';
+        let desc = replaceProhibitedWords(descRaw) || 'Well-made product built for long-lasting everyday performance.';
         desc = replaceProhibitedWords(desc);
         $('optDescText').value = desc;
         updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
@@ -1084,6 +1167,12 @@ function applyFallback(anchorResults){
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
+    }
+
+    // 本地降级也做覆盖度自检
+    const coverage = selfCoverageCheck(anchorResults);
+    if (coverage.fixed > 0){
+        showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充段落。');
     }
 
     const fallbackOutput = [
