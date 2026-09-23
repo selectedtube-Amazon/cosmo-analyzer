@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>亚马逊 COSMO 15 锚点智能打分与文案优化系统</title>
+<style>
+    :root{
+        --primary:#2563eb; --primary-dark:#1d4ed8;
+        --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+        --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
+    }
+    *{box-sizing:border-box;}
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+        background:var(--bg); color:var(--text); line-height:1.55; margin:0; padding:24px 16px;
+        -webkit-font-smoothing:antialiased;
+    }
+    .container{max-width:1560px;margin:0 auto;}
+    header{text-align:center;margin-bottom:26px;}
+    header h1{margin:0 0 8px;font-size:26px;color:#0f172a;letter-spacing:-.3px;}
+    header p{color:var(--muted);margin:0;font-size:14px;}
+    .card{
+        background:var(--card);border-radius:14px;
+        box-shadow:0 4px 6px -1px rgba(15,23,42,.08),0 2px 4px -2px rgba(15,23,42,.05);
+        padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);
+    }
+    .card h2{margin:0 0 16px;font-size:17px;}
+    .form-group{margin-bottom:15px;}
+    label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
+    input[type="text"],textarea{
+        width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;
+        font-size:14px;font-family:inherit;color:var(--text);background:#fff;
+        transition:border-color .15s, box-shadow .15s;
+    }
+    input[type="text"]:focus,textarea:focus{
+        outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    }
+    textarea{resize:vertical;height:90px;}
+    .url-box{background:#f8fafc;padding:16px;border-radius:10px;margin-bottom:20px;border:1px dashed #94a3b8;}
+    .url-box .hint{font-size:12px;color:var(--muted);margin-top:6px;}
+    .url-flex{display:flex;gap:10px;}
+    .btn-sm{
+        background:#0f172a;color:#fff;border:none;padding:0 18px;height:41px;
+        font-size:13px;font-weight:600;border-radius:9px;cursor:pointer;
+        white-space:nowrap;transition:background .2s;font-family:inherit;
+    }
+    .btn-sm:hover{background:#334155;}
+    .btn-row{display:flex;gap:12px;}
+    button.btn{
+        background:var(--primary);color:#fff;border:none;padding:13px 24px;
+        font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;
+        flex:1;transition:background .2s,transform .1s;font-family:inherit;
+    }
+    button.btn:hover{background:var(--primary-dark);}
+    button.btn:active{transform:scale(.995);}
+    button.btn:disabled{background:#94a3b8;cursor:not-allowed;}
+    button.btn.ghost{
+        flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px;
+    }
+    button.btn.ghost:hover{background:#f1f5f9;color:#0f172a;}
+
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
+    @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
+    .pane{border-radius:12px;padding:18px;border:1px solid;}
+    .pane-left{background:#f8fafc;border-color:#e2e8f0;}
+    .pane-right{background:#f0fdf4;border-color:#bbf7d0;}
+    .pane h3{margin:0 0 14px;font-size:15px;padding-bottom:9px;border-bottom:2px solid;}
+    .pane-left h3{color:#334155;border-color:#cbd5e1;}
+    .pane-right h3{color:#166534;border-color:#86efac;}
+
+    .results-header{
+        display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
+        border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;
+    }
+    .results-header h2{margin:0 0 6px;font-size:19px;}
+    #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;word-break:break-all;max-width:900px;}
+    #targetUrlDisplay a{color:var(--primary);}
+    .score-wrap{text-align:right;min-width:220px;}
+    .score-badge{
+        display:inline-block;font-size:26px;font-weight:800;padding:8px 18px;
+        border-radius:10px;background:#eff6ff;color:var(--primary);letter-spacing:-.5px;
+    }
+    .score-badge.lv-a{background:#ecfdf5;color:#047857;}
+    .score-badge.lv-b{background:#eff6ff;color:#1d4ed8;}
+    .score-badge.lv-c{background:#fffbeb;color:#b45309;}
+    .score-badge.lv-d{background:#fef2f2;color:#b91c1c;}
+    .progress{height:7px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin-top:10px;width:220px;}
+    .progress > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#10b981);transition:width .6s cubic-bezier(.22,1,.36,1);}
+
+    .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+    .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
+    .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
+    .stat.r{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .ai-status{font-size:12.5px;padding:5px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600;}
+    .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
+    .ai-status.done{background:#ecfdf5;color:#047857;}
+    .ai-status.error{background:#fef2f2;color:#b91c1c;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+
+    .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
+    th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+    th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#fafbfc;}
+    .cluster-tag{
+        display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;
+        background:#eef2ff;color:#4338ca;white-space:nowrap;
+    }
+    .anchor-name{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
+    .anchor-cn{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:400;}
+    .status-green{color:var(--success);font-weight:700;white-space:nowrap;}
+    .status-yellow{color:var(--warning);font-weight:700;white-space:nowrap;}
+    .status-red{color:var(--danger);font-weight:700;white-space:nowrap;}
+    .score-mini{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px;}
+    .kw-chip{
+        display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;
+        padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;
+    }
+    .kw-chip.hit{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .kw-chip.miss{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;}
+
+    .suggestion-cell{background:#fffbeb;border-left:3px solid var(--warning);padding:11px 13px;border-radius:0 7px 7px 0;}
+    .suggestion-cell.red{background:#fef2f2;border-left-color:var(--danger);}
+    .suggestion-cell.ok{background:#f0fdf4;border-left-color:var(--success);color:#15803d;font-size:12.5px;}
+    .suggestion-cell.loading{background:#f8fafc;border-left-color:#94a3b8;color:#64748b;font-size:12.5px;}
+    .suggestion-cell p{margin:0 0 7px;color:#b45309;font-size:12.5px;}
+    .suggestion-cell.red p{color:#991b1b;}
+    .gemini-box{background:#fff;border:1px solid #d1fae5;padding:9px 11px;border-radius:7px;margin-top:7px;}
+    .gemini-box .ttl{margin:0 0 5px;color:#15803d;font-weight:700;font-size:11.5px;letter-spacing:.3px;}
+    .gemini-box code{
+        color:#065f46;display:block;font-family:ui-monospace,Menlo,Consolas,monospace;
+        font-size:12px;line-height:1.55;word-break:break-word;white-space:pre-wrap;
+    }
+
+    .copy-section-header{
+        display:flex;justify-content:space-between;align-items:center;
+        margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;
+    }
+    .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;}
+    .copy-btn{
+        background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;
+        font-weight:700;border-radius:6px;cursor:pointer;transition:background .2s;font-family:inherit;
+    }
+    .copy-btn:hover{background:#059669;}
+    .copy-btn.copied{background:var(--primary);}
+    .optimized-textarea{
+        width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;
+        font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;
+        white-space:pre-wrap;word-break:break-word;margin-bottom:15px;resize:vertical;
+    }
+    .optimized-textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+
+    .hidden{display:none;}
+    .fade-in{animation:fadeIn .45s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+    #toast{
+        position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);
+        background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;
+        font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;
+        box-shadow:0 10px 25px -5px rgba(0,0,0,.3);
+    }
+    #toast.show{opacity:1;transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>亚马逊 COSMO 15 锚点智能打分系统</h1>
+        <p>关键词命中式语义评估 · DeepSeek 智能生成优化文案 · 双栏比对一键复制</p>
+    </header>
+
+    <div class="card">
+        <h2>📥 输入商品信息与文案</h2>
+
+        <div class="url-box">
+            <label for="productUrl" style="margin-bottom:8px;">🔗 亚马逊商品详情页网址（URL / ASIN 链接 · 可选）</label>
+            <div class="url-flex">
+                <input type="text" id="productUrl" placeholder="例如: https://www.amazon.com/dp/B00...">
+                <button class="btn-sm" onclick="loadSampleByUrl()">载入示例文案</button>
+            </div>
+            <div class="hint">提示：本工具不会真实抓取亚马逊页面；该按钮仅根据链接关键词匹配内置示例数据，方便快速体验。</div>
+        </div>
+
+        <div class="form-group">
+            <label for="productTitle">商品标题 (Title)</label>
+            <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
+        </div>
+        <div class="form-group">
+            <label for="bulletPoints">5 点描述 (Bullet Points)</label>
+            <textarea id="bulletPoints" placeholder="请输入或粘贴 5 点描述..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="description">详细描述 / A+ 内容 (Description / A+)</label>
+            <textarea id="description" placeholder="请输入或粘贴详细描述或 A+ 内容..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="searchTerms">后台搜索词 (Search Terms)</label>
+            <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
+        </div>
+
+        <div class="btn-row">
+            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始执行 COSMO 15 锚点打分与 DeepSeek 优化</button>
+            <button class="btn ghost" onclick="clearAll()">清空</button>
+        </div>
+    </div>
+
+    <div id="resultCard" class="card hidden">
+        <div class="results-header">
+            <div>
+                <h2>📊 评估报告与文案比对中心</h2>
+                <p id="targetUrlDisplay">当前分析目标链接：未填写</p>
+            </div>
+            <div class="score-wrap">
+                <div id="totalScoreBadge" class="score-badge">总分 0</div>
+                <div class="progress"><i id="scoreBar" style="width:0%"></i></div>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+            <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+            <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+            <span id="aiStatus" class="ai-status hidden">DeepSeek 生成中…</span>
+        </div>
+
+        <div class="compare-grid">
+            <div class="pane pane-left">
+                <h3>📋 当前原始文案（核对底本）</h3>
+                <div class="form-group">
+                    <label>原始商品标题</label>
+                    <input type="text" id="origTitleView" readonly style="background:#fff;">
+                </div>
+                <div class="form-group">
+                    <label>原始 5 点描述</label>
+                    <textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>原始详细描述</label>
+                    <textarea id="origDescView" readonly style="background:#fff;height:80px;"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>原始后台 Search Terms</label>
+                    <input type="text" id="origStView" readonly style="background:#fff;">
+                </div>
+            </div>
+
+            <div class="pane pane-right">
+                <h3>✨ DeepSeek 优化文案（一键复制）</h3>
+
+                <div class="copy-section-header">
+                    <span>优化后的商品标题 (Title)</span>
+                    <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
+                </div>
+                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
+
+                <div class="copy-section-header">
+                    <span>优化后的 5 点描述 (Bullet Points)</span>
+                    <button class="copy-btn" onclick="copyTextElement('optBpText', this)">复制 5 点描述</button>
+                </div>
+                <textarea id="optBpText" class="optimized-textarea" style="height:160px;" placeholder="DeepSeek 生成中…"></textarea>
+
+                <div class="copy-section-header">
+                    <span>优化后的详细描述 (Description)</span>
+                    <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
+                </div>
+                <textarea id="optDescText" class="optimized-textarea" style="height:130px;" placeholder="DeepSeek 生成中…"></textarea>
+
+                <div class="copy-section-header">
+                    <span>优化后的后台搜索词 (Search Terms)</span>
+                    <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
+                </div>
+                <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+            </div>
+        </div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🔍 COSMO 15 锚点详细扣分与优化诊断矩阵</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:9%;">集群</th>
+                        <th style="width:15%;">锚点</th>
+                        <th style="width:9%;">状态</th>
+                        <th style="width:27%;">文案命中简析</th>
+                        <th style="width:40%;">💡 诊断与优化方案</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ================= 关键词库 ================= */
+const L = {
+    func:      ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch'],
+    goal:      ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
+    capable:   ['durab','waterproof','water-resistant','water resistant','weather','resistant','heavy duty','heavy-duty','absorbent','washable','reusable','sturdy','non-slip','non slip','withstand','long-lasting','premium material','high quality'],
+    identity:  ['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light'],
+    role:      ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
+    audience:  ['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone'],
+    ease:      ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools'],
+    size:      ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable'],
+    location:  ['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home'],
+    occasion:  ['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal'],
+    season:    ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
+    lifestyle: ['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design'],
+    together:  ['compatible','works with','work with','pairs with','pair with','along with','accessories','standard','together with','combine','match'],
+    image:     ['professional','elegant','refined','welcoming','hospital','premium','sophisticated','organized','taste','impress','stylish','luxury','high-end','chic'],
+    emotion:   ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
+};
+
+/* ================= 15 锚点定义 ================= */
+const ANCHORS = [
+    { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
+    { cluster:'功能集群', name:'used_to',       cn:'达成使用目标', kws:L.goal },
+    { cluster:'功能集群', name:'capable_of',    cn:'性能材质能力', kws:L.capable },
+    { cluster:'身份集群', name:'is_a',          cn:'品类身份归属', kws:L.identity },
+    { cluster:'身份集群', name:'used_as',       cn:'扮演角色定位', kws:L.role },
+    { cluster:'受众集群', name:'target_audience', cn:'目标受众群体', kws:L.audience },
+    { cluster:'受众集群', name:'used_by',       cn:'操作者使用体验', kws:L.ease },
+    { cluster:'受众集群', name:'body_part',     cn:'尺寸/接触部位', kws:L.size },
+    { cluster:'场景集群', name:'used_in_location', cn:'使用地点场景', kws:L.location },
+    { cluster:'场景集群', name:'used_for_eve/occasion', cn:'节日场合', kws:L.occasion },
+    { cluster:'场景集群', name:'used_at_time/season', cn:'时间季节', kws:L.season },
+    { cluster:'场景集群', name:'lifestyle_support', cn:'生活方式共鸣', kws:L.lifestyle },
+    { cluster:'生态集群', name:'used_with',     cn:'配套关联生态', kws:L.together },
+    { cluster:'生态集群', name:'self_image',    cn:'自我形象表达', kws:L.image },
+    { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
+];
+
+/* 本地兜底优化模板（DeepSeek 失败时使用） */
+const FALLBACK = {
+    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
+    'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and hassle, keep your space looking its best, and deliver consistent results without extra effort.',
+    'capable_of':'BUILT TO WITHSTAND: Made from durable, water-resistant materials that hold up to daily use, harsh weather and high-traffic conditions.',
+    'is_a':'PREMIUM QUALITY: A well-crafted product built for long-lasting performance and modern everyday living.',
+    'used_as':'DOUBLE DUTY: Works as both a practical everyday essential and a stylish decorative piece that upgrades any space.',
+    'target_audience':'PERFECT FOR: Homeowners and families who want a smart, practical upgrade — and a thoughtful gift idea.',
+    'used_by':'EASY FOR EVERYONE: Lightweight, hassle-free and simple to set up, so anyone can get it working in seconds.',
+    'body_part':'EXACT SIZE & FIT: Available in standard sizes — double-check the size chart above to confirm a perfect fit.',
+    'used_in_location':'INDOOR & OUTDOOR: Ideal for entryways, patios, gardens, hallways and any other space where you need it most.',
+    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: Ready for holidays, parties and everyday use — dress it up or keep it simple.',
+    'used_at_time/season':'ALL-SEASON READY: Built for year-round use, holding up through spring, summer, fall and winter.',
+    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, cozier and more stylish feel to your everyday routine.',
+    'used_with':'PAIRS PERFECTLY WITH: Compatible with standard accessories and existing setups — no extra tools needed.',
+    'self_image':'LOOKS THE PART: A refined, professional touch that shows guests you care about the details of your space.',
+    'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
+};
+
+/* ================= 工具函数 ================= */
+const $ = id => document.getElementById(id);
+const uniq = arr => [...new Set(arr.filter(Boolean))];
+const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
+
+function showToast(msg){
+    let t = $('toast');
+    if (!t){ t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, s => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[s]));
+}
+
+/* ================= 主流程 ================= */
+async function runAnalysis(){
+    const url      = $('productUrl').value.trim();
+    const titleRaw = $('productTitle').value.trim();
+    const bpRaw    = $('bulletPoints').value.trim();
+    const descRaw  = $('description').value.trim();
+    const stRaw    = $('searchTerms').value.trim();
+
+    if (!titleRaw && !bpRaw && !descRaw && !stRaw){
+        showToast('请先填写标题或文案内容，或点击「载入示例文案」');
+        return;
+    }
+
+    const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
+
+    // 回填左侧
+    $('origTitleView').value = titleRaw;
+    $('origBpView').value    = bpRaw;
+    $('origDescView').value  = descRaw;
+    $('origStView').value    = stRaw;
+
+    // 本地关键词评分
+    let rawScore = 0, green = 0, yellow = 0, red = 0;
+    const anchorResults = [];
+    const rows = [];
+
+    ANCHORS.forEach(a => {
+        const hits = uniq(a.kws.filter(k => full.includes(k)));
+        let level, score, statusClass, statusText;
+
+        if (hits.length === 0){
+            level='red'; score=0; statusClass='status-red'; statusText='🔴 严重缺失'; red++;
+        } else if (hits.length <= 2){
+            level='yellow'; score=hits.length===1?4:5; statusClass='status-yellow'; statusText='🟡 部分覆盖'; yellow++;
+        } else {
+            level='green'; score=7; statusClass='status-green'; statusText='🟢 完美覆盖'; green++;
+        }
+
+        rawScore += score;
+
+        const shownHits = hits.slice(0, 5);
+        const chips = shownHits.map(h => `<span class="kw-chip hit">${escapeHtml(h)}</span>`).join('')
+                    + (hits.length > 5 ? `<span class="kw-chip miss">+${hits.length-5}</span>` : '');
+        const hitBlock = hits.length
+            ? `<div style="margin-bottom:5px;">${chips}</div><div style="font-size:12px;color:#64748b;">共命中 ${hits.length} 个语义信号词</div>`
+            : `<div style="font-size:12px;color:#b91c1c;">未检测到任何相关语义信号词</div>`;
+
+        let fixBlock;
+        if (level === 'green'){
+            fixBlock = `<div class="suggestion-cell ok">✅ 该锚点已充分覆盖，无需修改。</div>`;
+        } else {
+            fixBlock = `<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>`;
+        }
+
+        const reason = hits.length === 0
+            ? `文案中完全没有出现与「${a.cn}」相关的语义信号，COSMO 知识图谱无法建立该维度的关联。`
+            : `仅部分覆盖「${a.cn}」，语义信号密度不足，权重较低。`;
+
+        anchorResults.push({ ...a, level, score, hits, reason });
+
+        rows.push(`
+            <tr>
+                <td><span class="cluster-tag">${a.cluster}</span></td>
+                <td>
+                    <span class="anchor-name">${escapeHtml(a.name)}</span>
+                    <span class="anchor-cn">${a.cn}</span>
+                </td>
+                <td class="${statusClass}">${statusText}<span class="score-mini">${score} / 7 分</span></td>
+                <td>${hitBlock}</td>
+                <td id="fix-cell-${safeId(a.name)}">${fixBlock}</td>
+            </tr>`);
+    });
+
+    // 总分
+    const totalScore = Math.round(rawScore / 105 * 100);
+    let grade, lv;
+    if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
+    else if (totalScore >= 90) { grade='A';  lv='lv-a'; }
+    else if (totalScore >= 80) { grade='B+'; lv='lv-b'; }
+    else if (totalScore >= 70) { grade='B';  lv='lv-b'; }
+    else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
+    else                       { grade='D';  lv='lv-d'; }
+
+    const badge = $('totalScoreBadge');
+    badge.className = 'score-badge ' + lv;
+    badge.textContent = `总分 ${totalScore} · ${grade}`;
+    $('scoreBar').style.width = totalScore + '%';
+
+    $('statGreen').textContent  = `🟢 完美覆盖 ${green}`;
+    $('statYellow').textContent = `🟡 部分覆盖 ${yellow}`;
+    $('statRed').textContent    = `🔴 严重缺失 ${red}`;
+
+    $('matrixTableBody').innerHTML = rows.join('');
+
+    // 目标链接
+    if (url){
+        $('targetUrlDisplay').innerHTML =
+            `当前分析目标链接：<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+    } else {
+        $('targetUrlDisplay').textContent = '当前分析目标链接：未绑定（基于本地文本进行独立评估）';
+    }
+
+    const card = $('resultCard');
+    card.classList.remove('hidden');
+    card.classList.remove('fade-in');
+    void card.offsetWidth;
+    card.classList.add('fade-in');
+    card.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    // 调用 DeepSeek（失败自动降级本地模板）
+    const btn = $('analyzeBtn');
+    const status = $('aiStatus');
+    btn.disabled = true;
+    btn.textContent = '⏳ DeepSeek 优化中，请稍候…';
+    status.className = 'ai-status loading';
+    status.classList.remove('hidden');
+    status.textContent = '🤖 DeepSeek 生成中…';
+
+    try {
+        const aiResult = await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
+        applyAIResults(aiResult, anchorResults);
+        status.className = 'ai-status done';
+        status.textContent = '✅ DeepSeek 生成完成';
+    } catch (err){
+        console.error(err);
+        applyFallback(anchorResults);
+        status.className = 'ai-status error';
+        status.textContent = '⚠️ DeepSeek 调用失败，已降级本地模板';
+        showToast('DeepSeek 调用失败：' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 开始执行 COSMO 15 锚点打分与 DeepSeek 优化';
+    }
+}
+
+/* ================= 调用 DeepSeek ================= */
+async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
+    const notPassed = anchorResults.filter(a => a.level !== 'green');
+    const anchorList = notPassed.length
+        ? notPassed.map(a => `- ${a.name}（${a.cn}）：${a.level === 'red' ? '严重缺失' : '部分覆盖'}，命中词：${a.hits.length ? a.hits.join(', ') : '无'}`).join('\n')
+        : '（无，所有锚点均达标）';
+
+    const prompt = `你是一位亚马逊 Listing 优化专家，精通亚马逊 COSMO 语义算法。
+
+【商品原始文案】
+标题：${titleRaw || '（未提供）'}
+五点描述：${bpRaw || '（未提供）'}
+详细描述：${descRaw || '（未提供）'}
+后台搜索词：${stRaw || '（未提供）'}
+
+【15 锚点诊断结果（仅列出未达标项）】
+${anchorList}
+
+【你的任务】
+1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，可直接用于 Listing，不要中英混排，不要解释，只输出英文句子）。
+2. 生成优化后的商品标题（英文，不超过 200 字符）。
+3. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。
+4. 生成优化后的详细描述（英文，2-4 句）。
+5. 生成优化后的后台搜索词（英文，小写，不超过 250 字符）。
+
+【输出格式要求】
+必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：
+{
+  "anchorFixes": {
+    "used_for_func": "英文优化句子",
+    "used_to": "英文优化句子",
+    ... 仅包含未达标锚点
+  },
+  "optimizedTitle": "...",
+  "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",
+  "optimizedDesc": "...",
+  "optimizedST": "..."
+}`;
+
+    const resp = await fetch('/api/deepseek', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            messages: [
+                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。' },
+                { role: 'user', content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 4000,
+            response_format: { type: 'json_object' }
+        })
+    });
+
+    const result = await resp.json();
+    if (!result.success) throw new Error(result.error || '未知错误');
+
+    let content = result.data.choices[0].message.content.trim();
+    // 容错：去掉可能残留的 ```json ... ```
+    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+
+    let parsed;
+    try {
+        parsed = JSON.parse(content);
+    } catch (e){
+        throw new Error('DeepSeek 返回内容不是合法 JSON');
+    }
+    return parsed;
+}
+
+/* ================= 应用 AI 结果 ================= */
+function applyAIResults(aiResult, anchorResults){
+    const fixes = aiResult.anchorFixes || {};
+
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const cell = $(`fix-cell-${safeId(a.name)}`);
+        if (!cell) return;
+
+        const suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
+        const isRed = a.level === 'red';
+
+        cell.innerHTML = `
+            <div class="suggestion-cell ${isRed ? 'red' : ''}">
+                <p><b>扣分原因：</b>${escapeHtml(a.reason)}</p>
+                <div class="gemini-box">
+                    <p class="ttl">✨ DeepSeek 优化方案：</p>
+                    <code>${escapeHtml(suggestion)}</code>
+                </div>
+            </div>`;
+    });
+
+    if (aiResult.optimizedTitle)   $('optTitleText').value = aiResult.optimizedTitle;
+    if (aiResult.optimizedBullets) $('optBpText').value    = aiResult.optimizedBullets;
+    if (aiResult.optimizedDesc)    $('optDescText').value  = aiResult.optimizedDesc;
+    if (aiResult.optimizedST)      $('optStText').value    = aiResult.optimizedST;
+}
+
+/* ================= 本地降级 ================= */
+function applyFallback(anchorResults){
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const cell = $(`fix-cell-${safeId(a.name)}`);
+        if (!cell) return;
+
+        const suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
+        const isRed = a.level === 'red';
+
+        cell.innerHTML = `
+            <div class="suggestion-cell ${isRed ? 'red' : ''}">
+                <p><b>扣分原因：</b>${escapeHtml(a.reason)}</p>
+                <div class="gemini-box">
+                    <p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>
+                    <code>${escapeHtml(suggestion)}</code>
+                </div>
+            </div>`;
+    });
+
+    // 右侧文案降级
+    const titleRaw = $('productTitle').value.trim();
+    const bpRaw    = $('bulletPoints').value.trim();
+    const descRaw  = $('description').value.trim();
+    const stRaw    = $('searchTerms').value.trim();
+
+    if (!$('optTitleText').value.trim()) $('optTitleText').value = titleRaw + ' - Premium Heavy Duty Design';
+    if (!$('optBpText').value.trim()){
+        $('optBpText').value =
+`1. PURPOSE-BUILT: Engineered for reliable everyday performance.
+2. HEAVY-DUTY: Made from durable, weather-resistant materials.
+3. EASY TO USE: Simple setup and hassle-free operation.
+4. MULTI-SCENE: Perfect for indoor and outdoor use.
+5. PEACE OF MIND: Delivers everyday satisfaction you can count on.`;
+    }
+    if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
+    if (!$('optStText').value.trim())   $('optStText').value   = stRaw || 'heavy duty product all season indoor outdoor';
+}
+
+/* ================= 示例加载 ================= */
+function loadSampleByUrl(){
+    const url = $('productUrl').value.trim();
+    if (!url){ showToast('请先粘贴一个亚马逊商品链接'); return; }
+
+    const u = url.toLowerCase();
+    let s;
+
+    if (u.includes('doormat') || u.includes('disinfect') || u.includes('mat')){
+        s = {
+            title:'Commercial Disinfecting Doormat for Entrance - Heavy Duty Shoe Sanitizing Mat for Indoor Outdoor',
+            bp:'1. HEAVY DUTY SANITIZING: Designed to clean and disinfect shoe soles effectively at any commercial or home entrance.\n2. ABSORBENT & NON-SLIP: Keeps floors dry and secure with a reliable rubber backing.\n3. EASY MAINTENANCE: Simple to wash and reuse for high-traffic entryways.\n4. MULTI-SCENE APPLICATION: Perfect for offices, restaurants, and front doors.\n5. DURABLE FABRIC: Built to withstand daily wear and tear.',
+            desc:'Ensure a clean and hygienic environment from the moment guests step inside. This commercial disinfecting doormat absorbs liquid sanitizers and traps dirt efficiently.',
+            st:'disinfecting doormat shoe sanitizing mat commercial entrance floor mat'
+        };
+    } else if (u.includes('goose')){
+        s = {
+            title:'Holiday Valentine Halloween Christmas Clothing for Porch Goose - Seasonal Decorative Yard Statue Outfits',
+            bp:'1. VERSATILE HOLIDAY STYLES: Dress up your porch goose for Valentine\'s Day, Halloween, Christmas, and all year round.\n2. EASY TO WEAR: Designed for quick and hassle-free dressing on standard decorative yard geese.\n3. PREMIUM FABRIC: Made with durable, weather-friendly materials suitable for outdoor porch and lawn display.\n4. CHARMING DESIGN: Adds instant festive cheer, humor, and a welcoming touch to your front porch and garden.\n5. GREAT GIFT IDEA: A delightful present for garden and porch decor enthusiasts who love seasonal transformations.',
+            desc:'Bring your favorite porch goose to life through every season! This collection of holiday outfits covers everything from spooky Halloween vibes to cozy Christmas cheer.',
+            st:'porch goose clothes holiday outfits seasonal yard statue decor halloween christmas'
+        };
+    } else {
+        s = {
+            title:'Premium Household Utility Product - Multi-functional Design for Everyday Living',
+            bp:'1. HIGH QUALITY: Manufactured with premium materials for long-lasting durability.\n2. EASY TO USE: Simple setup and convenient operation for daily tasks.\n3. VERSATILE DESIGN: Fits seamlessly into various home and office environments.\n4. RELIABLE PERFORMANCE: Engineered to deliver consistent and efficient results.\n5. GREAT VALUE: An ideal choice for household upgrades and practical needs.',
+            desc:'Enhance your daily routines with this expertly designed product. Built for reliability, style, and maximum efficiency across different scenarios.',
+            st:'household utility product daily essentials multi functional tool'
+        };
+    }
+
+    $('productTitle').value = s.title;
+    $('bulletPoints').value = s.bp;
+    $('description').value  = s.desc;
+    $('searchTerms').value  = s.st;
+
+    runAnalysis();
+}
+
+/* ================= 复制 / 清空 ================= */
+async function copyTextElement(elementId, btn){
+    const el = $(elementId);
+    const text = el.value || '';
+    if (!text.trim()){ showToast('内容为空，无可复制'); return; }
+
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){
+        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
+    }
+    if (!ok){
+        try {
+            el.focus();
+            el.select();
+            el.setSelectionRange(0, text.length);
+            ok = document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+        } catch(e){ ok = false; }
+    }
+
+    if (!ok){ showToast('复制失败，请手动选中复制'); return; }
+
+    const original = btn.dataset.label || btn.innerText;
+    btn.dataset.label = original;
+    btn.innerText = '复制成功 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
+}
+
+function clearAll(){
+    ['productUrl','productTitle','bulletPoints','description','searchTerms'].forEach(id => {
+        const el = $(id);
+        if (el) el.value = '';
+    });
+    $('resultCard').classList.add('hidden');
+    showToast('已清空全部内容');
+}
+
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
+});
+</script>
+
+</body>
+</html>
