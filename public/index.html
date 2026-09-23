@@ -156,6 +156,24 @@
     .byte-counter.over{color:var(--danger);font-weight:700;}
     .byte-counter.under{color:var(--warning);font-weight:700;}
 
+    /* 五点描述独立卡片样式 */
+    .bp-item{
+        border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;
+        background:#f0fdf4;transition:border-color .2s;
+    }
+    .bp-item:hover{border-color:#86efac;}
+    .bp-item-header{
+        display:flex;justify-content:space-between;align-items:center;
+        margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;
+    }
+    .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
+    .bp-item textarea{
+        width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;
+        font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;
+        white-space:pre-wrap;word-break:break-word;resize:vertical;min-height:70px;
+    }
+    .bp-item textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
@@ -269,13 +287,57 @@
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
 
-                <div class="copy-section-header">
-                    <span>优化后的 5 点描述 (Bullet Points)</span>
-                    <button class="copy-btn" onclick="copyTextElement('optBpText', this)">复制 5 点描述</button>
+                <!-- 五点描述：拆分为 5 个独立输入框 -->
+                <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
+                    <span>优化后的 5 点描述 (每点 ≤255字符，总 ≤1000字符)</span>
+                    <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
-                <textarea id="optBpText" class="optimized-textarea" style="height:160px;" placeholder="DeepSeek 生成中…"></textarea>
 
-                <div class="copy-section-header">
+                <div id="bulletPointsContainer">
+                    <div class="bp-item">
+                        <div class="bp-item-header">
+                            <span class="bp-label">第 1 点</span>
+                            <button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button>
+                        </div>
+                        <textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="bpCounter0" class="byte-counter">0 / 255 字符</div>
+                    </div>
+                    <div class="bp-item">
+                        <div class="bp-item-header">
+                            <span class="bp-label">第 2 点</span>
+                            <button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button>
+                        </div>
+                        <textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="bpCounter1" class="byte-counter">0 / 255 字符</div>
+                    </div>
+                    <div class="bp-item">
+                        <div class="bp-item-header">
+                            <span class="bp-label">第 3 点</span>
+                            <button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button>
+                        </div>
+                        <textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="bpCounter2" class="byte-counter">0 / 255 字符</div>
+                    </div>
+                    <div class="bp-item">
+                        <div class="bp-item-header">
+                            <span class="bp-label">第 4 点</span>
+                            <button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button>
+                        </div>
+                        <textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="bpCounter3" class="byte-counter">0 / 255 字符</div>
+                    </div>
+                    <div class="bp-item">
+                        <div class="bp-item-header">
+                            <span class="bp-label">第 5 点</span>
+                            <button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button>
+                        </div>
+                        <textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea>
+                        <div id="bpCounter4" class="byte-counter">0 / 255 字符</div>
+                    </div>
+                </div>
+                <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
+
+                <div class="copy-section-header" style="margin-top:10px;">
                     <span>优化后的详细描述 (Description · 2000-5000字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
@@ -367,6 +429,15 @@ const FALLBACK = {
     'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
 };
 
+/* 本地兜底五点描述 */
+const FALLBACK_BULLETS = [
+    'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for',
+    'HEAVY-DUTY CONSTRUCTION: Made from durable, weather-resistant materials that hold up to daily use and high-traffic conditions',
+    'EASY TO USE: Lightweight, hassle-free and simple to set up, so anyone can get it working in seconds without extra tools',
+    'VERSATILE APPLICATION: Perfect for indoor and outdoor use across entryways, patios, gardens, hallways, offices and more',
+    'PEACE OF MIND: Enjoy a space that finally feels effortless, delivering everyday satisfaction you can count on'
+];
+
 /* ================= 违禁词库 ================= */
 const PROHIBITED_WORDS = {
     subjective: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
@@ -380,100 +451,29 @@ const PROHIBITED_WORDS = {
 
 /* 安全替换映射 */
 const SAFE_REPLACEMENTS = {
-    'best': 'reliable',
-    'top': 'high-performance',
-    'premium': 'refined',
-    'high quality': 'well-made',
-    'highest quality': 'well-made',
-    'perfect': 'ideal',
-    'amazing': 'impressive',
-    'excellent': 'dependable',
-    'ultimate': 'versatile',
-    'unbeatable': 'durable',
-    'finest': 'quality',
-    'greatest': 'notable',
-    'incredible': 'remarkable',
-    'superior': 'enhanced',
-    'world class': 'professional-grade',
-    'number 1': 'leading',
-    'no.1': 'leading',
-    '#1': 'leading',
-    'top rated': 'well-reviewed',
-    'most popular': 'widely chosen',
-    'trending': 'in-demand',
-    'viral': 'popular',
-    'must have': 'essential',
-    'must-have': 'essential',
-    'free shipping': '',
-    'free gift': '',
-    'on sale': '',
-    'discount': '',
-    'sale': '',
-    'clearance': '',
-    'limited time': '',
-    'best deal': '',
-    'bargain': '',
-    'deal': '',
-    'review': '',
-    'feedback': '',
-    'rating': '',
-    'star': '',
-    'positive': '',
-    'negative': '',
-    'comment': '',
-    'evaluation': '',
-    'gift': '',
-    'warranty': '',
-    'guarantee': '',
-    'antibacterial': 'surface-cleaning',
-    'antimicrobial': 'surface-cleaning',
-    'disinfect': 'clean',
-    'sanitize': 'clean',
-    'sterilize': 'clean',
-    'mold proof': 'resistant',
-    'mildew proof': 'resistant',
-    'fungus': 'resistant',
-    'insect repellent': '',
-    'pest control': '',
-    'cure': 'help',
-    'heal': 'help',
-    'treat': 'help',
-    'therapeutic': 'supportive',
-    'anti-inflammatory': '',
-    'pain relief': '',
-    'antibiotic': '',
-    'antiviral': '',
-    'hygienic': 'clean',
-    'sterile': 'clean',
-    'kill germs': 'clean',
-    'germ free': 'clean',
-    'dustproof': 'dust-resistant',
-    'moldproof': 'mold-resistant',
-    'new': 'updated',
-    'brand new': 'updated',
-    'just launched': 'recently released',
-    'latest': 'updated',
-    'current': 'modern',
-    'available now': 'available',
-    'this week': '',
-    'this month': '',
-    'this year': '',
-    'today': '',
-    'last chance': '',
-    'last minute': '',
-    'contact us': '',
-    '24 hours': '',
-    'reply': '',
-    'respond': '',
-    'our team': '',
-    'our company': '',
-    'we will': '',
-    'we offer': '',
-    'we are': '',
-    'our': 'the',
-    'we': 'the product',
-    'my': 'the',
-    'i': 'the product'
+    'best': 'reliable','top': 'high-performance','premium': 'refined','high quality': 'well-made',
+    'highest quality': 'well-made','perfect': 'ideal','amazing': 'impressive','excellent': 'dependable',
+    'ultimate': 'versatile','unbeatable': 'durable','finest': 'quality','greatest': 'notable',
+    'incredible': 'remarkable','superior': 'enhanced','world class': 'professional-grade',
+    'number 1': 'leading','no.1': 'leading','#1': 'leading','top rated': 'well-reviewed',
+    'most popular': 'widely chosen','trending': 'in-demand','viral': 'popular',
+    'must have': 'essential','must-have': 'essential','free shipping': '','free gift': '',
+    'on sale': '','discount': '','sale': '','clearance': '','limited time': '','best deal': '',
+    'bargain': '','deal': '','review': '','feedback': '','rating': '','star': '',
+    'positive': '','negative': '','comment': '','evaluation': '','gift': '','warranty': '',
+    'guarantee': '','antibacterial': 'surface-cleaning','antimicrobial': 'surface-cleaning',
+    'disinfect': 'clean','sanitize': 'clean','sterilize': 'clean','mold proof': 'resistant',
+    'mildew proof': 'resistant','fungus': 'resistant','insect repellent': '','pest control': '',
+    'cure': 'help','heal': 'help','treat': 'help','therapeutic': 'supportive',
+    'anti-inflammatory': '','pain relief': '','antibiotic': '','antiviral': '',
+    'hygienic': 'clean','sterile': 'clean','kill germs': 'clean','germ free': 'clean',
+    'dustproof': 'dust-resistant','moldproof': 'mold-resistant','new': 'updated',
+    'brand new': 'updated','just launched': 'recently released','latest': 'updated',
+    'current': 'modern','available now': 'available','this week': '','this month': '',
+    'this year': '','today': '','last chance': '','last minute': '','contact us': '',
+    '24 hours': '','reply': '','respond': '','our team': '','our company': '',
+    'we will': '','we offer': '','we are': '','our': 'the','we': 'the product',
+    'my': 'the','i': 'the product'
 };
 
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
@@ -524,12 +524,10 @@ function showProhibitedWarning(hits, targetName) {
 function showLengthWarning(message) {
     const existing = document.getElementById('length-warning');
     if (existing) existing.remove();
-
     const warning = document.createElement('div');
     warning.id = 'length-warning';
     warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
     warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
-
     const resultCard = document.getElementById('resultCard');
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
@@ -600,6 +598,20 @@ function updateByteCounter(inputId, counterId, max, unit, min){
     counter.className = cls;
 }
 
+/* 五点描述总字符更新 */
+function updateBpTotal(){
+    let total = 0;
+    for (let i = 0; i < 5; i++){
+        const el = $('optBp' + i);
+        if (el) total += el.value.length;
+    }
+    const counter = $('bpTotalCounter');
+    if (counter){
+        counter.textContent = '总字符：' + total + ' / 1000';
+        counter.className = 'byte-counter' + (total > 1000 ? ' over' : '');
+    }
+}
+
 function initByteCounters(){
     const bindings = [
         { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符', min: null },
@@ -615,6 +627,20 @@ function initByteCounters(){
         el.addEventListener('paste', function(){ setTimeout(handler, 0); });
         el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
     });
+    // 五点描述独立计数器
+    for (let i = 0; i < 5; i++){
+        (function(idx){
+            const el = $('optBp' + idx);
+            if (!el) return;
+            const handler = function(){
+                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 200);
+                updateBpTotal();
+            };
+            el.addEventListener('input', handler);
+            el.addEventListener('paste', function(){ setTimeout(handler, 0); });
+            el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
+        })(i);
+    }
 }
 
 /* ================= 主流程 ================= */
@@ -786,14 +812,22 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 不要在标题中重复品牌名。',
         '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
         '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。同样禁止使用上述违禁词。',
-        '4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。',
-        '   ⚠️ 极其重要的防杜撰规则（分级管控）：',
-        '   - 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
-        '   - 如果用户没有提供原始五点描述，你只能基于已知信息（标题、详细描述）进行谨慎推断。',
-        '   - 【允许推断的内容】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
-        '   - 【绝对禁止编造的内容】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
-        '   - 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注，不要编造具体值。',
-        '   - 如果用户没有提供原始五点描述，每个生成的新点开头加上 [AI推测] 字样。',
+        '4. 生成优化后的五点描述（英文）。**严格遵守以下亚马逊最新规则**：',
+        '   - 输出 5 个独立的要点，每个要点一段，不要合并。',
+        '   - ⚠️ 每个要点的字符数（含空格）**不得低于 200 字符，不得超过 255 字符**。',
+        '   - 五点总字符数**必须接近但不超过 1000 字符**。请尽可能充分利用每一个字符。',
+        '   - 每个要点以大写字母开头，采用「标题 + 冒号 + 描述」结构（如 "MATERIAL: Made from 100% cotton"）。',
+        '   - 格式为句段，**结尾不要使用句号或其他标点符号**。',
+        '   - 数字 1~9 用文字表示（名称、型号、测量值除外），数字和单位之间用空格隔开（如 "60 ml"）。',
+        '   - 每个要点只讲一个卖点，不要重复。',
+        '   - 禁止使用促销信息、保证类信息、公司信息、外部链接、特殊字符、表情符号。',
+        '   - ⚠️ 极其重要的防杜撰规则（分级管控）：',
+        '     * 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
+        '     * 如果用户没有提供原始五点描述，你只能基于已知信息（标题、详细描述）进行谨慎推断。',
+        '     * 【允许推断的内容】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
+        '     * 【绝对禁止编造的内容】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
+        '     * 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注，不要编造具体值。',
+        '     * 如果用户没有提供原始五点描述，每个生成的新点开头加上 [AI推测] 字样。',
         '   - 同样禁止使用上述违禁词。',
         '5. 生成优化后的详细描述（Description）。这是本任务最重要的输出，必须认真对待：',
         '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符（亚马逊官方限制）。',
@@ -828,10 +862,12 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '  },',
         '  "optimizedTitle": "...",',
         '  "optimizedItemHighlights": "...",',
-        '  "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",',
+        '  "optimizedBullets": ["第1点英文文案", "第2点英文文案", "第3点英文文案", "第4点英文文案", "第5点英文文案"],',
         '  "optimizedDesc": "至少2000字符的详细描述...",',
         '  "optimizedST": "..."',
-        '}'
+        '}',
+        '',
+        '⚠️ 特别注意：optimizedBullets 必须是一个包含 5 个字符串的数组，每个字符串是一个独立的要点，不能合并成一个字符串。'
     ].join('\n');
 
     const resp = await fetch('/api/deepseek', {
@@ -839,7 +875,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。严格遵循防杜撰分级规则：非原则信息可谨慎推断，原则信息（尺寸、重量、颜色、材质具体成分、认证、特殊功能）绝对不可编造，缺失时用 [需核实] 占位。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。五点描述必须输出为包含 5 个字符串的数组，每个要点 200-255 字符。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。严格遵循防杜撰分级规则：非原则信息可谨慎推断，原则信息（尺寸、重量、颜色、材质具体成分、认证、特殊功能）绝对不可编造，缺失时用 [需核实] 占位。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -902,9 +938,46 @@ function applyAIResults(aiResult, anchorResults){
         $('optIhText').value = ih;
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
+
+    // 五点描述：填充 5 个独立输入框
     if (aiResult.optimizedBullets) {
-        $('optBpText').value = replaceProhibitedWords(aiResult.optimizedBullets);
+        let bullets = aiResult.optimizedBullets;
+        // 兼容 AI 返回字符串或数组的情况
+        if (typeof bullets === 'string') {
+            // 按换行拆分
+            bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+            // 如果拆分后不是 5 个，尝试按单换行拆分
+            if (bullets.length !== 5) {
+                bullets = aiResult.optimizedBullets.split(/\n/).map(s => s.trim()).filter(Boolean);
+            }
+        }
+        // 确保有 5 个
+        for (let i = 0; i < 5; i++){
+            let text = bullets[i] || '';
+            text = replaceProhibitedWords(text);
+            // 去掉结尾标点（亚马逊要求）
+            text = text.replace(/[.。;；,，]+$/, '');
+            // 限制 255 字符
+            text = trimToMaxChars(text, 255);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+        }
+        updateBpTotal();
+    } else {
+        // 没有 AI 五点描述时用兜底
+        for (let i = 0; i < 5; i++){
+            let text = FALLBACK_BULLETS[i] || '';
+            text = replaceProhibitedWords(text);
+            text = text.replace(/[.。;；,，]+$/, '');
+            text = trimToMaxChars(text, 255);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+        }
+        updateBpTotal();
     }
+
     if (aiResult.optimizedDesc) {
         let desc = replaceProhibitedWords(aiResult.optimizedDesc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
@@ -918,6 +991,7 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
+    // 长度下限检查
     const lengthWarnings = [];
     const descLen = $('optDescText').value.length;
     if (descLen > 0 && descLen < 2000) {
@@ -927,12 +1001,18 @@ function applyAIResults(aiResult, anchorResults){
     if (stLen > 0 && stLen < 240) {
         lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于建议下限 240 字节，未充分利用后台字段空间。');
     }
+    // 五点总字符检查
+    let bpTotal = 0;
+    for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el) bpTotal += el.value.length; }
+    if (bpTotal > 0 && bpTotal < 800) {
+        lengthWarnings.push('五点描述总字符仅 ' + bpTotal + ' 字符，建议接近 1000 字符以充分利用空间。');
+    }
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
     const allOutput = [
         $('optTitleText').value,
         $('optIhText').value,
-        $('optBpText').value,
+        $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
         $('optDescText').value,
         $('optStText').value
     ].join(' ');
@@ -973,14 +1053,26 @@ function applyFallback(anchorResults){
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
-    if (!$('optBpText').value.trim()){
-        $('optBpText').value =
-'1. PURPOSE-BUILT: Engineered for reliable everyday performance.\n\n' +
-'2. HEAVY-DUTY: Made from durable, weather-resistant materials.\n\n' +
-'3. EASY TO USE: Simple setup and hassle-free operation.\n\n' +
-'4. MULTI-SCENE: Perfect for indoor and outdoor use.\n\n' +
-'5. PEACE OF MIND: Delivers everyday satisfaction you can count on.';
+
+    // 五点描述降级：尝试从原始五点描述拆分
+    if (!$('optBp0').value.trim()) {
+        let sourceBullets = [];
+        if (bpRaw) {
+            sourceBullets = bpRaw.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+            if (sourceBullets.length < 3) sourceBullets = bpRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
+        }
+        for (let i = 0; i < 5; i++){
+            let text = sourceBullets[i] || FALLBACK_BULLETS[i] || '';
+            text = replaceProhibitedWords(text);
+            text = text.replace(/[.。;；,，]+$/, '');
+            text = trimToMaxChars(text, 255);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 200);
+        }
+        updateBpTotal();
     }
+
     if (!$('optDescText').value.trim()) {
         let desc = replaceProhibitedWords(descRaw) || 'Premium quality product built for long-lasting everyday performance.';
         desc = replaceProhibitedWords(desc);
@@ -997,13 +1089,43 @@ function applyFallback(anchorResults){
     const fallbackOutput = [
         $('optTitleText').value,
         $('optIhText').value,
-        $('optBpText').value,
+        $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
         $('optDescText').value,
         $('optStText').value
     ].join(' ');
 
     const fallbackHits = detectProhibitedWords(fallbackOutput);
     if (fallbackHits.length > 0) showProhibitedWarning(fallbackHits, '优化文案（本地模板，自动替换后仍有残留）');
+}
+
+/* ================= 复制全部五点 ================= */
+async function copyAllBullets(btn){
+    const parts = [];
+    for (let i = 0; i < 5; i++){
+        const el = $('optBp' + i);
+        if (el && el.value.trim()) parts.push(el.value.trim());
+    }
+    if (!parts.length){ showToast('五点描述为空，无可复制'); return; }
+    const text = parts.join('\n\n');
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){
+        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
+    }
+    if (!ok){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+        document.body.removeChild(ta);
+    }
+    if (ok){
+        const original = btn.dataset.label || btn.innerText;
+        btn.dataset.label = original;
+        btn.innerText = '复制成功 ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
+    } else {
+        showToast('复制失败，请手动选中复制');
+    }
 }
 
 /* ================= 示例加载 ================= */
