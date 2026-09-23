@@ -474,6 +474,18 @@ const SAFE_REPLACEMENTS = {
     'my': 'the','i': 'the product'
 };
 
+/* 构建支持词形变形的正则 */
+function buildProhibitedRegex(word, forDetection){
+    if (!word) return null;
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // 长度 < 4 的短词，不加后缀，避免误伤（比如 "i" 不应该匹配 "is"）
+    if (word.length < 4) {
+        return new RegExp('\\b' + escaped + '\\b', 'gi');
+    }
+    // 长度 >= 4 的词，允许常见后缀
+    return new RegExp('\\b' + escaped + '(s|es|ed|ing|d)?\\b', 'gi');
+}
+
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
 
 function replaceProhibitedWords(text) {
@@ -483,18 +495,18 @@ function replaceProhibitedWords(text) {
     sortedKeys.forEach(key => {
         if (!key) return;
         const replacement = SAFE_REPLACEMENTS[key];
-        const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
-        result = result.replace(regex, replacement);
+        const regex = buildProhibitedRegex(key, false);
+        if (regex) result = result.replace(regex, replacement);
     });
     return result;
 }
 
 function detectProhibitedWords(text) {
     if (!text) return [];
-    const lowerText = text.toLowerCase();
     const hits = new Set();
     ALL_PROHIBITED_WORDS.forEach(word => {
-        if (lowerText.includes(word)) hits.add(word);
+        const regex = buildProhibitedRegex(word, true);
+        if (regex && regex.test(text)) hits.add(word);
     });
     return [...hits];
 }
@@ -813,70 +825,48 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号**真正融入进去**。',
         '不能只在 anchorFixes 字段里单独写一句英文，那些句子只是给你自己参考的。',
         '最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
-        '例如：如果 used_in_location 缺失，你的标题/五点/描述里必须真的出现 entryway / indoor / outdoor / porch / office 等场景词。',
-        '如果 used_to 缺失，必须真的出现 prevent / help / ensure / reduce / keep ... clean 等目标词。',
-        '如果 body_part 缺失，必须在标题或描述里提及 size / dimension / inch 等尺寸相关词，如果原文没有具体尺寸，请用 [需核实:尺寸] 占位。',
         '',
         '【你的任务】',
         '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，作为参考列出）。',
-        '2. 生成优化后的商品标题（英文）。严格遵守以下规则：',
+        '2. 生成优化后的商品标题（英文）。规则：',
         '   - 总字符数（含空格）不得超过 75 个字符。',
-        '   - 禁止包含促销内容（如 free shipping, 100% quality guaranteed, sale, discount, best, top）。',
-        '   - 禁止使用特殊字符（! $ ? _ { } ^ ¬ ¦）。~ # < > * 仅限用于产品标识或尺寸。',
-        '   - 同一个单词出现不能超过两次（介词、冠词、连词除外）。',
-        '   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。',
-        '   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。',
-        '   - 不要在标题中重复品牌名。',
-        '   - ⚠️ 标题里必须尽可能融入缺失锚点的核心词，特别是 used_for_func / is_a / capable_of / used_in_location / body_part。',
-        '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
-        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等。同样必须融入缺失锚点。',
-        '4. 生成优化后的五点描述（英文）。**严格遵守以下亚马逊最新规则**：',
-        '   - 输出 5 个独立的要点，每个要点一段，不要合并。',
-        '   - ⚠️ 每个要点的字符数（含空格）**不得低于 200 字符，不得超过 255 字符**。',
-        '   - 五点总字符数**必须接近但不超过 1000 字符**。请尽可能充分利用每一个字符。',
-        '   - 每个要点以大写字母开头，采用「标题 + 冒号 + 描述」结构（如 "MATERIAL: Made from 100% cotton"）。',
-        '   - 格式为句段，**结尾不要使用句号或其他标点符号**。',
-        '   - 数字 1~9 用文字表示（名称、型号、测量值除外），数字和单位之间用空格隔开（如 "60 ml"）。',
-        '   - 每个要点只讲一个卖点，不要重复。',
-        '   - ⚠️ 五点描述是你融入缺失锚点最重要的阵地。请把缺失的锚点分散到 5 个要点里，确保每个锚点的关键词或同义表达都真实出现在文案中。',
-        '   - 禁止使用促销信息、保证类信息、公司信息、外部链接、特殊字符、表情符号。',
-        '   - ⚠️ 极其重要的防杜撰规则（分级管控）：',
-        '     * 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
-        '     * 如果用户没有提供原始五点描述，你只能基于已知信息进行谨慎推断。',
-        '     * 【允许推断】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
-        '     * 【绝对禁止编造】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
-        '     * 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注。',
-        '     * 如果用户没有提供原始五点描述，每个生成的新点开头加上 [AI推测] 字样。',
-        '   - 同样禁止使用上述违禁词。',
-        '5. 生成优化后的详细描述（Description）。',
-        '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符。',
-        '   - 建议组织为 5-8 个自然段，覆盖产品功能、材质、场景、人群、使用保养、产品对比等维度。',
-        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地。请把五点中没有完全覆盖的锚点，在描述里补上，确保每个锚点都有对应的语义信号词。',
-        '   - 语言风格：专业、有说服力、避免夸张。',
-        '   - ⚠️ 同样适用防杜撰规则：原则性信息缺失时用 [需核实:具体属性] 占位。',
-        '6. 生成优化后的后台搜索词（Search Terms）。',
-        '   - 字节数范围必须控制在 240-250 字节。',
-        '   - 仅使用空格分隔，全部小写，禁止标点符号。',
-        '   - 剔除停用词，不包含竞品品牌、主观夸大词、促销词。',
-        '   - 严禁重复标题、五点描述、品牌名中已出现过的词。',
-        '   - 核心拓展策略（按优先级）：大词/类目词 > 长尾词 > 场景词 > 上下游关联词。',
+        '   - 禁止促销内容、特殊字符、全大写。',
+        '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
+        '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词，特别是 used_for_func / is_a / capable_of / used_in_location / body_part。',
+        '   - ⚠️ 严禁使用：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。必须融入缺失锚点。',
+        '4. 生成优化后的五点描述（英文）。规则：',
+        '   - 输出 5 个独立的要点，每个一段，不合并。',
+        '   - ⚠️ 每点字符数（含空格）不低于 200，不超过 255。',
+        '   - 五点总字符数尽可能接近但不超过 1000。',
+        '   - 每点采用「标题 + 冒号 + 描述」结构，结尾不加标点。',
+        '   - ⚠️ 五点是融入缺失锚点最重要的阵地，请把缺失锚点分散到 5 点里。',
+        '   - ⚠️ 防杜撰：原则性信息（尺寸、重量、颜色、材质成分、认证、特殊功能）如果原文未提供，必须用 [需核实:属性] 占位，不得编造。',
+        '   - 如果用户未提供原始五点描述，每个生成的新点开头加 [AI推测] 字样。',
+        '5. 生成优化后的详细描述（Description）：',
+        '   - 字符数不低于 2000，不超过 5000。',
+        '   - 建议 5-8 个自然段，覆盖功能、材质、场景、人群、使用保养。',
+        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地，把五点未完全覆盖的锚点在这里补上。',
+        '   - 同样适用防杜撰规则。',
+        '6. 生成优化后的后台搜索词（Search Terms）：',
+        '   - 字节数 240-250 之间。',
+        '   - 只使用空格分隔，全小写，无标点。',
+        '   - 剔除停用词，不含竞品品牌/夸大词/促销词。',
+        '   - 严禁重复标题/五点/品牌名中已出现的词。',
+        '   - 拓展策略：大词 > 长尾词 > 场景词 > 上下游关联词。',
         '   - ⚠️ 尽可能填满 240-250 字节。',
         '',
         '【输出格式要求】',
-        '必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：',
+        '必须严格返回合法 JSON，不要 markdown 代码块，结构如下：',
         '{',
-        '  "anchorFixes": {',
-        '    "used_for_func": "英文优化句子",',
-        '    ...（仅包含未达标锚点）',
-        '  },',
+        '  "anchorFixes": { "used_for_func": "英文句子", ... },',
         '  "optimizedTitle": "...",',
         '  "optimizedItemHighlights": "...",',
-        '  "optimizedBullets": ["第1点英文文案", "第2点英文文案", "第3点英文文案", "第4点英文文案", "第5点英文文案"],',
-        '  "optimizedDesc": "至少2000字符的详细描述...",',
+        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
+        '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
         '}',
-        '',
-        '⚠️ optimizedBullets 必须是一个包含 5 个字符串的数组。'
+        '⚠️ optimizedBullets 必须是包含 5 个字符串的数组。'
     ].join('\n');
 
     const resp = await fetch('/api/deepseek', {
@@ -884,7 +874,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家。你必须在最终输出的标题、五点、描述、搜索词里真实融入每一个未达标锚点的语义信号，不能只在 anchorFixes 单独列出。五点描述必须是包含 5 个字符串的数组，每个 200-255 字符。详细描述至少 2000 字符。严格遵循防杜撰规则。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述至少 2000 字符。搜索词 240-250 字节。严格防杜撰，原则性信息用 [需核实] 占位。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -912,9 +902,69 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     return parsed;
 }
 
-/* ================= 覆盖度自检 + 自动补丁 ================= */
+/* ================= Search Terms 自动补丁 ================= */
+function patchSearchTerms(anchorResults){
+    const el = $('optStText');
+    let st = (el.value || '').trim().toLowerCase();
+    if (!st) return { added: 0, bytes: 0 };
+
+    let bytes = getByteLength(st);
+    if (bytes >= 240) return { added: 0, bytes: bytes };
+
+    // 收集候选词
+    const seen = new Set();
+    const candidates = [];
+
+    // 1. 从未达标锚点的关键词库里提取
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        a.kws.forEach(k => {
+            const clean = k.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+            if (!clean || clean.length < 3) return;
+            if (seen.has(clean)) return;
+            // 检查是否已在 ST 里
+            if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
+            seen.add(clean);
+            candidates.push(clean);
+        });
+    });
+
+    // 2. 通用长尾词/场景词补充池
+    const extras = [
+        'indoor outdoor', 'heavy duty', 'all season', 'easy to use', 'multi purpose',
+        'daily use', 'home essential', 'high traffic', 'easy clean', 'long lasting',
+        'pet friendly', 'commercial grade', 'year round', 'versatile use', 'floor protector',
+        'home office', 'entry mat', 'door mat', 'shoe mat', 'floor mat', 'utility mat',
+        'modern home', 'home decor', 'interior design', 'floor covering', 'home improvement'
+    ];
+    extras.forEach(e => {
+        if (!seen.has(e)) {
+            if (new RegExp('\\b' + e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
+            seen.add(e); candidates.push(e);
+        }
+    });
+
+    // 过滤掉含违禁词的候选
+    const filtered = candidates.filter(c => detectProhibitedWords(c).length === 0);
+
+    // 追加词，直到接近 248 字节
+    let added = 0;
+    for (const c of filtered) {
+        const candidate = st + ' ' + c;
+        if (getByteLength(candidate) <= 248) {
+            st = candidate;
+            added++;
+        }
+        if (getByteLength(st) >= 240) break;
+    }
+
+    el.value = st;
+    updateByteCounter('optStText', 'stByteCounter', 250, '字节', 240);
+    return { added: added, bytes: getByteLength(st) };
+}
+
+/* ================= 覆盖度自检 + 详细描述补丁 ================= */
 function selfCoverageCheck(anchorResults){
-    // 收集所有优化后的文案
     let title = $('optTitleText').value || '';
     let ih = $('optIhText').value || '';
     let bpText = '';
@@ -927,45 +977,32 @@ function selfCoverageCheck(anchorResults){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         const hits = uniq(a.kws.filter(k => full.includes(k)));
-        if (hits.length === 0) {
-            stillMissing.push(a);
-        }
+        if (hits.length === 0) stillMissing.push(a);
     });
 
-    if (stillMissing.length === 0){
-        return { fixed: 0, missing: [] };
-    }
+    if (stillMissing.length === 0) return { fixed: 0, missing: [] };
 
-    // 尝试自动补丁：把每个仍缺失锚点的语义，以「补充说明段落」形式追加到详细描述末尾
     let patch = '';
     stillMissing.forEach(a => {
-        const kws = a.kws.slice(0, 6);
-        // 用锚点对应的关键词构造一句自然的英文句子
-        const sentence = buildPatchSentence(a, kws);
-        patch += sentence + ' ';
+        const sentence = buildPatchSentence(a, a.kws.slice(0, 6));
+        if (sentence) patch += sentence + ' ';
     });
 
     if (patch){
         const currentDesc = $('optDescText').value || '';
-        // 若加入补丁后不超过 5000 字符，则追加
         if (currentDesc.length + patch.length <= 5000){
             $('optDescText').value = currentDesc.trim() + '\n\n' + patch.trim();
             updateByteCounter('optDescText', 'descByteCounter', 5000, '字符', 2000);
-            // 重新检测
-            const newDesc = $('optDescText').value;
-            const newFull = (title + ' ' + ih + ' ' + bpText + ' ' + newDesc + ' ' + st).toLowerCase();
+            const newFull = (title + ' ' + ih + ' ' + bpText + ' ' + $('optDescText').value + ' ' + st).toLowerCase();
             const nowFixed = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length > 0);
             const remaining = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length === 0);
             return { fixed: nowFixed.length, missing: remaining };
         }
     }
-
     return { fixed: 0, missing: stillMissing };
 }
 
-/* 为仍然缺失的锚点构造补丁句子 */
 function buildPatchSentence(anchor, kws){
-    const kwList = kws.join(', ');
     const templates = {
         'used_for_func': 'The product is purpose-built to deliver reliable daily performance.',
         'used_to':       'It helps prevent everyday mess and keeps your space clean and organized.',
@@ -1026,9 +1063,7 @@ function applyAIResults(aiResult, anchorResults){
         let bullets = aiResult.optimizedBullets;
         if (typeof bullets === 'string') {
             bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-            if (bullets.length !== 5) {
-                bullets = aiResult.optimizedBullets.split(/\n/).map(s => s.trim()).filter(Boolean);
-            }
+            if (bullets.length !== 5) bullets = aiResult.optimizedBullets.split(/\n/).map(s => s.trim()).filter(Boolean);
         }
         for (let i = 0; i < 5; i++){
             let text = bullets[i] || '';
@@ -1066,31 +1101,31 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // ============ 覆盖度自检 + 自动补丁 ============
+    // ============ 覆盖度自检 + 详细描述补丁 ============
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0){
         showCoverageWarning('检测到 ' + coverage.fixed + ' 个锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落，确保闭环。');
     }
     if (coverage.missing.length > 0){
         const missingNames = coverage.missing.map(a => a.cn).join('、');
-        showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。建议手动在标题或五点中补充，或点击「开始执行」重新生成。');
+        showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。建议手动补充或重新生成。');
+    }
+
+    // ============ Search Terms 自动补丁 ============
+    const stPatch = patchSearchTerms(anchorResults);
+    if (stPatch.added > 0){
+        showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个相关长尾词，当前 ' + stPatch.bytes + ' 字节。');
     }
 
     // 长度下限检查
     const lengthWarnings = [];
     const descLen = $('optDescText').value.length;
-    if (descLen > 0 && descLen < 2000) {
-        lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于建议下限 2000 字符。');
-    }
+    if (descLen > 0 && descLen < 2000) lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于下限 2000。');
     const stLen = getByteLength($('optStText').value);
-    if (stLen > 0 && stLen < 240) {
-        lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于建议下限 240 字节。');
-    }
+    if (stLen > 0 && stLen < 240) lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于下限 240。');
     let bpTotal = 0;
     for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el) bpTotal += el.value.length; }
-    if (bpTotal > 0 && bpTotal < 800) {
-        lengthWarnings.push('五点描述总字符仅 ' + bpTotal + ' 字符，建议接近 1000 字符。');
-    }
+    if (bpTotal > 0 && bpTotal < 800) lengthWarnings.push('五点描述总字符仅 ' + bpTotal + '，建议接近 1000。');
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
     const allOutput = [
@@ -1158,7 +1193,6 @@ function applyFallback(anchorResults){
 
     if (!$('optDescText').value.trim()) {
         let desc = replaceProhibitedWords(descRaw) || 'Well-made product built for long-lasting everyday performance.';
-        desc = replaceProhibitedWords(desc);
         $('optDescText').value = desc;
         updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
     }
@@ -1169,18 +1203,16 @@ function applyFallback(anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // 本地降级也做覆盖度自检
     const coverage = selfCoverageCheck(anchorResults);
-    if (coverage.fixed > 0){
-        showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充段落。');
-    }
+    if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
+
+    const stPatch = patchSearchTerms(anchorResults);
+    if (stPatch.added > 0) showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个长尾词，当前 ' + stPatch.bytes + ' 字节。');
 
     const fallbackOutput = [
-        $('optTitleText').value,
-        $('optIhText').value,
+        $('optTitleText').value, $('optIhText').value,
         $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
-        $('optDescText').value,
-        $('optStText').value
+        $('optDescText').value, $('optStText').value
     ].join(' ');
 
     const fallbackHits = detectProhibitedWords(fallbackOutput);
@@ -1194,7 +1226,7 @@ async function copyAllBullets(btn){
         const el = $('optBp' + i);
         if (el && el.value.trim()) parts.push(el.value.trim());
     }
-    if (!parts.length){ showToast('五点描述为空，无可复制'); return; }
+    if (!parts.length){ showToast('五点描述为空'); return; }
     const text = parts.join('\n\n');
     let ok = false;
     if (navigator.clipboard && window.isSecureContext){
@@ -1212,9 +1244,7 @@ async function copyAllBullets(btn){
         btn.innerText = '复制成功 ✓';
         btn.classList.add('copied');
         setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
-    } else {
-        showToast('复制失败，请手动选中复制');
-    }
+    } else showToast('复制失败');
 }
 
 /* ================= 示例加载 ================= */
@@ -1260,7 +1290,7 @@ function loadSampleByUrl(){
 async function copyTextElement(elementId, btn){
     const el = $(elementId);
     const text = el.value || '';
-    if (!text.trim()){ showToast('内容为空，无可复制'); return; }
+    if (!text.trim()){ showToast('内容为空'); return; }
 
     let ok = false;
     if (navigator.clipboard && window.isSecureContext){
@@ -1268,15 +1298,14 @@ async function copyTextElement(elementId, btn){
     }
     if (!ok){
         try {
-            el.focus();
-            el.select();
+            el.focus(); el.select();
             el.setSelectionRange(0, text.length);
             ok = document.execCommand('copy');
             window.getSelection().removeAllRanges();
         } catch(e){ ok = false; }
     }
 
-    if (!ok){ showToast('复制失败，请手动选中复制'); return; }
+    if (!ok){ showToast('复制失败'); return; }
 
     const original = btn.dataset.label || btn.innerText;
     btn.dataset.label = original;
@@ -1298,7 +1327,6 @@ document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
 });
 
-/* ================= 初始化 ================= */
 document.addEventListener('DOMContentLoaded', initByteCounters);
 if (document.readyState !== 'loading') initByteCounters();
 </script>
