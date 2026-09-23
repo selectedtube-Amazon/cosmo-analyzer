@@ -65,7 +65,6 @@
         flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px;
     }
     button.btn.ghost:hover{background:#f1f5f9;color:#0f172a;}
-
     .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
     @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
     .pane{border-radius:12px;padding:18px;border:1px solid;}
@@ -74,7 +73,6 @@
     .pane h3{margin:0 0 14px;font-size:15px;padding-bottom:9px;border-bottom:2px solid;}
     .pane-left h3{color:#334155;border-color:#cbd5e1;}
     .pane-right h3{color:#166534;border-color:#86efac;}
-
     .results-header{
         display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
         border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;
@@ -82,19 +80,11 @@
     .results-header h2{margin:0 0 6px;font-size:19px;}
     #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;word-break:break-all;max-width:900px;}
     #targetUrlDisplay a{color:var(--primary);}
-
-    /* 双算法评分卡 */
     .score-section{display:flex;gap:16px;flex-wrap:wrap;}
-    .score-card{
-        border-radius:12px;padding:12px 16px;border:1px solid;
-        min-width:280px;
-    }
+    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
     .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
     .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;}
-    .score-card .sc-ttl{
-        font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;
-        display:flex;align-items:center;gap:6px;
-    }
+    .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
     .score-card.cosmo .sc-ttl{color:#1d4ed8;}
     .score-card.a9 .sc-ttl{color:#6d28d9;}
     .score-pair{display:flex;gap:12px;align-items:center;justify-content:flex-start;}
@@ -115,7 +105,6 @@
     .score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px;}
     .score-card.cosmo .score-improve{color:#047857;}
     .score-card.a9 .score-improve{color:#6d28d9;}
-
     .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
     .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
     .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;letter-spacing:.5px;}
@@ -127,18 +116,15 @@
     .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
     .ai-status.done{background:#ecfdf5;color:#047857;}
     .ai-status.error{background:#fef2f2;color:#b91c1c;}
+    .ai-status.boost{background:#ede9fe;color:#6d28d9;animation:pulse 1.4s infinite;}
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
-
     .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;}
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
     th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
     th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
     tbody tr:last-child td{border-bottom:none;}
     tbody tr:hover{background:#fafbfc;}
-    .cluster-tag{
-        display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;
-        background:#eef2ff;color:#4338ca;white-space:nowrap;
-    }
+    .cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap;}
     .cluster-tag.a9{background:#f5f3ff;color:#6d28d9;}
     .anchor-name{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
     .anchor-cn{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:400;}
@@ -146,13 +132,9 @@
     .status-yellow{color:var(--warning);font-weight:700;white-space:nowrap;}
     .status-red{color:var(--danger);font-weight:700;white-space:nowrap;}
     .score-mini{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px;}
-    .kw-chip{
-        display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;
-        padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;
-    }
+    .kw-chip{display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;}
     .kw-chip.hit{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
     .kw-chip.miss{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;}
-
     .suggestion-cell{background:#fffbeb;border-left:3px solid var(--warning);padding:11px 13px;border-radius:0 7px 7px 0;}
     .suggestion-cell.red{background:#fef2f2;border-left-color:var(--danger);}
     .suggestion-cell.ok{background:#f0fdf4;border-left-color:var(--success);color:#15803d;font-size:12.5px;}
@@ -161,70 +143,35 @@
     .suggestion-cell.red p{color:#991b1b;}
     .gemini-box{background:#fff;border:1px solid #d1fae5;padding:9px 11px;border-radius:7px;margin-top:7px;}
     .gemini-box .ttl{margin:0 0 5px;color:#15803d;font-weight:700;font-size:11.5px;letter-spacing:.3px;}
-    .gemini-box code{
-        color:#065f46;display:block;font-family:ui-monospace,Menlo,Consolas,monospace;
-        font-size:12px;line-height:1.55;word-break:break-word;white-space:pre-wrap;
-    }
-
-    .copy-section-header{
-        display:flex;justify-content:space-between;align-items:center;
-        margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;
-    }
+    .gemini-box code{color:#065f46;display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.55;word-break:break-word;white-space:pre-wrap;}
+    .copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;}
     .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;}
-    .copy-btn{
-        background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;
-        font-weight:700;border-radius:6px;cursor:pointer;transition:background .2s;font-family:inherit;
-    }
+    .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;transition:background .2s;font-family:inherit;}
     .copy-btn:hover{background:#059669;}
     .copy-btn.copied{background:var(--primary);}
-    .optimized-textarea{
-        width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;
-        font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;
-        white-space:pre-wrap;word-break:break-word;margin-bottom:15px;resize:vertical;
-    }
+    .optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;margin-bottom:15px;resize:vertical;}
     .optimized-textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
     .byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right;}
     .byte-counter.over{color:var(--danger);font-weight:700;}
     .byte-counter.under{color:var(--warning);font-weight:700;}
-    .bp-item{
-        border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;
-        background:#f0fdf4;transition:border-color .2s;
-    }
+    .bp-item{border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;background:#f0fdf4;transition:border-color .2s;}
     .bp-item:hover{border-color:#86efac;}
-    .bp-item-header{
-        display:flex;justify-content:space-between;align-items:center;
-        margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;
-    }
+    .bp-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;}
     .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
     .bp-item-header .bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px;}
-    .bp-item textarea{
-        width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;
-        font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;
-        white-space:pre-wrap;word-break:break-word;resize:vertical;min-height:70px;
-    }
+    .bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;resize:vertical;min-height:70px;}
     .bp-item textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
-    .kw-hit-report{
-        margin-top:20px;padding:14px 18px;border-radius:10px;
-        background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;
-    }
+    .kw-hit-report{margin-top:20px;padding:14px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;}
     .kw-hit-report .report-ttl{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px;}
     .kw-hit-report .report-stats{font-size:12.5px;color:#0c4a6e;margin-bottom:8px;}
     .kw-hit-report .report-stats b{color:#0ea5e9;font-size:15px;}
-    .kw-hit-report .kw-tag{
-        display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;
-        padding:2px 7px;border-radius:4px;margin:2px 4px 2px 0;
-    }
+    .kw-hit-report .kw-tag{display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:4px;margin:2px 4px 2px 0;}
     .kw-hit-report .kw-tag.used{background:#dcfce7;color:#166534;border:1px solid #86efac;}
     .kw-hit-report .kw-tag.miss{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-    #toast{
-        position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);
-        background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;
-        font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;
-        box-shadow:0 10px 25px -5px rgba(0,0,0,.3);
-    }
+    #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 10px 25px -5px rgba(0,0,0,.3);}
     #toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
@@ -233,12 +180,11 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 埋词命中报告</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · A9 迭代增强 · 埋词命中报告</p>
     </header>
 
     <div class="card">
         <h2>📥 输入商品信息与文案</h2>
-
         <div class="url-box">
             <label for="productUrl" style="margin-bottom:8px;">🔗 亚马逊商品详情页网址（URL / ASIN 链接 · 可选）</label>
             <div class="url-flex">
@@ -247,13 +193,11 @@
             </div>
             <div class="hint">提示：本工具不会真实抓取亚马逊页面；该按钮仅根据链接关键词匹配内置示例数据，方便快速体验。</div>
         </div>
-
         <div class="keywords-box">
             <label for="hotKeywords">🎯 品类热词 / 长尾词库（可选，每行一个或用逗号/空格分隔）</label>
             <textarea id="hotKeywords" placeholder="例如（从卖家精灵/Helium 10/品牌分析 导出）：&#10;doormat&#10;front door mat&#10;entryway rug&#10;non slip mat&#10;absorbent floor mat&#10;pet friendly door mat&#10;shoe mat indoor"></textarea>
             <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。不填则 AI 用通用词推断。</div>
         </div>
-
         <div class="form-group">
             <label for="productTitle">商品标题 (Title)</label>
             <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
@@ -270,7 +214,6 @@
             <label for="searchTerms">后台搜索词 (Search Terms)</label>
             <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
         </div>
-
         <div class="btn-row">
             <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始执行 A9 + COSMO 双算法打分与 DeepSeek 优化</button>
             <button class="btn ghost" onclick="clearAll()">清空</button>
@@ -316,7 +259,6 @@
                 </div>
             </div>
         </div>
-
         <div class="stat-row">
             <div class="stat-line">
                 <span class="line-label">COSMO</span>
@@ -326,112 +268,55 @@
                 <span id="aiStatus" class="ai-status hidden">DeepSeek 生成中…</span>
             </div>
         </div>
-
         <div class="compare-grid">
             <div class="pane pane-left">
                 <h3>📋 当前原始文案（核对底本）</h3>
-                <div class="form-group">
-                    <label>原始商品标题</label>
-                    <input type="text" id="origTitleView" readonly style="background:#fff;">
-                </div>
-                <div class="form-group">
-                    <label>原始 5 点描述</label>
-                    <textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>原始详细描述</label>
-                    <textarea id="origDescView" readonly style="background:#fff;height:80px;"></textarea>
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label>原始后台 Search Terms</label>
-                    <input type="text" id="origStView" readonly style="background:#fff;">
-                </div>
+                <div class="form-group"><label>原始商品标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
+                <div class="form-group"><label>原始 5 点描述</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
+                <div class="form-group"><label>原始详细描述</label><textarea id="origDescView" readonly style="background:#fff;height:80px;"></textarea></div>
+                <div class="form-group" style="margin-bottom:0;"><label>原始后台 Search Terms</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
             </div>
-
             <div class="pane pane-right">
                 <h3>✨ DeepSeek 优化文案（一键复制）</h3>
-
                 <div class="copy-section-header">
                     <span>优化后的商品标题 (Title · ≤75字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
-
                 <div class="copy-section-header">
                     <span>Item Highlights (≤125字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
-
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
                     <span>优化后的 5 点描述 (每点 150-255 字符，总 ≤1000)</span>
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
-
                 <div id="bulletPointsContainer">
-                    <div class="bp-item">
-                        <div class="bp-item-header">
-                            <span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 包装内容</span></span>
-                            <button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button>
-                        </div>
-                        <textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea>
-                        <div id="bpCounter0" class="byte-counter">0 / 255 字符</div>
-                    </div>
-                    <div class="bp-item">
-                        <div class="bp-item-header">
-                            <span><span class="bp-label">第 2 点</span><span class="bp-role">核心痛点 / 人群</span></span>
-                            <button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button>
-                        </div>
-                        <textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea>
-                        <div id="bpCounter1" class="byte-counter">0 / 255 字符</div>
-                    </div>
-                    <div class="bp-item">
-                        <div class="bp-item-header">
-                            <span><span class="bp-label">第 3 点</span><span class="bp-role">特点 + 收益</span></span>
-                            <button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button>
-                        </div>
-                        <textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea>
-                        <div id="bpCounter2" class="byte-counter">0 / 255 字符</div>
-                    </div>
-                    <div class="bp-item">
-                        <div class="bp-item-header">
-                            <span><span class="bp-label">第 4 点</span><span class="bp-role">功能原理 + 攻心</span></span>
-                            <button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button>
-                        </div>
-                        <textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea>
-                        <div id="bpCounter3" class="byte-counter">0 / 255 字符</div>
-                    </div>
-                    <div class="bp-item">
-                        <div class="bp-item-header">
-                            <span><span class="bp-label">第 5 点</span><span class="bp-role">保证 / 风险逆转</span></span>
-                            <button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button>
-                        </div>
-                        <textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea>
-                        <div id="bpCounter4" class="byte-counter">0 / 255 字符</div>
-                    </div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 包装内容</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 2 点</span><span class="bp-role">核心痛点 / 人群</span></span><button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button></div><textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter1" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 3 点</span><span class="bp-role">特点 + 收益</span></span><button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button></div><textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter2" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 4 点</span><span class="bp-role">功能原理 + 攻心</span></span><button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button></div><textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter3" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 5 点</span><span class="bp-role">保证 / 风险逆转</span></span><button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button></div><textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter4" class="byte-counter">0 / 255 字符</div></div>
                 </div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
-
                 <div class="copy-section-header" style="margin-top:10px;">
                     <span>优化后的详细描述 (Description · ≤5000字符，无下限)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="descByteCounter" class="byte-counter">0 / 5000 字符</div>
-
                 <div class="copy-section-header">
                     <span>优化后的后台搜索词 (Search Terms · 240-250字节)</span>
                     <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="stByteCounter" class="byte-counter">0 / 250 字节（下限 240）</div>
-
                 <div id="kwHitReport" class="kw-hit-report hidden"></div>
             </div>
         </div>
-
         <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
         <div class="table-wrap">
             <table>
@@ -446,7 +331,6 @@
                 <tbody id="a9MatrixBody"></tbody>
             </table>
         </div>
-
         <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
         <div class="table-wrap">
             <table>
@@ -471,15 +355,15 @@ const L = {
     func:      ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch'],
     goal:      ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
     capable:   ['durab','waterproof','water-resistant','water resistant','weather','resistant','heavy duty','heavy-duty','absorbent','washable','reusable','sturdy','non-slip','non slip','withstand','long-lasting','premium material','high quality'],
-    identity:  ['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light'],
+    identity:  ['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light','box','boxes','carton','container'],
     role:      ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
-    audience:  ['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone'],
-    ease:      ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools'],
-    size:      ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable'],
-    location:  ['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home'],
-    occasion:  ['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal'],
+    audience:  ['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone','seller','business'],
+    ease:      ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools','assemble'],
+    size:      ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube'],
+    location:  ['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home','warehouse'],
+    occasion:  ['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal','shipping','packing','moving'],
     season:    ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
-    lifestyle: ['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design'],
+    lifestyle: ['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design','craft'],
     together:  ['compatible','works with','work with','pairs with','pair with','along with','accessories','standard','together with','combine','match'],
     image:     ['professional','elegant','refined','welcoming','hospital','premium','sophisticated','organized','taste','impress','stylish','luxury','high-end','chic'],
     emotion:   ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
@@ -504,37 +388,24 @@ const ANCHORS = [
 ];
 
 /* ================= A9 词库 ================= */
-const A9_SCENE_WORDS = ['indoor','outdoor','entryway','porch','patio','garden','kitchen','bathroom','office','classroom','front door','mudroom','hallway','garage','commercial','home','living room','bedroom','entrance','lobby','store','walkway','balcony','yard','lawn'];
-const A9_ATTR_WORDS = ['non-slip','non slip','absorbent','washable','reusable','durable','waterproof','water-resistant','water resistant','heavy duty','soft','thick','easy clean','machine washable','eco-friendly','recyclable','lightweight','sturdy','weather-resistant','long-lasting','foldable','portable','reversible','breathable'];
+const A9_SCENE_WORDS = ['indoor','outdoor','entryway','porch','patio','garden','kitchen','bathroom','office','classroom','front door','mudroom','hallway','garage','commercial','home','living room','bedroom','entrance','lobby','store','walkway','balcony','yard','lawn','warehouse','shipping','packing','moving','storage'];
+const A9_ATTR_WORDS = ['non-slip','non slip','absorbent','washable','reusable','durable','waterproof','water-resistant','water resistant','heavy duty','soft','thick','easy clean','machine washable','eco-friendly','recyclable','lightweight','sturdy','weather-resistant','long-lasting','foldable','portable','reversible','breathable','sturdy','crush-resistant'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
-
-const A9_DIMENSIONS = [
-    { key:'title_core',       cn:'标题核心词',     max:10, desc:'标题包含核心品类词（热词库中的词）' },
-    { key:'title_front',      cn:'标题首屏权重',   max:10, desc:'标题前 80 字符包含主关键词' },
-    { key:'title_length',     cn:'标题长度规范',   max:10, desc:'符合亚马逊 75 字符新规' },
-    { key:'bp_distribution',  cn:'五点词分布',     max:10, desc:'五点各自覆盖不同关键词，不堆砌' },
-    { key:'long_tail',        cn:'长尾词覆盖',     max:10, desc:'至少覆盖 3 个长尾搜索词' },
-    { key:'scene_words',      cn:'场景词覆盖',     max:10, desc:'包含使用场景词' },
-    { key:'attr_words',       cn:'属性词覆盖',     max:10, desc:'包含产品属性词' },
-    { key:'st_supplement',    cn:'搜索词补充',     max:10, desc:'搜索词补充了标题/五点未覆盖的词' },
-    { key:'word_variants',    cn:'词形变体',       max:10, desc:'包含单复数或同义词变体' },
-    { key:'no_stuffing',      cn:'无关键词堆砌',   max:10, desc:'核心词重复不超过 3 次' }
-];
 
 const FALLBACK = {
     'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
     'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and hassle, keep your space looking its best, and deliver consistent results without extra effort.',
     'capable_of':'BUILT TO WITHSTAND: Made from durable, water-resistant materials that hold up to daily use, harsh weather and high-traffic conditions.',
-    'is_a':'PREMIUM QUALITY: A well-crafted product built for long-lasting performance and modern everyday living.',
+    'is_a':'WELL-MADE QUALITY: A well-crafted product built for long-lasting performance and modern everyday living.',
     'used_as':'DOUBLE DUTY: Works as both a practical everyday essential and a stylish decorative piece that upgrades any space.',
-    'target_audience':'PERFECT FOR: Homeowners and families who want a smart, practical upgrade — and a thoughtful gift idea.',
+    'target_audience':'IDEAL FOR: Homeowners and families who want a smart, practical upgrade — and a thoughtful gift idea.',
     'used_by':'EASY FOR EVERYONE: Lightweight, hassle-free and simple to set up, so anyone can get it working in seconds.',
-    'body_part':'EXACT SIZE & FIT: Available in standard sizes — double-check the size chart above to confirm a perfect fit.',
+    'body_part':'EXACT SIZE & FIT: Available in standard sizes — double-check the size chart above to confirm a fitting result.',
     'used_in_location':'INDOOR & OUTDOOR: Ideal for entryways, patios, gardens, hallways and any other space where you need it most.',
     'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: Ready for holidays, parties and everyday use — dress it up or keep it simple.',
     'used_at_time/season':'ALL-SEASON READY: Built for year-round use, holding up through spring, summer, fall and winter.',
     'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, cozier and more stylish feel to your everyday routine.',
-    'used_with':'PAIRS PERFECTLY WITH: Compatible with standard accessories and existing setups — no extra tools needed.',
+    'used_with':'PAIRS WELL WITH: Compatible with standard accessories and existing setups — no extra tools needed.',
     'self_image':'LOOKS THE PART: A refined, professional touch that shows guests you care about the details of your space.',
     'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
 };
@@ -703,7 +574,7 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ================= A9 打分函数 ================= */
+/* ================= A9 打分 ================= */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase();
     const b = (bp || '').toLowerCase();
@@ -712,14 +583,12 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     const full = t + ' ' + b + ' ' + d + ' ' + s;
     const coreKeywords = (hotKeywords || []).map(k => k.toLowerCase());
 
-    // 工具：单词切分
     function words(str){
         return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g, '')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w));
     }
 
     const results = [];
 
-    // 1. 标题核心词（热词在标题中的出现数）
     let titleCoreScore = 0, titleCoreNote = '';
     if (coreKeywords.length){
         const found = coreKeywords.filter(kw => t.includes(kw));
@@ -735,7 +604,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     }
     results.push({ key:'title_core', cn:'标题核心词', score: titleCoreScore, max:10, note: titleCoreNote });
 
-    // 2. 标题首屏权重（前 80 字符含主关键词）
     const first80 = t.substring(0, 80);
     let titleFrontScore = 0, titleFrontNote = '';
     if (coreKeywords.length){
@@ -750,7 +618,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     }
     results.push({ key:'title_front', cn:'标题首屏权重', score: titleFrontScore, max:10, note: titleFrontNote });
 
-    // 3. 标题长度规范
     const tLen = (title || '').length;
     let tLenScore, tLenNote;
     if (tLen === 0){ tLenScore = 0; tLenNote = '标题为空'; }
@@ -760,35 +627,29 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else { tLenScore = 3; tLenNote = '标题 ' + tLen + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score: tLenScore, max:10, note: tLenNote });
 
-    // 4. 五点词分布
     const bpParts = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
     let bpDistScore = 0, bpDistNote = '';
     if (bpParts.length === 0){ bpDistScore = 0; bpDistNote = '五点描述为空'; }
     else {
-        // 提取每点的有效词
         const perPointWords = bpParts.map(part => new Set(words(part)));
-        // 计算所有点的并集
         const allWords = new Set();
         perPointWords.forEach(set => set.forEach(w => allWords.add(w)));
-        // 计算重复率
         const totalCount = perPointWords.reduce((sum, set) => sum + set.size, 0);
         const uniqueCount = allWords.size;
         const duplicateRate = totalCount > 0 ? (1 - uniqueCount / totalCount) : 0;
-        if (bpParts.length >= 5 && duplicateRate < 0.4){ bpDistScore = 10; bpDistNote = '5 点完整且词分布分散（重复率 ' + Math.round(duplicateRate*100) + '%），关键词覆盖广'; }
+        if (bpParts.length >= 5 && duplicateRate < 0.4){ bpDistScore = 10; bpDistNote = '5 点完整且词分布分散（重复率 ' + Math.round(duplicateRate*100) + '%）'; }
         else if (bpParts.length >= 5 && duplicateRate < 0.6){ bpDistScore = 7; bpDistNote = '5 点完整，但部分词重复（重复率 ' + Math.round(duplicateRate*100) + '%）'; }
         else if (bpParts.length >= 3){ bpDistScore = 5; bpDistNote = '仅 ' + bpParts.length + ' 点，建议补全 5 点'; }
         else { bpDistScore = 2; bpDistNote = '五点不足，需补全'; }
     }
     results.push({ key:'bp_distribution', cn:'五点词分布', score: bpDistScore, max:10, note: bpDistNote });
 
-    // 5. 长尾词覆盖
     let longTailCount = 0, longTailNote = '';
     if (coreKeywords.length){
         const found = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
         longTailCount = found.length;
         longTailNote = found.length ? ('命中长尾词：' + found.slice(0,5).join(' / ')) : '未命中热词库中的长尾词';
     } else {
-        // 从文本中提取包含空格的双词组合，估算长尾词
         const matches = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || [];
         longTailCount = Math.min(matches.length, 15);
         longTailNote = '未提供热词库，文本中检测到约 ' + matches.length + ' 个双词组合';
@@ -796,19 +657,16 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     let longTailScore = Math.min(10, longTailCount * 2);
     results.push({ key:'long_tail', cn:'长尾词覆盖', score: longTailScore, max:10, note: longTailNote });
 
-    // 6. 场景词
     const sceneFound = A9_SCENE_WORDS.filter(w => full.includes(w));
     let sceneScore = Math.min(10, sceneFound.length * 2);
     results.push({ key:'scene_words', cn:'场景词覆盖', score: sceneScore, max:10,
-        note: sceneFound.length ? ('命中场景词（' + sceneFound.length + '）：' + sceneFound.slice(0,8).join(' / ')) : '未检测到场景词（entryway/porch/indoor/outdoor 等）' });
+        note: sceneFound.length ? ('命中场景词（' + sceneFound.length + '）：' + sceneFound.slice(0,8).join(' / ')) : '未检测到场景词' });
 
-    // 7. 属性词
     const attrFound = A9_ATTR_WORDS.filter(w => full.includes(w));
     let attrScore = Math.min(10, attrFound.length * 1.5);
     results.push({ key:'attr_words', cn:'属性词覆盖', score: attrScore, max:10,
-        note: attrFound.length ? ('命中属性词（' + attrFound.length + '）：' + attrFound.slice(0,8).join(' / ')) : '未检测到属性词（non-slip/absorbent/washable 等）' });
+        note: attrFound.length ? ('命中属性词（' + attrFound.length + '）：' + attrFound.slice(0,8).join(' / ')) : '未检测到属性词' });
 
-    // 8. 搜索词补充
     let stSupScore = 0, stSupNote = '';
     if (!s.trim()){
         stSupScore = 0;
@@ -817,27 +675,25 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         const stWords = new Set(words(s));
         const titleBpWords = new Set([...words(t), ...words(b), ...words(d)]);
         const newWords = [...stWords].filter(w => !titleBpWords.has(w));
-        if (newWords.length >= 6){ stSupScore = 10; stSupNote = '搜索词补充了 ' + newWords.length + ' 个新词，充分利用补充字段'; }
+        if (newWords.length >= 6){ stSupScore = 10; stSupNote = '搜索词补充了 ' + newWords.length + ' 个新词'; }
         else if (newWords.length >= 3){ stSupScore = 7; stSupNote = '搜索词补充了 ' + newWords.length + ' 个新词'; }
-        else if (newWords.length >= 1){ stSupScore = 4; stSupNote = '搜索词补充仅 ' + newWords.length + ' 个新词，有优化空间'; }
-        else { stSupScore = 1; stSupNote = '搜索词内容与标题/五点完全重复，无补充价值'; }
+        else if (newWords.length >= 1){ stSupScore = 4; stSupNote = '搜索词补充仅 ' + newWords.length + ' 个新词'; }
+        else { stSupScore = 1; stSupNote = '搜索词与标题/五点完全重复'; }
     }
     results.push({ key:'st_supplement', cn:'搜索词补充', score: stSupScore, max:10, note: stSupNote });
 
-    // 9. 词形变体
     let variantCount = 0;
-    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['tile','tiles'],['shoe','shoes'],['pet','pets'],['home','homes']];
+    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['tile','tiles'],['shoe','shoes'],['pet','pets'],['home','homes'],['box','boxes'],['carton','cartons'],['bag','bags'],['pad','pads']];
     pairs.forEach(([s1, p1]) => {
         if (full.includes(s1) && full.includes(p1)) variantCount++;
     });
-    // 紧凑词 vs 分开词
     if (full.includes('door mat') && full.includes('doormat')) variantCount++;
     if (full.includes('floor mat') && full.includes('floormat')) variantCount++;
+    if (full.includes('paper box') && full.includes('paperbox')) variantCount++;
     let variantScore = Math.min(10, variantCount * 3);
     results.push({ key:'word_variants', cn:'词形变体', score: variantScore, max:10,
-        note: variantCount ? ('检测到 ' + variantCount + ' 组词形变体（单复数/紧凑形式）') : '未检测到单复数或紧凑形式变体' });
+        note: variantCount ? ('检测到 ' + variantCount + ' 组词形变体') : '未检测到单复数或紧凑形式变体' });
 
-    // 10. 无堆砌
     let noStuffScore = 10, noStuffNote = '未检测到关键词堆砌';
     if (coreKeywords.length){
         let maxRepeat = 0;
@@ -849,7 +705,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         });
         if (maxRepeat <= 3){ noStuffScore = 10; noStuffNote = '核心词最大重复 ' + maxRepeat + ' 次，密度健康'; }
         else if (maxRepeat <= 5){ noStuffScore = 6; noStuffNote = '核心词重复 ' + maxRepeat + ' 次，接近堆砌红线'; }
-        else { noStuffScore = 2; noStuffNote = '核心词重复 ' + maxRepeat + ' 次，存在关键词堆砌风险'; }
+        else { noStuffScore = 2; noStuffNote = '核心词重复 ' + maxRepeat + ' 次，存在堆砌风险'; }
     }
     results.push({ key:'no_stuffing', cn:'无关键词堆砌', score: noStuffScore, max:10, note: noStuffNote });
 
@@ -865,7 +721,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     return { totalScore, grade, lv, dimensions: results, coreKeywords };
 }
 
-/* ================= COSMO 打分函数 ================= */
+/* ================= COSMO 打分 ================= */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let rawScore = 0, green = 0, yellow = 0, red = 0;
@@ -963,6 +819,17 @@ function showCoverageWarning(message) {
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
+function showBoostSuccess(oldScore, newScore, boostCount){
+    const existing = document.getElementById('boost-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'boost-warning';
+    warning.style.cssText = 'background:#ede9fe;border:1px solid #c4b5fd;border-left:4px solid #8b5cf6;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#6d28d9;font-size:13px;">🚀 A9 迭代增强完成：第 ' + boostCount + ' 轮优化，A9 分数 ' + oldScore + ' → ' + newScore + ' 分。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 function updateByteCounter(inputId, counterId, max, unit, min){
     const el = $(inputId);
     const counter = $(counterId);
@@ -1018,7 +885,6 @@ function initByteCounters(){
     }
 }
 
-/* 渲染 A9 诊断表格 */
 function renderA9Table(a9Result){
     const rows = a9Result.dimensions.map(d => {
         let statusClass, statusText;
@@ -1036,21 +902,103 @@ function renderA9Table(a9Result){
     $('a9MatrixBody').innerHTML = rows;
 }
 
-/* 渲染顶部 A9 分数 */
-function renderA9Score(a9Result, beforeResult){
+function renderA9Score(a9After, a9Before){
     const beforeBadge = $('a9ScoreBefore');
-    beforeBadge.className = 'score-badge ' + beforeResult.lv;
-    beforeBadge.textContent = beforeResult.totalScore + ' · ' + beforeResult.grade;
-
+    beforeBadge.className = 'score-badge ' + a9Before.lv;
+    beforeBadge.textContent = a9Before.totalScore + ' · ' + a9Before.grade;
     const afterBadge = $('a9ScoreAfter');
-    afterBadge.className = 'score-badge ' + a9Result.lv;
-    afterBadge.textContent = a9Result.totalScore + ' · ' + a9Result.grade;
-
-    const improve = a9Result.totalScore - beforeResult.totalScore;
+    afterBadge.className = 'score-badge ' + a9After.lv;
+    afterBadge.textContent = a9After.totalScore + ' · ' + a9After.grade;
+    const improve = a9After.totalScore - a9Before.totalScore;
     const improveEl = $('a9ScoreImprove');
     if (improve > 0){ improveEl.textContent = '⬆ A9 提升 +' + improve + ' 分'; improveEl.style.color = '#6d28d9'; }
     else if (improve === 0){ improveEl.textContent = '→ A9 分数持平'; improveEl.style.color = '#64748b'; }
     else { improveEl.textContent = '⬇ A9 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
+}
+
+/* ================= A9 迭代增强 ================= */
+async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, boostRound){
+    const weakList = weakDimensions.map(d =>
+        '- ' + d.cn + '（当前 ' + d.score + ' / ' + d.max + ' 分）：' + d.note
+    ).join('\n');
+
+    const prompt = [
+        '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
+        '',
+        '你的前一轮优化已经生成了一份文案，但 A9 打分未达到 90 分。现在需要你针对性改进，专门解决以下短板维度。',
+        '',
+        '【当前已有的优化文案】',
+        '标题：' + currentTexts.title,
+        'Item Highlights：' + currentTexts.ih,
+        '五点描述：',
+        currentTexts.bullets,
+        '详细描述：',
+        currentTexts.desc,
+        'Search Terms：' + currentTexts.st,
+        '',
+        '【A9 待改进维度（必须针对性提升）】',
+        weakList,
+        '',
+        hotKeywords && hotKeywords.length ? [
+            '【用户热词库（优先级最高，尽量全部埋入）】',
+            hotKeywords.join('\n')
+        ].join('\n') : '',
+        '',
+        '════════ 改进目标 ════════',
+        '1. 保留已有文案的核心内容，不要推翻重写。',
+        '2. 只针对薄弱维度做针对性补充和优化。',
+        '3. 严格控制字符限制：标题 ≤75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
+        '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
+        '',
+        '【改进策略】',
+        '• 标题核心词 / 首屏权重不足 → 把热词更靠前放入标题，最多埋 3-5 个核心热词',
+        '• 五点词分布不足 → 确保 5 点各自覆盖不同关键词',
+        '• 长尾词不足 → 五点/描述里加入带空格的长尾短语',
+        '• 场景词不足 → 描述/五点里自然融入 indoor/outdoor/entryway/office 等场景词',
+        '• 属性词不足 → 描述/五点里自然融入 non-slip/washable/durable 等属性词（不能编造不存在的属性）',
+        '• 搜索词补充不足 → 让 Search Terms 包含标题/五点里没有出现的新词',
+        '• 词形变体不足 → 搜索词里可以包含单复数或紧凑形式变体',
+        '',
+        '【输出格式】',
+        '必须严格返回合法 JSON，结构同上一轮：',
+        '{',
+        '  "optimizedTitle": "...",',
+        '  "optimizedItemHighlights": "...",',
+        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
+        '  "optimizedDesc": "...",',
+        '  "optimizedST": "..."',
+        '}'
+    ].filter(Boolean).join('\n');
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    let resp;
+    try {
+        resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 8000,
+                response_format: { type: 'json_object' }
+            }),
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+    const result = await resp.json();
+    if (!result.success) throw new Error(result.error || '未知错误');
+    let content = result.data.choices[0].message.content.trim();
+    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    const firstBrace = content.indexOf('{');
+    const lastBrace = content.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
+    return JSON.parse(content);
 }
 
 /* ================= 主流程 ================= */
@@ -1070,7 +1018,7 @@ async function runAnalysis(){
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
     if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，A9 将据此打分，AI 将优先埋入');
 
-    ['prohibited-warning','length-warning','coverage-warning'].forEach(id => {
+    ['prohibited-warning','length-warning','coverage-warning','boost-warning'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.remove();
     });
@@ -1080,12 +1028,9 @@ async function runAnalysis(){
     $('origDescView').value  = descRaw;
     $('origStView').value    = stRaw;
 
-    // COSMO 优化前打分
     const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
-    // A9 优化前打分
     const a9Before = scoreA9(titleRaw, bpRaw, descRaw, stRaw, hotKeywords);
 
-    // 渲染 COSMO 表格
     const rows = beforeResult.anchorResults.map(a => {
         const shownHits = a.hits.slice(0, 5);
         const chips = shownHits.map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('')
@@ -1109,11 +1054,8 @@ async function runAnalysis(){
         '</tr>';
     }).join('');
     $('matrixTableBody').innerHTML = rows;
-
-    // 渲染 A9 表格
     renderA9Table(a9Before);
 
-    // 顶部 COSMO 分数
     const beforeBadge = $('scoreBefore');
     beforeBadge.className = 'score-badge ' + beforeResult.lv;
     beforeBadge.textContent = beforeResult.totalScore + ' · ' + beforeResult.grade;
@@ -1121,8 +1063,6 @@ async function runAnalysis(){
     afterBadge.className = 'score-badge';
     afterBadge.textContent = '--';
     $('scoreImprove').textContent = '';
-
-    // 顶部 A9 分数
     renderA9Score(a9Before, a9Before);
 
     $('statGreen').textContent  = '🟢 完美覆盖 ' + beforeResult.green;
@@ -1151,10 +1091,52 @@ async function runAnalysis(){
     status.textContent = '🤖 DeepSeek 双算法优化中…';
 
     try {
+        // 第一轮生成
         const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, 5);
         applyAIResults(aiResult, beforeResult.anchorResults, beforeResult, hotKeywords);
+
+        // 计算第一次优化后的 A9 分数
+        let currentTexts = readCurrentTexts();
+        let a9After = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
+        let boostRound = 0;
+        const MAX_BOOST = 2;
+
+        // 迭代增强循环
+        while (a9After.totalScore < 90 && boostRound < MAX_BOOST){
+            boostRound++;
+            const weakDims = a9After.dimensions.filter(d => d.score < d.max * 0.8);
+            if (weakDims.length === 0) break;
+
+            status.className = 'ai-status boost';
+            status.textContent = '🚀 A9 迭代增强中 (第 ' + boostRound + ' / ' + MAX_BOOST + ' 轮，当前 ' + a9After.totalScore + ' 分)…';
+            const prevScore = a9After.totalScore;
+
+            try {
+                const boostResult = await boostA9ForWeakDimensions(weakDims, currentTexts, hotKeywords, boostRound);
+                applyBoostResult(boostResult);
+
+                currentTexts = readCurrentTexts();
+                const newA9 = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
+
+                if (newA9.totalScore > a9After.totalScore){
+                    a9After = newA9;
+                    showBoostSuccess(prevScore, a9After.totalScore, boostRound);
+                } else {
+                    console.warn('A9 第 ' + boostRound + ' 轮未提升，停止迭代');
+                    break;
+                }
+            } catch (boostErr){
+                console.error('A9 迭代增强失败：', boostErr);
+                break;
+            }
+        }
+
+        // 最终重算 COSMO 和 A9
+        applyAfterScore(beforeResult, hotKeywords);
+        renderKwHitReport(hotKeywords);
+
         status.className = 'ai-status done';
-        status.textContent = '✅ DeepSeek 生成完成';
+        status.textContent = '✅ DeepSeek 生成完成' + (boostRound > 0 ? '（含 ' + boostRound + ' 轮 A9 迭代增强）' : '');
     } catch (err){
         console.error('所有重试均失败：', err);
         applyFallback(beforeResult.anchorResults, hotKeywords);
@@ -1166,6 +1148,63 @@ async function runAnalysis(){
     } finally {
         btn.disabled = false;
         btn.textContent = '🚀 开始执行 A9 + COSMO 双算法打分与 DeepSeek 优化';
+    }
+}
+
+function readCurrentTexts(){
+    let bullets = '';
+    for (let i = 0; i < 5; i++) bullets += ($('optBp' + i).value || '') + '\n\n';
+    return {
+        title: $('optTitleText').value || '',
+        ih: $('optIhText').value || '',
+        bullets: bullets.trim(),
+        desc: $('optDescText').value || '',
+        st: $('optStText').value || ''
+    };
+}
+
+function applyBoostResult(boostResult){
+    if (boostResult.optimizedTitle){
+        let title = replaceProhibitedWords(boostResult.optimizedTitle);
+        title = sanitizeVerifyTags(title);
+        title = trimToMaxChars(title, 75);
+        $('optTitleText').value = title;
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
+    }
+    if (boostResult.optimizedItemHighlights){
+        let ih = replaceProhibitedWords(boostResult.optimizedItemHighlights);
+        ih = sanitizeVerifyTags(ih);
+        ih = trimToMaxChars(ih, 125);
+        $('optIhText').value = ih;
+        updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
+    }
+    if (boostResult.optimizedBullets){
+        let bullets = boostResult.optimizedBullets;
+        if (typeof bullets === 'string') bullets = bullets.split(/\n\s*\n|\n/).filter(s => s.trim());
+        for (let i = 0; i < 5; i++){
+            let text = bullets[i] || $('optBp' + i).value || '';
+            text = replaceProhibitedWords(text);
+            text = sanitizeVerifyTags(text);
+            text = text.replace(/[.。;；,，]+$/, '');
+            text = trimToMaxChars(text, 255);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+        }
+        updateBpTotal();
+    }
+    if (boostResult.optimizedDesc){
+        let desc = replaceProhibitedWords(boostResult.optimizedDesc);
+        desc = sanitizeVerifyTags(desc);
+        if (desc.length > 5000) desc = desc.substring(0, 5000);
+        $('optDescText').value = desc;
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+    }
+    if (boostResult.optimizedST){
+        let st = replaceProhibitedWords(boostResult.optimizedST);
+        st = trimToMaxBytes(st, 250);
+        $('optStText').value = st;
+        updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 }
 
@@ -1198,15 +1237,10 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         hotKeywordsSection = [
             '',
             '════════ 用户提供的品类热词/长尾词库（A9 核心资产，必须优先埋入）════════',
-            '以下 ' + hotKeywords.length + ' 个词是用户从选品工具导出的真实热门搜索词和长尾词，是 A9 算法的关键词匹配核心。',
-            '⚠️ 你必须尽最大努力把这些词【自然埋入】标题、五点描述、详细描述和 Search Terms。',
-            '埋词要求：',
-            '  1. 标题：优先埋入 3-5 个核心热词（按字符预算取舍）。',
-            '  2. 五点描述：每点分散埋入 1-2 个热词，不要集中在一点。',
-            '  3. 详细描述：把剩余没埋进去的热词尽量自然融入。',
-            '  4. Search Terms：把标题、五点、描述里还没埋进去的热词全部塞进去（用空格分隔，控制在 240-250 字节）。',
-            '  5. 埋词必须自然，不能堆砌；核心词在同一字段重复不超过 3 次。',
-            '  6. 埋入时保持词的原始形式，不要单复数变换、不要拆词、不要改词序。',
+            '以下 ' + hotKeywords.length + ' 个词是用户从选品工具导出的真实热门搜索词，是 A9 关键词匹配的核心。',
+            '你必须尽最大努力把这些词【自然埋入】标题、五点、描述和 Search Terms。',
+            '埋词要求：标题埋 3-5 个核心热词；五点每点分散埋 1-2 个；描述把剩余的融入；Search Terms 作为"回收站"把还没埋进去的全塞进去。',
+            '埋入时保持词的原始形式（不要单复数变换、不要拆词、不要改词序）。',
             '',
             '【用户提供的热词库】',
             hotKeywords.join('\n')
@@ -1216,10 +1250,21 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     const prompt = [
         '你是亚马逊 Listing 优化专家，精通 A9 搜索算法和 COSMO 语义算法。',
         '',
-        '════════ 算法知识 ════════',
-        '【A9 算法】负责关键词字面匹配：重视关键词在标题/五点/描述/搜索词中的位置权重、长尾词覆盖、场景词、属性词、词形变体，以及避免堆砌。',
-        '【COSMO 算法】负责语义意图理解：重视使用场景、目标人群、情感价值、功能原理等语义信号，构建知识图谱关联。',
-        '两个算法必须同时满足：A9 让商品被搜索到，COSMO 让商品被理解并推荐。',
+        '【A9 算法】负责关键词字面匹配，有 10 个维度：',
+        '1. 标题核心词——标题必须埋入 3-5 个核心热词',
+        '2. 标题首屏权重——前 80 字符至少含 1 个核心热词',
+        '3. 标题长度规范——总字符 ≤75',
+        '4. 五点词分布——5 点各自覆盖不同词，重复率 <40%',
+        '5. 长尾词覆盖——全文至少 5 个带空格的长尾短语',
+        '6. 场景词覆盖——全文至少 5 个场景词（indoor/outdoor/entryway/office/porch 等）',
+        '7. 属性词覆盖——全文至少 3 个属性词（non-slip/washable/durable 等）',
+        '8. 搜索词补充——Search Terms 包含标题/五点未出现的新词（≥6 个）',
+        '9. 词形变体——包含 2 组单复数或紧凑形式变体（如 door mat + doormat）',
+        '10. 无堆砌——核心词在同一字段重复 ≤3 次',
+        '',
+        '【COSMO 算法】负责语义意图理解，有 15 个语义锚点：功能、身份、受众、场景、生态 5 大集群，覆盖使用场景、目标人群、情感价值、功能原理等。',
+        '',
+        '⚠️ 你必须同时满足 A9 和 COSMO 两个算法的所有要求。',
         '',
         '【商品原始文案】',
         '标题：' + (titleRaw || '（未提供）'),
@@ -1227,50 +1272,47 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '详细描述：' + (descRaw || '（未提供）'),
         '后台搜索词：' + (stRaw || '（未提供）'),
         '',
-        '【COSMO 15 锚点诊断结果（仅列出未达标项）】',
+        '【COSMO 15 锚点诊断结果（未达标项）】',
         anchorList,
         hotKeywordsSection,
         '',
         '════════ 防杜撰红线 ════════',
         '绝对不可以编造任何原则性信息：具体尺寸、具体颜色、具体材质成分、认证与合规、特殊功能等级、具体性能参数、具体数量、使用寿命年限。',
-        '如果原文没有提供这些信息，请在文案中直接跳过，不要提及，绝对不要写 [需核实:xxx] 或任何占位符。宁可不写、宁可字数少，也绝不编造。',
+        '如果原文没有提供这些信息，请在文案中直接跳过，不要提及，绝对不要写任何占位符。宁可不写、宁可字数少，也绝不编造。',
         '【允许推断】：通用应用场景、通用使用方式、目标人群、情感价值。',
         '',
         '════════ 违禁词红线 ════════',
         '严禁使用：best, top, premium, high quality, perfect, perfectly, amazing, excellent, superior, ultimate, unbeatable, free, free shipping, sale, discount, guarantee, warranty, antibacterial, antimicrobial, disinfect, sanitize, sterilize, cure, heal, treat, our, we, my, I。',
         '',
         '【你的任务】',
-        '1. 为每个未达标锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词）。',
+        '1. 为每个未达标 COSMO 锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词）。',
         '2. 生成优化后的商品标题（英文）：',
-        '   - 总字符数（含空格）不超过 75。',
-        '   - 禁止促销内容、特殊字符、全大写。',
+        '   - 总字符数（含空格）≤75。',
+        '   - 前 80 字符必须包含至少 1-2 个核心热词。',
+        '   - 整标题埋入 3-5 个核心热词。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
-        '   - ⚠️ A9 要求：标题前 80 字符内必须包含至少 1-2 个核心热词；整体标题埋入 3-5 个热词。',
-        '   - ⚠️ COSMO 要求：标题也要融入核心品类词和关键场景词。',
         '3. 生成优化后的 Item Highlights（英文，≤125 字符）。尽量埋入热词。',
         '4. 生成优化后的五点描述（英文），严格按以下结构：',
-        '   ▸ 每点字符数（含空格）150-255，五点总字符数不超过 1000。',
+        '   ▸ 每点 150-255 字符，五点总字符数 ≤1000。',
         '   ▸ 每点格式：「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
         '   【第 1 点 · 基本属性 + 包装内容】：商品基本属性（原文已提供的才写）+ 订单包含什么。',
         '   【第 2 点 · 核心痛点 / 人群】：针对哪类人群、解决什么核心痛点。',
         '   【第 3 点 · 商品特点 + 收益】：核心特点 + 买之后的收益。',
         '   【第 4 点 · 功能性 / 原理性 + 攻心】：功能原理，深度说服。',
         '   【第 5 点 · 保证 / 担保 / 风险逆转】：让买家放心。不写具体退款天数、保修年限。',
-        '   ▸ ⚠️ A9 要求：五点每点分散埋入 1-2 个热词；每点尽量融入 1 个场景词（如 entryway/indoor/outdoor）或 1 个属性词（如 non-slip/washable）。',
-        '   ▸ ⚠️ COSMO 要求：五点要覆盖使用场景、目标人群、功能原理、情感价值。',
-        '   ▸ ⚠️ 若用户未提供原始五点描述，每个新点开头加 [AI推测] 字样。',
+        '   ▸ 五点每点分散埋入 1-2 个热词，每点融入 1 个场景词或属性词。',
+        '   ▸ 若用户未提供原始五点描述，每个新点开头加 [AI推测] 字样。',
         '5. 生成优化后的详细描述（Description）：',
-        '   - 无硬性字数下限，上限 5000 字符。',
-        '   - ⚠️ A9 要求：把五点未埋完的热词尽量自然融入，同时增加长尾场景词组合。',
-        '   - ⚠️ COSMO 要求：以 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
+        '   - 无硬性下限，上限 5000 字符。',
+        '   - 把五点未埋完的热词和长尾场景词自然融入。',
+        '   - 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
-        '   - 字节数 240-250。',
-        '   - 只使用空格分隔，全小写，无标点。',
-        '   - 剔除停用词，不含竞品品牌/夸大词/促销词。',
-        '   - ⚠️ A9 要求：这是埋词"回收站"，把标题、五点、描述里还没埋进去的热词全部塞进去。搜索词内容不要与标题/五点重复，要填 A9 未覆盖的补充词。',
+        '   - 字节数 240-250，只使用空格分隔，全小写，无标点。',
+        '   - ⚠️ A9 要求：把标题、五点、描述里还没埋进去的热词全部塞进去，并补充 6+ 个新词。',
+        '   - 可以包含单复数变体或紧凑形式。',
         '',
-        '【输出格式要求】',
-        '必须严格返回合法 JSON，不要 markdown 代码块，结构如下：',
+        '【输出格式】',
+        '严格返回合法 JSON，不要 markdown 代码块：',
         '{',
         '  "anchorFixes": { "used_for_func": "英文句子", ... },',
         '  "optimizedTitle": "...",',
@@ -1279,11 +1321,10 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
         '}'
-    ].join('\n');
+    ].filter(Boolean).join('\n');
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 90000);
-
     let resp;
     try {
         resp = await fetch('/api/deepseek', {
@@ -1291,7 +1332,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。A9 关注关键词字面匹配（标题核心词、首屏权重、长尾词、场景词、属性词、词形变体、无堆砌）；COSMO 关注语义意图（场景、人群、情感、功能原理）。必须同时满足两个算法。⚠️ 严格禁止违禁词：best, top, premium, high quality, perfect, perfectly, amazing, excellent, superior, ultimate, unbeatable, free, sale, discount, guarantee, warranty, antibacterial, antimicrobial, disinfect, sanitize, sterilize, cure, heal, treat, our, we, my, I。⚠️ 严格防杜撰：尺寸、颜色、材质成分、认证、特殊功能、性能参数、数量、寿命等原则性信息如果原文没有直接跳过，不要写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1303,7 +1344,6 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     } finally {
         clearTimeout(timeoutId);
     }
-
     const result = await resp.json();
     if (!result.success) throw new Error(result.error || '未知错误');
     let content = result.data.choices[0].message.content.trim();
@@ -1425,7 +1465,6 @@ function applyAfterScore(beforeResult, hotKeywords){
     const desc = $('optDescText').value || '';
     const st = $('optStText').value || '';
 
-    // COSMO 优化后
     const afterResult = scoreText(title, bpText, desc, st);
     const afterBadge = $('scoreAfter');
     afterBadge.className = 'score-badge ' + afterResult.lv;
@@ -1436,18 +1475,10 @@ function applyAfterScore(beforeResult, hotKeywords){
     else if (improve === 0){ improveEl.textContent = '→ COSMO 分数持平'; improveEl.style.color = '#64748b'; }
     else { improveEl.textContent = '⬇ COSMO 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
 
-    // A9 优化后
-    const a9Before = scoreA9(
-        $('origTitleView').value || '',
-        $('origBpView').value || '',
-        $('origDescView').value || '',
-        $('origStView').value || '',
-        hotKeywords
-    );
+    const a9Before = scoreA9($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '', hotKeywords);
     const a9After = scoreA9(title, bpText, desc, st, hotKeywords);
     renderA9Table(a9After);
     renderA9Score(a9After, a9Before);
-
     return afterResult;
 }
 
@@ -1554,7 +1585,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
             $('optDescText').value, $('optStText').value
         ].join(' ');
         const finalHits = detectProhibitedWords(finalText);
-        if (finalHits.length > 0) showProhibitedWarning(finalHits, '优化文案（二次替换后仍有残留，建议手动修改）');
+        if (finalHits.length > 0) showProhibitedWarning(finalHits, '优化文案（二次替换后仍有残留）');
     }
 
     renderKwHitReport(hotKeywords);
@@ -1591,7 +1622,6 @@ function applyFallback(anchorResults, hotKeywords){
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
             text = replaceProhibitedWords(text);
-            text = sanitizeVerifyTags(text);
             text = text.replace(/[.。;；,，]+$/, '');
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
@@ -1613,11 +1643,11 @@ function applyFallback(anchorResults, hotKeywords){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
     const trimResult = autoTrimBulletsToLimit(1000);
-    if (trimResult.trimmed) showCoverageWarning('五点描述总字符超限，已自动裁剪：' + trimResult.before + ' → ' + trimResult.after + ' 字符。');
+    if (trimResult.trimmed) showCoverageWarning('五点描述总字符超限，已自动裁剪。');
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
     const stPatch = patchSearchTerms(anchorResults, hotKeywords);
-    if (stPatch.added > 0) showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词，当前 ' + stPatch.bytes + ' 字节。');
+    if (stPatch.added > 0) showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词。');
 }
 
 function renderKwHitReport(hotKeywords){
@@ -1643,7 +1673,7 @@ function renderKwHitReport(hotKeywords){
     let html = '<div class="report-ttl">🎯 热词埋词命中报告（共 ' + hotKeywords.length + ' 个热词）</div>';
     html += '<div class="report-stats">已埋入：<b>' + used.length + '</b> / ' + hotKeywords.length + ' &nbsp;&nbsp; 未埋入：<b>' + miss.length + '</b></div>';
     if (usedTags) html += '<div style="margin-bottom:6px;">' + usedTags + '</div>';
-    if (missTags) html += '<div style="margin-top:6px;"><div style="font-size:11.5px;color:#991b1b;margin-bottom:4px;">以下词未能埋入（可能因为字符限制或语义不匹配）：</div>' + missTags + '</div>';
+    if (missTags) html += '<div style="margin-top:6px;"><div style="font-size:11.5px;color:#991b1b;margin-bottom:4px;">以下词未能埋入：</div>' + missTags + '</div>';
     report.innerHTML = html;
     report.classList.remove('hidden');
 }
@@ -1688,21 +1718,13 @@ function loadSampleByUrl(){
             st:'disinfecting doormat shoe sanitizing mat commercial entrance floor mat',
             hotKeywords:'doormat\nfront door mat\nentryway rug\nnon slip mat\nabsorbent floor mat\npet friendly door mat\nshoe mat indoor\ncommercial floor mat\nheavy duty mat\nmudroom mat'
         };
-    } else if (u.includes('goose')){
-        s = {
-            title:"Holiday Valentine Halloween Christmas Clothing for Porch Goose - Seasonal Decorative Yard Statue Outfits",
-            bp:"1. VERSATILE HOLIDAY STYLES: Dress up your porch goose for Valentine's Day, Halloween, Christmas, and all year round.\n2. EASY TO WEAR: Designed for quick and hassle-free dressing on standard decorative yard geese.\n3. PREMIUM FABRIC: Made with durable, weather-friendly materials suitable for outdoor porch and lawn display.\n4. CHARMING DESIGN: Adds instant festive cheer, humor, and a welcoming touch to your front porch and garden.\n5. GREAT GIFT IDEA: A delightful present for garden and porch decor enthusiasts who love seasonal transformations.",
-            desc:'Bring your favorite porch goose to life through every season! This collection of holiday outfits covers everything from spooky Halloween vibes to cozy Christmas cheer.',
-            st:'porch goose clothes holiday outfits seasonal yard statue decor halloween christmas',
-            hotKeywords:'porch goose clothes\nporch goose outfit\nholiday yard decor\ngoose statue clothes\nchristmas goose outfit\nhalloween goose costume\nvalentine goose\nseasonal yard statue'
-        };
     } else {
         s = {
-            title:'Premium Household Utility Product - Multi-functional Design for Everyday Living',
+            title:'100 Corrugated Paper Boxes 6x6x6" (15.2*15.2*15.2cm) Yellow',
             bp:'1. HIGH QUALITY: Manufactured with premium materials for long-lasting durability.\n2. EASY TO USE: Simple setup and convenient operation for daily tasks.\n3. VERSATILE DESIGN: Fits seamlessly into various home and office environments.\n4. RELIABLE PERFORMANCE: Engineered to deliver consistent and efficient results.\n5. GREAT VALUE: An ideal choice for household upgrades and practical needs.',
-            desc:'Enhance your daily routines with this expertly designed product. Built for reliability, style, and maximum efficiency across different scenarios.',
-            st:'household utility product daily essentials multi functional tool',
-            hotKeywords:''
+            desc:'These corrugated paper boxes are perfect for shipping, packaging and storage.',
+            st:'corrugated paper box shipping storage',
+            hotKeywords:'shipping boxes\nsmall shipping box\n6x6x6 box\ncorrugated box\ncardboard box\nmailing box\npacking box\nstorage box'
         };
     }
     $('productTitle').value = s.title;
