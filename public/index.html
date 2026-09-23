@@ -76,19 +76,28 @@
     .results-header h2{margin:0 0 6px;font-size:19px;}
     #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;word-break:break-all;max-width:900px;}
     #targetUrlDisplay a{color:var(--primary);}
-    .score-wrap{text-align:right;min-width:220px;}
+    .score-wrap{text-align:right;min-width:340px;}
+    .score-compare{display:flex;gap:14px;align-items:center;justify-content:flex-end;}
+    .score-item{text-align:center;}
+    .score-item .score-label{font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600;letter-spacing:.5px;}
     .score-badge{
-        display:inline-block;font-size:26px;font-weight:800;padding:8px 18px;
+        display:inline-block;font-size:22px;font-weight:800;padding:6px 14px;
         border-radius:10px;background:#eff6ff;color:var(--primary);letter-spacing:-.5px;
+        white-space:nowrap;
     }
+    .score-badge.small{font-size:16px;padding:5px 12px;}
     .score-badge.lv-a{background:#ecfdf5;color:#047857;}
     .score-badge.lv-b{background:#eff6ff;color:#1d4ed8;}
     .score-badge.lv-c{background:#fffbeb;color:#b45309;}
     .score-badge.lv-d{background:#fef2f2;color:#b91c1c;}
-    .progress{height:7px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin-top:10px;width:220px;}
+    .score-arrow{font-size:22px;color:#94a3b8;font-weight:700;}
+    .score-improve{font-size:12px;color:#047857;font-weight:700;margin-top:6px;}
+    .progress{height:7px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin-top:10px;width:100%;}
     .progress > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f59e0b,#10b981);transition:width .6s cubic-bezier(.22,1,.36,1);}
 
-    .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+    .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+    .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;letter-spacing:.5px;}
     .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
     .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
     .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
@@ -236,16 +245,36 @@
                 <p id="targetUrlDisplay">当前分析目标链接：未填写</p>
             </div>
             <div class="score-wrap">
-                <div id="totalScoreBadge" class="score-badge">总分 0</div>
+                <div class="score-compare">
+                    <div class="score-item">
+                        <div class="score-label">优化前</div>
+                        <div id="scoreBefore" class="score-badge">--</div>
+                    </div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item">
+                        <div class="score-label">优化后</div>
+                        <div id="scoreAfter" class="score-badge">--</div>
+                    </div>
+                </div>
+                <div id="scoreImprove" class="score-improve"></div>
                 <div class="progress"><i id="scoreBar" style="width:0%"></i></div>
             </div>
         </div>
 
         <div class="stat-row">
-            <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
-            <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
-            <span class="stat r" id="statRed">🔴 严重缺失 0</span>
-            <span id="aiStatus" class="ai-status hidden">DeepSeek 生成中…</span>
+            <div class="stat-line">
+                <span class="line-label">优化前</span>
+                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+            </div>
+            <div class="stat-line">
+                <span class="line-label">优化后</span>
+                <span class="stat g" id="statAfterGreen">🟢 完美覆盖 --</span>
+                <span class="stat y" id="statAfterYellow">🟡 部分覆盖 --</span>
+                <span class="stat r" id="statAfterRed">🔴 严重缺失 --</span>
+                <span id="aiStatus" class="ai-status hidden">DeepSeek 生成中…</span>
+            </div>
         </div>
 
         <div class="compare-grid">
@@ -427,7 +456,6 @@ const FALLBACK = {
     'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
 };
 
-/* 本地兜底五点描述 */
 const FALLBACK_BULLETS = [
     'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for',
     'HEAVY-DUTY CONSTRUCTION: Made from durable, weather-resistant materials that hold up to daily use and high-traffic conditions',
@@ -447,7 +475,6 @@ const PROHIBITED_WORDS = {
     trademark: ['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
 };
 
-/* 安全替换映射 */
 const SAFE_REPLACEMENTS = {
     'best': 'reliable','top': 'high-performance','premium': 'refined','high quality': 'well-made',
     'highest quality': 'well-made','perfect': 'ideal','amazing': 'impressive','excellent': 'dependable',
@@ -474,15 +501,10 @@ const SAFE_REPLACEMENTS = {
     'my': 'the','i': 'the product'
 };
 
-/* 构建支持词形变形的正则 */
 function buildProhibitedRegex(word, forDetection){
     if (!word) return null;
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // 长度 < 4 的短词，不加后缀，避免误伤（比如 "i" 不应该匹配 "is"）
-    if (word.length < 4) {
-        return new RegExp('\\b' + escaped + '\\b', 'gi');
-    }
-    // 长度 >= 4 的词，允许常见后缀
+    if (word.length < 4) return new RegExp('\\b' + escaped + '\\b', 'gi');
     return new RegExp('\\b' + escaped + '(s|es|ed|ing|d)?\\b', 'gi');
 }
 
@@ -509,48 +531,6 @@ function detectProhibitedWords(text) {
         if (regex && regex.test(text)) hits.add(word);
     });
     return [...hits];
-}
-
-function showProhibitedWarning(hits, targetName) {
-    if (!hits.length) return;
-    const existing = document.getElementById('prohibited-warning');
-    if (existing) existing.remove();
-
-    const warning = document.createElement('div');
-    warning.id = 'prohibited-warning';
-    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML =
-        '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '）</div>' +
-        '<div style="font-size:13px;color:#991b1b;margin-bottom:6px;">以下词汇可能触发 Amazon 审核，导致 Listing 被抑制或下架：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
-            hits.map(function(h){ return '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>'; }).join('') +
-        '</div>' +
-        '<div style="font-size:12px;color:#991b1b;margin-top:8px;font-style:italic;">建议手动修改这些词汇，或使用更中性、客观的描述替代。</div>';
-
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showLengthWarning(message) {
-    const existing = document.getElementById('length-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'length-warning';
-    warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showCoverageWarning(message) {
-    const existing = document.getElementById('coverage-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'coverage-warning';
-    warning.style.cssText = 'background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#0369a1;font-size:13px;">🔁 ' + message + '</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
 /* ================= 工具函数 ================= */
@@ -604,6 +584,78 @@ function trimToMaxBytes(str, maxBytes) {
         else break;
     }
     return result.trim();
+}
+
+/* ================= 通用打分函数（可复用于原始文案和优化后文案） ================= */
+function scoreText(title, bp, desc, st){
+    const full = [title, bp, desc, st].join(' \n ').toLowerCase();
+    let rawScore = 0, green = 0, yellow = 0, red = 0;
+    const anchorResults = [];
+
+    ANCHORS.forEach(a => {
+        const hits = uniq(a.kws.filter(k => full.includes(k)));
+        let level, score;
+        if (hits.length === 0){
+            level='red'; score=0; red++;
+        } else if (hits.length <= 2){
+            level='yellow'; score=hits.length===1?4:5; yellow++;
+        } else {
+            level='green'; score=7; green++;
+        }
+        rawScore += score;
+        anchorResults.push({ ...a, level, score, hits });
+    });
+
+    const totalScore = Math.round(rawScore / 105 * 100);
+    let grade, lv;
+    if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
+    else if (totalScore >= 90) { grade='A';  lv='lv-a'; }
+    else if (totalScore >= 80) { grade='B+'; lv='lv-b'; }
+    else if (totalScore >= 70) { grade='B';  lv='lv-b'; }
+    else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
+    else                       { grade='D';  lv='lv-d'; }
+
+    return { totalScore, grade, lv, green, yellow, red, anchorResults };
+}
+
+/* ================= 警告提示 ================= */
+function showProhibitedWarning(hits, targetName) {
+    if (!hits.length) return;
+    const existing = document.getElementById('prohibited-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'prohibited-warning';
+    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML =
+        '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '）</div>' +
+        '<div style="font-size:13px;color:#991b1b;margin-bottom:6px;">以下词汇可能触发 Amazon 审核：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+            hits.map(function(h){ return '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>'; }).join('') +
+        '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showLengthWarning(message) {
+    const existing = document.getElementById('length-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'length-warning';
+    warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showCoverageWarning(message) {
+    const existing = document.getElementById('coverage-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'coverage-warning';
+    warning.style.cssText = 'background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#0369a1;font-size:13px;">🔁 ' + message + '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
 /* ================= 字节计数器 ================= */
@@ -678,90 +730,81 @@ async function runAnalysis(){
     if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
 
-    const oldWarning = document.getElementById('prohibited-warning');
-    if (oldWarning) oldWarning.remove();
-    const oldLenWarning = document.getElementById('length-warning');
-    if (oldLenWarning) oldLenWarning.remove();
-    const oldCovWarning = document.getElementById('coverage-warning');
-    if (oldCovWarning) oldCovWarning.remove();
+    // 清空旧的警告
+    ['prohibited-warning','length-warning','coverage-warning'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
 
-    const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
-
+    // 回填左侧
     $('origTitleView').value = titleRaw;
     $('origBpView').value    = bpRaw;
     $('origDescView').value  = descRaw;
     $('origStView').value    = stRaw;
 
-    let rawScore = 0, green = 0, yellow = 0, red = 0;
-    const anchorResults = [];
-    const rows = [];
+    // 原始文案打分
+    const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
+    const totalScore = beforeResult.totalScore;
+    const green = beforeResult.green, yellow = beforeResult.yellow, red = beforeResult.red;
 
-    ANCHORS.forEach(a => {
-        const hits = uniq(a.kws.filter(k => full.includes(k)));
-        let level, score, statusClass, statusText;
-
-        if (hits.length === 0){
-            level='red'; score=0; statusClass='status-red'; statusText='🔴 严重缺失'; red++;
-        } else if (hits.length <= 2){
-            level='yellow'; score=hits.length===1?4:5; statusClass='status-yellow'; statusText='🟡 部分覆盖'; yellow++;
-        } else {
-            level='green'; score=7; statusClass='status-green'; statusText='🟢 完美覆盖'; green++;
-        }
-
-        rawScore += score;
-
-        const shownHits = hits.slice(0, 5);
+    // 渲染诊断矩阵
+    const rows = beforeResult.anchorResults.map(a => {
+        const shownHits = a.hits.slice(0, 5);
         const chips = shownHits.map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('')
-                    + (hits.length > 5 ? '<span class="kw-chip miss">+' + (hits.length-5) + '</span>' : '');
-        const hitBlock = hits.length
-            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + hits.length + ' 个语义信号词</div>'
+                    + (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
+        const hitBlock = a.hits.length
+            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个语义信号词</div>'
             : '<div style="font-size:12px;color:#b91c1c;">未检测到任何相关语义信号词</div>';
 
+        let statusClass, statusText;
+        if (a.level === 'red'){ statusClass='status-red'; statusText='🔴 严重缺失'; }
+        else if (a.level === 'yellow'){ statusClass='status-yellow'; statusText='🟡 部分覆盖'; }
+        else { statusClass='status-green'; statusText='🟢 完美覆盖'; }
+
         let fixBlock;
-        if (level === 'green'){
+        if (a.level === 'green'){
             fixBlock = '<div class="suggestion-cell ok">✅ 该锚点已充分覆盖，无需修改。</div>';
         } else {
             fixBlock = '<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>';
         }
 
-        const reason = hits.length === 0
+        const reason = a.hits.length === 0
             ? '文案中完全没有出现与「' + a.cn + '」相关的语义信号，COSMO 知识图谱无法建立该维度的关联。'
             : '仅部分覆盖「' + a.cn + '」，语义信号密度不足，权重较低。';
 
-        anchorResults.push({ ...a, level, score, hits, reason });
+        return '<tr>' +
+            '<td><span class="cluster-tag">' + a.cluster + '</span></td>' +
+            '<td>' +
+                '<span class="anchor-name">' + escapeHtml(a.name) + '</span>' +
+                '<span class="anchor-cn">' + a.cn + '</span>' +
+            '</td>' +
+            '<td class="' + statusClass + '">' + statusText + '<span class="score-mini">' + a.score + ' / 7 分</span></td>' +
+            '<td>' + hitBlock + '</td>' +
+            '<td id="fix-cell-' + safeId(a.name) + '">' + fixBlock + '</td>' +
+        '</tr>';
+    }).join('');
 
-        rows.push(
-            '<tr>' +
-                '<td><span class="cluster-tag">' + a.cluster + '</span></td>' +
-                '<td>' +
-                    '<span class="anchor-name">' + escapeHtml(a.name) + '</span>' +
-                    '<span class="anchor-cn">' + a.cn + '</span>' +
-                '</td>' +
-                '<td class="' + statusClass + '">' + statusText + '<span class="score-mini">' + score + ' / 7 分</span></td>' +
-                '<td>' + hitBlock + '</td>' +
-                '<td id="fix-cell-' + safeId(a.name) + '">' + fixBlock + '</td>' +
-            '</tr>');
-    });
+    // 顶部分数渲染
+    const beforeBadge = $('scoreBefore');
+    beforeBadge.className = 'score-badge small ' + beforeResult.lv;
+    beforeBadge.textContent = totalScore + ' · ' + beforeResult.grade;
 
-    const totalScore = Math.round(rawScore / 105 * 100);
-    let grade, lv;
-    if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
-    else if (totalScore >= 90) { grade='A';  lv='lv-a'; }
-    else if (totalScore >= 80) { grade='B+'; lv='lv-b'; }
-    else if (totalScore >= 70) { grade='B';  lv='lv-b'; }
-    else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
-    else                       { grade='D';  lv='lv-d'; }
-
-    const badge = $('totalScoreBadge');
-    badge.className = 'score-badge ' + lv;
-    badge.textContent = '总分 ' + totalScore + ' · ' + grade;
+    // 优化后分数暂显 --
+    const afterBadge = $('scoreAfter');
+    afterBadge.className = 'score-badge small';
+    afterBadge.textContent = '--';
+    $('scoreImprove').textContent = '';
     $('scoreBar').style.width = totalScore + '%';
 
     $('statGreen').textContent  = '🟢 完美覆盖 ' + green;
     $('statYellow').textContent = '🟡 部分覆盖 ' + yellow;
     $('statRed').textContent    = '🔴 严重缺失 ' + red;
 
-    $('matrixTableBody').innerHTML = rows.join('');
+    $('statAfterGreen').textContent  = '🟢 完美覆盖 --';
+    $('statAfterYellow').textContent = '🟡 部分覆盖 --';
+    $('statAfterRed').textContent    = '🔴 严重缺失 --';
+
+    $('matrixTableBody').innerHTML = rows;
 
     if (url){
         $('targetUrlDisplay').innerHTML =
@@ -777,6 +820,7 @@ async function runAnalysis(){
     card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
+    // 调用 DeepSeek（带重试）
     const btn = $('analyzeBtn');
     const status = $('aiStatus');
     btn.disabled = true;
@@ -786,20 +830,46 @@ async function runAnalysis(){
     status.textContent = '🤖 DeepSeek 生成中…';
 
     try {
-        const aiResult = await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
-        applyAIResults(aiResult, anchorResults);
+        const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, 5);
+        applyAIResults(aiResult, beforeResult.anchorResults, beforeResult);
         status.className = 'ai-status done';
         status.textContent = '✅ DeepSeek 生成完成';
     } catch (err){
-        console.error(err);
-        applyFallback(anchorResults);
+        console.error('所有重试均失败：', err);
+        applyFallback(beforeResult.anchorResults);
+        // 即使降级也要给优化后评分
+        applyAfterScore(beforeResult);
         status.className = 'ai-status error';
-        status.textContent = '⚠️ AI 响应超时或格式异常，已自动降级本地模板。请刷新页面重试';
+        status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。请刷新页面重试';
         showToast('DeepSeek 调用失败：' + err.message);
     } finally {
         btn.disabled = false;
         btn.textContent = '🚀 开始执行 COSMO 15 锚点打分与 DeepSeek 优化';
     }
+}
+
+/* ================= 带重试的 DeepSeek 调用 ================= */
+async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, maxRetries){
+    let lastError = null;
+    const status = $('aiStatus');
+    for (let attempt = 1; attempt <= maxRetries; attempt++){
+        try {
+            if (status && attempt > 1){
+                status.textContent = '🤖 DeepSeek 重试中 (第 ' + attempt + ' / ' + maxRetries + ' 次)…';
+            }
+            const result = await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw);
+            if (attempt > 1) console.log('DeepSeek 第 ' + attempt + ' 次重试成功');
+            return result;
+        } catch (err){
+            lastError = err;
+            console.warn('DeepSeek 第 ' + attempt + ' / ' + maxRetries + ' 次尝试失败：', err.message);
+            if (attempt < maxRetries){
+                // 等待 2 秒后重试
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+    }
+    throw lastError || new Error('DeepSeek 调用失败');
 }
 
 /* ================= 调用 DeepSeek ================= */
@@ -821,21 +891,18 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '【15 锚点诊断结果（仅列出未达标项）】',
         anchorList,
         '',
-        '⚠️⚠️⚠️ 最重要的一条规则：',
-        '你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号**真正融入进去**。',
-        '不能只在 anchorFixes 字段里单独写一句英文，那些句子只是给你自己参考的。',
-        '最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
+        '⚠️ 最重要规则：你必须在【最终输出的标题、五点描述、详细描述、Search Terms】中，把上面每一个未达标锚点的语义信号真正融入进去。不能只在 anchorFixes 里单独写一句英文，那些句子只是参考。最终文案中必须能检测到每个锚点对应的关键词或同义表达。',
         '',
         '【你的任务】',
         '1. 为每个【未达标】的锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词，作为参考列出）。',
-        '2. 生成优化后的商品标题（英文）。规则：',
-        '   - 总字符数（含空格）不得超过 75 个字符。',
+        '2. 生成优化后的商品标题（英文）：',
+        '   - 总字符数（含空格）不超过 75 个字符。',
         '   - 禁止促销内容、特殊字符、全大写。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
         '   - ⚠️ 标题里必须尽可能融入缺失锚点核心词，特别是 used_for_func / is_a / capable_of / used_in_location / body_part。',
         '   - ⚠️ 严禁使用：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
         '3. 生成优化后的 Item Highlights（英文，不超过 125 字符）。必须融入缺失锚点。',
-        '4. 生成优化后的五点描述（英文）。规则：',
+        '4. 生成优化后的五点描述（英文）：',
         '   - 输出 5 个独立的要点，每个一段，不合并。',
         '   - ⚠️ 每点字符数（含空格）不低于 200，不超过 255。',
         '   - 五点总字符数尽可能接近但不超过 1000。',
@@ -846,7 +913,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '5. 生成优化后的详细描述（Description）：',
         '   - 字符数不低于 2000，不超过 5000。',
         '   - 建议 5-8 个自然段，覆盖功能、材质、场景、人群、使用保养。',
-        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地，把五点未完全覆盖的锚点在这里补上。',
+        '   - ⚠️ 详细描述是融入缺失锚点的第二阵地。',
         '   - 同样适用防杜撰规则。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250 之间。',
@@ -854,7 +921,6 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 剔除停用词，不含竞品品牌/夸大词/促销词。',
         '   - 严禁重复标题/五点/品牌名中已出现的词。',
         '   - 拓展策略：大词 > 长尾词 > 场景词 > 上下游关联词。',
-        '   - ⚠️ 尽可能填满 240-250 字节。',
         '',
         '【输出格式要求】',
         '必须严格返回合法 JSON，不要 markdown 代码块，结构如下：',
@@ -869,19 +935,29 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '⚠️ optimizedBullets 必须是包含 5 个字符串的数组。'
     ].join('\n');
 
-    const resp = await fetch('/api/deepseek', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述至少 2000 字符。搜索词 240-250 字节。严格防杜撰，原则性信息用 [需核实] 占位。' },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 8000,
-            response_format: { type: 'json_object' }
-        })
-    });
+    // 使用 AbortController 加超时保护
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90秒超时
+
+    let resp;
+    try {
+        resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [
+                    { role: 'system', content: '你是亚马逊 Listing 优化专家。必须在最终输出的标题、五点、描述、搜索词里真实融入每个未达标锚点的语义。五点描述是包含 5 个字符串的数组，每点 200-255 字符。详细描述至少 2000 字符。搜索词 240-250 字节。严格防杜撰，原则性信息用 [需核实] 占位。' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 8000,
+                response_format: { type: 'json_object' }
+            }),
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
 
     const result = await resp.json();
     if (!result.success) throw new Error(result.error || '未知错误');
@@ -896,8 +972,8 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     try {
         parsed = JSON.parse(content);
     } catch (e) {
-        console.error('AI 返回内容解析失败，原始内容：', content);
-        throw new Error('DeepSeek 返回格式异常，请重试');
+        console.error('AI 返回内容解析失败，原始内容：', content.substring(0, 500));
+        throw new Error('DeepSeek 返回格式异常');
     }
     return parsed;
 }
@@ -911,25 +987,20 @@ function patchSearchTerms(anchorResults){
     let bytes = getByteLength(st);
     if (bytes >= 240) return { added: 0, bytes: bytes };
 
-    // 收集候选词
     const seen = new Set();
     const candidates = [];
 
-    // 1. 从未达标锚点的关键词库里提取
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         a.kws.forEach(k => {
             const clean = k.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
             if (!clean || clean.length < 3) return;
             if (seen.has(clean)) return;
-            // 检查是否已在 ST 里
             if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
-            seen.add(clean);
-            candidates.push(clean);
+            seen.add(clean); candidates.push(clean);
         });
     });
 
-    // 2. 通用长尾词/场景词补充池
     const extras = [
         'indoor outdoor', 'heavy duty', 'all season', 'easy to use', 'multi purpose',
         'daily use', 'home essential', 'high traffic', 'easy clean', 'long lasting',
@@ -944,17 +1015,12 @@ function patchSearchTerms(anchorResults){
         }
     });
 
-    // 过滤掉含违禁词的候选
     const filtered = candidates.filter(c => detectProhibitedWords(c).length === 0);
 
-    // 追加词，直到接近 248 字节
     let added = 0;
     for (const c of filtered) {
         const candidate = st + ' ' + c;
-        if (getByteLength(candidate) <= 248) {
-            st = candidate;
-            added++;
-        }
+        if (getByteLength(candidate) <= 248) { st = candidate; added++; }
         if (getByteLength(st) >= 240) break;
     }
 
@@ -1023,8 +1089,45 @@ function buildPatchSentence(anchor, kws){
     return templates[anchor.name] || '';
 }
 
+/* ================= 对优化后文案评分并渲染 ================= */
+function applyAfterScore(beforeResult){
+    const title = $('optTitleText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + '\n';
+    const desc = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+
+    const afterResult = scoreText(title, bpText, desc, st);
+
+    const afterBadge = $('scoreAfter');
+    afterBadge.className = 'score-badge small ' + afterResult.lv;
+    afterBadge.textContent = afterResult.totalScore + ' · ' + afterResult.grade;
+
+    // 显示提升幅度
+    const improve = afterResult.totalScore - beforeResult.totalScore;
+    const improveEl = $('scoreImprove');
+    if (improve > 0){
+        improveEl.innerHTML = '⬆ 提升 <b>+' + improve + '</b> 分';
+        improveEl.style.color = '#047857';
+    } else if (improve === 0){
+        improveEl.innerHTML = '→ 分数持平';
+        improveEl.style.color = '#64748b';
+    } else {
+        improveEl.innerHTML = '⬇ 下降 <b>' + improve + '</b> 分';
+        improveEl.style.color = '#b91c1c';
+    }
+
+    $('scoreBar').style.width = afterResult.totalScore + '%';
+
+    $('statAfterGreen').textContent  = '🟢 完美覆盖 ' + afterResult.green;
+    $('statAfterYellow').textContent = '🟡 部分覆盖 ' + afterResult.yellow;
+    $('statAfterRed').textContent    = '🔴 严重缺失 ' + afterResult.red;
+
+    return afterResult;
+}
+
 /* ================= 应用 AI 结果 ================= */
-function applyAIResults(aiResult, anchorResults){
+function applyAIResults(aiResult, anchorResults, beforeResult){
     const fixes = aiResult.anchorFixes || {};
 
     anchorResults.forEach(a => {
@@ -1038,7 +1141,6 @@ function applyAIResults(aiResult, anchorResults){
 
         cell.innerHTML =
             '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
-                '<p><b>扣分原因：</b>' + escapeHtml(a.reason) + '</p>' +
                 '<div class="gemini-box">' +
                     '<p class="ttl">✨ DeepSeek 优化方案（已融入右侧文案）：</p>' +
                     '<code>' + escapeHtml(suggestion) + '</code>' +
@@ -1101,17 +1203,17 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // ============ 覆盖度自检 + 详细描述补丁 ============
+    // 覆盖度自检 + 详细描述补丁
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0){
-        showCoverageWarning('检测到 ' + coverage.fixed + ' 个锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落，确保闭环。');
+        showCoverageWarning('检测到 ' + coverage.fixed + ' 个锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落。');
     }
     if (coverage.missing.length > 0){
         const missingNames = coverage.missing.map(a => a.cn).join('、');
-        showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。建议手动补充或重新生成。');
+        showLengthWarning('仍有 ' + coverage.missing.length + ' 个锚点未完全覆盖：' + missingNames + '。');
     }
 
-    // ============ Search Terms 自动补丁 ============
+    // Search Terms 自动补丁
     const stPatch = patchSearchTerms(anchorResults);
     if (stPatch.added > 0){
         showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个相关长尾词，当前 ' + stPatch.bytes + ' 字节。');
@@ -1128,16 +1230,17 @@ function applyAIResults(aiResult, anchorResults){
     if (bpTotal > 0 && bpTotal < 800) lengthWarnings.push('五点描述总字符仅 ' + bpTotal + '，建议接近 1000。');
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
+    // 违禁词复查
     const allOutput = [
-        $('optTitleText').value,
-        $('optIhText').value,
+        $('optTitleText').value, $('optIhText').value,
         $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
-        $('optDescText').value,
-        $('optStText').value
+        $('optDescText').value, $('optStText').value
     ].join(' ');
-
     const prohibitedHits = detectProhibitedWords(allOutput);
     if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案（自动替换后仍有残留）');
+
+    // ⭐ 最后一步：对优化后文案立即评分
+    applyAfterScore(beforeResult);
 }
 
 /* ================= 本地降级 ================= */
@@ -1153,7 +1256,7 @@ function applyFallback(anchorResults){
 
         cell.innerHTML =
             '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
-                '<p><b>扣分原因：</b>' + escapeHtml(a.reason) + '</p>' +
+                '<p><b>扣分原因：</b>' + escapeHtml(a.reason || '') + '</p>' +
                 '<div class="gemini-box">' +
                     '<p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>' +
                     '<code>' + escapeHtml(suggestion) + '</code>' +
@@ -1207,16 +1310,7 @@ function applyFallback(anchorResults){
     if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
 
     const stPatch = patchSearchTerms(anchorResults);
-    if (stPatch.added > 0) showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个长尾词，当前 ' + stPatch.bytes + ' 字节。');
-
-    const fallbackOutput = [
-        $('optTitleText').value, $('optIhText').value,
-        $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
-        $('optDescText').value, $('optStText').value
-    ].join(' ');
-
-    const fallbackHits = detectProhibitedWords(fallbackOutput);
-    if (fallbackHits.length > 0) showProhibitedWarning(fallbackHits, '优化文案（本地模板，自动替换后仍有残留）');
+    if (stPatch.added > 0) showCoverageWarning('Search Terms 低于 240 字节，已自动补入 ' + stPatch.added + ' 个长尾词。');
 }
 
 /* ================= 复制全部五点 ================= */
