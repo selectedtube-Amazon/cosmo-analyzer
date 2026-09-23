@@ -346,7 +346,7 @@ const ANCHORS = [
     { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
 ];
 
-/* 本地兜底优化模板（DeepSeek 失败时使用） */
+/* 本地兜底优化模板 */
 const FALLBACK = {
     'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
     'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and hassle, keep your space looking its best, and deliver consistent results without extra effort.',
@@ -459,6 +459,33 @@ function trimToMaxBytes(str, maxBytes) {
         else break;
     }
     return result.trim();
+}
+
+/* ================= 字节计数器（支持实时更新） ================= */
+function updateByteCounter(inputId, counterId, max, unit){
+    const el = $(inputId);
+    const counter = $(counterId);
+    if (!el || !counter) return;
+    const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
+    counter.textContent = len + ' / ' + max + ' ' + unit;
+    counter.className = 'byte-counter' + (len > max ? ' over' : '');
+}
+
+/* 绑定实时 input 事件（页面加载后执行一次） */
+function initByteCounters(){
+    const bindings = [
+        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符' },
+        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125, unit: '字符' },
+        { input: 'optStText',    counter: 'stByteCounter',    max: 250, unit: '字节' }
+    ];
+    bindings.forEach(function(b){
+        const el = $(b.input);
+        if (!el) return;
+        const handler = function(){ updateByteCounter(b.input, b.counter, b.max, b.unit); };
+        el.addEventListener('input', handler);
+        el.addEventListener('paste', function(){ setTimeout(handler, 0); });
+        el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
+    });
 }
 
 /* ================= 主流程 ================= */
@@ -625,16 +652,18 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。',
         '   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。',
         '   - 不要在标题中重复品牌名。',
-        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。',
+        '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty。',
+        '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。同样禁止使用上述违禁词。',
         '4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。',
         '   ⚠️ 极其重要的防杜撰规则：',
         '   - 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
         '   - 如果用户没有提供原始五点描述（即原文为空白），你只能根据标题进行谨慎推断。并且必须在每个生成的新点开头加上 [AI推测] 字样（例如：1. [AI推测] NON-SLIP: ...），提醒用户这些并非事实，需要人工核实修改。',
-        '5. 生成优化后的详细描述（英文，2-4 句）。',
+        '   - 同样禁止使用上述违禁词。',
+        '5. 生成优化后的详细描述（英文，2-4 句）。禁止使用上述违禁词。',
         '6. 生成优化后的后台搜索词（Search Terms）。严格遵守以下规则：',
         '   - 总长度必须小于 250 字节（美国站标准），超出则整个字段失效。',
         '   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。',
-        '   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词（如 best, top, premium）、促销词（如 free, sale）。',
+        '   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词、促销词。',
         '   - 严禁重复标题、五点描述、品牌名中已经出现过的任何单词。',
         '   - 核心拓展策略：',
         '     1. 大词/类目词：如果标题中没有占据，补上核心大词。',
@@ -663,7 +692,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -731,7 +760,6 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节');
     }
 
-    // ===== 违禁词过滤检测 =====
     const allOutput = [
         aiResult.optimizedTitle || '',
         aiResult.optimizedItemHighlights || '',
@@ -742,15 +770,6 @@ function applyAIResults(aiResult, anchorResults){
 
     const prohibitedHits = detectProhibitedWords(allOutput);
     if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案');
-}
-
-function updateByteCounter(inputId, counterId, max, unit){
-    const el = $(inputId);
-    const counter = $(counterId);
-    if (!el || !counter) return;
-    const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
-    counter.textContent = len + ' / ' + max + ' ' + unit;
-    counter.className = 'byte-counter' + (len > max ? ' over' : '');
 }
 
 /* ================= 本地降级 ================= */
@@ -796,7 +815,6 @@ function applyFallback(anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节');
     }
 
-    // ===== 违禁词过滤检测（降级方案） =====
     const fallbackOutput = [
         $('optTitleText').value,
         $('optIhText').value,
@@ -889,6 +907,11 @@ function clearAll(){
 document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
 });
+
+/* ================= 初始化实时计数器 ================= */
+document.addEventListener('DOMContentLoaded', initByteCounters);
+/* 如果 DOMContentLoaded 已经触发过，也直接执行一次 */
+if (document.readyState !== 'loading') initByteCounters();
 </script>
 
 </body>
