@@ -154,6 +154,7 @@
     .optimized-textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
     .byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right;}
     .byte-counter.over{color:var(--danger);font-weight:700;}
+    .byte-counter.under{color:var(--warning);font-weight:700;}
 
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
@@ -275,13 +276,14 @@
                 <textarea id="optBpText" class="optimized-textarea" style="height:160px;" placeholder="DeepSeek 生成中…"></textarea>
 
                 <div class="copy-section-header">
-                    <span>优化后的详细描述 (Description)</span>
+                    <span>优化后的详细描述 (Description · 2000-5000字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
-                <textarea id="optDescText" class="optimized-textarea" style="height:130px;" placeholder="DeepSeek 生成中…"></textarea>
+                <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
+                <div id="descByteCounter" class="byte-counter">0 / 5000 字符</div>
 
                 <div class="copy-section-header">
-                    <span>优化后的后台搜索词 (Search Terms)</span>
+                    <span>优化后的后台搜索词 (Search Terms · 240-250字节)</span>
                     <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -408,6 +410,19 @@ function showProhibitedWarning(hits, targetName) {
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
+function showLengthWarning(message) {
+    const existing = document.getElementById('length-warning');
+    if (existing) existing.remove();
+
+    const warning = document.createElement('div');
+    warning.id = 'length-warning';
+    warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
+
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 /* ================= 工具函数 ================= */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -462,26 +477,29 @@ function trimToMaxBytes(str, maxBytes) {
 }
 
 /* ================= 字节计数器（支持实时更新） ================= */
-function updateByteCounter(inputId, counterId, max, unit){
+function updateByteCounter(inputId, counterId, max, unit, min){
     const el = $(inputId);
     const counter = $(counterId);
     if (!el || !counter) return;
     const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
-    counter.textContent = len + ' / ' + max + ' ' + unit;
-    counter.className = 'byte-counter' + (len > max ? ' over' : '');
+    counter.textContent = len + ' / ' + max + ' ' + unit + (min ? '（下限 ' + min + '）' : '');
+    let cls = 'byte-counter';
+    if (len > max) cls += ' over';
+    else if (min && len < min) cls += ' under';
+    counter.className = cls;
 }
 
-/* 绑定实时 input 事件（页面加载后执行一次） */
 function initByteCounters(){
     const bindings = [
-        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符' },
-        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125, unit: '字符' },
-        { input: 'optStText',    counter: 'stByteCounter',    max: 250, unit: '字节' }
+        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符', min: null },
+        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125, unit: '字符', min: null },
+        { input: 'optDescText',  counter: 'descByteCounter',  max: 5000,unit: '字符', min: 2000 },
+        { input: 'optStText',    counter: 'stByteCounter',    max: 250, unit: '字节', min: 240 }
     ];
     bindings.forEach(function(b){
         const el = $(b.input);
         if (!el) return;
-        const handler = function(){ updateByteCounter(b.input, b.counter, b.max, b.unit); };
+        const handler = function(){ updateByteCounter(b.input, b.counter, b.max, b.unit, b.min); };
         el.addEventListener('input', handler);
         el.addEventListener('paste', function(){ setTimeout(handler, 0); });
         el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
@@ -505,6 +523,8 @@ async function runAnalysis(){
 
     const oldWarning = document.getElementById('prohibited-warning');
     if (oldWarning) oldWarning.remove();
+    const oldLenWarning = document.getElementById('length-warning');
+    if (oldLenWarning) oldLenWarning.remove();
 
     const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
 
@@ -659,18 +679,28 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
         '   - 如果用户没有提供原始五点描述（即原文为空白），你只能根据标题进行谨慎推断。并且必须在每个生成的新点开头加上 [AI推测] 字样（例如：1. [AI推测] NON-SLIP: ...），提醒用户这些并非事实，需要人工核实修改。',
         '   - 同样禁止使用上述违禁词。',
-        '5. 生成优化后的详细描述（英文，2-4 句）。禁止使用上述违禁词。',
+        '5. 生成优化后的详细描述（Description）。这是本任务最重要的输出，必须认真对待：',
+        '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符（亚马逊官方限制）。',
+        '   - 你必须生成至少 2000 个字符的详细描述，否则视为任务失败。',
+        '   - 建议组织为 5-8 个自然段，每段 200-400 字符，覆盖以下维度：',
+        '     * 产品核心功能与用途（2 段，深入描述如何解决用户痛点）',
+        '     * 材质与工艺细节（1-2 段，介绍材质、结构、工艺、耐用性）',
+        '     * 适用场景与目标人群（1-2 段，覆盖家庭、办公室、商业场所等）',
+        '     * 使用与保养说明（1 段，包括清洁、收纳、注意事项）',
+        '     * 为什么选择这款产品 / 与其他产品的区别（1 段）',
+        '   - 语言风格：专业、有说服力、避免夸张、融入 COSMO 语义（场景、受众、情感等）。',
+        '   - 禁止使用上述违禁词。不要与五点描述内容重复。',
         '6. 生成优化后的后台搜索词（Search Terms）。严格遵守以下规则：',
-        '   - 总长度必须小于 250 字节（美国站标准），超出则整个字段失效。',
+        '   - 字节数范围必须控制在 240-250 字节（美国站标准，250 字节是上限，不足 240 视为浪费，超出 250 整个字段失效）。',
         '   - 仅使用空格分隔，全部使用小写字母，禁止使用任何标点符号（逗号、分号、连字符等）。',
         '   - 剔除停用词（a, an, the, and, for, of），不要包含竞品品牌、主观夸大词、促销词。',
         '   - 严禁重复标题、五点描述、品牌名中已经出现过的任何单词。',
-        '   - 核心拓展策略：',
+        '   - 核心拓展策略（按优先级）：',
         '     1. 大词/类目词：如果标题中没有占据，补上核心大词。',
         '     2. 长尾词：挖掘搜索意图明确但竞争较小的长尾词。',
         '     3. 场景词/应用词：买家会在什么场景下用？',
         '     4. 上下游关联词：买家买这个商品时，还会搜什么关联词？',
-        '   - 优先级排序：核心词 > 长尾词 > 场景词 > 相关词。',
+        '   - ⚠️ 请尽可能填满 240-250 字节，充分利用每一个字节，但不要超出 250。',
         '',
         '【输出格式要求】',
         '必须严格返回合法 JSON，不要有任何其他文字、不要 markdown 代码块，结构如下：',
@@ -682,7 +712,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '  "optimizedTitle": "...",',
         '  "optimizedItemHighlights": "...",',
         '  "optimizedBullets": "1. ...\\n\\n2. ...\\n\\n3. ...\\n\\n4. ...\\n\\n5. ...",',
-        '  "optimizedDesc": "...",',
+        '  "optimizedDesc": "至少2000字符的详细描述...",',
         '  "optimizedST": "..."',
         '}'
     ].join('\n');
@@ -692,11 +722,11 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
-            max_tokens: 4000,
+            max_tokens: 8000,
             response_format: { type: 'json_object' }
         })
     });
@@ -745,21 +775,40 @@ function applyAIResults(aiResult, anchorResults){
     if (aiResult.optimizedTitle) {
         const trimmedTitle = trimToMaxChars(aiResult.optimizedTitle, 75);
         $('optTitleText').value = trimmedTitle;
-        updateByteCounter('optTitleText','titleByteCounter',75,'字符');
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
     if (aiResult.optimizedItemHighlights) {
         const trimmedIH = trimToMaxChars(aiResult.optimizedItemHighlights, 125);
         $('optIhText').value = trimmedIH;
-        updateByteCounter('optIhText','ihByteCounter',125,'字符');
+        updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
     if (aiResult.optimizedBullets) $('optBpText').value = aiResult.optimizedBullets;
-    if (aiResult.optimizedDesc)    $('optDescText').value = aiResult.optimizedDesc;
+    if (aiResult.optimizedDesc) {
+        // 限制描述不超过 5000 字符
+        let desc = aiResult.optimizedDesc;
+        if (desc.length > 5000) desc = desc.substring(0, 5000);
+        $('optDescText').value = desc;
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
+    }
     if (aiResult.optimizedST) {
         const trimmedST = trimToMaxBytes(aiResult.optimizedST, 250);
         $('optStText').value = trimmedST;
-        updateByteCounter('optStText','stByteCounter',250,'字节');
+        updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
+    // 长度下限检查
+    const lengthWarnings = [];
+    const descLen = $('optDescText').value.length;
+    if (descLen > 0 && descLen < 2000) {
+        lengthWarnings.push('详细描述仅 ' + descLen + ' 字符，低于建议下限 2000 字符。建议点击「开始执行」重新生成，或手动补充内容。');
+    }
+    const stLen = getByteLength($('optStText').value);
+    if (stLen > 0 && stLen < 240) {
+        lengthWarnings.push('Search Terms 仅 ' + stLen + ' 字节，低于建议下限 240 字节，未充分利用后台字段空间。');
+    }
+    if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
+
+    // 违禁词检测
     const allOutput = [
         aiResult.optimizedTitle || '',
         aiResult.optimizedItemHighlights || '',
@@ -799,7 +848,7 @@ function applyFallback(anchorResults){
 
     if (!$('optTitleText').value.trim()) {
         $('optTitleText').value = trimToMaxChars(titleRaw, 75);
-        updateByteCounter('optTitleText','titleByteCounter',75,'字符');
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
     if (!$('optBpText').value.trim()){
         $('optBpText').value =
@@ -812,9 +861,10 @@ function applyFallback(anchorResults){
     if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
     if (!$('optStText').value.trim()) {
         $('optStText').value = trimToMaxBytes(stRaw || 'heavy duty product all season indoor outdoor', 250);
-        updateByteCounter('optStText','stByteCounter',250,'字节');
+        updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
+    // 违禁词检测
     const fallbackOutput = [
         $('optTitleText').value,
         $('optIhText').value,
@@ -908,9 +958,8 @@ document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
 });
 
-/* ================= 初始化实时计数器 ================= */
+/* ================= 初始化 ================= */
 document.addEventListener('DOMContentLoaded', initByteCounters);
-/* 如果 DOMContentLoaded 已经触发过，也直接执行一次 */
 if (document.readyState !== 'loading') initByteCounters();
 </script>
 
