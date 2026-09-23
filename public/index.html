@@ -398,6 +398,34 @@ function getByteLength(str) {
     return len;
 }
 
+/* 按字符数自动裁剪（用于标题和 Item Highlights） */
+function trimToMaxChars(str, maxChars) {
+    if (!str) return '';
+    if (str.length <= maxChars) return str;
+    let trimmed = str.substring(0, maxChars);
+    const lastSpace = trimmed.lastIndexOf(' ');
+    if (lastSpace > maxChars * 0.7) {
+        trimmed = trimmed.substring(0, lastSpace);
+    }
+    return trimmed.trim();
+}
+
+/* 按字节数自动裁剪（用于 Search Terms） */
+function trimToMaxBytes(str, maxBytes) {
+    if (!str) return '';
+    const words = str.split(/\s+/).filter(Boolean);
+    let result = '';
+    for (let w of words) {
+        const candidate = result ? result + ' ' + w : w;
+        if (getByteLength(candidate) <= maxBytes) {
+            result = candidate;
+        } else {
+            break;
+        }
+    }
+    return result.trim();
+}
+
 /* ================= 主流程 ================= */
 async function runAnalysis(){
     const url      = $('productUrl').value.trim();
@@ -409,6 +437,11 @@ async function runAnalysis(){
     if (!titleRaw && !bpRaw && !descRaw && !stRaw){
         showToast('请先填写标题或文案内容，或点击「载入示例文案」');
         return;
+    }
+
+    // 防杜撰提醒
+    if (!bpRaw && titleRaw){
+        showToast('⚠️ 您未填写5点描述，AI将根据标题推测生成，请务必核实后再使用！');
     }
 
     const full = [titleRaw, bpRaw, descRaw, stRaw].join(' \n ').toLowerCase();
@@ -525,7 +558,7 @@ async function runAnalysis(){
         console.error(err);
         applyFallback(anchorResults);
         status.className = 'ai-status error';
-        status.textContent = '⚠️ DeepSeek 调用失败，已降级本地模板';
+        status.textContent = '⚠️ AI 响应超时或格式异常，已自动降级本地模板。请刷新页面重试';
         showToast('DeepSeek 调用失败：' + err.message);
     } finally {
         btn.disabled = false;
@@ -563,6 +596,9 @@ ${anchorList}
    - 不要在标题中重复品牌名。
 3. 生成优化后的 Item Highlights（英文，**不超过 125 个字符**）。用于补充说明材质、推荐用途等，不能是标题的简单重复。
 4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。
+   ⚠️ 极其重要的防杜撰规则：
+   - 如果用户**提供了**原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。
+   - 如果用户**没有提供**原始五点描述（即原文为空白），你只能根据标题进行**谨慎推断**。并且必须在每个生成的新点开头加上 `[AI推测] ` 字样（例如：`1. [AI推测] NON-SLIP: ...`），提醒用户这些并非事实，需要人工核实修改。
 5. 生成优化后的详细描述（英文，2-4 句）。
 6. 生成优化后的后台搜索词（Search Terms）。**严格遵守以下规则**：
    - 总长度必须**小于 250 字节**（美国站标准），超出则整个字段失效。
@@ -608,13 +644,20 @@ ${anchorList}
     if (!result.success) throw new Error(result.error || '未知错误');
 
     let content = result.data.choices[0].message.content.trim();
+    // 增强容错：去掉可能残留的 markdown 代码块标记，并提取最外层的 JSON 大括号
     content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    const firstBrace = content.indexOf('{');
+    const lastBrace = content.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+        content = content.substring(firstBrace, lastBrace + 1);
+    }
 
     let parsed;
     try {
         parsed = JSON.parse(content);
-    } catch (e){
-        throw new Error('DeepSeek 返回内容不是合法 JSON');
+    } catch (e) {
+        console.error('AI 返回内容解析失败，原始内容：', content);
+        throw new Error('DeepSeek 返回格式异常，请重试');
     }
     return parsed;
 }
@@ -641,12 +684,24 @@ function applyAIResults(aiResult, anchorResults){
             </div>`;
     });
 
-    // 填充右侧优化文案并更新字节计数器
-    if (aiResult.optimizedTitle)   { $('optTitleText').value = aiResult.optimizedTitle; updateByteCounter('optTitleText','titleByteCounter',75,'字符'); }
-    if (aiResult.optimizedItemHighlights) { $('optIhText').value = aiResult.optimizedItemHighlights; updateByteCounter('optIhText','ihByteCounter',125,'字符'); }
+    // 填充右侧优化文案并自动裁剪
+    if (aiResult.optimizedTitle) {
+        const trimmedTitle = trimToMaxChars(aiResult.optimizedTitle, 75);
+        $('optTitleText').value = trimmedTitle;
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符');
+    }
+    if (aiResult.optimizedItemHighlights) {
+        const trimmedIH = trimToMaxChars(aiResult.optimizedItemHighlights, 125);
+        $('optIhText').value = trimmedIH;
+        updateByteCounter('optIhText','ihByteCounter',125,'字符');
+    }
     if (aiResult.optimizedBullets) { $('optBpText').value = aiResult.optimizedBullets; }
     if (aiResult.optimizedDesc)    { $('optDescText').value = aiResult.optimizedDesc; }
-    if (aiResult.optimizedST)      { $('optStText').value = aiResult.optimizedST; updateByteCounter('optStText','stByteCounter',250,'字节'); }
+    if (aiResult.optimizedST) {
+        const trimmedST = trimToMaxBytes(aiResult.optimizedST, 250);
+        $('optStText').value = trimmedST;
+        updateByteCounter('optStText','stByteCounter',250,'字节');
+    }
 }
 
 /* 更新字节计数器 */
@@ -685,7 +740,7 @@ function applyFallback(anchorResults){
     const stRaw    = $('searchTerms').value.trim();
 
     if (!$('optTitleText').value.trim()) {
-        $('optTitleText').value = titleRaw.slice(0, 75);
+        $('optTitleText').value = trimToMaxChars(titleRaw, 75);
         updateByteCounter('optTitleText','titleByteCounter',75,'字符');
     }
     if (!$('optBpText').value.trim()){
@@ -698,7 +753,7 @@ function applyFallback(anchorResults){
     }
     if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
     if (!$('optStText').value.trim()) {
-        $('optStText').value = stRaw || 'heavy duty product all season indoor outdoor';
+        $('optStText').value = trimToMaxBytes(stRaw || 'heavy duty product all season indoor outdoor', 250);
         updateByteCounter('optStText','stByteCounter',250,'字节');
     }
 }
