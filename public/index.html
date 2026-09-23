@@ -280,14 +280,14 @@
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
-                <div id="descByteCounter" class="byte-counter">0 / 5000 字符</div>
+                <div id="descByteCounter" class="byte-counter">0 / 5000 字符（下限 2000）</div>
 
                 <div class="copy-section-header">
                     <span>优化后的后台搜索词 (Search Terms · 240-250字节)</span>
                     <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
-                <div id="stByteCounter" class="byte-counter">0 / 250 字节</div>
+                <div id="stByteCounter" class="byte-counter">0 / 250 字节（下限 240）</div>
             </div>
         </div>
 
@@ -371,14 +371,127 @@ const FALLBACK = {
 const PROHIBITED_WORDS = {
     subjective: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
     promotional: ['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
-    regulated: ['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free'],
+    regulated: ['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free','dustproof','moldproof'],
     temporary: ['new','brand new','just launched','latest','current','available now','this week','this month','this year','today','last chance','last minute'],
     customer_service: ['contact us','24 hours','reply','respond','our team','our company','we will','we offer','we are'],
     first_person: ['our','we','my','i'],
     trademark: ['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
 };
 
+/* 安全替换映射（自动把违禁词替换为中性表达） */
+const SAFE_REPLACEMENTS = {
+    'best': 'reliable',
+    'top': 'high-performance',
+    'premium': 'refined',
+    'high quality': 'well-made',
+    'highest quality': 'well-made',
+    'perfect': 'ideal',
+    'amazing': 'impressive',
+    'excellent': 'dependable',
+    'ultimate': 'versatile',
+    'unbeatable': 'durable',
+    'finest': 'quality',
+    'greatest': 'notable',
+    'incredible': 'remarkable',
+    'superior': 'enhanced',
+    'world class': 'professional-grade',
+    'number 1': 'leading',
+    'no.1': 'leading',
+    '#1': 'leading',
+    'top rated': 'well-reviewed',
+    'most popular': 'widely chosen',
+    'trending': 'in-demand',
+    'viral': 'popular',
+    'must have': 'essential',
+    'must-have': 'essential',
+    'free shipping': '',
+    'free gift': '',
+    'on sale': '',
+    'discount': '',
+    'sale': '',
+    'clearance': '',
+    'limited time': '',
+    'best deal': '',
+    'bargain': '',
+    'deal': '',
+    'review': '',
+    'feedback': '',
+    'rating': '',
+    'star': '',
+    'positive': '',
+    'negative': '',
+    'comment': '',
+    'evaluation': '',
+    'gift': '',
+    'warranty': '',
+    'guarantee': '',
+    'antibacterial': 'surface-cleaning',
+    'antimicrobial': 'surface-cleaning',
+    'disinfect': 'clean',
+    'sanitize': 'clean',
+    'sterilize': 'clean',
+    'mold proof': 'resistant',
+    'mildew proof': 'resistant',
+    'fungus': 'resistant',
+    'insect repellent': '',
+    'pest control': '',
+    'cure': 'help',
+    'heal': 'help',
+    'treat': 'help',
+    'therapeutic': 'supportive',
+    'anti-inflammatory': '',
+    'pain relief': '',
+    'antibiotic': '',
+    'antiviral': '',
+    'hygienic': 'clean',
+    'sterile': 'clean',
+    'kill germs': 'clean',
+    'germ free': 'clean',
+    'dustproof': 'dust-resistant',
+    'moldproof': 'mold-resistant',
+    'new': 'updated',
+    'brand new': 'updated',
+    'just launched': 'recently released',
+    'latest': 'updated',
+    'current': 'modern',
+    'available now': 'available',
+    'this week': '',
+    'this month': '',
+    'this year': '',
+    'today': '',
+    'last chance': '',
+    'last minute': '',
+    'contact us': '',
+    '24 hours': '',
+    'reply': '',
+    'respond': '',
+    'our team': '',
+    'our company': '',
+    'we will': '',
+    'we offer': '',
+    'we are': '',
+    'our': 'the',
+    'we': 'the product',
+    'my': 'the',
+    'i': 'the product'
+};
+
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
+
+/* 自动替换违禁词 */
+function replaceProhibitedWords(text) {
+    if (!text) return '';
+    let result = text;
+    // 按长度降序处理，避免短词先替换影响长词
+    const sortedKeys = Object.keys(SAFE_REPLACEMENTS).sort((a,b) => b.length - a.length);
+    sortedKeys.forEach(key => {
+        if (!key) return;
+        const replacement = SAFE_REPLACEMENTS[key];
+        const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+        result = result.replace(regex, replacement);
+    });
+    return result;
+}
 
 function detectProhibitedWords(text) {
     if (!text) return [];
@@ -476,7 +589,7 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ================= 字节计数器（支持实时更新） ================= */
+/* ================= 字节计数器 ================= */
 function updateByteCounter(inputId, counterId, max, unit, min){
     const el = $(inputId);
     const counter = $(counterId);
@@ -672,7 +785,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - 每个单词首字母大写，但连词（and, or, for）、冠词（the, a, an）和少于 5 个字母的介词（in, on, with）不大写。',
         '   - 使用阿拉伯数字（如 2 而非 two），禁止全大写字母。',
         '   - 不要在标题中重复品牌名。',
-        '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty。',
+        '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
         '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。同样禁止使用上述违禁词。',
         '4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。',
         '   ⚠️ 极其重要的防杜撰规则：',
@@ -750,7 +863,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     return parsed;
 }
 
-/* ================= 应用 AI 结果 ================= */
+/* ================= 应用 AI 结果（含自动违禁词替换） ================= */
 function applyAIResults(aiResult, anchorResults){
     const fixes = aiResult.anchorFixes || {};
 
@@ -759,7 +872,9 @@ function applyAIResults(aiResult, anchorResults){
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
 
-        const suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
+        let suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
+        // 自动替换违禁词
+        suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
 
         cell.innerHTML =
@@ -772,27 +887,36 @@ function applyAIResults(aiResult, anchorResults){
             '</div>';
     });
 
+    // 标题：先替换违禁词，再截断
     if (aiResult.optimizedTitle) {
-        const trimmedTitle = trimToMaxChars(aiResult.optimizedTitle, 75);
-        $('optTitleText').value = trimmedTitle;
+        let title = replaceProhibitedWords(aiResult.optimizedTitle);
+        title = trimToMaxChars(title, 75);
+        $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
+    // Item Highlights
     if (aiResult.optimizedItemHighlights) {
-        const trimmedIH = trimToMaxChars(aiResult.optimizedItemHighlights, 125);
-        $('optIhText').value = trimmedIH;
+        let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
+        ih = trimToMaxChars(ih, 125);
+        $('optIhText').value = ih;
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
-    if (aiResult.optimizedBullets) $('optBpText').value = aiResult.optimizedBullets;
+    // 五点描述：不做长度截断，但替换违禁词
+    if (aiResult.optimizedBullets) {
+        $('optBpText').value = replaceProhibitedWords(aiResult.optimizedBullets);
+    }
+    // 详细描述：替换违禁词，限制 5000 字符
     if (aiResult.optimizedDesc) {
-        // 限制描述不超过 5000 字符
-        let desc = aiResult.optimizedDesc;
+        let desc = replaceProhibitedWords(aiResult.optimizedDesc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
         updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
     }
+    // 搜索词：替换违禁词，限制字节
     if (aiResult.optimizedST) {
-        const trimmedST = trimToMaxBytes(aiResult.optimizedST, 250);
-        $('optStText').value = trimmedST;
+        let st = replaceProhibitedWords(aiResult.optimizedST);
+        st = trimToMaxBytes(st, 250);
+        $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
@@ -808,27 +932,28 @@ function applyAIResults(aiResult, anchorResults){
     }
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
-    // 违禁词检测
+    // 违禁词复查（替换后如果还有残留，才弹警告）
     const allOutput = [
-        aiResult.optimizedTitle || '',
-        aiResult.optimizedItemHighlights || '',
-        aiResult.optimizedBullets || '',
-        aiResult.optimizedDesc || '',
-        aiResult.optimizedST || ''
+        $('optTitleText').value,
+        $('optIhText').value,
+        $('optBpText').value,
+        $('optDescText').value,
+        $('optStText').value
     ].join(' ');
 
     const prohibitedHits = detectProhibitedWords(allOutput);
-    if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案');
+    if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案（自动替换后仍有残留）');
 }
 
-/* ================= 本地降级 ================= */
+/* ================= 本地降级（同样自动替换） ================= */
 function applyFallback(anchorResults){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
 
-        const suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
+        let suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
+        suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
 
         cell.innerHTML =
@@ -847,7 +972,9 @@ function applyFallback(anchorResults){
     const stRaw    = $('searchTerms').value.trim();
 
     if (!$('optTitleText').value.trim()) {
-        $('optTitleText').value = trimToMaxChars(titleRaw, 75);
+        let title = replaceProhibitedWords(titleRaw);
+        title = trimToMaxChars(title, 75);
+        $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
     if (!$('optBpText').value.trim()){
@@ -858,13 +985,20 @@ function applyFallback(anchorResults){
 '4. MULTI-SCENE: Perfect for indoor and outdoor use.\n\n' +
 '5. PEACE OF MIND: Delivers everyday satisfaction you can count on.';
     }
-    if (!$('optDescText').value.trim()) $('optDescText').value = descRaw || 'Premium quality product built for long-lasting everyday performance.';
+    if (!$('optDescText').value.trim()) {
+        let desc = replaceProhibitedWords(descRaw) || 'Premium quality product built for long-lasting everyday performance.';
+        desc = replaceProhibitedWords(desc);
+        $('optDescText').value = desc;
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
+    }
     if (!$('optStText').value.trim()) {
-        $('optStText').value = trimToMaxBytes(stRaw || 'heavy duty product all season indoor outdoor', 250);
+        let st = replaceProhibitedWords(stRaw) || 'heavy duty product all season indoor outdoor';
+        st = trimToMaxBytes(st, 250);
+        $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // 违禁词检测
+    // 违禁词复查
     const fallbackOutput = [
         $('optTitleText').value,
         $('optIhText').value,
@@ -874,7 +1008,7 @@ function applyFallback(anchorResults){
     ].join(' ');
 
     const fallbackHits = detectProhibitedWords(fallbackOutput);
-    if (fallbackHits.length > 0) showProhibitedWarning(fallbackHits, '优化文案（本地模板）');
+    if (fallbackHits.length > 0) showProhibitedWarning(fallbackHits, '优化文案（本地模板，自动替换后仍有残留）');
 }
 
 /* ================= 示例加载 ================= */
