@@ -378,7 +378,7 @@ const PROHIBITED_WORDS = {
     trademark: ['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
 };
 
-/* 安全替换映射（自动把违禁词替换为中性表达） */
+/* 安全替换映射 */
 const SAFE_REPLACEMENTS = {
     'best': 'reliable',
     'top': 'high-performance',
@@ -478,11 +478,9 @@ const SAFE_REPLACEMENTS = {
 
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
 
-/* 自动替换违禁词 */
 function replaceProhibitedWords(text) {
     if (!text) return '';
     let result = text;
-    // 按长度降序处理，避免短词先替换影响长词
     const sortedKeys = Object.keys(SAFE_REPLACEMENTS).sort((a,b) => b.length - a.length);
     sortedKeys.forEach(key => {
         if (!key) return;
@@ -632,7 +630,8 @@ async function runAnalysis(){
         return;
     }
 
-    if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将根据标题推测生成，请务必核实后再使用！');
+    if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
+    if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
 
     const oldWarning = document.getElementById('prohibited-warning');
     if (oldWarning) oldWarning.remove();
@@ -788,9 +787,13 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '   - ⚠️ 严禁使用以下词汇：best, top, premium, high quality, perfect, amazing, free, sale, discount, guarantee, warranty, antibacterial, disinfect, sanitize, we, our, I。',
         '3. 生成优化后的 Item Highlights（英文，不超过 125 个字符）。用于补充说明材质、推荐用途等，不能是标题的简单重复。同样禁止使用上述违禁词。',
         '4. 生成优化后的五点描述（英文，格式为 "1. XXX: ..."，每点一段，共 5 点）。',
-        '   ⚠️ 极其重要的防杜撰规则：',
+        '   ⚠️ 极其重要的防杜撰规则（分级管控）：',
         '   - 如果用户提供了原始五点描述，请基于原文优化，绝对不要添加原文中没有的功能。',
-        '   - 如果用户没有提供原始五点描述（即原文为空白），你只能根据标题进行谨慎推断。并且必须在每个生成的新点开头加上 [AI推测] 字样（例如：1. [AI推测] NON-SLIP: ...），提醒用户这些并非事实，需要人工核实修改。',
+        '   - 如果用户没有提供原始五点描述，你只能基于已知信息（标题、详细描述）进行谨慎推断。',
+        '   - 【允许推断的内容】：通用应用场景、目标人群、使用方式、情感价值、搭配建议。',
+        '   - 【绝对禁止编造的内容】：具体尺寸、重量、颜色、材质具体成分、认证、特殊功能（如抗菌、防水等级、医疗功效）、具体性能参数。',
+        '   - 如果必须提及某项原则性信息但原文缺失，请使用占位符 [需核实:具体属性] 标注，不要编造具体值。',
+        '   - 如果用户没有提供原始五点描述，每个生成的新点开头加上 [AI推测] 字样。',
         '   - 同样禁止使用上述违禁词。',
         '5. 生成优化后的详细描述（Description）。这是本任务最重要的输出，必须认真对待：',
         '   ⚠️ 详细描述的字符数下限是 2000 字符，上限是 5000 字符（亚马逊官方限制）。',
@@ -802,6 +805,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         '     * 使用与保养说明（1 段，包括清洁、收纳、注意事项）',
         '     * 为什么选择这款产品 / 与其他产品的区别（1 段）',
         '   - 语言风格：专业、有说服力、避免夸张、融入 COSMO 语义（场景、受众、情感等）。',
+        '   - ⚠️ 同样适用防杜撰规则：对于原则性信息（具体尺寸、重量、颜色、材质成分、认证、特殊功能），如果原文未提供，必须使用 [需核实:具体属性] 占位，不得编造。',
         '   - 禁止使用上述违禁词。不要与五点描述内容重复。',
         '6. 生成优化后的后台搜索词（Search Terms）。严格遵守以下规则：',
         '   - 字节数范围必须控制在 240-250 字节（美国站标准，250 字节是上限，不足 240 视为浪费，超出 250 整个字段失效）。',
@@ -835,7 +839,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。' },
+                { role: 'system', content: '你是亚马逊 Listing 优化专家，精通 COSMO 语义算法。只输出合法 JSON，不要任何解释、不要 markdown 代码块。严禁使用任何主观夸大词、促销词、违禁词。详细描述必须至少 2000 字符，搜索词必须 240-250 字节。严格遵循防杜撰分级规则：非原则信息可谨慎推断，原则信息（尺寸、重量、颜色、材质具体成分、认证、特殊功能）绝对不可编造，缺失时用 [需核实] 占位。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -863,7 +867,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw){
     return parsed;
 }
 
-/* ================= 应用 AI 结果（含自动违禁词替换） ================= */
+/* ================= 应用 AI 结果 ================= */
 function applyAIResults(aiResult, anchorResults){
     const fixes = aiResult.anchorFixes || {};
 
@@ -873,7 +877,6 @@ function applyAIResults(aiResult, anchorResults){
         if (!cell) return;
 
         let suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
-        // 自动替换违禁词
         suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
 
@@ -887,32 +890,27 @@ function applyAIResults(aiResult, anchorResults){
             '</div>';
     });
 
-    // 标题：先替换违禁词，再截断
     if (aiResult.optimizedTitle) {
         let title = replaceProhibitedWords(aiResult.optimizedTitle);
         title = trimToMaxChars(title, 75);
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
-    // Item Highlights
     if (aiResult.optimizedItemHighlights) {
         let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
         ih = trimToMaxChars(ih, 125);
         $('optIhText').value = ih;
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
-    // 五点描述：不做长度截断，但替换违禁词
     if (aiResult.optimizedBullets) {
         $('optBpText').value = replaceProhibitedWords(aiResult.optimizedBullets);
     }
-    // 详细描述：替换违禁词，限制 5000 字符
     if (aiResult.optimizedDesc) {
         let desc = replaceProhibitedWords(aiResult.optimizedDesc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
         updateByteCounter('optDescText','descByteCounter',5000,'字符',2000);
     }
-    // 搜索词：替换违禁词，限制字节
     if (aiResult.optimizedST) {
         let st = replaceProhibitedWords(aiResult.optimizedST);
         st = trimToMaxBytes(st, 250);
@@ -920,7 +918,6 @@ function applyAIResults(aiResult, anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // 长度下限检查
     const lengthWarnings = [];
     const descLen = $('optDescText').value.length;
     if (descLen > 0 && descLen < 2000) {
@@ -932,7 +929,6 @@ function applyAIResults(aiResult, anchorResults){
     }
     if (lengthWarnings.length > 0) showLengthWarning(lengthWarnings.join(' '));
 
-    // 违禁词复查（替换后如果还有残留，才弹警告）
     const allOutput = [
         $('optTitleText').value,
         $('optIhText').value,
@@ -945,7 +941,7 @@ function applyAIResults(aiResult, anchorResults){
     if (prohibitedHits.length > 0) showProhibitedWarning(prohibitedHits, '优化文案（自动替换后仍有残留）');
 }
 
-/* ================= 本地降级（同样自动替换） ================= */
+/* ================= 本地降级 ================= */
 function applyFallback(anchorResults){
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
@@ -998,7 +994,6 @@ function applyFallback(anchorResults){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    // 违禁词复查
     const fallbackOutput = [
         $('optTitleText').value,
         $('optIhText').value,
