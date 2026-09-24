@@ -38,7 +38,6 @@
         outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);
     }
     textarea{resize:vertical;height:90px;}
-    /* 输入区双栏布局 */
     .input-layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -196,7 +195,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · 高分化与防杜撰完美平衡版</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · 高分化与防杜撰完美平衡版（2026 商品文本新规）</p>
     </header>
 
     <div class="card">
@@ -216,19 +215,19 @@
             
             <div class="input-layout-right">
                 <div class="form-group">
-                    <label for="productTitle">商品标题 (Title)</label>
+                    <label for="productTitle">商品标题 (Title · ≤75 字符)</label>
                     <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
                 </div>
                 <div class="form-group">
-                    <label for="bulletPoints">5 点描述 (Bullet Points)</label>
+                    <label for="bulletPoints">5 点描述 (Bullet Points · 每条 10-255 字符 · 总 ≤1000)</label>
                     <textarea id="bulletPoints" placeholder="请输入或粘贴 5 点描述..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="description">详细描述 / A+ 内容 (Description / A+)</label>
+                    <label for="description">详细描述 / A+ 内容 (Description · ≤2000 字符)</label>
                     <textarea id="description" placeholder="请输入或粘贴详细描述或 A+ 内容..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="searchTerms">后台搜索词 (Search Terms)</label>
+                    <label for="searchTerms">后台搜索词 (Search Terms · ≤250 字节 · 全小写)</label>
                     <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
                 </div>
             </div>
@@ -299,41 +298,41 @@
             <div class="pane pane-right">
                 <h3>✨ DeepSeek 优化文案（一键复制）</h3>
                 <div class="copy-section-header">
-                    <span>优化后的商品标题 (Title · 目标 70-75字符)</span>
+                    <span>优化后的商品标题 (Title · 目标 70-75 字符 · 不以标点结尾)</span>
                     <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125字符 · 必须与标题互补不重复)</span>
+                    <span>Item Highlights (≤125 字符 · 必须与标题互补不重复)</span>
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
-                    <span>优化后的 5 点描述 (每点 150-220 字符，总 ≤1000 · 好处优先)</span>
+                    <span>优化后的 5 点描述 (每条 10-255 字符 · 总 ≤1000 · 结尾不加句号)</span>
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
                 <div id="bulletPointsContainer">
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 完整层级尺寸 + 包装</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 2 点</span><span class="bp-role">核心痛点 / 人群</span></span><button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button></div><textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter1" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 3 点</span><span class="bp-role">特点 + 收益</span></span><button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button></div><textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter2" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 4 点</span><span class="bp-role">功能原理 + 攻心</span></span><button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button></div><textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter3" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 5 点</span><span class="bp-role">保证 / 风险逆转</span></span><button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button></div><textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter4" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">核心功能 + 容量属性</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 2 点</span><span class="bp-role">材质工艺 + 保护效果</span></span><button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button></div><textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter1" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 3 点</span><span class="bp-role">尺寸规格 + 空间表现</span></span><button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button></div><textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter2" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 4 点</span><span class="bp-role">重量便携 + 运输特性</span></span><button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button></div><textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter3" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 5 点</span><span class="bp-role">日常使用 + 便捷体验</span></span><button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button></div><textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter4" class="byte-counter">0 / 255 字符</div></div>
                 </div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
                 <div class="copy-section-header" style="margin-top:10px;">
-                    <span>优化后的详细描述 (Description · ≤5000字符)</span>
+                    <span>优化后的详细描述 (Description · ≤2000 字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
-                <div id="descByteCounter" class="byte-counter">0 / 5000 字符</div>
+                <div id="descByteCounter" class="byte-counter">0 / 2000 字符</div>
                 <div class="copy-section-header">
-                    <span>优化后的后台搜索词 (Search Terms · 240-250字节)</span>
+                    <span>优化后的后台搜索词 (Search Terms · ≤250 字节 · 全小写)</span>
                     <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                 </div>
                 <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
-                <div id="stByteCounter" class="byte-counter">0 / 250 字节（下限 240）</div>
+                <div id="stByteCounter" class="byte-counter">0 / 250 字节</div>
                 <div id="kwHitReport" class="kw-hit-report hidden"></div>
             </div>
         </div>
@@ -744,6 +743,7 @@ function cleanItemHighlights(ih){
     return result;
 }
 
+// ★ 2026 新规：五点每条 10-255 字符，总 ≤1000
 function autoTrimBulletsToLimit(limit){
     let bullets = [];
     for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
@@ -752,7 +752,7 @@ function autoTrimBulletsToLimit(limit){
 
     const before = total;
     let safety = 0;
-    const MIN_LEN = 130;
+    const MIN_LEN = 10; // ★ 硬规则下限改为 10（原来是 130）
 
     while (total > limit && safety < 500){
         safety++;
@@ -782,7 +782,7 @@ function autoTrimBulletsToLimit(limit){
     for (let i = 0; i < 5; i++){
         const el = $('optBp' + i);
         if (el) el.value = bullets[i];
-        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
     }
     updateBpTotal();
     return { trimmed: true, before: before, after: total };
@@ -1052,12 +1052,13 @@ function updateBpTotal(){
     }
 }
 
+// ★ 2026 新规核心计数器：标题 75 字符、IH 125 字符、描述 2000 字符、ST 250 字节、五点 255/10
 function initByteCounters(){
     const bindings = [
-        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,  unit: '字符', min: null },
-        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125, unit: '字符', min: null },
-        { input: 'optDescText',  counter: 'descByteCounter',  max: 5000,unit: '字符', min: null },
-        { input: 'optStText',    counter: 'stByteCounter',    max: 250, unit: '字节', min: 240 }
+        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,   unit: '字符', min: null },
+        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125,  unit: '字符', min: null },
+        { input: 'optDescText',  counter: 'descByteCounter',  max: 2000, unit: '字符', min: null },
+        { input: 'optStText',    counter: 'stByteCounter',    max: 250,  unit: '字节', min: null }
     ];
     bindings.forEach(function(b){
         const el = $(b.input);
@@ -1072,7 +1073,7 @@ function initByteCounters(){
             const el = $('optBp' + idx);
             if (!el) return;
             const handler = function(){
-                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 150);
+                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 10);
                 updateBpTotal();
             };
             el.addEventListener('input', handler);
@@ -1306,7 +1307,7 @@ function applyBoostResult(boostResult){
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
         }
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
@@ -1319,16 +1320,18 @@ function applyBoostResult(boostResult){
         desc = checkHallucination(originalFullText, desc);
         desc = sanitizeVerifyTags(desc);
         desc = cleanTextArtifacts(desc);
-        if (desc.length > 5000) desc = desc.substring(0, 5000);
+        // ★ 2026 新规：描述 ≤2000 字符
+        if (desc.length > 2000) desc = desc.substring(0, 2000);
         $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
     }
     if (boostResult.optimizedST){
         let st = replaceProhibitedWords(boostResult.optimizedST);
         st = checkHallucination(originalFullText, st);
+        st = st.toLowerCase(); // ★ 新规：Search Term 全小写
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
-        updateByteCounter('optStText','stByteCounter',250,'字节',240);
+        updateByteCounter('optStText','stByteCounter',250,'字节',null);
     }
 }
 
@@ -1407,32 +1410,33 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     }
 
     const prompt = [
-        '你是亚马逊 Listing 优化专家，精通 A9 和 COSMO 算法。',
+        '你是亚马逊 Listing 优化专家，精通 A9 和 COSMO 算法，且熟知 2026 年亚马逊商品文本新规。',
         '【商品原始文案】',
         '标题：' + (titleRaw || '（未提供）'),
         '五点描述：' + (bpRaw || '（未提供）'),
         '详细描述：' + (descRaw || '（未提供）'),
         '搜索词：' + (stRaw || '（未提供）'),
         '',
+        '════════ 2026 亚马逊商品文本硬性规则（务必全部遵守） ════════',
+        '· 标题：≤75 字符（含空格），首屏含核心词，不以标点或介词结尾，不含促销用语与主观夸大词。',
+        '· Item Highlights：≤125 字符（含空格），必须与标题互补不重复，只输出名词/形容词短语，严禁完整句子和动词。',
+        '· 五点描述：每条 10–255 字符，5 条合计 ≤1000 字符；每条以英文短语或大写标签开头，句段形式，**结尾一律不加句号**。',
+        '· 详细描述：≤2000 字符（HTML 标签计入），不使用夸大、促销、保证类表述。',
+        '· Search Term：≤250 字节（非字符），**全部小写**，空格分隔；不含品牌名、ASIN、主观词、时效词、与标题/五点已含词不重复。',
+        '',
         '════════ 核心铁律：保真原则与严禁无中生有 ════════',
-        '1. 【保真原则】严格遵循原商品信息，尽量非必要，不修改原商品信息。严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）。',
+        '1. 【保真原则】严格遵循原商品信息，非必要不修改原商品信息。严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）。',
         '   - ⚠️ 分层结构、规格尺寸、材质必须完整保留，原样输出，绝对不能简化或省略！',
         '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments (10个格子)”，绝对不能写成“12 slots”或其他数量！',
         '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
         '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造。只能写原文中存在的参数！',
         '   - ⚠️ 如果字符数不足，宁可留白或使用中性的修饰词，绝对不能编造原文没有的功能属性（如 Lockable, Waterproof 等）来凑字数！',
-        '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。如果未达到70个字符，请从用户热词库或A9属性词中提取补充。',
-        '3. Item Highlights（商品亮点）：≤125 字符，必须为逗号分隔的名词/形容词短语，严禁使用完整句子。',
-        '   - ⚠️⚠️【最高优先级红线1：绝不重复标题】标题已经写过的核心词（如数量、材质、颜色），在 Item Highlights 中绝对不能再次出现！必须补充标题中未提及的新信息（如适用场景、包装内容、特殊设计、使用体验等）。',
-        '   - ⚠️⚠️【最高优先级红线2：短语而非句子】严禁出现动词（is, are, has, features, provides, ensures, helps 等），严禁出现主谓结构。只能输出纯粹的名词短语或形容词短语。',
-        '   - 正确示例（名词/形容词短语）：Fits standard drawers, Ideal for collectors, Soft lining, Protects from scratches, Home organizer, Shop display, Dust-proof, Easy access',
-        '   - 错误示例1（重复标题）：10 compartments, Leather, Black（复制标题）。',
-        '   - 错误示例2（完整句子）：This watch box is perfect for collectors and it has a soft lining that protects your watches. （这是完整句子，绝对禁止）。',
-        '4. 五点描述规范：',
-        '   - 5 个要点全部以【好处优先】为标题（全大写）。',
+        '2. 五点描述规范：',
+        '   - 5 个要点全部以【好处优先】的短语标题开头（全大写）。',
         '   - 第 1 点必须完整包含：1 x 原产品名称 + 原产品所有精确的规格/尺寸/材质参数。',
-        '   - 每点 150-220 字符，五点总字符数 ≤1000。',
-        '5. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100% 等主观夸大或促销词。',
+        '   - 每点 10–255 字符，五点总字符数 ≤1000。',
+        '   - 每条结尾不加句号。',
+        '3. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100%, warranty, guarantee, gift 等主观夸大、促销、保证类词。',
         '',
         '【定向锚点强化指令】以下是当前未达标的COSMO语义锚点，你必须根据下面的提示，将这些具体词汇自然融入你的文案中，以提升评分：',
         anchorList,
@@ -1454,7 +1458,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家。严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须为纯名词/形容词短语（绝对不能出现完整句子和动词）。五点好处优先标题，总字符 ≤1000。如果发现字符数不足，宁可精简留白，也绝对禁止编造原文没有的功能属性（如 Lockable, Waterproof 等）来凑字数！必须严格根据“定向锚点强化指令”中的要求，将指定的词汇融入文案以提升COSMO得分。' },
+                { role: 'system', content: '你是亚马逊双算法专家，熟知 2026 年亚马逊商品文本新规。严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights 绝对不能与标题重复，必须为纯名词/形容词短语。五点好处优先，每条 10-255 字符、合计 ≤1000、结尾不加句号。描述 ≤2000 字符。Search Term ≤250 字节、全小写。严禁编造原文没有的功能属性来凑字数！必须严格根据“定向锚点强化指令”中的要求，将指定的词汇融入文案以提升COSMO得分。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1471,28 +1475,50 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     return JSON.parse(content);
 }
 
+// ★ 2026 新规：Search Term 不重复标题/五点已含词，全小写
 function patchSearchTerms(anchorResults, hotKeywords){
     const el = $('optStText');
     let st = (el.value || '').trim().toLowerCase();
     if (!st) st = '';
     let bytes = getByteLength(st);
-    if (bytes >= 240) return { added: 0, bytes: bytes };
+    if (bytes >= 250) return { added: 0, bytes: bytes };
+
+    // 已存在于 Search Term 的词
     const seen = new Set();
     st.split(/\s+/).filter(Boolean).forEach(w => seen.add(w));
+
+    // 标题 + Item Highlights + 五点 + 描述 中已出现的词，不再重复塞入 Search Term
+    const titleBpText = [
+        $('optTitleText').value || '',
+        $('optIhText').value || '',
+        $('optBp0').value || '', $('optBp1').value || '',
+        $('optBp2').value || '', $('optBp3').value || '',
+        $('optBp4').value || '',
+        $('optDescText').value || ''
+    ].join(' ').toLowerCase();
+    const existingWords = new Set(titleBpText.split(/\s+/).filter(Boolean));
+
     const candidates = [];
     if (hotKeywords && hotKeywords.length){
         hotKeywords.forEach(kw => {
             const clean = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-            if (clean && !seen.has(clean)){ seen.add(clean); candidates.push(clean); }
+            if (!clean) return;
+            if (seen.has(clean)) return;
+            // 只有当该词整体（或拆出的每个单词）不在标题/五点/描述中时，才补入
+            const tokens = clean.split(' ').filter(Boolean);
+            const allAlreadyUsed = tokens.every(tk => existingWords.has(tk));
+            if (allAlreadyUsed) return;
+            seen.add(clean);
+            candidates.push(clean);
         });
     }
     for (const c of candidates) {
         const candidate = st ? st + ' ' + c : c;
-        if (getByteLength(candidate) <= 248) { st = candidate; }
-        if (getByteLength(st) >= 240) break;
+        if (getByteLength(candidate) <= 250) { st = candidate; }
+        if (getByteLength(st) >= 245) break;
     }
     el.value = st;
-    updateByteCounter('optStText', 'stByteCounter', 250, '字节', 240);
+    updateByteCounter('optStText', 'stByteCounter', 250, '字节', null);
     return { added: 1, bytes: getByteLength(st) };
 }
 
@@ -1602,7 +1628,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
         }
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
@@ -1613,9 +1639,10 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
             text = replaceProhibitedWords(text);
+            text = text.replace(/[.。;；,，]+$/, '');
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
         }
         updateBpTotal();
         autoTrimBulletsToLimit(1000);
@@ -1625,16 +1652,18 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         desc = checkHallucination(originalFullText, desc);
         desc = sanitizeVerifyTags(desc);
         desc = cleanTextArtifacts(desc);
-        if (desc.length > 5000) desc = desc.substring(0, 5000);
+        // ★ 2026 新规：描述 ≤2000 字符
+        if (desc.length > 2000) desc = desc.substring(0, 2000);
         $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
     }
     if (aiResult.optimizedST) {
         let st = replaceProhibitedWords(aiResult.optimizedST);
         st = checkHallucination(originalFullText, st);
+        st = st.toLowerCase(); // ★ 新规：Search Term 全小写
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
-        updateByteCounter('optStText','stByteCounter',250,'字节',240);
+        updateByteCounter('optStText','stByteCounter',250,'字节',null);
     }
 
     patchSearchTerms(anchorResults, hotKeywords);
@@ -1661,26 +1690,28 @@ function applyFallback(anchorResults, hotKeywords){
             '</div>';
     });
     if (!$('optTitleText').value.trim()) {
-        let title = 'Premium Storage Organizer Box for Home and Commercial Use';
+        // ★ 用中性表达替换带 premium 的 fallback 标题
+        let title = 'Storage Organizer Box for Home and Everyday Use';
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
     if (!$('optBp0').value.trim()) {
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
+            text = text.replace(/[.。;；,，]+$/, '');
             const el = $('optBp' + i);
             if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
         }
         updateBpTotal();
     }
     if (!$('optDescText').value.trim()) {
         $('optDescText').value = 'Keep your items neat, protected and easy to reach with this practical storage organizer.';
-        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
     }
     if (!$('optStText').value.trim()) {
-        $('optStText').value = 'storage organizer box home commercial display case';
-        updateByteCounter('optStText','stByteCounter',250,'字节',240);
+        $('optStText').value = 'storage organizer box home everyday display case';
+        updateByteCounter('optStText','stByteCounter',250,'字节',null);
     }
 }
 
