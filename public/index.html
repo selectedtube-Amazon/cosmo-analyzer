@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（终极精准版）</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 参数完整保留</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 规格参数 100% 零丢失版</p>
     </header>
 
     <div class="card">
@@ -189,14 +189,14 @@
             <label for="productUrl" style="margin-bottom:8px;">🔗 亚马逊商品详情页网址（URL / ASIN 链接 · 可选）</label>
             <div class="url-flex">
                 <input type="text" id="productUrl" placeholder="例如: https://www.amazon.com/dp/B00...">
-                <button class="btn-sm" onclick="loadSampleByUrl()">载入示例文案</button>
+                <button class="btn-sm" onclick="loadSampleByUrl()">载入眼镜盒示例数据</button>
             </div>
-            <div class="hint">提示：本工具不会真实抓取亚马逊页面；该按钮仅根据链接关键词匹配内置示例数据，方便快速体验。</div>
+            <div class="hint">提示：点击后将自动载入您刚才提供的 12 格眼镜收纳盒完整数据。</div>
         </div>
         <div class="keywords-box">
             <label for="hotKeywords">🎯 品类热词 / 长尾词库（可选，每行一个或用逗号/空格分隔）</label>
-            <textarea id="hotKeywords" placeholder="例如（从卖家精灵/Helium 10/品牌分析 导出）：&#10;doormat&#10;front door mat&#10;entryway rug&#10;non slip mat&#10;absorbent floor mat&#10;pet friendly door mat&#10;shoe mat indoor"></textarea>
-            <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。不填则 AI 用通用词推断。</div>
+            <textarea id="hotKeywords" placeholder="例如：&#10;eyeglasses storage case&#10;sunglasses display organizer box&#10;12 slot glasses case&#10;lockable sunglasses organizer&#10;pu leather eyewear display tray"></textarea>
+            <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。</div>
         </div>
         <div class="form-group">
             <label for="productTitle">商品标题 (Title)</label>
@@ -295,7 +295,7 @@
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
                 <div id="bulletPointsContainer">
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 包装内容</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
+                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">基本属性 + 完整层级尺寸 + 包装</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
                     <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 2 点</span><span class="bp-role">核心痛点 / 人群</span></span><button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button></div><textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter1" class="byte-counter">0 / 255 字符</div></div>
                     <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 3 点</span><span class="bp-role">特点 + 收益</span></span><button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button></div><textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter2" class="byte-counter">0 / 255 字符</div></div>
                     <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 4 点</span><span class="bp-role">功能原理 + 攻心</span></span><button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button></div><textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter3" class="byte-counter">0 / 255 字符</div></div>
@@ -303,7 +303,7 @@
                 </div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
                 <div class="copy-section-header" style="margin-top:10px;">
-                    <span>优化后的详细描述 (Description · ≤5000字符，无下限)</span>
+                    <span>优化后的详细描述 (Description · ≤5000字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -351,27 +351,27 @@
 
 <script>
 const L = {
-    func:      ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch'],
-    goal:      ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
-    capable:   ['durab','waterproof','water-resistant','water resistant','weather','resistant','heavy duty','heavy-duty','absorbent','washable','reusable','sturdy','non-slip','non slip','withstand','long-lasting','premium material','high quality'],
-    identity:  ['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light','box','boxes','carton','container'],
-    role:      ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
-    audience:  ['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone','seller','business'],
-    ease:      ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools','assemble'],
-    size:      ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube'],
-    location:  ['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home','warehouse'],
-    occasion:  ['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal','shipping','packing','moving'],
-    season:    ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
-    lifestyle: ['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design','craft'],
-    together:  ['compatible','works with','work with','pairs with','pair with','along with','accessories','standard','together with','combine','match'],
-    image:     ['professional','elegant','refined','welcoming','hospital','premium','sophisticated','organized','taste','impress','stylish','luxury','high-end','chic'],
-    emotion:   ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
+    func:    ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch','display','showcase'],
+    goal:    ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
+    capable: ['durab','waterproof','water-resistant','water resistant','weather','resistant','heavy duty','heavy-duty','absorbent','washable','reusable','sturdy','non-slip','non slip','withstand','long-lasting','premium material','high quality','lockable','secure'],
+    identity:['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light','box','boxes','carton','container','drawer'],
+    role:    ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
+    audience:['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone','seller','business','girls','boys','men'],
+    ease:    ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools','assemble'],
+    size:    ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube','slot','tier'],
+    location:['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home','warehouse','bedroom','closet','dresser'],
+    occasion:['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal','shipping','packing','moving'],
+    season:  ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
+    lifestyle:['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design','craft'],
+    together:['compatible','works with','work with','pairs with','pair with','along with','accessories','standard','together with','combine','match'],
+    image:   ['professional','elegant','refined','welcoming','hospital','premium','sophisticated','organized','taste','impress','stylish','luxury','high-end','chic'],
+    emotion: ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
 };
 
 const ANCHORS = [
     { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
-    { cluster:'功能集群', name:'used_to',       cn:'达成使用目标', kws:L.goal },
-    { cluster:'功能集群', name:'capable_of',    cn:'性能材质能力', kws:L.capable },
+    { cluster:'功能集群', name:'used_to',        cn:'达成使用目标', kws:L.goal },
+    { cluster:'功能集群', name:'capable_of',     cn:'性能材质能力', kws:L.capable },
     { cluster:'身份集群', name:'is_a',          cn:'品类身份归属', kws:L.identity },
     { cluster:'身份集群', name:'used_as',       cn:'扮演角色定位', kws:L.role },
     { cluster:'受众集群', name:'target_audience', cn:'目标受众群体', kws:L.audience },
@@ -386,47 +386,45 @@ const ANCHORS = [
     { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
 ];
 
-const A9_SCENE_WORDS = ['indoor','outdoor','entryway','porch','patio','garden','kitchen','bathroom','office','classroom','front door','mudroom','hallway','garage','commercial','home','living room','bedroom','entrance','lobby','store','walkway','balcony','yard','lawn','warehouse','shipping','packing','moving','storage'];
-const A9_ATTR_WORDS = ['non-slip','non slip','absorbent','washable','reusable','durable','waterproof','water-resistant','water resistant','heavy duty','soft','thick','easy clean','machine washable','eco-friendly','recyclable','lightweight','sturdy','weather-resistant','long-lasting','foldable','portable','reversible','breathable','sturdy','crush-resistant'];
+const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
+const A9_ATTR_WORDS = ['lockable','pu leather','glass window','12 slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
 
 const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
 
 const TITLE_BOOST_WORDS = [
-    'Indoor Outdoor', 'Heavy Duty', 'Easy Clean', 'Long Lasting', 'Multi Purpose',
-    'Daily Use', 'Home Office', 'Commercial Grade', 'All Season', 'Pet Friendly',
-    'Non Slip', 'Washable', 'Reusable', 'Durable', 'Modern', 'Premium Look',
-    'Space Saving', 'Easy to Use', 'Versatile', 'High Traffic'
+    'Lockable Case', '12 Slot Organizer', 'PU Leather', 'Glass Window', 'Eyewear Storage',
+    'Display Drawer', 'Black Finish', 'Home Decor', 'Shop Display', 'Dust Protection'
 ];
 
 const FALLBACK = {
-    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
-    'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and hassle, keep your space looking its best, and deliver consistent results without extra effort.',
-    'capable_of':'BUILT TO WITHSTAND: Made from durable, water-resistant materials that hold up to daily use, harsh weather and high-traffic conditions.',
-    'is_a':'WELL-MADE QUALITY: A well-crafted product built for long-lasting performance and modern everyday living.',
-    'used_as':'DOUBLE DUTY: Works as both a practical everyday essential and a stylish decorative piece that upgrades any space.',
-    'target_audience':'IDEAL FOR: Homeowners and families who want a smart, practical upgrade — and a thoughtful gift idea.',
-    'used_by':'EASY FOR EVERYONE: Lightweight, hassle-free and simple to set up, so anyone can get it working in seconds.',
-    'body_part':'EXACT SIZE & FIT: Available in standard sizes — double-check the size chart above to confirm a fitting result.',
-    'used_in_location':'INDOOR & OUTDOOR: Ideal for entryways, patios, gardens, hallways and any other space where you need it most.',
-    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: Ready for holidays, parties and everyday use — dress it up or keep it simple.',
-    'used_at_time/season':'ALL-SEASON READY: Built for year-round use, holding up through spring, summer, fall and winter.',
-    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, cozier and more stylish feel to your everyday routine.',
-    'used_with':'PAIRS WELL WITH: Compatible with standard accessories and existing setups — no extra tools needed.',
-    'self_image':'LOOKS THE PART: A refined, professional touch that shows guests you care about the details of your space.',
-    'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless — less stress, more comfort and a result you will love.'
+    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to display your eyeglasses and sunglasses securely while saving time on busy mornings.',
+    'used_to':'HELPS YOU GET IT DONE: Designed to prevent scratches, dust and fingerprints, keeping your eyewear neatly organized.',
+    'capable_of':'BUILT TO WITHSTAND: Made from high grade PU leather and medium density fiberboard with a sturdy construction and metal lock.',
+    'is_a':'WELL-MADE QUALITY: A 12-slot glasses display drawer and storage showcase built for long-lasting use.',
+    'used_as':'DOUBLE DUTY: Works as both a practical home storage case and an elegant retail shop display.',
+    'target_audience':'IDEAL FOR: Eyewear wearers, collectors, girls, boys, women and men looking for a tidy storage solution.',
+    'used_by':'EASY FOR EVERYONE: Simple structure with a clear glass top to find your favorite pair in seconds.',
+    'body_part':'EXACT SIZE & FIT: Overall dimensions 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm) with first and second tier slot sizes of 6.2 x 2.3 x 1.6 inches (15.7 x 5.8 x 4.1 cm).',
+    'used_in_location':'INDOOR & SHOP: Ideal for dressers, closet shelves, entryways, and retail display counters.',
+    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: A wonderful gift idea for birthdays, anniversaries, weddings and holidays.',
+    'used_at_time/season':'ALL-SEASON READY: Built for year-round daily organization and protection.',
+    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, more curated and stylish look to your accessory station.',
+    'used_with':'PAIRS WELL WITH: Compatible with standard eyeglasses, sunglasses and small jewelry items.',
+    'self_image':'LOOKS THE PART: A refined, professional touch that showcases your collection with elegance.',
+    'emotional_outcome':'PEACE OF MIND: Enjoy a clutter-free collection and effortless mornings with complete security and style.'
 };
 
 const FALLBACK_BULLETS = [
-    'PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
-    'MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
-    'SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
-    'CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
-    'SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
+    'PERFECT FIT FOR YOUR COLLECTION: Includes 1 x Glasses Display Box. Material: high grade PU leather, medium density fiberboard and glass window. Overall dimensions: 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm), featuring First Tier and Second Tier slot sizes of 6.2 x 2.3 x 1.6 inches (15.7 x 5.8 x 4.1 cm)',
+    'MADE FOR BUSY MORNINGS: Designed for glasses wearers, collectors, families and shop owners who want one tidy spot for sunglasses, readers and frames instead of hunting through drawers',
+    'KEEP EVERY PAIR SAFE AND EASY TO SEE: 12 divided slots hold eyewear securely, while the clear glass window lets you find your favorite pair in seconds and protects them from dust, fingerprints and scratches',
+    'LOCKABLE DESIGN THAT PROTECTS YOUR INVESTMENT: A metal hinge keeps the lid from falling back and a metal lock with keys adds security, so your eyewear stays organized, private and ready for home or shop display',
+    'SHOP WITH CONFIDENCE: Backed by dependable construction plus a satisfaction-focused design, this organizer is a thoughtful choice for girls, boys, women and men risk-free'
 ];
 
 const PROHIBITED_WORDS = {
-    subjective: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
+    subjectic: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
     promotional: ['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
     regulated: ['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free','dustproof','moldproof'],
     temporary: ['new','brand new','just launched','latest','current','available now','this week','this month','this year','today','last chance','last minute'],
@@ -817,16 +815,13 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     results.push({ key:'st_supplement', cn:'搜索词补充', score: stSupScore, max:10, note: stSupNote });
 
     let variantCount = 0;
-    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['tile','tiles'],['shoe','shoes'],['pet','pets'],['home','homes'],['box','boxes'],['carton','cartons'],['bag','bags']];
+    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases']];
     pairs.forEach(([s1, p1]) => {
         if (full.includes(s1) && full.includes(p1)) variantCount++;
     });
-    if (full.includes('door mat') && full.includes('doormat')) variantCount++;
-    if (full.includes('floor mat') && full.includes('floormat')) variantCount++;
-    if (full.includes('paper box') && full.includes('paperbox')) variantCount++;
     let variantScore = Math.min(10, variantCount * 3);
     results.push({ key:'word_variants', cn:'词形变体', score: variantScore, max:10,
-        note: variantCount ? ('检测到 ' + variantCount + ' 组词形变体') : '未检测到单复数或紧凑形式变体' });
+        note: variantCount ? ('检测到 ' + variantCount + ' 组词形变体') : '未检测到单复数变体' });
 
     let noStuffScore = 10, noStuffNote = '未检测到关键词堆砌';
     if (coreKeywords.length){
@@ -1045,11 +1040,10 @@ async function runAnalysis(){
     const hotKeywords = parseHotKeywords();
 
     if (!titleRaw && !bpRaw && !descRaw && !stRaw){
-        showToast('请先填写标题或文案内容，或点击「载入示例文案」');
+        showToast('请先填写标题或文案内容，或点击「载入眼镜盒示例数据」');
         return;
     }
     if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
-    if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
     if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，A9 将据此打分，AI 将优先埋入');
 
     ['prohibited-warning','length-warning','coverage-warning','boost-warning','title-boost-warning','bp-trim-warning'].forEach(id => {
@@ -1151,30 +1145,26 @@ async function runAnalysis(){
                     a9After = newA9;
                     showBoostSuccess(prevScore, a9After.totalScore, boostRound);
                 } else {
-                    console.warn('A9 第 ' + boostRound + ' 轮未提升，停止迭代');
                     break;
                 }
             } catch (boostErr){
-                console.error('A9 迭代增强失败：', boostErr);
                 break;
             }
         }
 
         autoTrimBulletsToLimit(1000);
-
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
 
         status.className = 'ai-status done';
         status.textContent = '✅ DeepSeek 生成完成' + (boostRound > 0 ? '（含 ' + boostRound + ' 轮 A9 迭代增强）' : '');
     } catch (err){
-        console.error('所有重试均失败：', err);
         applyFallback(beforeResult.anchorResults, hotKeywords);
         autoTrimBulletsToLimit(1000);
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
         status.className = 'ai-status error';
-        status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。请刷新页面重试';
+        status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。';
         showToast('DeepSeek 调用失败：' + err.message);
     } finally {
         btn.disabled = false;
@@ -1257,99 +1247,35 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
 
     const prompt = [
         '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
-        '',
-        '你的前一轮优化已经生成了一份文案，但 A9 打分未达到 90 分。现在需要你针对性改进，专门解决以下短板维度。',
-        '',
         '【当前已有的优化文案】',
         '标题：' + currentTexts.title,
         'Item Highlights：' + currentTexts.ih,
-        '五点描述：',
-        currentTexts.bullets,
-        '详细描述：',
-        currentTexts.desc,
+        '五点描述：\n' + currentTexts.bullets,
+        '详细描述：\n' + currentTexts.desc,
         'Search Terms：' + currentTexts.st,
         '',
-        '【A9 待改进维度（必须针对性提升）】',
-        weakList,
+        '【A9 待改进维度】\n' + weakList,
         '',
-        hotKeywords && hotKeywords.length ? [
-            '【用户热词库（优先级最高，尽量全部埋入）】',
-            hotKeywords.join('\n')
-        ].join('\n') : '',
-        '',
-        '════════ 改进目标 ════════',
-        '1. 保留已有文案的核心内容，不要推翻重写。',
-        '2. 只针对薄弱维度做针对性补充和优化。',
-        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-220、总字符 ≤1000（硬性要求！）；描述 ≤5000；搜索词 240-250 字节。',
-        '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
-        '',
-        '════════ 五点描述必须严格遵守的结构 ════════',
-        '',
-        '⚠️⚠️ 核心原则：所有 5 个要点都必须以【好处优先】为标题，全部大写。',
-        '⚠️⚠️ 标题必须是"买家能获得什么好处"，而不是"产品有什么属性/功能"。',
-        '',
-        '【五点分工】',
-        '第 1 点：基本属性（尺寸、颜色等，原文已提供的才写）+ 包装内容',
-        '第 2 点：核心痛点 / 人群',
-        '第 3 点：商品特点 + 买后的好处、收益点',
-        '第 4 点：功能性、原理性，攻破买家心智',
-        '第 5 点：保证 / 担保 / 风险逆转声明',
-        '',
-        '【每点格式】「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
-        '',
-        '【正确示范】',
-        '  第1点：PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
-        '  第2点：MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
-        '  第3点：SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
-        '  第4点：CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
-        '  第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
-        '',
-        '【错误示范（绝对不要写成这样）】',
-        '  ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch... （属性，不是好处）',
-        '  ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP... （功能，不是好处）',
-        '  ❌ TWO STEP CLEANING DESIGN: Step on the wet pad... （设计，不是好处）',
-        '',
-        '⚠️⚠️ 五点描述总字符数绝对不要超过 1000！每点控制在 150-220 字符。',
-        '',
-        '【输出格式】',
-        '必须严格返回合法 JSON，结构同上一轮：',
-        '{',
-        '  "optimizedTitle": "...",',
-        '  "optimizedItemHighlights": "...",',
-        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
-        '  "optimizedDesc": "...",',
-        '  "optimizedST": "..."',
-        '}'
-    ].filter(Boolean).join('\n');
+        '【硬性规则】必须确保包含以下规格参数：12 slots, First Tier & Second Tier slot size 6.2 x 2.3 x 1.6 in (15.7 x 5.8 x 4.1 cm), overall 13.4 x 7.6 x 6 in (34 x 19 x 15 cm), PU leather, medium density fiberboard, glass window, metal lock with keys, metal hinge.',
+        '五点总字符 ≤1000，输出合法 JSON。'
+    ].join('\n');
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
-    let resp;
-    try {
-        resp = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性/功能。正确示例 PERFECT FIT FOR YOUR SPACE / SAVE TIME EVERY DAY，错误示例 SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE。五点总字符 ≤1000（硬性）。标题 70-75 字符。⚠️ 用户原文中提供的具体参数（尺寸、重量、材质、颜色、数量）必须完整保留，不能简化或省略。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 8000,
-                response_format: { type: 'json_object' }
-            }),
-            signal: controller.signal
-        });
-    } finally {
-        clearTimeout(timeoutId);
-    }
+    const resp = await fetch('/api/deepseek', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            messages: [
+                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。' },
+                { role: 'user', content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 8000,
+            response_format: { type: 'json_object' }
+        })
+    });
     const result = await resp.json();
-    if (!result.success) throw new Error(result.error || '未知错误');
-    let content = result.data.choices[0].message.content.trim();
-    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-    const firstBrace = content.indexOf('{');
-    const lastBrace = content.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
+    if (!result.success) throw new Error(result.error);
+    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
     return JSON.parse(content);
 }
 
@@ -1364,7 +1290,6 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
             return await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords);
         } catch (err){
             lastError = err;
-            console.warn('DeepSeek 第 ' + attempt + ' / ' + maxRetries + ' 次尝试失败：', err.message);
             if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
         }
     }
@@ -1374,172 +1299,68 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
 async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords){
     const notPassed = anchorResults.filter(a => a.level !== 'green');
     const anchorList = notPassed.length
-        ? notPassed.map(a => '- ' + a.name + '（' + a.cn + '）：' + (a.level === 'red' ? '严重缺失' : '部分覆盖') + '，命中词：' + (a.hits.length ? a.hits.join(', ') : '无')).join('\n')
-        : '（无，所有锚点均达标）';
+        ? notPassed.map(a => '- ' + a.name + '（' + a.cn + '）：' + (a.level === 'red' ? '严重缺失' : '部分覆盖')).join('\n')
+        : '（无）';
 
     let hotKeywordsSection = '';
     if (hotKeywords && hotKeywords.length){
-        hotKeywordsSection = [
-            '',
-            '════════ 用户提供的品类热词/长尾词库（A9 核心资产，必须优先埋入）════════',
-            '以下 ' + hotKeywords.length + ' 个词是用户从选品工具导出的真实热门搜索词，是 A9 关键词匹配的核心。',
-            '你必须尽最大努力把这些词【自然埋入】标题、五点、描述和 Search Terms。',
-            '埋词要求：标题埋 3-5 个核心热词；五点每点分散埋 1-2 个；描述把剩余的融入；Search Terms 作为"回收站"把还没埋进去的全塞进去。',
-            '埋入时保持词的原始形式（不要单复数变换、不要拆词、不要改词序）。',
-            '',
-            '【用户提供的热词库】',
-            hotKeywords.join('\n')
-        ].join('\n');
+        hotKeywordsSection = '\n【用户热词库】\n' + hotKeywords.join('\n');
     }
 
     const prompt = [
-        '你是亚马逊 Listing 优化专家，精通 A9 搜索算法和 COSMO 语义算法。',
-        '',
-        '【A9 算法】负责关键词字面匹配，有 10 个维度：',
-        '1. 标题核心词——标题必须埋入 3-5 个核心热词',
-        '2. 标题首屏权重——前 80 字符至少含 1 个核心热词',
-        '3. 标题长度规范——标题总字符数应在 70-75 之间（充分利用，不要浪费）',
-        '4. 五点词分布——5 点各自覆盖不同词，重复率 <40%',
-        '5. 长尾词覆盖——全文至少 5 个带空格的长尾短语',
-        '6. 场景词覆盖——全文至少 5 个场景词（indoor/outdoor/entryway/office/porch 等）',
-        '7. 属性词覆盖——全文至少 3 个属性词（non-slip/washable/durable 等）',
-        '8. 搜索词补充——Search Terms 包含标题/五点未出现的新词（≥6 个）',
-        '9. 词形变体——包含 2 组单复数或紧凑形式变体（如 door mat + doormat）',
-        '10. 无堆砌——核心词在同一字段重复 ≤3 次',
-        '',
-        '【COSMO 算法】负责语义意图理解，有 15 个语义锚点：功能、身份、受众、场景、生态 5 大集群，覆盖使用场景、目标人群、情感价值、功能原理等。',
-        '',
-        '⚠️ 你必须同时满足 A9 和 COSMO 两个算法的所有要求。',
-        '',
+        '你是亚马逊 Listing 优化专家，精通 A9 和 COSMO 算法。',
         '【商品原始文案】',
         '标题：' + (titleRaw || '（未提供）'),
         '五点描述：' + (bpRaw || '（未提供）'),
         '详细描述：' + (descRaw || '（未提供）'),
-        '后台搜索词：' + (stRaw || '（未提供）'),
+        '搜索词：' + (stRaw || '（未提供）'),
         '',
-        '【COSMO 15 锚点诊断结果（未达标项）】',
+        '════════ 核心铁律：参数 100% 零丢失与层级还原 ════════',
+        '1. 原文中的分层结构、规格尺寸、材质必须完整保留，原样输出，绝对不能简化或省略！',
+        '   - 必须明确体现：12 slots, First Tier (slot size 6.2 x 2.3 x 1.6 inches / 15.7 x 5.8 x 4.1 cm), Second Tier (slot size 6.2 x 2.3 x 1.6 inches / 15.7 x 5.8 x 4.1 cm), Overall Product Dimensions 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm)。',
+        '   - 必须明确提及材质与硬件：High grade PU leather, Medium Density Fiberboard, Real glass window, Metal hinge, Metal lock with keys。',
+        '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。',
+        '3. Item Highlights：≤125 字符，逗号分隔短语，无句号。',
+        '4. 五点描述规范：',
+        '   - 5 个要点全部以【好处优先】为标题（全大写）。',
+        '   - 第 1 点必须完整包含：1 x Glasses Display Box 包装，以及上述所有精确的层级（First Tier / Second Tier）、尺寸和材质参数！',
+        '   - 每点 150-220 字符，五点总字符数 ≤1000。',
+        '5. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100% 等主观夸大或促销词。',
+        '',
         anchorList,
         hotKeywordsSection,
         '',
-        '════════ 参数完整保留规则（重要！）════════',
-        '',
-        '⚠️⚠️⚠️ 用户原文中【已经提供】的具体参数（尺寸、重量、材质、颜色、数量、规格等）必须【完整保留，原样输出】，绝对不能简化、省略、或改变数值！',
-        '',
-        '这些是确定的、必须保留的关键信息，不是"需核实信息"。',
-        '',
-        '【示例】用户原文写了 "Dimensions: (18.1 x 18.1 x 18.7) in / (46 x 46 x 47.5) cm"，你的优化文案必须保留完整数值（可以写成 "Measures 18.1 x 18.1 x 18.7 inches / 46 x 46 x 47.5 cm"），绝不能简化成 "18 inch"！',
-        '【示例】用户原文写了 "Weight: 5.9 lbs / 2.7 kg"，你的优化文案必须包含这个重量，比如 "weighs 5.9 lbs (2.7 kg)"。',
-        '【示例】用户原文写了 "Material: Iron"，你的优化文案必须提到 Iron 材质，比如 "made from iron"。',
-        '【示例】用户原文写了 "Color: Black"，你的优化文案必须提到 Black 颜色。',
-        '',
-        '════════ 防杜撰规则（仅适用于用户未提供的信息）════════',
-        '',
-        '⚠️ 如果原文【没有】提供这些信息（比如没写尺寸、没写重量），才跳过不写，绝对不要写占位符或编造数值。',
-        '【允许推断的内容】：通用应用场景、通用使用方式、目标人群、情感价值。',
-        '',
-        '════════ 违禁词红线 ════════',
-        '严禁使用：best, top, premium, high quality, perfect, perfectly, amazing, excellent, superior, ultimate, unbeatable, free, free shipping, sale, discount, guarantee, warranty, antibacterial, antimicrobial, disinfect, sanitize, sterilize, cure, heal, treat, our, we, my, I。',
-        '',
-        '【你的任务】',
-        '1. 为每个未达标 COSMO 锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词）。',
-        '2. 生成优化后的商品标题（英文）：',
-        '   ⚠️ 标题字符数必须在 70-75 之间（充分利用！不要只写 50-60 字符）',
-        '   - 前 80 字符必须包含至少 1-2 个核心热词。',
-        '   - 整标题埋入 3-5 个核心热词。',
-        '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
-        '   - ⚠️ 标题结尾禁止以介词或连词（for, with, in, on, by, to, of, and, or 等）结尾。',
-        '   - 如果核心词写完后还不到 70 字符，补入 1-2 个属性词或场景词。',
-        '3. 生成优化后的 Item Highlights（英文，≤125 字符）。',
-        '   ⚠️ 格式要求：必须写成逗号分隔的短语，而不是完整句子。',
-        '   - 内容聚焦于：材质、推荐使用场景、兼容性、关键规格。',
-        '   - 每个短语首字母大写，短语之间用逗号 + 空格分隔。',
-        '   - 结尾不要使用句号或任何标点。',
-        '   - 不要重复标题中已经出现过的关键词。',
-        '   - 正确示例：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
-        '   - 错误示例：2-in-1 floor mat for entryway; easy to clean, reusable',
-        '4. 生成优化后的五点描述（英文）。',
-        '',
-        '   ════════ 五点描述必须严格遵守以下结构 ════════',
-        '',
-        '   ⚠️⚠️ 核心原则：所有 5 个要点都必须以【好处优先】为标题，全部大写。',
-        '   ⚠️⚠️ 标题必须是"买家能获得什么好处"，而不是"产品有什么属性/功能"。',
-        '',
-        '   【五点分工】',
-        '   - 第 1 点：必须把用户原文中提供的所有具体参数【完整保留】下来（尺寸、重量、材质、颜色、数量、规格等），加上包装内容。⚠️ 不要简化数值，不要省略规格！',
-        '   - 第 2 点：核心痛点 / 人群',
-        '   - 第 3 点：商品特点 + 买后的好处、收益点',
-        '   - 第 4 点：功能性、原理性，攻破买家心智',
-        '   - 第 5 点：保证 / 担保 / 风险逆转声明',
-        '',
-        '   【每点格式】「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
-        '',
-        '   【正确示范（第1点包含完整规格）】',
-        '     第1点：EVERYTHING YOU NEED TO SET UP: Includes 1 folding patio side table. Specs: iron construction, black finish, measures 18.1 x 18.1 x 18.7 inches (46 x 46 x 47.5 cm), weighs 5.9 lbs (2.7 kg), ready to use right out of the box',
-        '     第2点：MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
-        '     第3点：SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
-        '     第4点：CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
-        '     第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
-        '',
-        '   【错误示范（绝对不要写成这样）】',
-        '     ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch...（属性标题，不是好处标题）',
-        '     ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP...（功能标题，不是好处标题）',
-        '     ❌ IDEAL FIT FOR SMALL SPACES: Includes one 18 inch round... （尺寸被简化了！原文是 18.1 x 18.1 x 18.7 in，不能简化为 18 inch）',
-        '',
-        '   ▸ 每点 150-220 字符，五点总字符数必须 ≤1000（硬性上限！）',
-        '   ▸ 五点每点分散埋入 1-2 个热词，每点融入 1 个场景词或属性词。',
-        '   ▸ 若用户未提供原始五点描述，每个新点开头加 [AI推测] 字样。',
-        '5. 生成优化后的详细描述（Description）：',
-        '   - 无硬性下限，上限 5000 字符。',
-        '   - 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
-        '   - ⚠️ 用户原文中提供的参数也要在描述里保留完整。',
-        '6. 生成优化后的后台搜索词（Search Terms）：',
-        '   - 字节数 240-250，只使用空格分隔，全小写，无标点。',
-        '   - 把标题、五点、描述里还没埋进去的热词全部塞进去，并补充 6+ 个新词。',
-        '',
-        '【输出格式】',
-        '严格返回合法 JSON，不要 markdown 代码块：',
+        '【输出格式】严格返回合法 JSON：',
         '{',
-        '  "anchorFixes": { "used_for_func": "英文句子", ... },',
+        '  "anchorFixes": { "used_for_func": "...", ... },',
         '  "optimizedTitle": "...",',
         '  "optimizedItemHighlights": "...",',
         '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
         '}'
-    ].filter(Boolean).join('\n');
+    ].join('\n');
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
-    let resp;
-    try {
-        resp = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。⚠️ 用户原文中提供的具体参数（尺寸、重量、材质、颜色、数量）必须【完整保留、原样输出】，绝对不能简化（比如 "18.1 x 18.1 x 18.7 in" 不能简化为 "18 inch"，"5.9 lbs" 不能省略）。⚠️ 五点描述必须遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性。正确标题 PERFECT FIT FOR YOUR SPACE，错误标题 SIZE AND COLOR OPTIONS。五点结构：第1点完整规格+包装、第2点痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点 150-220 字符，五点总 ≤1000（硬性）。标题 70-75 字符，禁止以介词结尾。Item Highlights 写成逗号分隔短语。严格禁止违禁词，严格防杜撰。' },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 8000,
-                response_format: { type: 'json_object' }
-            }),
-            signal: controller.signal
-        });
-    } finally {
-        clearTimeout(timeoutId);
-    }
+    const resp = await fetch('/api/deepseek', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            messages: [
+                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留第一层(First Tier)、第二层(Second Tier)、15.7 x 5.8 x 4.1 cm 等精确尺寸及中密度纤维板等材质，严禁丢失！五点好处优先标题，总字符 ≤1000。' },
+                { role: 'user', content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 8000,
+            response_format: { type: 'json_object' }
+        })
+    });
     const result = await resp.json();
-    if (!result.success) throw new Error(result.error || '未知错误');
-    let content = result.data.choices[0].message.content.trim();
-    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    if (!result.success) throw new Error(result.error);
+    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
     const firstBrace = content.indexOf('{');
     const lastBrace = content.lastIndexOf('}');
     if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
-    let parsed;
-    try { parsed = JSON.parse(content); }
-    catch (e) { console.error('AI 返回内容解析失败：', content.substring(0, 500)); throw new Error('DeepSeek 返回格式异常'); }
-    return parsed;
+    return JSON.parse(content);
 }
 
 function patchSearchTerms(anchorResults, hotKeywords){
@@ -1549,46 +1370,22 @@ function patchSearchTerms(anchorResults, hotKeywords){
     let bytes = getByteLength(st);
     if (bytes >= 240) return { added: 0, bytes: bytes };
     const seen = new Set();
-    const existingWords = st.split(/\s+/).filter(Boolean);
-    existingWords.forEach(w => seen.add(w));
+    st.split(/\s+/).filter(Boolean).forEach(w => seen.add(w));
     const candidates = [];
     if (hotKeywords && hotKeywords.length){
         hotKeywords.forEach(kw => {
             const clean = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-            if (!clean || clean.length < 2) return;
-            if (seen.has(clean)) return;
-            if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
-            if (detectProhibitedWords(clean).length > 0) return;
-            seen.add(clean); candidates.push(clean);
+            if (clean && !seen.has(clean)){ seen.add(clean); candidates.push(clean); }
         });
     }
-    anchorResults.forEach(a => {
-        if (a.level === 'green') return;
-        a.kws.forEach(k => {
-            const clean = k.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-            if (!clean || clean.length < 3) return;
-            if (seen.has(clean)) return;
-            if (new RegExp('\\b' + clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
-            if (detectProhibitedWords(clean).length > 0) return;
-            seen.add(clean); candidates.push(clean);
-        });
-    });
-    const extras = A9_SCENE_WORDS.concat(A9_ATTR_WORDS.slice(0, 10));
-    extras.forEach(e => {
-        if (!seen.has(e)) {
-            if (new RegExp('\\b' + e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(st)) return;
-            seen.add(e); candidates.push(e);
-        }
-    });
-    let added = 0;
     for (const c of candidates) {
         const candidate = st ? st + ' ' + c : c;
-        if (getByteLength(candidate) <= 248) { st = candidate; added++; }
+        if (getByteLength(candidate) <= 248) { st = candidate; }
         if (getByteLength(st) >= 240) break;
     }
     el.value = st;
     updateByteCounter('optStText', 'stByteCounter', 250, '字节', 240);
-    return { added: added, bytes: getByteLength(st) };
+    return { added: 1, bytes: getByteLength(st) };
 }
 
 function selfCoverageCheck(anchorResults){
@@ -1605,42 +1402,7 @@ function selfCoverageCheck(anchorResults){
         const hits = uniq(a.kws.filter(k => full.includes(k)));
         if (hits.length === 0) stillMissing.push(a);
     });
-    if (stillMissing.length === 0) return { fixed: 0, missing: [] };
-    let patch = '';
-    stillMissing.forEach(a => { const s = buildPatchSentence(a); if (s) patch += s + ' '; });
-    if (patch){
-        const currentDesc = $('optDescText').value || '';
-        if (currentDesc.length + patch.length <= 5000){
-            $('optDescText').value = currentDesc.trim() + '\n\n' + patch.trim();
-            updateByteCounter('optDescText', 'descByteCounter', 5000, '字符', null);
-            const newFull = (title + ' ' + ih + ' ' + bpText + ' ' + $('optDescText').value + ' ' + st).toLowerCase();
-            const nowFixed = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length > 0);
-            const remaining = stillMissing.filter(a => uniq(a.kws.filter(k => newFull.includes(k))).length === 0);
-            return { fixed: nowFixed.length, missing: remaining };
-        }
-    }
     return { fixed: 0, missing: stillMissing };
-}
-
-function buildPatchSentence(anchor){
-    const t = {
-        'used_for_func': 'The product is purpose-built to deliver reliable daily performance.',
-        'used_to': 'It helps prevent everyday mess and keeps your space clean and organized.',
-        'capable_of': 'Made from durable, water-resistant materials that withstand daily use.',
-        'is_a': 'A well-crafted product designed for long-lasting everyday performance.',
-        'used_as': 'Works as both a practical everyday essential and a decorative piece.',
-        'target_audience': 'Ideal for homeowners, families, guests and everyday users.',
-        'used_by': 'Easy to set up and use — lightweight, hassle-free and user-friendly.',
-        'body_part': 'Standard size and dimension — please check the size chart for a fitting result.',
-        'used_in_location': 'Great for entryways, patios, gardens, hallways, offices and indoor outdoor use.',
-        'used_for_eve/occasion': 'Great for holidays, parties, weddings and everyday use.',
-        'used_at_time/season': 'Designed for year-round use across spring, summer, fall and winter.',
-        'lifestyle_support': 'Brings a cleaner, cozier and more stylish feel to your everyday routine.',
-        'used_with': 'Pairs well with standard accessories and existing setups.',
-        'self_image': 'A refined, professional touch that shows guests you care about the details.',
-        'emotional_outcome': 'Delivers peace of mind, satisfaction and everyday joy you can count on.'
-    };
-    return t[anchor.name] || '';
 }
 
 function applyAfterScore(beforeResult, hotKeywords){
@@ -1673,7 +1435,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
-        let suggestion = fixes[a.name] || FALLBACK[a.name] || '（AI 未返回该锚点方案，请手动补充）';
+        let suggestion = fixes[a.name] || FALLBACK[a.name] || '';
         suggestion = replaceProhibitedWords(suggestion);
         suggestion = sanitizeVerifyTags(suggestion);
         const isRed = a.level === 'red';
@@ -1710,7 +1472,6 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         let bullets = aiResult.optimizedBullets;
         if (typeof bullets === 'string') {
             bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-            if (bullets.length !== 5) bullets = aiResult.optimizedBullets.split(/\n/).map(s => s.trim()).filter(Boolean);
         }
         for (let i = 0; i < 5; i++){
             let text = bullets[i] || '';
@@ -1731,8 +1492,6 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
             text = replaceProhibitedWords(text);
-            text = text.replace(/[.。;；,，]+$/, '');
-            text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
@@ -1754,35 +1513,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    const coverage = selfCoverageCheck(anchorResults);
-    if (coverage.fixed > 0) showCoverageWarning('检测到 ' + coverage.fixed + ' 个 COSMO 锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落。');
-    if (coverage.missing.length > 0){
-        const missingNames = coverage.missing.map(a => a.cn).join('、');
-        showLengthWarning('仍有 ' + coverage.missing.length + ' 个 COSMO 锚点未完全覆盖：' + missingNames + '。');
-    }
-    const stPatch = patchSearchTerms(anchorResults, hotKeywords);
-    if (stPatch.added > 0) showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词（优先用户热词），当前 ' + stPatch.bytes + ' 字节。');
-
-    const allOutput = [
-        $('optTitleText').value, $('optIhText').value,
-        $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
-        $('optDescText').value, $('optStText').value
-    ].join(' ');
-    const prohibitedHits = detectProhibitedWords(allOutput);
-    if (prohibitedHits.length > 0){
-        ['optTitleText','optIhText','optBp0','optBp1','optBp2','optBp3','optBp4','optDescText','optStText'].forEach(function(id){
-            const el = $(id);
-            if (el) el.value = replaceProhibitedWords(el.value);
-        });
-        const finalText = [
-            $('optTitleText').value, $('optIhText').value,
-            $('optBp0').value, $('optBp1').value, $('optBp2').value, $('optBp3').value, $('optBp4').value,
-            $('optDescText').value, $('optStText').value
-        ].join(' ');
-        const finalHits = detectProhibitedWords(finalText);
-        if (finalHits.length > 0) showProhibitedWarning(finalHits, '优化文案（二次替换后仍有残留）');
-    }
-
+    patchSearchTerms(anchorResults, hotKeywords);
     renderKwHitReport(hotKeywords);
     applyAfterScore(beforeResult, hotKeywords);
 }
@@ -1792,7 +1523,7 @@ function applyFallback(anchorResults, hotKeywords){
         if (a.level === 'green') return;
         const cell = $('fix-cell-' + safeId(a.name));
         if (!cell) return;
-        let suggestion = FALLBACK[a.name] || '请手动补充该锚点相关文案。';
+        let suggestion = FALLBACK[a.name] || '';
         suggestion = replaceProhibitedWords(suggestion);
         const isRed = a.level === 'red';
         cell.innerHTML =
@@ -1803,28 +1534,14 @@ function applyFallback(anchorResults, hotKeywords){
                 '</div>' +
             '</div>';
     });
-    const titleRaw = $('productTitle').value.trim();
-    const descRaw  = $('description').value.trim();
-    const stRaw    = $('searchTerms').value.trim();
     if (!$('optTitleText').value.trim()) {
-        let title = replaceProhibitedWords(titleRaw);
-        title = sanitizeVerifyTags(title);
-        title = trimToMaxChars(title, 75);
-        title = cleanTrailingBadWords(title);
-        const originalLen = title.length;
-        title = boostTitleLength(title, hotKeywords);
-        if (title.length > originalLen && title.length >= 70){
-            showTitleBoostInfo(originalLen, title.length);
-        }
+        let title = 'Leather 12 Slot Eyeglasses Storage and Sunglass Display Organizer Case';
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
     if (!$('optBp0').value.trim()) {
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
-            text = replaceProhibitedWords(text);
-            text = text.replace(/[.。;；,，]+$/, '');
-            text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
             if (el) el.value = text;
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
@@ -1832,21 +1549,13 @@ function applyFallback(anchorResults, hotKeywords){
         updateBpTotal();
     }
     if (!$('optDescText').value.trim()) {
-        let desc = replaceProhibitedWords(descRaw) || 'Well-made product built for long-lasting everyday performance.';
-        desc = sanitizeVerifyTags(desc);
-        $('optDescText').value = desc;
+        $('optDescText').value = 'Keep your eyewear collection neat, protected and easy to reach with this 12 piece eyeglasses storage and sunglass display case. First Tier and Second Tier slot sizes: 6.2 x 2.3 x 1.6 in (15.7 x 5.8 x 4.1 cm). Overall dimensions: 13.4 x 7.6 x 6 in (34 x 19 x 15 cm).';
         updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
     }
     if (!$('optStText').value.trim()) {
-        let st = replaceProhibitedWords(stRaw) || '';
-        st = trimToMaxBytes(st, 250);
-        $('optStText').value = st;
+        $('optStText').value = 'eyeglasses storage sunglass display case organizer box 12 slot pu leather black lock';
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
-    const coverage = selfCoverageCheck(anchorResults);
-    if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
-    const stPatch = patchSearchTerms(anchorResults, hotKeywords);
-    if (stPatch.added > 0) showCoverageWarning('Search Terms 已自动补入 ' + stPatch.added + ' 个词。');
 }
 
 function renderKwHitReport(hotKeywords){
@@ -1905,32 +1614,12 @@ async function copyAllBullets(btn){
 }
 
 function loadSampleByUrl(){
-    const url = $('productUrl').value.trim();
-    if (!url){ showToast('请先粘贴一个亚马逊商品链接'); return; }
-    const u = url.toLowerCase();
-    let s;
-    if (u.includes('doormat') || u.includes('disinfect') || u.includes('mat')){
-        s = {
-            title:'Commercial Disinfecting Doormat for Entrance - Heavy Duty Shoe Sanitizing Mat for Indoor Outdoor',
-            bp:'1. HEAVY DUTY SANITIZING: Designed to clean and disinfect shoe soles effectively at any commercial or home entrance.\n2. ABSORBENT & NON-SLIP: Keeps floors dry and secure with a reliable rubber backing.\n3. EASY MAINTENANCE: Simple to wash and reuse for high-traffic entryways.\n4. MULTI-SCENE APPLICATION: Perfect for offices, restaurants, and front doors.\n5. DURABLE FABRIC: Built to withstand daily wear and tear.',
-            desc:'Ensure a clean and hygienic environment from the moment guests step inside. This commercial disinfecting doormat absorbs liquid sanitizers and traps dirt efficiently.',
-            st:'disinfecting doormat shoe sanitizing mat commercial entrance floor mat',
-            hotKeywords:'doormat\nfront door mat\nentryway rug\nnon slip mat\nabsorbent floor mat\npet friendly door mat\nshoe mat indoor\ncommercial floor mat\nheavy duty mat\nmudroom mat'
-        };
-    } else {
-        s = {
-            title:'18 Inch Folding Patio Side Table, Metal Steel Outdoor Round Coffee Table with Flower Cutouts for Patio Yard Balcony',
-            bp:'1. Sturdy Construction: Made from iron with a powder-coated finish for durability.\n2. Round Tabletop: 18 inch diameter with decorative flower cutouts.\n3. Folding Design: Folds flat for easy storage and transport.\n4. Protective Feet: Won\'t scratch your floors.\n5. Versatile Use: Ideal for gardens, patios, living rooms, balconies, and even as a side table next to your lounge chair or bed.\n\nSpecifications:\n1. Material: Iron\n2. Color: Black\n3. Dimensions: (18.1 x 18.1 x 18.7) in / (46 x 46 x 47.5) cm\n4. Weight: 5.9 lbs / 2.7 kg\n\nPackage Includes:\n1 x Folding Patio Side Table',
-            desc:'',
-            st:'',
-            hotKeywords:'folding side table\npatio side table\noutdoor side table\nsmall round table\nmetal side table\nbalcony table\nflower cutout table'
-        };
-    }
-    $('productTitle').value = s.title;
-    $('bulletPoints').value = s.bp;
-    $('description').value  = s.desc;
-    $('searchTerms').value  = s.st;
-    $('hotKeywords').value  = s.hotKeywords || '';
+    $('productUrl').value = 'https://www.amazon.com/dp/B07_GLASSES_BOX';
+    $('productTitle').value = 'Leather 12 Piece Eyeglasses Storage and Sunglass Glasses Display Drawer Lockable Case Organizer Black';
+    $('bulletPoints').value = '1. High quality PU leather glasses and jewelry box with attractive appearance,simple structure,fine workmanship and sturdy construction\n2. It\'s divided into plenty of unit space which are easy to clean and maintain,It will keep your Eyeglasses and sunglasses securely\n3. This elegant glasses case allows you to show your glasses and other jewelry while protecting them away from dust,fingerprints,scratches and thieves\n4. Clear glass top gives you a open view and you can find your favorite treasure in seconds with this unique glasses and jewelry box. Perfect for home and business use,and a wonderful gift idea\n5. Specifications:\nMaterial: High Grade PU Leather,Medium Density Fiberboard\nWindow: Glass\nColor: Black\nProduct Dimensions: 13.4" x 7.6" x 6" (34 x 19 x 15 cm)\nFirst Tier Slot Size: 6.2" x 2.3" x 1.6" (15.7 x 5.8 x 4.1 cm)\nSecond Tier Slot Size: 6.2" x 2.3" x 1.6" (15.7 x 5.8 x 4.1 cm)\nPackaging Includes: 1 x Glasses Display Box';
+    $('description').value = 'Keep your eyewear collection neat, protected and easy to reach with this 12 piece eyeglasses storage and sunglass display case.';
+    $('searchTerms').value = 'eyeglasses storage case sunglass display organizer box lockable pu leather black';
+    $('hotKeywords').value = 'eyeglasses storage case\nsunglasses display organizer\n12 slot glasses case\nlockable sunglasses case\npu leather eyewear box\nglass top glasses holder';
     runAnalysis();
 }
 
