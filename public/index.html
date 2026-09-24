@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（通用防杜撰版）</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（版式恢复+高分化完全体）</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 100% 防杜撰通用版</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · 高分化与防杜撰完美平衡版</p>
     </header>
 
     <div class="card">
@@ -285,7 +285,7 @@
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125字符 · 逗号分隔短语)</span>
+                    <span>Item Highlights (≤125字符 · 绝对禁止完整句子与重复标题)</span>
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -542,7 +542,6 @@ function sanitizeVerifyTags(text){
     let result = text;
     result = result.replace(/[^.!?]*\[需核实[:：][^\]]+\][^.!?]*[.!?]\s*/g, '');
     result = result.replace(/\[需核实[:：][^\]]+\]/g, '');
-    // 标点防连续和纠错逻辑
     result = result.replace(/,{2,}/g, ',');
     result = result.replace(/\s*,\s*/g, ', ');
     result = result.replace(/([,;])\s*([,;])/g, '$1');
@@ -553,6 +552,17 @@ function sanitizeVerifyTags(text){
     result = result.replace(/[ \t]{2,}/g, ' ');
     result = result.replace(/\n{3,}/g, '\n\n');
     return result.trim();
+}
+
+function cleanTextArtifacts(text) {
+    if (!text) return '';
+    let result = text;
+    result = result.replace(/Watchs/ig, 'Watches');
+    result = result.replace(/watchs/ig, 'watches');
+    result = result.replace(/,\s*-\s*[a-zA-Z]+/g, '');
+    result = result.replace(/\s*-\s*[a-zA-Z]+/g, '');
+    result = result.replace(/^[, \s]+|[, \s]+$/g, '');
+    return result;
 }
 
 function cleanTrailingBadWords(title){
@@ -618,6 +628,16 @@ function boostTitleLength(title, hotKeywords){
         if (candidate.length <= 75){
             result = candidate;
             if (result.length >= 73) break;
+        }
+    }
+    
+    if (result.length < 70) {
+        for (const c of TITLE_BOOST_WORDS) {
+            if (result.length >= 73) break;
+            const candidate = result + ', ' + c;
+            if (candidate.length <= 75 && !result.toLowerCase().includes(c.toLowerCase())) {
+                result = candidate;
+            }
         }
     }
     return result;
@@ -1185,14 +1205,15 @@ function readCurrentTexts(){
 
 function applyBoostResult(boostResult){
     const originalFullText = ($('productTitle').value || '') + ' ' + 
-                           ($('bulletPoints').value || '') + ' ' + 
-                           ($('description').value || '') + ' ' + 
-                           ($('searchTerms').value || '');
+                             ($('bulletPoints').value || '') + ' ' + 
+                             ($('description').value || '') + ' ' + 
+                             ($('searchTerms').value || '');
 
     if (boostResult.optimizedTitle){
         let title = replaceProhibitedWords(boostResult.optimizedTitle);
         title = checkHallucination(originalFullText, title);
         title = sanitizeVerifyTags(title);
+        title = cleanTextArtifacts(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
         const originalLen = title.length;
@@ -1207,6 +1228,7 @@ function applyBoostResult(boostResult){
         let ih = replaceProhibitedWords(boostResult.optimizedItemHighlights);
         ih = checkHallucination(originalFullText, ih);
         ih = sanitizeVerifyTags(ih);
+        ih = cleanTextArtifacts(ih);
         ih = trimToMaxChars(ih, 125);
         ih = cleanItemHighlights(ih);
         $('optIhText').value = ih;
@@ -1220,6 +1242,7 @@ function applyBoostResult(boostResult){
             text = replaceProhibitedWords(text);
             text = checkHallucination(originalFullText, text);
             text = sanitizeVerifyTags(text);
+            text = cleanTextArtifacts(text);
             text = text.replace(/[.。;；,，]+$/, '');
             text = trimToMaxChars(text, 255);
             const el = $('optBp' + i);
@@ -1236,6 +1259,7 @@ function applyBoostResult(boostResult){
         let desc = replaceProhibitedWords(boostResult.optimizedDesc);
         desc = checkHallucination(originalFullText, desc);
         desc = sanitizeVerifyTags(desc);
+        desc = cleanTextArtifacts(desc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
         updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
@@ -1250,9 +1274,10 @@ function applyBoostResult(boostResult){
 }
 
 async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, boostRound){
-    const weakList = weakDimensions.map(d =>
-        '- ' + d.cn + '（当前 ' + d.score + ' / ' + d.max + ' 分）：' + d.note
-    ).join('\n');
+    const weakList = weakDimensions.map(d => {
+        const keywordsToInclude = d.kws && d.kws.length ? d.kws.slice(0, 6).join(', ') : 'N/A';
+        return `- ${d.cn}（当前 ${d.score} / ${d.max} 分）：${d.note}。**必须将以下词汇融入到文案中：${keywordsToInclude}**`;
+    }).join('\n');
 
     const prompt = [
         '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
@@ -1266,6 +1291,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '【A9 待改进维度】\n' + weakList,
         '',
         '【硬性规则】必须确保 100% 保留原始文案中提到的所有规格参数。如果原始文案未提供具体尺寸，严禁自行编造！',
+        '【硬性规则】Item Highlights 必须与标题互补，绝对不能重复标题中的词。必须为名词/形容词短语，严禁使用完整句子（严禁出现动词）。',
         '五点总字符 ≤1000，输出合法 JSON。'
     ].join('\n');
 
@@ -1274,7 +1300,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留，且绝对不能无中生有。' },
+                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。Item Highlights绝对不能与标题重复，必须为短语（不能是句子），提供互补信息。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1308,7 +1334,10 @@ async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, st
 async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords){
     const notPassed = anchorResults.filter(a => a.level !== 'green');
     const anchorList = notPassed.length
-        ? notPassed.map(a => '- ' + a.name + '（' + a.cn + '）：' + (a.level === 'red' ? '严重缺失' : '部分覆盖')).join('\n')
+        ? notPassed.map(a => {
+            const keywordsToInclude = a.kws && a.kws.length ? a.kws.slice(0, 6).join(', ') : 'N/A';
+            return `- ${a.name} (${a.cn}): ${a.level === 'red' ? '严重缺失' : '部分覆盖'}。**必须将以下词汇融入到文案中：${keywordsToInclude}**`;
+        }).join('\n')
         : '（无）';
 
     let hotKeywordsSection = '';
@@ -1329,14 +1358,20 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments (10个格子)”，绝对不能写成“12 slots”或其他数量！',
         '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
         '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造。只能写原文中存在的参数！',
-        '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。',
-        '3. Item Highlights：≤125 字符，逗号分隔短语，无句号。',
+        '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。如果未达到70个字符，请从用户热词库或A9属性词中提取补充。',
+        '3. Item Highlights（商品亮点）：≤125 字符，必须为逗号分隔的名词/形容词短语，严禁使用完整句子。',
+        '   - ⚠️⚠️【最高优先级红线1：绝不重复标题】标题已经写过的核心词（如数量、材质、颜色），在 Item Highlights 中绝对不能再次出现！必须补充标题中未提及的新信息（如适用场景、包装内容、特殊设计、使用体验等）。',
+        '   - ⚠️⚠️【最高优先级红线2：短语而非句子】严禁出现动词（is, are, has, features, provides, ensures, helps 等），严禁出现主谓结构。只能输出纯粹的名词短语或形容词短语。',
+        '   - 正确示例（名词/形容词短语）：Fits standard drawers, Ideal for collectors, Soft lining, Protects from scratches, Home organizer, Shop display, Dust-proof, Easy access',
+        '   - 错误示例1（重复标题）：10 compartments, Leather, Black（复制标题）。',
+        '   - 错误示例2（完整句子）：This watch box is perfect for collectors and it has a soft lining that protects your watches. （这是完整句子，绝对禁止）。',
         '4. 五点描述规范：',
         '   - 5 个要点全部以【好处优先】为标题（全大写）。',
         '   - 第 1 点必须完整包含：1 x 原产品名称 + 原产品所有精确的规格/尺寸/材质参数。',
         '   - 每点 150-220 字符，五点总字符数 ≤1000。',
         '5. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100% 等主观夸大或促销词。',
         '',
+        '【定向锚点强化指令】以下是当前未达标的COSMO语义锚点，你必须根据下面的提示，将这些具体词汇自然融入你的文案中，以提升评分：',
         anchorList,
         hotKeywordsSection,
         '',
@@ -1356,7 +1391,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是什么就写什么。绝对不准出现原文本没有的内容。五点好处优先标题，总字符 ≤1000。' },
+                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须为纯名词/形容词短语（绝对不能出现完整句子和动词）。五点好处优先标题，总字符 ≤1000。必须严格根据“定向锚点强化指令”中的要求，将指定的词汇融入文案以提升COSMO得分。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1366,4 +1401,331 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     });
     const result = await resp.json();
     if (!result.success) throw new Error(result.error);
-    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^
+    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    const firstBrace = content.indexOf('{');
+    const lastBrace = content.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
+    return JSON.parse(content);
+}
+
+function patchSearchTerms(anchorResults, hotKeywords){
+    const el = $('optStText');
+    let st = (el.value || '').trim().toLowerCase();
+    if (!st) st = '';
+    let bytes = getByteLength(st);
+    if (bytes >= 240) return { added: 0, bytes: bytes };
+    const seen = new Set();
+    st.split(/\s+/).filter(Boolean).forEach(w => seen.add(w));
+    const candidates = [];
+    if (hotKeywords && hotKeywords.length){
+        hotKeywords.forEach(kw => {
+            const clean = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+            if (clean && !seen.has(clean)){ seen.add(clean); candidates.push(clean); }
+        });
+    }
+    for (const c of candidates) {
+        const candidate = st ? st + ' ' + c : c;
+        if (getByteLength(candidate) <= 248) { st = candidate; }
+        if (getByteLength(st) >= 240) break;
+    }
+    el.value = st;
+    updateByteCounter('optStText', 'stByteCounter', 250, '字节', 240);
+    return { added: 1, bytes: getByteLength(st) };
+}
+
+function selfCoverageCheck(anchorResults){
+    let title = $('optTitleText').value || '';
+    let ih = $('optIhText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ' ' + ($('optBp' + i).value || '');
+    let desc = $('optDescText').value || '';
+    let st = $('optStText').value || '';
+    let full = (title + ' ' + ih + ' ' + bpText + ' ' + desc + ' ' + st).toLowerCase();
+    const stillMissing = [];
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const hits = uniq(a.kws.filter(k => full.includes(k)));
+        if (hits.length === 0) stillMissing.push(a);
+    });
+    return { fixed: 0, missing: stillMissing };
+}
+
+function applyAfterScore(beforeResult, hotKeywords){
+    const title = $('optTitleText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + '\n';
+    const desc = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+
+    const afterResult = scoreText(title, bpText, desc, st);
+    const afterBadge = $('scoreAfter');
+    afterBadge.className = 'score-badge ' + afterResult.lv;
+    afterBadge.textContent = afterResult.totalScore + ' · ' + afterResult.grade;
+    const improve = afterResult.totalScore - beforeResult.totalScore;
+    const improveEl = $('scoreImprove');
+    if (improve > 0){ improveEl.textContent = '⬆ COSMO 提升 +' + improve + ' 分'; improveEl.style.color = '#047857'; }
+    else if (improve === 0){ improveEl.textContent = '→ COSMO 分数持平'; improveEl.style.color = '#64748b'; }
+    else { improveEl.textContent = '⬇ COSMO 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
+
+    const a9Before = scoreA9($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '', hotKeywords);
+    const a9After = scoreA9(title, bpText, desc, st, hotKeywords);
+    renderA9Table(a9After);
+    renderA9Score(a9After, a9Before);
+    return afterResult;
+}
+
+function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
+    const originalFullText = ($('productTitle').value || '') + ' ' + 
+                             ($('bulletPoints').value || '') + ' ' + 
+                             ($('description').value || '') + ' ' + 
+                             ($('searchTerms').value || '');
+
+    const fixes = aiResult.anchorFixes || {};
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const cell = $('fix-cell-' + safeId(a.name));
+        if (!cell) return;
+        let suggestion = fixes[a.name] || FALLBACK[a.name] || '';
+        suggestion = replaceProhibitedWords(suggestion);
+        suggestion = checkHallucination(originalFullText, suggestion);
+        suggestion = sanitizeVerifyTags(suggestion);
+        suggestion = cleanTextArtifacts(suggestion);
+        const isRed = a.level === 'red';
+        cell.innerHTML =
+            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
+                '<div class="gemini-box">' +
+                    '<p class="ttl">✨ DeepSeek 双算法优化方案：</p>' +
+                    '<code>' + escapeHtml(suggestion) + '</code>' +
+                '</div>' +
+            '</div>';
+    });
+    if (aiResult.optimizedTitle) {
+        let title = replaceProhibitedWords(aiResult.optimizedTitle);
+        title = checkHallucination(originalFullText, title);
+        title = sanitizeVerifyTags(title);
+        title = cleanTextArtifacts(title);
+        title = trimToMaxChars(title, 75);
+        title = cleanTrailingBadWords(title);
+        const originalLen = title.length;
+        title = boostTitleLength(title, hotKeywords);
+        if (title.length > originalLen && title.length >= 70){
+            showTitleBoostInfo(originalLen, title.length);
+        }
+        $('optTitleText').value = title;
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
+    }
+    if (aiResult.optimizedItemHighlights) {
+        let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
+        ih = checkHallucination(originalFullText, ih);
+        ih = sanitizeVerifyTags(ih);
+        ih = cleanTextArtifacts(ih);
+        ih = trimToMaxChars(ih, 125);
+        ih = cleanItemHighlights(ih);
+        $('optIhText').value = ih;
+        updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
+    }
+    if (aiResult.optimizedBullets) {
+        let bullets = aiResult.optimizedBullets;
+        if (typeof bullets === 'string') {
+            bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+        }
+        for (let i = 0; i < 5; i++){
+            let text = bullets[i] || '';
+            text = replaceProhibitedWords(text);
+            text = checkHallucination(originalFullText, text);
+            text = sanitizeVerifyTags(text);
+            text = cleanTextArtifacts(text);
+            text = text.replace(/[.。;；,，]+$/, '');
+            text = trimToMaxChars(text, 255);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+        }
+        updateBpTotal();
+        const trimResult = autoTrimBulletsToLimit(1000);
+        if (trimResult.trimmed){
+            showBulletTrimInfo(trimResult.before, trimResult.after);
+        }
+    } else {
+        for (let i = 0; i < 5; i++){
+            let text = FALLBACK_BULLETS[i] || '';
+            text = replaceProhibitedWords(text);
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+        }
+        updateBpTotal();
+        autoTrimBulletsToLimit(1000);
+    }
+    if (aiResult.optimizedDesc) {
+        let desc = replaceProhibitedWords(aiResult.optimizedDesc);
+        desc = checkHallucination(originalFullText, desc);
+        desc = sanitizeVerifyTags(desc);
+        desc = cleanTextArtifacts(desc);
+        if (desc.length > 5000) desc = desc.substring(0, 5000);
+        $('optDescText').value = desc;
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+    }
+    if (aiResult.optimizedST) {
+        let st = replaceProhibitedWords(aiResult.optimizedST);
+        st = checkHallucination(originalFullText, st);
+        st = trimToMaxBytes(st, 250);
+        $('optStText').value = st;
+        updateByteCounter('optStText','stByteCounter',250,'字节',240);
+    }
+
+    patchSearchTerms(anchorResults, hotKeywords);
+    renderKwHitReport(hotKeywords);
+    applyAfterScore(beforeResult, hotKeywords);
+}
+
+function applyFallback(anchorResults, hotKeywords){
+    anchorResults.forEach(a => {
+        if (a.level === 'green') return;
+        const cell = $('fix-cell-' + safeId(a.name));
+        if (!cell) return;
+        let suggestion = FALLBACK[a.name] || '';
+        suggestion = replaceProhibitedWords(suggestion);
+        suggestion = sanitizeVerifyTags(suggestion);
+        suggestion = cleanTextArtifacts(suggestion);
+        const isRed = a.level === 'red';
+        cell.innerHTML =
+            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
+                '<div class="gemini-box">' +
+                    '<p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>' +
+                    '<code>' + escapeHtml(suggestion) + '</code>' +
+                '</div>' +
+            '</div>';
+    });
+    if (!$('optTitleText').value.trim()) {
+        let title = 'Premium Storage Organizer Box for Home and Commercial Use';
+        $('optTitleText').value = title;
+        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
+    }
+    if (!$('optBp0').value.trim()) {
+        for (let i = 0; i < 5; i++){
+            let text = FALLBACK_BULLETS[i] || '';
+            const el = $('optBp' + i);
+            if (el) el.value = text;
+            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+        }
+        updateBpTotal();
+    }
+    if (!$('optDescText').value.trim()) {
+        $('optDescText').value = 'Keep your items neat, protected and easy to reach with this practical storage organizer.';
+        updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
+    }
+    if (!$('optStText').value.trim()) {
+        $('optStText').value = 'storage organizer box home commercial display case';
+        updateByteCounter('optStText','stByteCounter',250,'字节',240);
+    }
+}
+
+function renderKwHitReport(hotKeywords){
+    const report = $('kwHitReport');
+    if (!report) return;
+    if (!hotKeywords.length){ report.classList.add('hidden'); return; }
+    const title = $('optTitleText').value || '';
+    const ih = $('optIhText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + ' ';
+    const desc = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+    const allText = [title, ih, bpText, desc, st].join(' ').toLowerCase();
+    const used = [], miss = [];
+    hotKeywords.forEach(kw => {
+        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\b' + escaped + '\\b', 'i');
+        if (regex.test(allText)) used.push(kw);
+        else miss.push(kw);
+    });
+    const usedTags = used.map(k => '<span class="kw-tag used">✓ ' + escapeHtml(k) + '</span>').join('');
+    const missTags = miss.map(k => '<span class="kw-tag miss">✗ ' + escapeHtml(k) + '</span>').join('');
+    let html = '<div class="report-ttl">🎯 热词埋词命中报告（共 ' + hotKeywords.length + ' 个热词）</div>';
+    html += '<div class="report-stats">已埋入：<b>' + used.length + '</b> / ' + hotKeywords.length + ' &nbsp;&nbsp; 未埋入：<b>' + miss.length + '</b></div>';
+    if (usedTags) html += '<div style="margin-bottom:6px;">' + usedTags + '</div>';
+    if (missTags) html += '<div style="margin-top:6px;"><div style="font-size:11.5px;color:#991b1b;margin-bottom:4px;">以下词未能埋入：</div>' + missTags + '</div>';
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+
+async function copyAllBullets(btn){
+    const parts = [];
+    for (let i = 0; i < 5; i++){
+        const el = $('optBp' + i);
+        if (el && el.value.trim()) parts.push(el.value.trim());
+    }
+    if (!parts.length){ showToast('五点描述为空'); return; }
+    const text = parts.join('\n\n');
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){
+        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
+    }
+    if (!ok){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+        document.body.removeChild(ta);
+    }
+    if (ok){
+        const original = btn.dataset.label || btn.innerText;
+        btn.dataset.label = original;
+        btn.innerText = '复制成功 ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
+    } else showToast('复制失败');
+}
+
+function loadSampleByUrl(){
+    $('productUrl').value = 'https://www.amazon.com/dp/B07_WATCH_BOX';
+    $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
+    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.';
+    $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
+    $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
+    $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
+    runAnalysis();
+}
+
+async function copyTextElement(elementId, btn){
+    const el = $(elementId);
+    const text = el.value || '';
+    if (!text.trim()){ showToast('内容为空'); return; }
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){
+        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
+    }
+    if (!ok){
+        try {
+            el.focus(); el.select();
+            el.setSelectionRange(0, text.length);
+            ok = document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+        } catch(e){ ok = false; }
+    }
+    if (!ok){ showToast('复制失败'); return; }
+    const original = btn.dataset.label || btn.innerText;
+    btn.dataset.label = original;
+    btn.innerText = '复制成功 ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
+}
+
+function clearAll(){
+    ['productUrl','productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => {
+        const el = $(id);
+        if (el) el.value = '';
+    });
+    $('resultCard').classList.add('hidden');
+    showToast('已清空全部内容');
+}
+
+document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
+});
+
+document.addEventListener('DOMContentLoaded', initByteCounters);
+if (document.readyState !== 'loading') initByteCounters();
+</script>
+
+</body>
+</html>
