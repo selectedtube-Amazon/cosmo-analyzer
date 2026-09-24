@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（防重复/防杜撰完全体）</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（官方规范强化版）</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 彻底防重复/防杜撰版</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · 商品亮点严格合规版</p>
     </header>
 
     <div class="card">
@@ -285,7 +285,7 @@
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125字符 · 必须与标题互补不重复)</span>
+                    <span>Item Highlights (≤125字符 · 绝对禁止完整句子与重复标题)</span>
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -1301,7 +1301,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '【A9 待改进维度】\n' + weakList,
         '',
         '【硬性规则】必须确保 100% 保留原始文案中提到的所有规格参数。如果原始文案未提供具体尺寸，严禁自行编造！',
-        '【硬性规则】Item Highlights 必须与标题互补，绝对不能重复标题中的词。',
+        '【硬性规则】Item Highlights 必须与标题互补，绝对不能重复标题中的词。必须为名词/形容词短语，严禁使用完整句子（严禁出现动词）。',
         '五点总字符 ≤1000，输出合法 JSON。'
     ].join('\n');
 
@@ -1310,7 +1310,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。Item Highlights绝对不能与标题重复，必须提供互补信息。' },
+                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。Item Highlights绝对不能与标题重复，必须为短语（不能是句子），提供互补信息。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1366,10 +1366,12 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
         '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造“First Tier/Second Tier”。只能写原文中存在的参数！',
         '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。',
-        '3. Item Highlights：≤125 字符，逗号分隔短语，无句号。',
-        '   - ⚠️⚠️【最高优先级红线】Item Highlights 绝对不能与标题重复！标题已经写过的核心词（如 10 compartments, High-grade leather, Black），在 Item Highlights 中绝对不能再次出现！Item Highlights 必须补充标题中未提及的新信息，例如：适用场景、包装内容、特殊设计、使用体验等。',
-        '   - 正确示例：标题写了材质和数量，Item Highlights 就写 "Fits standard drawers, Ideal for collectors, Soft lining protects from scratches"。',
-        '   - 错误示例：Item Highlights 写 "10 compartments, Leather, Black"（这就是在复制标题，绝对禁止）。',
+        '3. Item Highlights（商品亮点）：≤125 字符，必须为逗号分隔的名词/形容词短语，严禁使用完整句子。',
+        '   - ⚠️⚠️【最高优先级红线1：绝不重复标题】标题已经写过的核心词（如数量、材质、颜色），在 Item Highlights 中绝对不能再次出现！必须补充标题中未提及的新信息（如适用场景、包装内容、特殊设计、使用体验等）。',
+        '   - ⚠️⚠️【最高优先级红线2：短语而非句子】严禁出现动词（is, are, has, features, provides, ensures, helps 等），严禁出现主谓结构。只能输出纯粹的名词短语或形容词短语。',
+        '   - 正确示例（名词/形容词短语）：Fits standard drawers, Ideal for collectors, Soft lining, Protects from scratches, Home organizer, Shop display, Dust-proof, Easy access',
+        '   - 错误示例1（重复标题）：10 compartments, Leather, Black（复制标题）。',
+        '   - 错误示例2（完整句子）：This watch box is perfect for collectors and it has a soft lining that protects your watches. （这是完整句子，绝对禁止）。',
         '4. 五点描述规范：',
         '   - 5 个要点全部以【好处优先】为标题（全大写）。',
         '   - 第 1 点必须完整包含：1 x 原产品名称 + 原产品所有精确的规格/尺寸/材质参数。',
@@ -1395,7 +1397,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须提供互补的新信息。五点好处优先标题，总字符 ≤1000。' },
+                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须为纯名词/形容词短语（绝对不能出现完整句子和动词）。五点好处优先标题，总字符 ≤1000。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1491,6 +1493,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         if (!cell) return;
         let suggestion = fixes[a.name] || FALLBACK[a.name] || '';
         suggestion = replaceProhibitedWords(suggestion);
+        suggestion = checkHallucination(originalFullText, suggestion);
         suggestion = sanitizeVerifyTags(suggestion);
         const isRed = a.level === 'red';
         cell.innerHTML =
