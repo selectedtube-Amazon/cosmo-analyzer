@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 一次生成版</title>
+<title>亚马逊 Listing 智能优化系统 · 一次生成版 v2</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -140,7 +140,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>一次生成 + 自查重试 + 本地只做减法 · 追求"像人写的一样好"</p>
+        <p>自由文本生成模式 · 移除 JSON 限制 · 释放 AI 写作能力</p>
     </header>
 
     <div class="card">
@@ -158,7 +158,7 @@
             </div>
             <div class="input-layout-right">
                 <div class="form-group"><label for="productTitle">商品标题 (≤75 字符)</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始 5 点、Introductions、Features 或任何商品信息..."></textarea></div>
+                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始 5 点、Introductions、Features、Specifications 等全部商品信息..."></textarea></div>
                 <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选，没有可留空"></textarea></div>
                 <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选，没有可留空"></div>
             </div>
@@ -207,7 +207,7 @@
             <div class="pipeline-progress">
                 <div class="pipeline-step" data-step="1">① 输入净化</div>
                 <div class="pipeline-step" data-step="2">② 事实提取</div>
-                <div class="pipeline-step" data-step="3">③ AI 一次生成</div>
+                <div class="pipeline-step" data-step="3">③ AI 自由生成</div>
                 <div class="pipeline-step" data-step="4">④ 本地校验</div>
                 <div class="pipeline-step" data-step="5">⑤ 输出</div>
             </div>
@@ -287,7 +287,7 @@
 
 <script>
 /* ============================================================
-   工具函数
+   工具
    ============================================================ */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -329,7 +329,7 @@ function loadCustom(){
 }
 
 /* ============================================================
-   进度显示
+   进度
    ============================================================ */
 function setStep(step, state){
     const el = document.querySelector('.pipeline-step[data-step="' + step + '"]');
@@ -340,7 +340,7 @@ function setStep(step, state){
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
 /* ============================================================
-   ★ 常量：COSMO 锚点 + A9 词库（用于打分，不参与生成）
+   常量
    ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
@@ -393,7 +393,7 @@ function detectProhibited(text){
 }
 
 /* ============================================================
-   ★ 第①层：输入净化（本地，简单）
+   净化 + 事实提取
    ============================================================ */
 function cleanInput(text){
     if (!text) return '';
@@ -406,51 +406,37 @@ function cleanInput(text){
 }
 
 /* ============================================================
-   ★ 第②层：事实提取（本地，只提取不重组）
+   ★★★ 核心：一次自由生成（移除 JSON 模式）
    ============================================================ */
-function extractFacts(title, bp, desc){
-    const full = [title, bp, desc].join(' ');
-    const facts = { productType:'', material:'', size:'', weight:'', count:'', color:'', features:[], rawInput:{ title, bp, desc } };
-    const cm = full.match(/(\d+)\s*(compartment|slot|piece|pcs|pack|tier|layer)s?/i);
-    if (cm) facts.count = cm[1] + ' ' + cm[2].toLowerCase() + (cm[1] !== '1' ? 's' : '');
-    const sm = full.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)(?:\s*[xX×]\s*(\d+(?:\.\d+)?))?\s*(inch|inches|cm|mm|")/i);
-    if (sm) facts.size = sm[0];
-    const wm = full.match(/(\d+(?:\.\d+)?)\s*(oz|ounce|g|gram|kg|lb|pound)s?/i);
-    if (wm) facts.weight = wm[0];
-    ['PU Leather','PU leather','leather','pearl fleece','fleece','wood','metal','plastic','glass','velvet','suede'].forEach(m => { if (full.toLowerCase().includes(m.toLowerCase()) && !facts.material) facts.material = m; });
-    ['Black','White','Brown','Blue','Red','Green','Pink','Grey','Gray'].forEach(c => { if (full.includes(c) && !facts.color) facts.color = c; });
-    ['Watch Box','Watch Case','Storage Box','Organizer','Display Box','Watch Holder'].forEach(t => { if (full.toLowerCase().includes(t.toLowerCase()) && !facts.productType) facts.productType = t; });
-    return facts;
-}
-
-/* ============================================================
-   ★ 第③层：核心 —— 一次调用生成完整 Listing
-   ============================================================ */
-async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
-    const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入标题和五点）】\n' + hotKeywords.join('\n') : '';
+async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors){
+    const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
     const customBlock = Object.values(customReqs).some(v => v) ?
-        '\n【用户自定义要求（最高优先级）】\n' +
+        '\n【用户自定义要求 · 最高优先级】\n' +
         (customReqs.title ? '· 标题：' + customReqs.title + '\n' : '') +
         (customReqs.ih ? '· 亮点：' + customReqs.ih + '\n' : '') +
         (customReqs.bp ? '· 五点：' + customReqs.bp + '\n' : '') +
         (customReqs.desc ? '· 描述：' + customReqs.desc + '\n' : '') +
         (customReqs.st ? '· 搜索词：' + customReqs.st : '') : '';
+    const errBlock = (prevErrors && prevErrors.length) ?
+        '\n⚠️⚠️ 上一轮问题 · 本轮必须全部修复 ⚠️⚠️\n' + prevErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n' : '';
 
-    const prompt = `你是资深亚马逊 Listing 优化专家。你的任务：基于原始商品信息，一次性生成完整、自然、高质量的 Listing。
+    const prompt = `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。你擅长把干瘪的产品参数写成让买家产生购买欲望的描述。
 
-【原始商品信息】
+━━━━━━━━━━━━━━ 任务 ━━━━━━━━━━━━━━
+基于下方原始商品信息，一次性生成完整的高质量 Listing：标题、Item Highlights、五点描述、详细描述、Search Terms。
+
+━━━━━━━━━━━━━━ 原始商品信息 ━━━━━━━━━━━━━━
 标题：${titleRaw || '（未提供）'}
 五点/信息：${bpRaw || '（未提供）'}
 描述：${descRaw || '（未提供）'}
 搜索词：${stRaw || '（未提供）'}
-${hotBlock}${customBlock}
+${hotBlock}${customBlock}${errBlock}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【参考范例 · 这是一份"好文案"该有的样子】
+━━━━━━━━━━━━━━ 参考范例 · 这是一份"好文案"该有的样子 ━━━━━━━━━━━━━━
 
-假设原始信息是：10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格
+【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格
 
-好的输出应该是这样的：
+【好的输出】
 
 标题：
 10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black
@@ -461,11 +447,11 @@ PU leather exterior with soft pearl fleece lining; ideal for storing watches, br
 （108字符。与标题互补，不重复"10-Slot""Black"等标题已有的信息，补充了"存储什么"的价值信息）
 
 五点描述：
-① Each compartment fits one watch securely, keeping your collection separated and easy to browse; no more tangled straps or misplaced pieces
-② The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth
-③ Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches
-④ At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport
-⑤ Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler
+Each compartment fits one watch securely, keeping your collection separated and easy to browse; no more tangled straps or misplaced pieces
+The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth
+Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches
+At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport
+Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler
 （每条 130-140 字符，5 条总计 685 字符。以功能短语开头，后接具体利益点。每条结尾不加句号）
 
 描述：
@@ -476,69 +462,111 @@ The exterior is wrapped in PU leather that resists everyday wear and wipes clean
 At 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.
 
 Whether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.
-（约 780 字符。以场景痛点开头，展开材质、尺寸、使用体验，最后回到适用场景收束）
+（约 780 字符。以场景痛点开头，展开材质、尺寸、使用体验，最后回到适用场景收束。4 个自然段）
 
 搜索词：
 watch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot
 （约 138 字节。全小写，补充标题未包含的同义词、场景词、受众词）
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【2026 硬性规则 · 必须满足】
+━━━━━━━━━━━━━━ 硬性规则 · 必须全部满足 ━━━━━━━━━━━━━━
 
-· 标题：≤75 字符（含空格），首屏含核心词，不以标点或介词（for/with/in/on/by/to/of/and/or）结尾
-· Item Highlights：≤125 字符（含空格），与标题互补不重复，只输出名词/形容词短语（不能有动词 is/are/has/features）
-· 五点描述：每条 10-255 字符，5 条合计 ≤1000 字符；好处优先开头；结尾不加句号
-· 详细描述：≤2000 字符，自然段，无 HTML
-· 搜索词：≤250 字节，全小写，空格分隔，与标题/五点已含词不重复
+【字数 · 不合格就是不合格】
+· 标题：必须 70-75 字符（含空格）。低于 70 字符视为不合格，浪费权重位。
+· Item Highlights：必须 100-125 字符。低于 100 字符视为不合格。
+· 五点描述：每条必须 150-220 字符（低于 150 视为内容不足）。5 条合计 ≤1000 字符。结尾不加句号。
+· 详细描述：必须 600-900 字符。低于 600 视为内容单薄。
+· 搜索词：≤250 字节，全小写，空格分隔。
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【语言质量】
+· 自然流畅，像人写的一样。禁止生硬堆砌关键词、禁止逗号割裂（不要写成 A, B, C, D 这种）
+· Item Highlights 只输出名词/形容词短语，英文逗号分隔。不能出现完整句子（禁 is/are/has/features/provides 等动词）
+· Item Highlights 必须与标题互补，标题已出现的关键信息（数量、材质、颜色）不要重复
+· 五点描述以「利益点短语」开头（例如 "Each compartment fits one watch securely"、"The soft fleece lining protects..."），自然过渡到具体好处
+· 详细描述分 3-4 个自然段，以场景痛点开头，展开材质保护、规格尺寸、使用体验，回到适用场景收束
+
 【绝对保真 · 最重要】
-
 · 严禁编造原文没有的任何信息：材质、尺寸、数量、颜色、功能属性
 · 原文写 10 格就写 10 格，绝不能写 12 格
-· 原文写 Box 就写 Box，绝不能写 Case/Pad
+· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container
 · 原文没写防水，绝不写 waterproof / water resistant
 · 原文没写防尘，绝不写 dustproof / dust-proof
-· 原文没写吸尘，绝不写 absorb dust / trap moisture
-· 如果原文没有重量信息，就不要提重量
-· 严禁为了凑字符数堆砌"春夏秋冬""elegant refined decorative"等无意义形容词
+· 原文没写防潮，绝不写 absorb moisture / trap moisture
+· 如果原文没有重量信息，就不要在文案里提具体重量
+· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词
+· 严禁把 "High-grade" 这类主观词直接搬进输出，应改用具体描述（如 "PU leather"）
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【输出严格 JSON】
-{
-  "title": "...",
-  "itemHighlights": "...",
-  "bullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],
-  "description": "...",
-  "searchTerms": "..."
-}`;
+━━━━━━━━━━━━━━ 输出格式 · 严格按标记输出 ━━━━━━━━━━━━━━
 
-    const result = await callDeepSeekAPI([
-        { role: 'system', content: '你是资深亚马逊 Listing 优化专家。基于原始信息一次性生成完整 Listing。严禁编造原文没有的任何信息。标题自然流畅不用逗号堆砌。Item Highlights 与标题互补不重复，只输出名词/形容词短语。五点以利益点开头，结尾不加句号。只输出 JSON。' },
+请严格按以下格式输出，不要加任何其他解释或说明文字：
+
+[TITLE]
+标题写在这里
+[/TITLE]
+
+[IH]
+Item Highlights 写在这里
+[/IH]
+
+[BULLET1]
+第 1 点写在这里
+[/BULLET1]
+
+[BULLET2]
+第 2 点写在这里
+[/BULLET2]
+
+[BULLET3]
+第 3 点写在这里
+[/BULLET3]
+
+[BULLET4]
+第 4 点写在这里
+[/BULLET4]
+
+[BULLET5]
+第 5 点写在这里
+[/BULLET5]
+
+[DESC]
+详细描述写在这里
+（可以用空行分段）
+[/DESC]
+
+[ST]
+搜索词写在这里
+[/ST]`;
+
+    // ★ 关键：不使用 response_format，让 AI 自由写长文本
+    const rawText = await callDeepSeekRaw([
+        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案以信息密度高、语言自然、逻辑清晰著称。你必须严格遵守字数要求：标题 70-75 字符、Item Highlights 100-125 字符、五点每条 150-220 字符、详细描述 600-900 字符。你绝对不能编造原始信息中没有的任何内容。你只输出指定格式的内容，不加任何解释。' },
         { role: 'user', content: prompt }
     ]);
-    return result;
+
+    return parseStructuredOutput(rawText);
 }
 
 /* ============================================================
-   DeepSeek API 调用
+   原始文本调用（无 JSON 模式）
    ============================================================ */
-async function callDeepSeekAPI(messages, maxRetries = 3){
+async function callDeepSeekRaw(messages, maxRetries = 3){
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++){
         try {
             const resp = await fetch('/api/deepseek', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages, temperature: 0.6, max_tokens: 8000, response_format: { type: 'json_object' } })
+                body: JSON.stringify({
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 8000
+                    // ★ 关键：没有 response_format
+                })
             });
             const result = await resp.json();
             if (!result.success) throw new Error(result.error || 'API 返回失败');
-            let content = result.data.choices[0].message.content.trim()
-                .replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-            const fb = content.indexOf('{'), lb = content.lastIndexOf('}');
-            if (fb !== -1 && lb !== -1) content = content.substring(fb, lb + 1);
-            return JSON.parse(content);
+            const content = result.data.choices[0].message.content || '';
+            if (!content.trim()) throw new Error('AI 返回空内容');
+            return content;
         } catch (err){
             lastError = err;
             if (attempt < maxRetries) await new Promise(r => setTimeout(r, 1500));
@@ -548,14 +576,38 @@ async function callDeepSeekAPI(messages, maxRetries = 3){
 }
 
 /* ============================================================
-   ★ 第④层：本地校验 + 带错重试
+   解析 [TITLE]...[/TITLE] 格式
+   ============================================================ */
+function parseStructuredOutput(text){
+    const extract = (tag) => {
+        const regex = new RegExp('\\[' + tag + '\\]([\\s\\S]*?)\\[\\/' + tag + '\\]', 'i');
+        const m = text.match(regex);
+        return m ? m[1].trim() : '';
+    };
+    const result = {
+        title: extract('TITLE'),
+        itemHighlights: extract('IH'),
+        bullets: [1,2,3,4,5].map(i => extract('BULLET' + i)),
+        description: extract('DESC'),
+        searchTerms: extract('ST')
+    };
+    console.log('解析结果：', result);
+    // 检查解析是否成功
+    if (!result.title && !result.itemHighlights && result.bullets.every(b => !b)){
+        throw new Error('AI 未按标记格式输出，解析失败');
+    }
+    return result;
+}
+
+/* ============================================================
+   校验
    ============================================================ */
 function validateAll(r){
     const errors = [], warnings = [];
     if (!r.title || !r.title.trim()) errors.push({ module:'标题', msg:'标题为空' });
     else {
         if (r.title.length > 75) errors.push({ module:'标题', msg:'超过 75 字符（' + r.title.length + '）' });
-        if (r.title.length < 50) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，偏短' });
+        if (r.title.length < 60) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，偏短（建议 70-75）' });
         const lastWord = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
         if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lastWord)) errors.push({ module:'标题', msg:'以介词 "' + lastWord + '" 结尾' });
         const pHits = detectProhibited(r.title);
@@ -564,17 +616,18 @@ function validateAll(r){
     if (!r.itemHighlights || !r.itemHighlights.trim()) errors.push({ module:'亮点', msg:'Item Highlights 为空' });
     else {
         if (r.itemHighlights.length > 125) errors.push({ module:'亮点', msg:'超过 125 字符（' + r.itemHighlights.length + '）' });
-        if (r.itemHighlights.length < 80) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，浪费权重位' });
+        if (r.itemHighlights.length < 80) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，偏短（建议 100-125）' });
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词，必须为名词/形容词短语' });
     }
     const bullets = r.bullets || [];
-    if (!Array.isArray(bullets) || bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5（' + bullets.length + '）' });
+    if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5（' + bullets.length + '）' });
     else {
         let total = 0;
         bullets.forEach((b, i) => {
             if (!b || !b.trim()) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点为空' });
             else {
                 if (b.length > 255) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 255 字符（' + b.length + '）' });
+                if (b.length < 100) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，偏短（建议 150-220）' });
                 if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
             }
             total += (b || '').length;
@@ -582,7 +635,10 @@ function validateAll(r){
         if (total > 1000) errors.push({ module:'五点', msg:'总字符 ' + total + ' 超过 1000' });
     }
     if (!r.description || !r.description.trim()) errors.push({ module:'描述', msg:'描述为空' });
-    else if (r.description.length > 2000) errors.push({ module:'描述', msg:'超过 2000 字符（' + r.description.length + '）' });
+    else {
+        if (r.description.length > 2000) errors.push({ module:'描述', msg:'超过 2000 字符（' + r.description.length + '）' });
+        if (r.description.length < 400) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，偏短（建议 600-900）' });
+    }
     if (r.searchTerms){
         const bytes = getByteLength(r.searchTerms);
         if (bytes > 250) errors.push({ module:'搜索词', msg:'超过 250 字节（' + bytes + '）' });
@@ -591,38 +647,34 @@ function validateAll(r){
     return { errors, warnings };
 }
 
+/* ============================================================
+   带错重试
+   ============================================================ */
 async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRounds = 3){
     let lastResult = null, lastErrors = [], lastWarnings = [];
     const history = [];
-
     for (let round = 1; round <= maxRounds; round++){
         let result;
-        if (round === 1){
-            result = await generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs);
-        } else {
-            // 带错误清单重新生成
-            const errBlock = '\n【上一轮检测到的问题 · 本轮必须全部修复】\n' + lastErrors.map(e => '❌ [' + e.module + '] ' + e.msg).join('\n');
-            const fixedPrompt = '你是资深亚马逊 Listing 优化专家。上一轮生成的 Listing 有以下问题，请重新生成完整 Listing（其他合格部分保持不变，只修复问题）。\n' + errBlock + '\n\n原始商品信息：\n标题：' + titleRaw + '\n五点/信息：' + bpRaw + '\n描述：' + (descRaw || '') + '\n搜索词：' + (stRaw || '') + '\n\n必须重新输出完整 JSON：\n{"title":"...","itemHighlights":"...","bullets":["...","...","...","...","..."],"description":"...","searchTerms":"..."}';
-            result = await callDeepSeekAPI([
-                { role: 'system', content: '你是亚马逊 Listing 修复专家。根据错误清单重新生成完整 Listing。严禁编造原文没有的信息。只输出 JSON。' },
-                { role: 'user', content: fixedPrompt }
-            ]);
+        try {
+            result = await generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null);
+        } catch (err){
+            console.error('第 ' + round + ' 轮调用失败：', err);
+            history.push({ round, error: err.message });
+            if (round === maxRounds) throw err;
+            continue;
         }
-
         lastResult = result;
         const v = validateAll(result);
         lastErrors = v.errors;
         lastWarnings = v.warnings;
-        history.push({ round, errors: lastErrors.length });
-
+        history.push({ round, errors: lastErrors.length, warnings: lastWarnings.length });
         if (lastErrors.length === 0) return { result, passed: true, rounds: round, warnings: lastWarnings, history };
     }
-
     return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings, history };
 }
 
 /* ============================================================
-   ★ 第⑤层：本地后处理 —— 只做减法，绝不重组句子
+   后处理
    ============================================================ */
 function trimToMax(str, max){
     if (!str) return '';
@@ -647,7 +699,6 @@ function postTitle(t){
     if (!t) return '';
     let r = t.trim().replace(/[,;.!]+$/, '');
     r = trimToMax(r, 75);
-    // 去首尾介词
     let safety = 0;
     while (safety < 3){
         safety++;
@@ -687,7 +738,7 @@ function postDesc(d){ return trimToMax((d || '').trim(), 2000); }
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), 250); }
 
 /* ============================================================
-   打分函数（仅用于展示，不参与生成）
+   打分
    ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
@@ -906,13 +957,13 @@ function renderValidationReport(issues, warnings, rounds){
     warnings.forEach(w => all.push({ ...w, severity: 'warn' }));
     if (all.length === 0){
         report.className = 'validation-report';
-        report.innerHTML = '<div class="report-ttl">✅ 全部合格 · 一次生成通过（第 ' + rounds + ' 轮）</div>' +
-            '<div style="font-size:12.5px;color:#166534;">本地校验 ✓ &nbsp; 字符数 ✓ &nbsp; 无违禁词 ✓</div>';
+        report.innerHTML = '<div class="report-ttl">✅ 全部合格 · 第 ' + rounds + ' 轮通过</div>' +
+            '<div style="font-size:12.5px;color:#166534;">字符数 ✓ &nbsp; 无违禁词 ✓ &nbsp; 无动词错误 ✓</div>';
         report.classList.remove('hidden');
         return;
     }
     report.className = 'validation-report has-errors';
-    let html = '<div class="report-ttl">⚠️ 发现 ' + all.length + ' 项问题</div>';
+    let html = '<div class="report-ttl">⚠️ 共 ' + all.length + ' 项问题（第 ' + rounds + ' 轮）</div>';
     all.forEach(i => {
         html += '<div class="issue-row ' + i.severity + '"><span class="module-tag">' + escapeHtml(i.module || '未知') + '</span>' + escapeHtml(i.msg || i.message || '') + '</div>';
     });
@@ -980,11 +1031,11 @@ async function copyAllBullets(btn){
 }
 
 /* ============================================================
-   示例 + 清空
+   示例
    ============================================================ */
 function loadSample(){
     $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
-    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.\n\nSpecifications:\nTotal Watches: 10\nColor: Black\nDimension: (9.84 x 7.87 x 3.15)"/ (25 x 20 x 8)cm\nWeight: 38.8oz / 1100g\nExterior Material: PU Leather\nInterior Material: Pearl Fleece Lining';
+    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.\n\nSpecifications:\nTotal Watches: 10\nColor: Black\nDimension: (9.84 x 7.87 x 3.15)"/ (25 x 20 x 8)cm (L x W x H)\nWeight: 38.8oz / 1100g\nExterior Material: PU Leather\nInterior Material: Pearl Fleece Lining';
     $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
     $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
     $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
@@ -997,7 +1048,7 @@ function clearAll(){
 }
 
 /* ============================================================
-   ★ 主流程
+   主流程
    ============================================================ */
 async function runAnalysis(){
     const titleRaw = $('productTitle').value.trim();
@@ -1036,7 +1087,7 @@ async function runAnalysis(){
         if (a.level === 'red'){ sc='status-red'; st='🔴 严重缺失'; }
         else if (a.level === 'yellow'){ sc='status-yellow'; st='🟡 部分覆盖'; }
         else { sc='status-green'; st='🟢 完美覆盖'; }
-        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td><td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td><td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7</span></td><td>' + hitBlock + '</td><td style="font-size:12px;color:#64748b;">' + (a.level === 'green' ? '✅ 已覆盖' : '💡 生成时会自然融入相关语义') + '</td></tr>';
+        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td><td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td><td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7</span></td><td>' + hitBlock + '</td><td style="font-size:12px;color:#64748b;">' + (a.level === 'green' ? '✅ 已覆盖' : '💡 生成时会自然融入') + '</td></tr>';
     }).join('');
     renderA9Table(a9Before);
 
@@ -1065,56 +1116,45 @@ async function runAnalysis(){
     status.classList.remove('hidden');
 
     try {
-        // ① 输入净化
         setStep(1, 'active'); status.textContent = '① 输入净化中…';
         const cleaned = { title: cleanInput(titleRaw), bp: cleanInput(bpRaw), desc: cleanInput(descRaw), st: cleanInput(stRaw) };
         await new Promise(r => setTimeout(r, 100));
         setStep(1, 'done');
 
-        // ② 事实提取
-        setStep(2, 'active'); status.textContent = '② 提取产品事实…';
-        const facts = extractFacts(cleaned.title, cleaned.bp, cleaned.desc);
-        console.log('提取到的事实：', facts);
+        setStep(2, 'active'); status.textContent = '② 分析商品信息…';
         await new Promise(r => setTimeout(r, 100));
         setStep(2, 'done');
 
-        // ③ AI 一次生成（带自查重试）
         setStep(3, 'active');
-        let rounds = 1;
         const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3);
-        rounds = genResult.rounds;
         console.log('生成结果：', genResult);
         setStep(3, 'done');
 
-        // ④ 本地后处理（只做减法）
         setStep(4, 'active'); status.textContent = '④ 本地校验与后处理…';
         const finalTitle = postTitle(genResult.result.title);
         const finalIH = postIH(genResult.result.itemHighlights);
         const finalBullets = postBullets(genResult.result.bullets);
         const finalDesc = postDesc(genResult.result.description);
         const finalST = postST(genResult.result.searchTerms);
-
-        // 输出
         renderResult(finalTitle, finalIH, finalBullets, finalDesc, finalST);
         setStep(4, 'done');
 
-        // ⑤ 打分
         setStep(5, 'active'); status.textContent = '⑤ 计算得分…';
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
-        renderValidationReport(genResult.errors || [], genResult.warnings || [], rounds);
+        renderValidationReport(genResult.errors || [], genResult.warnings || [], genResult.rounds);
         setStep(5, 'done');
 
         status.className = genResult.passed ? 'ai-status done' : 'ai-status error';
         status.textContent = genResult.passed ?
-            '✅ 生成完成（第 ' + rounds + ' 轮通过）' :
-            '⚠️ 生成完成，但存在未修复问题（已 ' + rounds + ' 轮尝试）';
+            '✅ 生成完成（第 ' + genResult.rounds + ' 轮通过）' :
+            '⚠️ 生成完成，仍有问题（已 ' + genResult.rounds + ' 轮）';
 
     } catch (err){
         console.error('生成失败', err);
         status.className = 'ai-status error';
-        status.textContent = '⚠️ 生成失败：' + err.message;
-        showToast('生成失败：' + err.message);
+        status.textContent = '⚠️ 失败：' + err.message;
+        showToast('失败：' + err.message);
         document.querySelectorAll('.pipeline-step.active').forEach(el => { el.classList.remove('active'); el.classList.add('error'); });
     } finally {
         btn.disabled = false;
