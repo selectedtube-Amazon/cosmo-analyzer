@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 五点好处优先结构</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 参数完整保留</p>
     </header>
 
     <div class="card">
@@ -1305,9 +1305,9 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '  第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
         '',
         '【错误示范（绝对不要写成这样）】',
-        '  ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch... （这是属性，不是好处）',
-        '  ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP... （这是功能，不是好处）',
-        '  ❌ TWO STEP CLEANING DESIGN: Step on the wet pad... （这是设计，不是好处）',
+        '  ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch... （属性，不是好处）',
+        '  ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP... （功能，不是好处）',
+        '  ❌ TWO STEP CLEANING DESIGN: Step on the wet pad... （设计，不是好处）',
         '',
         '⚠️⚠️ 五点描述总字符数绝对不要超过 1000！每点控制在 150-220 字符。',
         '',
@@ -1331,7 +1331,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性/功能。正确示例 PERFECT FIT FOR YOUR SPACE / SAVE TIME EVERY DAY，错误示例 SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE。五点总字符 ≤1000（硬性）。标题 70-75 字符。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性/功能。正确示例 PERFECT FIT FOR YOUR SPACE / SAVE TIME EVERY DAY，错误示例 SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE。五点总字符 ≤1000（硬性）。标题 70-75 字符。⚠️ 用户原文中提供的具体参数（尺寸、重量、材质、颜色、数量）必须完整保留，不能简化或省略。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1421,10 +1421,21 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         anchorList,
         hotKeywordsSection,
         '',
-        '════════ 防杜撰红线 ════════',
-        '绝对不可以编造任何原则性信息：具体尺寸、具体颜色、具体材质成分、认证与合规、特殊功能等级、具体性能参数、具体数量、使用寿命年限。',
-        '如果原文没有提供这些信息，请在文案中直接跳过，不要提及，绝对不要写任何占位符。',
-        '【允许推断】：通用应用场景、通用使用方式、目标人群、情感价值。',
+        '════════ 参数完整保留规则（重要！）════════',
+        '',
+        '⚠️⚠️⚠️ 用户原文中【已经提供】的具体参数（尺寸、重量、材质、颜色、数量、规格等）必须【完整保留，原样输出】，绝对不能简化、省略、或改变数值！',
+        '',
+        '这些是确定的、必须保留的关键信息，不是"需核实信息"。',
+        '',
+        '【示例】用户原文写了 "Dimensions: (18.1 x 18.1 x 18.7) in / (46 x 46 x 47.5) cm"，你的优化文案必须保留完整数值（可以写成 "Measures 18.1 x 18.1 x 18.7 inches / 46 x 46 x 47.5 cm"），绝不能简化成 "18 inch"！',
+        '【示例】用户原文写了 "Weight: 5.9 lbs / 2.7 kg"，你的优化文案必须包含这个重量，比如 "weighs 5.9 lbs (2.7 kg)"。',
+        '【示例】用户原文写了 "Material: Iron"，你的优化文案必须提到 Iron 材质，比如 "made from iron"。',
+        '【示例】用户原文写了 "Color: Black"，你的优化文案必须提到 Black 颜色。',
+        '',
+        '════════ 防杜撰规则（仅适用于用户未提供的信息）════════',
+        '',
+        '⚠️ 如果原文【没有】提供这些信息（比如没写尺寸、没写重量），才跳过不写，绝对不要写占位符或编造数值。',
+        '【允许推断的内容】：通用应用场景、通用使用方式、目标人群、情感价值。',
         '',
         '════════ 违禁词红线 ════════',
         '严禁使用：best, top, premium, high quality, perfect, perfectly, amazing, excellent, superior, ultimate, unbeatable, free, free shipping, sale, discount, guarantee, warranty, antibacterial, antimicrobial, disinfect, sanitize, sterilize, cure, heal, treat, our, we, my, I。',
@@ -1454,7 +1465,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   ⚠️⚠️ 标题必须是"买家能获得什么好处"，而不是"产品有什么属性/功能"。',
         '',
         '   【五点分工】',
-        '   - 第 1 点：基本属性（尺寸、颜色等，原文已提供的才写）+ 包装内容',
+        '   - 第 1 点：必须把用户原文中提供的所有具体参数【完整保留】下来（尺寸、重量、材质、颜色、数量、规格等），加上包装内容。⚠️ 不要简化数值，不要省略规格！',
         '   - 第 2 点：核心痛点 / 人群',
         '   - 第 3 点：商品特点 + 买后的好处、收益点',
         '   - 第 4 点：功能性、原理性，攻破买家心智',
@@ -1462,17 +1473,17 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '',
         '   【每点格式】「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
         '',
-        '   【正确示范】',
-        '     第1点：PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
+        '   【正确示范（第1点包含完整规格）】',
+        '     第1点：EVERYTHING YOU NEED TO SET UP: Includes 1 folding patio side table. Specs: iron construction, black finish, measures 18.1 x 18.1 x 18.7 inches (46 x 46 x 47.5 cm), weighs 5.9 lbs (2.7 kg), ready to use right out of the box',
         '     第2点：MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
         '     第3点：SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
         '     第4点：CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
         '     第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
         '',
         '   【错误示范（绝对不要写成这样）】',
-        '     ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch...（属性，不是好处）',
-        '     ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP...（功能，不是好处）',
-        '     ❌ TWO STEP CLEANING DESIGN: Step on the wet pad...（设计，不是好处）',
+        '     ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch...（属性标题，不是好处标题）',
+        '     ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP...（功能标题，不是好处标题）',
+        '     ❌ IDEAL FIT FOR SMALL SPACES: Includes one 18 inch round... （尺寸被简化了！原文是 18.1 x 18.1 x 18.7 in，不能简化为 18 inch）',
         '',
         '   ▸ 每点 150-220 字符，五点总字符数必须 ≤1000（硬性上限！）',
         '   ▸ 五点每点分散埋入 1-2 个热词，每点融入 1 个场景词或属性词。',
@@ -1480,6 +1491,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '5. 生成优化后的详细描述（Description）：',
         '   - 无硬性下限，上限 5000 字符。',
         '   - 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
+        '   - ⚠️ 用户原文中提供的参数也要在描述里保留完整。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250，只使用空格分隔，全小写，无标点。',
         '   - 把标题、五点、描述里还没埋进去的热词全部塞进去，并补充 6+ 个新词。',
@@ -1505,7 +1517,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。⚠️ 五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），绝对禁止写成属性式标题。正确示例：PERFECT FIT FOR YOUR SPACE / MADE FOR BUSY HOMES / SAVE TIME EVERY DAY / CLEANER FLOORS INSTANTLY / SHOP WITH CONFIDENCE。错误示例：SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE / TWO STEP CLEANING DESIGN。五点结构：第1点基本属性+包装、第2点核心痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点 150-220 字符，五点总 ≤1000（硬性）。标题 70-75 字符，禁止以介词结尾。Item Highlights 写成逗号分隔短语。严格禁止违禁词，严格防杜撰。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。⚠️ 用户原文中提供的具体参数（尺寸、重量、材质、颜色、数量）必须【完整保留、原样输出】，绝对不能简化（比如 "18.1 x 18.1 x 18.7 in" 不能简化为 "18 inch"，"5.9 lbs" 不能省略）。⚠️ 五点描述必须遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性。正确标题 PERFECT FIT FOR YOUR SPACE，错误标题 SIZE AND COLOR OPTIONS。五点结构：第1点完整规格+包装、第2点痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点 150-220 字符，五点总 ≤1000（硬性）。标题 70-75 字符，禁止以介词结尾。Item Highlights 写成逗号分隔短语。严格禁止违禁词，严格防杜撰。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1907,11 +1919,11 @@ function loadSampleByUrl(){
         };
     } else {
         s = {
-            title:'100 Corrugated Paper Boxes 6x6x6" (15.2*15.2*15.2cm) Yellow',
-            bp:'1. HIGH QUALITY: Manufactured with premium materials for long-lasting durability.\n2. EASY TO USE: Simple setup and convenient operation for daily tasks.\n3. VERSATILE DESIGN: Fits seamlessly into various home and office environments.\n4. RELIABLE PERFORMANCE: Engineered to deliver consistent and efficient results.\n5. GREAT VALUE: An ideal choice for household upgrades and practical needs.',
-            desc:'These corrugated paper boxes are perfect for shipping, packaging and storage.',
-            st:'corrugated paper box shipping storage',
-            hotKeywords:'shipping boxes\nsmall shipping box\n6x6x6 box\ncorrugated box\ncardboard box\nmailing box\npacking box\nstorage box'
+            title:'18 Inch Folding Patio Side Table, Metal Steel Outdoor Round Coffee Table with Flower Cutouts for Patio Yard Balcony',
+            bp:'1. Sturdy Construction: Made from iron with a powder-coated finish for durability.\n2. Round Tabletop: 18 inch diameter with decorative flower cutouts.\n3. Folding Design: Folds flat for easy storage and transport.\n4. Protective Feet: Won\'t scratch your floors.\n5. Versatile Use: Ideal for gardens, patios, living rooms, balconies, and even as a side table next to your lounge chair or bed.\n\nSpecifications:\n1. Material: Iron\n2. Color: Black\n3. Dimensions: (18.1 x 18.1 x 18.7) in / (46 x 46 x 47.5) cm\n4. Weight: 5.9 lbs / 2.7 kg\n\nPackage Includes:\n1 x Folding Patio Side Table',
+            desc:'',
+            st:'',
+            hotKeywords:'folding side table\npatio side table\noutdoor side table\nsmall round table\nmetal side table\nbalcony table\nflower cutout table'
         };
     }
     $('productTitle').value = s.title;
