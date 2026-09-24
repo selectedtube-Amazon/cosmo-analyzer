@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（终极精准版）</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（防杜撰终极版）</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -468,6 +468,40 @@ function buildProhibitedRegex(word){
 }
 
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
+
+// ================== 防杜撰硬拦截词库（紧箍咒） ==================
+const HALLUCINATION_RISK_MAP = {
+    'waterproof': ['water', 'waterproof', 'moisture', 'liquid', 'wet'],
+    'water-resistant': ['water', 'waterproof', 'water-resistant', 'water resistant', 'moisture', 'liquid', 'wet'],
+    'water resistant': ['water', 'waterproof', 'water-resistant', 'water resistant', 'moisture', 'liquid', 'wet'],
+    'heavy duty': ['heavy duty', 'heavy-duty', 'sturdy', 'durable', 'strong'],
+    'non-slip': ['non-slip', 'non slip', 'anti-slip', 'slip resistant'],
+    'antibacterial': ['antibacterial', 'anti-bacterial', 'disinfect', 'sanitize'],
+    'eco-friendly': ['eco', 'environment', 'recycl', 'sustainab'],
+    'machine washable': ['wash', 'clean', 'machine'],
+    'reusable': ['reuse', 'reusable', 'washable'],
+    'scratch resistant': ['scratch', 'durable', 'protection']
+};
+
+function checkHallucination(originalText, generatedText) {
+    if (!originalText || !generatedText) return generatedText;
+    let safeText = generatedText;
+    const lowerOriginal = originalText.toLowerCase();
+    
+    for (const [riskWord, synonyms] of Object.entries(HALLUCINATION_RISK_MAP)) {
+        const escaped = riskWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\b' + escaped + '\\b', 'gi');
+        
+        if (regex.test(safeText)) {
+            const hasSupport = synonyms.some(syn => lowerOriginal.includes(syn));
+            if (!hasSupport) {
+                safeText = safeText.replace(regex, `[需核实:无中生有-${riskWord}]`);
+            }
+        }
+    }
+    return safeText;
+}
+// ==============================================================
 
 function replaceProhibitedWords(text) {
     if (!text) return '';
@@ -1185,8 +1219,15 @@ function readCurrentTexts(){
 }
 
 function applyBoostResult(boostResult){
+    // 重新获取原文本用于防杜撰校验
+    const originalFullText = ($('productTitle').value || '') + ' ' + 
+                             ($('bulletPoints').value || '') + ' ' + 
+                             ($('description').value || '') + ' ' + 
+                             ($('searchTerms').value || '');
+
     if (boostResult.optimizedTitle){
         let title = replaceProhibitedWords(boostResult.optimizedTitle);
+        title = checkHallucination(originalFullText, title);
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
@@ -1200,6 +1241,7 @@ function applyBoostResult(boostResult){
     }
     if (boostResult.optimizedItemHighlights){
         let ih = replaceProhibitedWords(boostResult.optimizedItemHighlights);
+        ih = checkHallucination(originalFullText, ih);
         ih = sanitizeVerifyTags(ih);
         ih = trimToMaxChars(ih, 125);
         ih = cleanItemHighlights(ih);
@@ -1212,6 +1254,7 @@ function applyBoostResult(boostResult){
         for (let i = 0; i < 5; i++){
             let text = bullets[i] || $('optBp' + i).value || '';
             text = replaceProhibitedWords(text);
+            text = checkHallucination(originalFullText, text);
             text = sanitizeVerifyTags(text);
             text = text.replace(/[.。;；,，]+$/, '');
             text = trimToMaxChars(text, 255);
@@ -1227,6 +1270,7 @@ function applyBoostResult(boostResult){
     }
     if (boostResult.optimizedDesc){
         let desc = replaceProhibitedWords(boostResult.optimizedDesc);
+        desc = checkHallucination(originalFullText, desc);
         desc = sanitizeVerifyTags(desc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
@@ -1234,6 +1278,7 @@ function applyBoostResult(boostResult){
     }
     if (boostResult.optimizedST){
         let st = replaceProhibitedWords(boostResult.optimizedST);
+        st = checkHallucination(originalFullText, st);
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
@@ -1430,6 +1475,13 @@ function applyAfterScore(beforeResult, hotKeywords){
 }
 
 function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
+    // ======== 获取原始输入文本用于防杜撰校验 ========
+    const originalFullText = ($('productTitle').value || '') + ' ' + 
+                             ($('bulletPoints').value || '') + ' ' + 
+                             ($('description').value || '') + ' ' + 
+                             ($('searchTerms').value || '');
+    // ========================================================
+
     const fixes = aiResult.anchorFixes || {};
     anchorResults.forEach(a => {
         if (a.level === 'green') return;
@@ -1449,6 +1501,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
     });
     if (aiResult.optimizedTitle) {
         let title = replaceProhibitedWords(aiResult.optimizedTitle);
+        title = checkHallucination(originalFullText, title);
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
@@ -1462,6 +1515,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
     }
     if (aiResult.optimizedItemHighlights) {
         let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
+        ih = checkHallucination(originalFullText, ih);
         ih = sanitizeVerifyTags(ih);
         ih = trimToMaxChars(ih, 125);
         ih = cleanItemHighlights(ih);
@@ -1476,6 +1530,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         for (let i = 0; i < 5; i++){
             let text = bullets[i] || '';
             text = replaceProhibitedWords(text);
+            text = checkHallucination(originalFullText, text);
             text = sanitizeVerifyTags(text);
             text = text.replace(/[.。;；,，]+$/, '');
             text = trimToMaxChars(text, 255);
@@ -1501,6 +1556,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
     }
     if (aiResult.optimizedDesc) {
         let desc = replaceProhibitedWords(aiResult.optimizedDesc);
+        desc = checkHallucination(originalFullText, desc);
         desc = sanitizeVerifyTags(desc);
         if (desc.length > 5000) desc = desc.substring(0, 5000);
         $('optDescText').value = desc;
@@ -1508,6 +1564,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
     }
     if (aiResult.optimizedST) {
         let st = replaceProhibitedWords(aiResult.optimizedST);
+        st = checkHallucination(originalFullText, st);
         st = trimToMaxBytes(st, 250);
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
