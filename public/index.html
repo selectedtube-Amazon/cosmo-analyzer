@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（防杜撰终极版）</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（通用防杜撰版）</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 规格参数 100% 零丢失版</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 100% 防杜撰通用版</p>
     </header>
 
     <div class="card">
@@ -189,13 +189,13 @@
             <label for="productUrl" style="margin-bottom:8px;">🔗 亚马逊商品详情页网址（URL / ASIN 链接 · 可选）</label>
             <div class="url-flex">
                 <input type="text" id="productUrl" placeholder="例如: https://www.amazon.com/dp/B00...">
-                <button class="btn-sm" onclick="loadSampleByUrl()">载入眼镜盒示例数据</button>
+                <button class="btn-sm" onclick="loadSampleByUrl()">载入表盒示例数据</button>
             </div>
-            <div class="hint">提示：点击后将自动载入您刚才提供的 12 格眼镜收纳盒完整数据。</div>
+            <div class="hint">提示：点击后将自动载入“10格手表盒”的数据，方便快速测试。</div>
         </div>
         <div class="keywords-box">
             <label for="hotKeywords">🎯 品类热词 / 长尾词库（可选，每行一个或用逗号/空格分隔）</label>
-            <textarea id="hotKeywords" placeholder="例如：&#10;eyeglasses storage case&#10;sunglasses display organizer box&#10;12 slot glasses case&#10;lockable sunglasses organizer&#10;pu leather eyewear display tray"></textarea>
+            <textarea id="hotKeywords" placeholder="例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage&#10;watch display box"></textarea>
             <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。</div>
         </div>
         <div class="form-group">
@@ -358,7 +358,7 @@ const L = {
     role:    ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
     audience:['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone','seller','business','girls','boys','men'],
     ease:    ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools','assemble'],
-    size:    ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube','slot','tier'],
+    size:    ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube','slot','tier','compartment'],
     location:['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home','warehouse','bedroom','closet','dresser'],
     occasion:['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal','shipping','packing','moving'],
     season:  ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
@@ -387,40 +387,40 @@ const ANCHORS = [
 ];
 
 const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
-const A9_ATTR_WORDS = ['lockable','pu leather','glass window','12 slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
+const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
 
 const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
 
 const TITLE_BOOST_WORDS = [
-    'Lockable Case', '12 Slot Organizer', 'PU Leather', 'Glass Window', 'Eyewear Storage',
-    'Display Drawer', 'Black Finish', 'Home Decor', 'Shop Display', 'Dust Protection'
+    'Lockable Case', 'Slot Organizer', 'PU Leather', 'Glass Window', 'Storage Drawer',
+    'Black Finish', 'Home Decor', 'Shop Display', 'Dust Protection', 'Elegant Design'
 ];
 
 const FALLBACK = {
-    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to display your eyeglasses and sunglasses securely while saving time on busy mornings.',
-    'used_to':'HELPS YOU GET IT DONE: Designed to prevent scratches, dust and fingerprints, keeping your eyewear neatly organized.',
-    'capable_of':'BUILT TO WITHSTAND: Made from high grade PU leather and medium density fiberboard with a sturdy construction and metal lock.',
-    'is_a':'WELL-MADE QUALITY: A 12-slot glasses display drawer and storage showcase built for long-lasting use.',
-    'used_as':'DOUBLE DUTY: Works as both a practical home storage case and an elegant retail shop display.',
-    'target_audience':'IDEAL FOR: Eyewear wearers, collectors, girls, boys, women and men looking for a tidy storage solution.',
-    'used_by':'EASY FOR EVERYONE: Simple structure with a clear glass top to find your favorite pair in seconds.',
-    'body_part':'EXACT SIZE & FIT: Overall dimensions 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm) with first and second tier slot sizes of 6.2 x 2.3 x 1.6 inches (15.7 x 5.8 x 4.1 cm).',
-    'used_in_location':'INDOOR & SHOP: Ideal for dressers, closet shelves, entryways, and retail display counters.',
-    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: A wonderful gift idea for birthdays, anniversaries, weddings and holidays.',
-    'used_at_time/season':'ALL-SEASON READY: Built for year-round daily organization and protection.',
-    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, more curated and stylish look to your accessory station.',
-    'used_with':'PAIRS WELL WITH: Compatible with standard eyeglasses, sunglasses and small jewelry items.',
-    'self_image':'LOOKS THE PART: A refined, professional touch that showcases your collection with elegance.',
-    'emotional_outcome':'PEACE OF MIND: Enjoy a clutter-free collection and effortless mornings with complete security and style.'
+    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable daily performance.',
+    'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and keep items organized.',
+    'capable_of':'BUILT TO WITHSTAND: Made from durable materials for long-lasting use.',
+    'is_a':'WELL-MADE QUALITY: A well-crafted product built for modern everyday living.',
+    'used_as':'DOUBLE DUTY: Works as both a practical everyday essential and a decorative piece.',
+    'target_audience':'IDEAL FOR: People looking for a smart, practical upgrade and a thoughtful gift idea.',
+    'used_by':'EASY FOR EVERYONE: Lightweight, hassle-free and simple to set up.',
+    'body_part':'EXACT SIZE & FIT: Please double-check the size chart above to confirm a fitting result.',
+    'used_in_location':'INDOOR & OUTDOOR: Ideal for entryways, closets, offices and any other space where you need it most.',
+    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: Ready for holidays, parties and everyday use.',
+    'used_at_time/season':'ALL-SEASON READY: Built for year-round use.',
+    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, cozier and more stylish feel to your everyday routine.',
+    'used_with':'PAIRS WELL WITH: Compatible with standard accessories and existing setups.',
+    'self_image':'LOOKS THE PART: A refined, professional touch that shows you care about the details.',
+    'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless and comfortable.'
 };
 
 const FALLBACK_BULLETS = [
-    'PERFECT FIT FOR YOUR COLLECTION: Includes 1 x Glasses Display Box. Material: high grade PU leather, medium density fiberboard and glass window. Overall dimensions: 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm), featuring First Tier and Second Tier slot sizes of 6.2 x 2.3 x 1.6 inches (15.7 x 5.8 x 4.1 cm)',
-    'MADE FOR BUSY MORNINGS: Designed for glasses wearers, collectors, families and shop owners who want one tidy spot for sunglasses, readers and frames instead of hunting through drawers',
-    'KEEP EVERY PAIR SAFE AND EASY TO SEE: 12 divided slots hold eyewear securely, while the clear glass window lets you find your favorite pair in seconds and protects them from dust, fingerprints and scratches',
-    'LOCKABLE DESIGN THAT PROTECTS YOUR INVESTMENT: A metal hinge keeps the lid from falling back and a metal lock with keys adds security, so your eyewear stays organized, private and ready for home or shop display',
-    'SHOP WITH CONFIDENCE: Backed by dependable construction plus a satisfaction-focused design, this organizer is a thoughtful choice for girls, boys, women and men risk-free'
+    'PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
+    'MADE FOR BUSY LIFESTYLES: Designed for people tired of constant clutter who want one tidy spot for their essentials instead of hunting through drawers',
+    'SAVE TIME EVERY DAY: Made from durable materials that hold up to daily use, giving you long-term value and worry-free ownership',
+    'CLEANER SPACES INSTANTLY: Advanced construction keeps items protected and organized, giving you a space that looks neat and feels effortless',
+    'SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
 ];
 
 const PROHIBITED_WORDS = {
@@ -1074,7 +1074,7 @@ async function runAnalysis(){
     const hotKeywords = parseHotKeywords();
 
     if (!titleRaw && !bpRaw && !descRaw && !stRaw){
-        showToast('请先填写标题或文案内容，或点击「载入眼镜盒示例数据」');
+        showToast('请先填写标题或文案内容，或点击「载入表盒示例数据」');
         return;
     }
     if (!bpRaw && titleRaw) showToast('⚠️ 您未填写5点描述，AI将基于标题谨慎推断，请务必核实后再使用！');
@@ -1219,7 +1219,6 @@ function readCurrentTexts(){
 }
 
 function applyBoostResult(boostResult){
-    // 重新获取原文本用于防杜撰校验
     const originalFullText = ($('productTitle').value || '') + ' ' + 
                              ($('bulletPoints').value || '') + ' ' + 
                              ($('description').value || '') + ' ' + 
@@ -1301,7 +1300,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '',
         '【A9 待改进维度】\n' + weakList,
         '',
-        '【硬性规则】必须确保包含以下规格参数：12 slots, First Tier & Second Tier slot size 6.2 x 2.3 x 1.6 in (15.7 x 5.8 x 4.1 cm), overall 13.4 x 7.6 x 6 in (34 x 19 x 15 cm), PU leather, medium density fiberboard, glass window, metal lock with keys, metal hinge.',
+        '【硬性规则】必须确保 100% 保留原始文案中提到的所有规格参数。如果原始文案未提供具体尺寸，严禁自行编造！',
         '五点总字符 ≤1000，输出合法 JSON。'
     ].join('\n');
 
@@ -1310,7 +1309,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。' },
+                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留，且绝对不能无中生有。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1360,15 +1359,16 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '详细描述：' + (descRaw || '（未提供）'),
         '搜索词：' + (stRaw || '（未提供）'),
         '',
-        '════════ 核心铁律：参数 100% 零丢失与层级还原 ════════',
-        '1. 原文中的分层结构、规格尺寸、材质必须完整保留，原样输出，绝对不能简化或省略！',
-        '   - 必须明确体现：12 slots, First Tier (slot size 6.2 x 2.3 x 1.6 inches / 15.7 x 5.8 x 4.1 cm), Second Tier (slot size 6.2 x 2.3 x 1.6 inches / 15.7 x 5.8 x 4.1 cm), Overall Product Dimensions 13.4 x 7.6 x 6 inches (34 x 19 x 15 cm)。',
-        '   - 必须明确提及材质与硬件：High grade PU leather, Medium Density Fiberboard, Real glass window, Metal hinge, Metal lock with keys。',
+        '════════ 核心铁律：参数 100% 零丢失与严禁无中生有 ════════',
+        '1. 【商品原始文案】中的分层结构、规格尺寸、材质必须完整保留，原样输出，绝对不能简化或省略！',
+        '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments (10个格子)”，绝对不能写成“12 slots”或其他数量！',
+        '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
+        '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造“First Tier/Second Tier”。只能写原文中存在的参数！',
         '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。',
         '3. Item Highlights：≤125 字符，逗号分隔短语，无句号。',
         '4. 五点描述规范：',
         '   - 5 个要点全部以【好处优先】为标题（全大写）。',
-        '   - 第 1 点必须完整包含：1 x Glasses Display Box 包装，以及上述所有精确的层级（First Tier / Second Tier）、尺寸和材质参数！',
+        '   - 第 1 点必须完整包含：1 x 原产品名称 + 原产品所有精确的规格/尺寸/材质参数。',
         '   - 每点 150-220 字符，五点总字符数 ≤1000。',
         '5. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100% 等主观夸大或促销词。',
         '',
@@ -1391,7 +1391,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留第一层(First Tier)、第二层(Second Tier)、15.7 x 5.8 x 4.1 cm 等精确尺寸及中密度纤维板等材质，严禁丢失！五点好处优先标题，总字符 ≤1000。' },
+                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。五点好处优先标题，总字符 ≤1000。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1475,12 +1475,10 @@ function applyAfterScore(beforeResult, hotKeywords){
 }
 
 function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
-    // ======== 获取原始输入文本用于防杜撰校验 ========
     const originalFullText = ($('productTitle').value || '') + ' ' + 
                              ($('bulletPoints').value || '') + ' ' + 
                              ($('description').value || '') + ' ' + 
                              ($('searchTerms').value || '');
-    // ========================================================
 
     const fixes = aiResult.anchorFixes || {};
     anchorResults.forEach(a => {
@@ -1592,7 +1590,7 @@ function applyFallback(anchorResults, hotKeywords){
             '</div>';
     });
     if (!$('optTitleText').value.trim()) {
-        let title = 'Leather 12 Slot Eyeglasses Storage and Sunglass Display Organizer Case';
+        let title = 'Premium Storage Organizer Box for Home and Commercial Use';
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
@@ -1606,11 +1604,11 @@ function applyFallback(anchorResults, hotKeywords){
         updateBpTotal();
     }
     if (!$('optDescText').value.trim()) {
-        $('optDescText').value = 'Keep your eyewear collection neat, protected and easy to reach with this 12 piece eyeglasses storage and sunglass display case. First Tier and Second Tier slot sizes: 6.2 x 2.3 x 1.6 in (15.7 x 5.8 x 4.1 cm). Overall dimensions: 13.4 x 7.6 x 6 in (34 x 19 x 15 cm).';
+        $('optDescText').value = 'Keep your items neat, protected and easy to reach with this practical storage organizer.';
         updateByteCounter('optDescText','descByteCounter',5000,'字符',null);
     }
     if (!$('optStText').value.trim()) {
-        $('optStText').value = 'eyeglasses storage sunglass display case organizer box 12 slot pu leather black lock';
+        $('optStText').value = 'storage organizer box home commercial display case';
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 }
@@ -1671,12 +1669,12 @@ async function copyAllBullets(btn){
 }
 
 function loadSampleByUrl(){
-    $('productUrl').value = 'https://www.amazon.com/dp/B07_GLASSES_BOX';
-    $('productTitle').value = 'Leather 12 Piece Eyeglasses Storage and Sunglass Glasses Display Drawer Lockable Case Organizer Black';
-    $('bulletPoints').value = '1. High quality PU leather glasses and jewelry box with attractive appearance,simple structure,fine workmanship and sturdy construction\n2. It\'s divided into plenty of unit space which are easy to clean and maintain,It will keep your Eyeglasses and sunglasses securely\n3. This elegant glasses case allows you to show your glasses and other jewelry while protecting them away from dust,fingerprints,scratches and thieves\n4. Clear glass top gives you a open view and you can find your favorite treasure in seconds with this unique glasses and jewelry box. Perfect for home and business use,and a wonderful gift idea\n5. Specifications:\nMaterial: High Grade PU Leather,Medium Density Fiberboard\nWindow: Glass\nColor: Black\nProduct Dimensions: 13.4" x 7.6" x 6" (34 x 19 x 15 cm)\nFirst Tier Slot Size: 6.2" x 2.3" x 1.6" (15.7 x 5.8 x 4.1 cm)\nSecond Tier Slot Size: 6.2" x 2.3" x 1.6" (15.7 x 5.8 x 4.1 cm)\nPackaging Includes: 1 x Glasses Display Box';
-    $('description').value = 'Keep your eyewear collection neat, protected and easy to reach with this 12 piece eyeglasses storage and sunglass display case.';
-    $('searchTerms').value = 'eyeglasses storage case sunglass display organizer box lockable pu leather black';
-    $('hotKeywords').value = 'eyeglasses storage case\nsunglasses display organizer\n12 slot glasses case\nlockable sunglasses case\npu leather eyewear box\nglass top glasses holder';
+    $('productUrl').value = 'https://www.amazon.com/dp/B07_WATCH_BOX';
+    $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
+    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.';
+    $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
+    $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
+    $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
     runAnalysis();
 }
 
