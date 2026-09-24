@@ -134,7 +134,6 @@
     .gemini-box .ttl{margin:0 0 5px;color:#15803d;font-weight:700;font-size:11.5px;letter-spacing:.3px;}
     .gemini-box code{color:#065f46;display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.55;word-break:break-word;white-space:pre-wrap;}
     
-    /* 升级后的头部栏，支持放入自定义输入框 */
     .copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
     .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;flex:1;}
     .copy-section-header .header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;}
@@ -276,7 +275,6 @@
             <div class="pane pane-right">
                 <h3>✨ DeepSeek 优化文案（一键复制 · 可固化自定义要求）</h3>
                 
-                <!-- 标题板块 -->
                 <div class="copy-section-header">
                     <span>优化后的商品标题 (Title · 目标 70-75 字符)</span>
                     <div class="header-actions">
@@ -287,7 +285,6 @@
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 
-                <!-- 亮点板块 -->
                 <div class="copy-section-header">
                     <span>Item Highlights (≤125 字符 · 必须与标题互补不重复)</span>
                     <div class="header-actions">
@@ -298,7 +295,6 @@
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
                 
-                <!-- 五点板块 -->
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
                     <span>优化后的 5 点描述 (每条 10-255 字符 · 总 ≤1000 · 结尾不加句号)</span>
                     <div class="header-actions">
@@ -315,7 +311,6 @@
                 </div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
                 
-                <!-- 描述板块 -->
                 <div class="copy-section-header" style="margin-top:10px;">
                     <span>优化后的详细描述 (Description · ≤2000 字符)</span>
                     <div class="header-actions">
@@ -326,7 +321,6 @@
                 <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="descByteCounter" class="byte-counter">0 / 2000 字符</div>
                 
-                <!-- 搜索词板块 -->
                 <div class="copy-section-header">
                     <span>优化后的后台搜索词 (Search Terms · ≤250 字节 · 全小写)</span>
                     <div class="header-actions">
@@ -672,7 +666,6 @@ const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
 const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
 
-// 自定义要求持久化逻辑
 const CUSTOM_REQ_IDS = ['reqTitle', 'reqIh', 'reqBp', 'reqDesc', 'reqSt'];
 function saveCustomRequirements() {
     CUSTOM_REQ_IDS.forEach(id => {
@@ -1015,7 +1008,6 @@ function showBoostSuccess(oldScore, newScore, boostCount){
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
-// ★ 这里就是之前缺失的函数，现已补全
 function showTitleBoostInfo(originalLen, newLen){
     const existing = document.getElementById('title-boost-warning');
     if (existing) existing.remove();
@@ -1296,10 +1288,7 @@ function applyBoostResult(boostResult){
         const originalLen = title.length;
         title = boostTitleLength(title, parseHotKeywords());
         if (title.length > originalLen && title.length >= 70){
-            // 防崩保护
-            if (typeof showTitleBoostInfo === 'function') {
-                showTitleBoostInfo(originalLen, title.length);
-            }
+            if (typeof showTitleBoostInfo === 'function') showTitleBoostInfo(originalLen, title.length);
         }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
@@ -1332,10 +1321,7 @@ function applyBoostResult(boostResult){
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
-            // 防崩保护
-            if (typeof showBulletTrimInfo === 'function') {
-                showBulletTrimInfo(trimResult.before, trimResult.after);
-            }
+            if (typeof showBulletTrimInfo === 'function') showBulletTrimInfo(trimResult.before, trimResult.after);
         }
     }
     if (boostResult.optimizedDesc){
@@ -1360,7 +1346,7 @@ function applyBoostResult(boostResult){
 async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, customReqs, boostRound){
     const weakList = weakDimensions.map(d => {
         const keywordsToInclude = d.kws && d.kws.length ? d.kws.slice(0, 6).join(', ') : 'N/A';
-        return `- ${d.cn}（当前 ${d.score} / ${d.max} 分）：${d.note}。**必须将以下词汇融入到文案中：${keywordsToInclude}**`;
+        return `- ${d.cn}（当前 ${d.score} / ${d.max} 分）：${d.note}。参考词汇（需根据原文真实情况自然融入，严禁生造功能）：${keywordsToInclude}`;
     }).join('\n');
 
     let customReqSection = '';
@@ -1385,12 +1371,10 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '【A9 待改进维度】\n' + weakList,
         customReqSection,
         '',
-        '【硬性规则】严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）。原文没有的绝对不准写。',
-        '【硬性规则】必须确保 100% 保留原始文案中提到的所有规格参数。如果原始文案未提供具体尺寸，严禁自行编造！',
-        '【硬性规则】Item Highlights 必须与标题互补，绝对不能重复标题中的词。必须为名词/形容词短语，严禁使用完整句子。',
-        '【硬性规则】Item Highlights 必须尽可能接近 125 字符（建议 110-125 字符），以充分利用权重资源位，但绝对不得超过 125 字符！',
-        '【硬性规则】如果发现字符数不足，宁可精简留白，也绝对禁止编造原文没有的功能属性来凑字数！',
-        '五点总字符 ≤1000，输出合法 JSON。'
+        '【硬性规则】绝对保真：严禁添加原文没有的任何功能属性（如原文没写防水，绝对不准写 waterproof/water resistant；原文没写吸尘，绝对不准写 absorb dust）。',
+        '【硬性规则】Item Highlights 必须与标题互补，必须为名词/形容词短语。在信息自然通顺的前提下，尽量在 100-125 字符之间，严禁为了凑字数堆砌无意义的形容词（如 elegant refined decorative）。',
+        '【硬性规则】五点描述按正常人类逻辑撰写，第一点不要强行套用 "COMPLETE SET INCLUDES 1 x" 这种生硬模板，直接写核心卖点和规格。',
+        '输出合法 JSON。'
     ].join('\n');
 
     const resp = await fetch('/api/deepseek', {
@@ -1398,7 +1382,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 A9 优化专家。严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息。规格参数必须 100% 保留。Item Highlights 绝对不能与标题重复，必须为短语（不能是句子），提供互补信息，且必须尽可能吃满 125 字符上限（110-125）。严禁编造原文没有的属性凑字数。必须严格遵守用户的自定义要求。' },
+                { role: 'system', content: '你是亚马逊优化专家。严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息或功能属性。Item Highlights 绝对不能与标题重复，必须提供互补信息，长度在自然的前提下接近 125 字符（100-125）。严禁编造原文没有的属性凑字数。必须严格遵守用户的自定义要求。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1434,7 +1418,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
     const anchorList = notPassed.length
         ? notPassed.map(a => {
             const keywordsToInclude = a.kws && a.kws.length ? a.kws.slice(0, 6).join(', ') : 'N/A';
-            return `- ${a.name} (${a.cn}): ${a.level === 'red' ? '严重缺失' : '部分覆盖'}。**必须将以下词汇融入到文案中：${keywordsToInclude}**`;
+            return `- ${a.name} (${a.cn}): 当前${a.level === 'red' ? '严重缺失' : '部分覆盖'}。参考词汇（需根据原文真实情况自然融入，严禁生造功能）：${keywordsToInclude}`;
         }).join('\n')
         : '（无）';
 
@@ -1463,26 +1447,21 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '',
         '════════ 2026 亚马逊商品文本硬性规则（务必全部遵守） ════════',
         '· 标题：≤75 字符（含空格），首屏含核心词，不以标点或介词结尾，不含促销用语与主观夸大词。',
-        '· Item Highlights：≤125 字符（含空格），必须与标题互补不重复，只输出名词/形容词短语，严禁完整句子和动词。**必须尽可能接近 125 字符（建议 110-125 字符），以充分利用权重资源位，严禁浪费此高权重资源位！**',
-        '· 五点描述：每条 10–255 字符，5 条合计 ≤1000 字符；每条以英文短语或大写标签开头，句段形式，**结尾一律不加句号**。',
+        '· Item Highlights：≤125 字符（含空格），必须与标题互补不重复，只输出名词/形容词短语，严禁完整句子和动词。在信息自然通顺的前提下，尽量在 100-125 字符之间，严禁为了凑字数堆砌无意义的形容词（如 elegant refined decorative）。如果原文信息不足以支撑 125 字符，宁可留白也严禁编造。',
+        '· 五点描述：每条 10–255 字符，5 条合计 ≤1000 字符；每条以英文短语或大写标签开头，句段形式，**结尾一律不加句号**。第一点不要强行套用 "COMPLETE SET INCLUDES 1 x" 这种生硬模板，直接写核心卖点和完整的规格参数（材质、尺寸、重量等）。',
         '· 详细描述：≤2000 字符（HTML 标签计入），不使用夸大、促销、保证类表述。',
         '· Search Term：≤250 字节（非字符），**全部小写**，空格分隔；不含品牌名、ASIN、主观词、时效词、与标题/五点已含词不重复。',
         '',
         '════════ 核心铁律：保真原则与严禁无中生有 ════════',
-        '1. 【保真原则】严格遵循原商品信息，非必要不修改原商品信息。严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）。',
-        '   - ⚠️ 分层结构、规格尺寸、材质必须完整保留，原样输出，绝对不能简化或省略！',
-        '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments (10个格子)”，绝对不能写成“12 slots”或其他数量！',
-        '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
-        '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造。只能写原文中存在的参数！',
-        '   - ⚠️ 如果字符数不足，宁可留白或使用中性的修饰词，绝对不能编造原文没有的功能属性来凑字数！',
-        '2. 五点描述规范：',
-        '   - 5 个要点全部以【好处优先】的短语标题开头（全大写）。',
-        '   - 第 1 点必须完整包含：1 x 原产品名称 + 原产品所有精确的规格/尺寸/材质参数。',
-        '   - 每点 10–255 字符，五点总字符数 ≤1000。',
-        '   - 每条结尾不加句号。',
-        '3. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100%, warranty, guarantee, gift 等主观夸大、促销、保证类词。',
+        '1. 【绝对保真】严格遵循原商品信息，严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）或功能属性。',
+        '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments”，绝对不能写成“12 slots”。',
+        '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Pad (垫子)”或“Glasses Box (眼镜盒)”。',
+        '   - ⚠️ 如果原文没有写防水/防风雨，绝对不准写 weather resistant 或 waterproof。',
+        '   - ⚠️ 如果原文没有写吸尘/防潮，绝对不准写 absorb dust 或 trap moisture。',
+        '   - ⚠️ 严禁生搬硬套“春夏秋冬”等时间词来凑字数。',
+        '2. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100%, warranty, guarantee, gift 等主观夸大、促销、保证类词。',
         '',
-        '【定向锚点强化指令】以下是当前未达标的COSMO语义锚点，你必须根据下面的提示，将这些具体词汇自然融入你的文案中，以提升评分：',
+        '【定向锚点强化指令】以下是当前未达标的COSMO语义锚点，你必须根据下面的提示，将这些具体词汇自然融入你的文案中，以提升评分（严禁生造功能）：',
         anchorList,
         hotKeywordsSection,
         customReqSection,
@@ -1503,7 +1482,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家，熟知 2026 年亚马逊商品文本新规。严格遵循原商品信息。严禁添加杜撰任何基本信息。必须 100% 保留原始文案中的参数。严禁编造！Item Highlights 绝对不能与标题重复，必须为纯名词/形容词短语，且必须尽可能接近 125 字符（目标 110-125），严禁浪费此权重位。五点好处优先，每条 10-255 字符、合计 ≤1000、结尾不加句号。描述 ≤2000 字符。Search Term ≤250 字节、全小写。必须严格遵守用户自定义要求。' },
+                { role: 'system', content: '你是亚马逊双算法专家，熟知 2026 年亚马逊商品文本新规。严格遵循原商品信息。严禁添加杜撰任何基本信息。必须 100% 保留原始文案中的参数。严禁编造原文没有的功能属性（如防水、防尘、防潮等）。Item Highlights 绝对不能与标题重复，必须为纯名词/形容词短语，在信息自然通顺的前提下尽量接近 125 字符（100-125），严禁堆砌无意义形容词。五点描述按正常人类逻辑撰写，第一点不要强行套用死板模板，结尾不加句号。描述 ≤2000 字符。Search Term ≤250 字节、全小写。必须严格遵守用户自定义要求。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1622,10 +1601,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         const originalLen = title.length;
         title = boostTitleLength(title, hotKeywords);
         if (title.length > originalLen && title.length >= 70){
-            // 防崩保护
-            if (typeof showTitleBoostInfo === 'function') {
-                showTitleBoostInfo(originalLen, title.length);
-            }
+            if (typeof showTitleBoostInfo === 'function') showTitleBoostInfo(originalLen, title.length);
         }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
@@ -1660,10 +1636,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
-            // 防崩保护
-            if (typeof showBulletTrimInfo === 'function') {
-                showBulletTrimInfo(trimResult.before, trimResult.after);
-            }
+            if (typeof showBulletTrimInfo === 'function') showBulletTrimInfo(trimResult.before, trimResult.after);
         }
     } else {
         for (let i = 0; i < 5; i++){
@@ -1847,7 +1820,7 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('DOMContentLoaded', function() {
     initByteCounters();
-    loadCustomRequirements(); // 页面加载时，加载固化好的自定义要求
+    loadCustomRequirements();
 });
 if (document.readyState !== 'loading') {
     initByteCounters();
