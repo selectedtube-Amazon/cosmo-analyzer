@@ -38,7 +38,7 @@
         outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);
     }
     textarea{resize:vertical;height:90px;}
-    /* 新增双栏布局样式 */
+    /* 输入区双栏布局 */
     .input-layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -205,7 +205,7 @@
             <button class="btn-sm" onclick="loadSampleByUrl()">载入表盒示例数据</button>
         </div>
         
-        <!-- 新增：左右双栏布局 -->
+        <!-- 双栏布局 -->
         <div class="input-layout">
             <!-- 左侧区域：热词 / 长尾词库（竖条摆放） -->
             <div class="input-layout-left">
@@ -415,9 +415,11 @@ const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','o
 
 const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
 
+// ================== 修复点：移除所有易导致杜撰的属性词，换成中性词 ==================
 const TITLE_BOOST_WORDS = [
-    'Lockable Case', 'Slot Organizer', 'PU Leather', 'Glass Window', 'Storage Drawer',
-    'Black Finish', 'Home Decor', 'Shop Display', 'Dust Protection', 'Elegant Design'
+    'Compact Size', 'Elegant Design', 'Storage Box', 'Home Decor', 
+    'Daily Use', 'Multi Purpose', 'Space Saving', 'Modern Look', 
+    'Versatile', 'Easy to Use', 'Classic Style'
 ];
 
 const FALLBACK = {
@@ -492,7 +494,7 @@ function buildProhibitedRegex(word){
 
 const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
 
-// ================== 防杜撰硬拦截词库（紧箍咒） ==================
+// ================== 修复点：扩充防杜撰黑名单 ==================
 const HALLUCINATION_RISK_MAP = {
     'waterproof': ['water', 'waterproof', 'moisture', 'liquid', 'wet'],
     'water-resistant': ['water', 'waterproof', 'water-resistant', 'water resistant', 'moisture', 'liquid', 'wet'],
@@ -503,7 +505,13 @@ const HALLUCINATION_RISK_MAP = {
     'eco-friendly': ['eco', 'environment', 'recycl', 'sustainab'],
     'machine washable': ['wash', 'clean', 'machine'],
     'reusable': ['reuse', 'reusable', 'washable'],
-    'scratch resistant': ['scratch', 'durable', 'protection']
+    'scratch resistant': ['scratch', 'durable', 'protection'],
+    'lockable': ['lock', 'lockable', 'key', 'secure'],
+    'lock': ['lock', 'lockable', 'key', 'secure'],
+    'safe': ['safe', 'security', 'secure', 'lock'],
+    'gift': ['gift', 'present'],
+    'christmas': ['christmas', 'xmas', 'holiday'],
+    'commercial': ['commercial', 'business', 'shop', 'store']
 };
 
 function checkHallucination(originalText, generatedText) {
@@ -629,6 +637,7 @@ function boostTitleLength(title, hotKeywords){
     A9_SCENE_WORDS.forEach(w => {
         if (w.length <= 12 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
     });
+    // 从经过清理的中性词库中补充
     TITLE_BOOST_WORDS.forEach(w => {
         if (!usedLower.includes(w.toLowerCase())) candidates.push(w);
     });
@@ -654,6 +663,7 @@ function boostTitleLength(title, hotKeywords){
         }
     }
     
+    // 修复点：如果找不到合适的词，宁可保持原样，也不硬塞
     if (result.length < 70) {
         for (const c of TITLE_BOOST_WORDS) {
             if (result.length >= 73) break;
@@ -1353,6 +1363,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '',
         '【硬性规则】必须确保 100% 保留原始文案中提到的所有规格参数。如果原始文案未提供具体尺寸，严禁自行编造！',
         '【硬性规则】Item Highlights 必须与标题互补，绝对不能重复标题中的词。必须为名词/形容词短语，严禁使用完整句子（严禁出现动词）。',
+        '【硬性规则】如果发现字符数不足，宁可精简留白，也绝对禁止编造原文没有的功能属性（如 Lockable, Waterproof 等）来凑字数！',
         '五点总字符 ≤1000，输出合法 JSON。'
     ].join('\n');
 
@@ -1361,7 +1372,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。Item Highlights绝对不能与标题重复，必须为短语（不能是句子），提供互补信息。' },
+                { role: 'system', content: '你是亚马逊 A9 优化专家。规格参数必须 100% 保留。Item Highlights绝对不能与标题重复，必须为短语（不能是句子），提供互补信息。严禁编造原文没有的属性凑字数。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -1419,6 +1430,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments (10个格子)”，绝对不能写成“12 slots”或其他数量！',
         '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Glasses Display Box (眼镜盒)”。',
         '   - ⚠️ 如果原文没有写某层尺寸，就绝对不能凭空捏造。只能写原文中存在的参数！',
+        '   - ⚠️ 如果字符数不足，宁可留白或使用中性的修饰词，绝对不能编造原文没有的功能属性（如 Lockable, Waterproof 等）来凑字数！',
         '2. 标题规范：70-75 字符，首屏含核心词，前 80 字符含热词，禁止以介词结尾。如果未达到70个字符，请从用户热词库或A9属性词中提取补充。',
         '3. Item Highlights（商品亮点）：≤125 字符，必须为逗号分隔的名词/形容词短语，严禁使用完整句子。',
         '   - ⚠️⚠️【最高优先级红线1：绝不重复标题】标题已经写过的核心词（如数量、材质、颜色），在 Item Highlights 中绝对不能再次出现！必须补充标题中未提及的新信息（如适用场景、包装内容、特殊设计、使用体验等）。',
@@ -1452,7 +1464,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             messages: [
-                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须为纯名词/形容词短语（绝对不能出现完整句子和动词）。五点好处优先标题，总字符 ≤1000。必须严格根据“定向锚点强化指令”中的要求，将指定的词汇融入文案以提升COSMO得分。' },
+                { role: 'system', content: '你是亚马逊双算法专家。必须 100% 保留原始文案中的参数。严禁编造！原文是10格就写10格，原文是手表盒就写手表盒。绝对不准出现眼镜盒相关或12 slots等原文本没有的内容。Item Highlights绝对不能与标题重复，必须为纯名词/形容词短语（绝对不能出现完整句子和动词）。五点好处优先标题，总字符 ≤1000。如果发现字符数不足，宁可精简留白，也绝对禁止编造原文没有的功能属性（如 Lockable, Waterproof 等）来凑字数！必须严格根据“定向锚点强化指令”中的要求，将指定的词汇融入文案以提升COSMO得分。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
