@@ -966,6 +966,78 @@ function scoreText(title, bp, desc, st){
     return { totalScore, grade, lv, green, yellow, red, anchorResults };
 }
 
+function showProhibitedWarning(hits, targetName) {
+    if (!hits.length) return;
+    const existing = document.getElementById('prohibited-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'prohibited-warning';
+    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML =
+        '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '）</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+            hits.map(function(h){ return '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>'; }).join('') +
+        '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showLengthWarning(message) {
+    const existing = document.getElementById('length-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'length-warning';
+    warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showCoverageWarning(message) {
+    const existing = document.getElementById('coverage-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'coverage-warning';
+    warning.style.cssText = 'background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#0369a1;font-size:13px;">🔁 ' + message + '</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showBoostSuccess(oldScore, newScore, boostCount){
+    const existing = document.getElementById('boost-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'boost-warning';
+    warning.style.cssText = 'background:#ede9fe;border:1px solid #c4b5fd;border-left:4px solid #8b5cf6;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#6d28d9;font-size:13px;">🚀 A9 迭代增强完成：第 ' + boostCount + ' 轮优化，A9 分数 ' + oldScore + ' → ' + newScore + ' 分。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+// ★ 这里就是之前缺失的函数，现已补全
+function showTitleBoostInfo(originalLen, newLen){
+    const existing = document.getElementById('title-boost-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'title-boost-warning';
+    warning.style.cssText = 'background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">🎯 标题未充分利用 75 字符，已自动补强：' + originalLen + ' → ' + newLen + ' 字符。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showBulletTrimInfo(before, after){
+    const existing = document.getElementById('bp-trim-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'bp-trim-warning';
+    warning.style.cssText = 'background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#047857;font-size:13px;">✂️ 五点描述总字符超限，已自动裁剪：' + before + ' → ' + after + ' 字符（保留 5 点，从最长点开始删减）。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 function updateByteCounter(inputId, counterId, max, unit, min){
     const el = $(inputId);
     const counter = $(counterId);
@@ -1059,7 +1131,6 @@ async function runAnalysis(){
     const stRaw    = $('searchTerms').value.trim();
     const hotKeywords = parseHotKeywords();
 
-    // 收集固化的自定义要求
     const customReqs = {
         title: $('reqTitle').value.trim(),
         ih: $('reqIh').value.trim(),
@@ -1143,7 +1214,6 @@ async function runAnalysis(){
     status.textContent = '🤖 DeepSeek 双算法优化中…';
 
     try {
-        // 将自定义要求传入 AI 接口
         const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, 5);
         applyAIResults(aiResult, beforeResult.anchorResults, beforeResult, hotKeywords);
 
@@ -1162,7 +1232,6 @@ async function runAnalysis(){
             const prevScore = a9After.totalScore;
 
             try {
-                // 迭代增强时同样传入自定义要求
                 const boostResult = await boostA9ForWeakDimensions(weakDims, currentTexts, hotKeywords, customReqs, boostRound);
                 applyBoostResult(boostResult);
                 currentTexts = readCurrentTexts();
@@ -1227,7 +1296,10 @@ function applyBoostResult(boostResult){
         const originalLen = title.length;
         title = boostTitleLength(title, parseHotKeywords());
         if (title.length > originalLen && title.length >= 70){
-            showTitleBoostInfo(originalLen, title.length);
+            // 防崩保护
+            if (typeof showTitleBoostInfo === 'function') {
+                showTitleBoostInfo(originalLen, title.length);
+            }
         }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
@@ -1260,7 +1332,10 @@ function applyBoostResult(boostResult){
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
-            showBulletTrimInfo(trimResult.before, trimResult.after);
+            // 防崩保护
+            if (typeof showBulletTrimInfo === 'function') {
+                showBulletTrimInfo(trimResult.before, trimResult.after);
+            }
         }
     }
     if (boostResult.optimizedDesc){
@@ -1288,7 +1363,6 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         return `- ${d.cn}（当前 ${d.score} / ${d.max} 分）：${d.note}。**必须将以下词汇融入到文案中：${keywordsToInclude}**`;
     }).join('\n');
 
-    // 拼接自定义要求
     let customReqSection = '';
     if (customReqs && Object.values(customReqs).some(v => v)) {
         customReqSection = '\n【用户自定义要求（必须严格遵守）】\n' +
@@ -1369,7 +1443,6 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         hotKeywordsSection = '\n【用户热词库】\n' + hotKeywords.join('\n');
     }
 
-    // 拼接自定义要求
     let customReqSection = '';
     if (customReqs && Object.values(customReqs).some(v => v)) {
         customReqSection = '\n════════ 用户自定义要求（必须严格执行，优先级最高） ════════\n' +
@@ -1549,7 +1622,10 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         const originalLen = title.length;
         title = boostTitleLength(title, hotKeywords);
         if (title.length > originalLen && title.length >= 70){
-            showTitleBoostInfo(originalLen, title.length);
+            // 防崩保护
+            if (typeof showTitleBoostInfo === 'function') {
+                showTitleBoostInfo(originalLen, title.length);
+            }
         }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
@@ -1584,7 +1660,10 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         updateBpTotal();
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
-            showBulletTrimInfo(trimResult.before, trimResult.after);
+            // 防崩保护
+            if (typeof showBulletTrimInfo === 'function') {
+                showBulletTrimInfo(trimResult.before, trimResult.after);
+            }
         }
     } else {
         for (let i = 0; i < 5; i++){
