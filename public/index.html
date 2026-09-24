@@ -3,64 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</title>
+<title>亚马逊 COSMO + A9 智能打分系统 · 三层防护版</title>
 <style>
-    :root{
-        --primary:#2563eb; --primary-dark:#1d4ed8;
-        --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
-        --a9:#8b5cf6; --a9-dark:#6d28d9;
-        --bg:#f1f5f9; --card:#ffffff; --text:#0f172a; --muted:#64748b; --border:#e2e8f0;
-    }
+    :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
-    body{
-        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
-        background:var(--bg); color:var(--text); line-height:1.55; margin:0; padding:24px 16px;
-        -webkit-font-smoothing:antialiased;
-    }
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:24px 16px;}
     .container{max-width:1560px;margin:0 auto;}
     header{text-align:center;margin-bottom:26px;}
-    header h1{margin:0 0 8px;font-size:26px;color:#0f172a;letter-spacing:-.3px;}
+    header h1{margin:0 0 8px;font-size:26px;}
     header p{color:var(--muted);margin:0;font-size:14px;}
-    .card{
-        background:var(--card);border-radius:14px;
-        box-shadow:0 4px 6px -1px rgba(15,23,42,.08),0 2px 4px -2px rgba(15,23,42,.05);
-        padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);
-    }
+    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);}
     .card h2{margin:0 0 16px;font-size:17px;}
-    .form-group{margin-bottom:15px; display:flex; flex-direction:column;}
+    .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
     label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
-    input[type="text"],textarea{
-        width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;
-        font-size:14px;font-family:inherit;color:var(--text);background:#fff;
-        transition:border-color .15s, box-shadow .15s;
-    }
-    input[type="text"]:focus,textarea:focus{
-        outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);
-    }
+    input[type="text"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
+    input[type="text"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
     textarea{resize:vertical;height:90px;}
-    .input-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-bottom: 20px;
-    }
-    .input-layout-left { display: flex; flex-direction: column; height: 100%; }
-    .input-layout-right { display: flex; flex-direction: column; }
-    @media (max-width: 900px) { .input-layout { grid-template-columns: 1fr; } }
-    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;border:1px dashed #f59e0b; display: flex; flex-direction: column; flex-grow: 1;}
+    .input-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;}
+    .input-layout-left{display:flex;flex-direction:column;height:100%;}
+    .input-layout-right{display:flex;flex-direction:column;}
+    @media (max-width:900px){.input-layout{grid-template-columns:1fr;}}
+    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;border:1px dashed #f59e0b;display:flex;flex-direction:column;flex-grow:1;}
     .keywords-box .hint{font-size:12px;color:#92400e;margin-top:6px;}
     .keywords-box label{color:#92400e;margin-bottom:8px;}
-    .keywords-box textarea{background:#fffbeb;border-color:#fde68a; flex-grow: 1; min-height: 200px; resize: none;}
-    .keywords-box textarea:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.15);}
-    .btn-sm{ background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px; font-size:12px;font-weight:600;border-radius:9px;cursor:pointer; white-space:nowrap;transition:background .2s;font-family:inherit; }
+    .keywords-box textarea{background:#fffbeb;border-color:#fde68a;flex-grow:1;min-height:200px;resize:none;}
+    .btn-sm{background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;}
     .btn-sm:hover{background:#334155;}
-    .btn-row{display:flex;gap:12px; margin-top:20px;}
-    button.btn{ background:var(--primary);color:#fff;border:none;padding:13px 24px; font-size:15px;font-weight:600;border-radius:9px;cursor:pointer; flex:1;transition:background .2s,transform .1s;font-family:inherit; }
+    .btn-row{display:flex;gap:12px;margin-top:20px;}
+    button.btn{background:var(--primary);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
     button.btn:hover{background:var(--primary-dark);}
-    button.btn:active{transform:scale(.995);}
     button.btn:disabled{background:#94a3b8;cursor:not-allowed;}
-    button.btn.ghost{ flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px; }
-    button.btn.ghost:hover{background:#f1f5f9;color:#0f172a;}
+    button.btn.ghost{flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px;}
+    button.btn.ghost:hover{background:#f1f5f9;}
     .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
     @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
     .pane{border-radius:12px;padding:18px;border:1px solid;}
@@ -69,10 +43,9 @@
     .pane h3{margin:0 0 14px;font-size:15px;padding-bottom:9px;border-bottom:2px solid;}
     .pane-left h3{color:#334155;border-color:#cbd5e1;}
     .pane-right h3{color:#166534;border-color:#86efac;}
-    .results-header{ display:flex;justify-content:space-between;align-items:flex-start;gap:20px; border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap; }
+    .results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
     .results-header h2{margin:0 0 6px;font-size:19px;}
-    #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;word-break:break-all;max-width:900px;}
-    #targetUrlDisplay a{color:var(--primary);}
+    #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;}
     .score-section{display:flex;gap:16px;flex-wrap:wrap;}
     .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
     .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
@@ -80,10 +53,10 @@
     .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
     .score-card.cosmo .sc-ttl{color:#1d4ed8;}
     .score-card.a9 .sc-ttl{color:#6d28d9;}
-    .score-pair{display:flex;gap:12px;align-items:center;justify-content:flex-start;}
+    .score-pair{display:flex;gap:12px;align-items:center;}
     .score-item{text-align:center;}
     .score-item .score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
-    .score-badge{ display:inline-block;font-size:20px;font-weight:800;padding:5px 12px; border-radius:9px;background:#fff;color:var(--primary);letter-spacing:-.5px; white-space:nowrap;border:1px solid #e2e8f0; }
+    .score-badge{display:inline-block;font-size:20px;font-weight:800;padding:5px 12px;border-radius:9px;background:#fff;color:var(--primary);white-space:nowrap;border:1px solid #e2e8f0;}
     .score-card.cosmo .score-badge{color:#1d4ed8;border-color:#bfdbfe;}
     .score-card.a9 .score-badge{color:#6d28d9;border-color:#c4b5fd;}
     .score-badge.lv-a{background:#ecfdf5;color:#047857;border-color:#a7f3d0 !important;}
@@ -96,7 +69,7 @@
     .score-card.a9 .score-improve{color:#6d28d9;}
     .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
     .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;letter-spacing:.5px;}
+    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;}
     .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
     .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
     .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
@@ -105,77 +78,66 @@
     .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
     .ai-status.done{background:#ecfdf5;color:#047857;}
     .ai-status.error{background:#fef2f2;color:#b91c1c;}
-    .ai-status.boost{background:#ede9fe;color:#6d28d9;animation:pulse 1.4s infinite;}
     @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+    .pipeline-progress{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+    .pipeline-step{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:600;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;transition:all .3s;}
+    .pipeline-step.active{background:#fef3c7;color:#b45309;border-color:#fde68a;animation:pulse 1.4s infinite;}
+    .pipeline-step.done{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .pipeline-step.error{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .pipeline-step.retry{background:#fffbeb;color:#b45309;border-color:#fde68a;}
     .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;}
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
     th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
     th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
-    tbody tr:last-child td{border-bottom:none;}
     tbody tr:hover{background:#fafbfc;}
     .cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap;}
     .cluster-tag.a9{background:#f5f3ff;color:#6d28d9;}
-    .anchor-name{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
+    .anchor-name{font-family:monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
     .anchor-cn{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:400;}
     .status-green{color:var(--success);font-weight:700;white-space:nowrap;}
     .status-yellow{color:var(--warning);font-weight:700;white-space:nowrap;}
     .status-red{color:var(--danger);font-weight:700;white-space:nowrap;}
     .score-mini{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px;}
-    .kw-chip{display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;}
+    .kw-chip{display:inline-block;font-size:11px;font-family:monospace;padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;}
     .kw-chip.hit{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
     .kw-chip.miss{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;}
-    .suggestion-cell{background:#fffbeb;border-left:3px solid var(--warning);padding:11px 13px;border-radius:0 7px 7px 0;}
+    .suggestion-cell{background:#fffbeb;border-left:3px solid var(--warning);padding:11px 13px;border-radius:0 7px 7px 0;font-size:12.5px;}
     .suggestion-cell.red{background:#fef2f2;border-left-color:var(--danger);}
-    .suggestion-cell.ok{background:#f0fdf4;border-left-color:var(--success);color:#15803d;font-size:12.5px;}
-    .suggestion-cell.loading{background:#f8fafc;border-left-color:#94a3b8;color:#64748b;font-size:12.5px;}
-    .suggestion-cell p{margin:0 0 7px;color:#b45309;font-size:12.5px;}
-    .suggestion-cell.red p{color:#991b1b;}
-    .gemini-box{background:#fff;border:1px solid #d1fae5;padding:9px 11px;border-radius:7px;margin-top:7px;}
-    .gemini-box .ttl{margin:0 0 5px;color:#15803d;font-weight:700;font-size:11.5px;letter-spacing:.3px;}
-    .gemini-box code{color:#065f46;display:block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.55;word-break:break-word;white-space:pre-wrap;}
-    
+    .suggestion-cell.ok{background:#f0fdf4;border-left-color:var(--success);color:#15803d;}
     .copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
     .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;flex:1;}
     .copy-section-header .header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;}
-    .custom-req-input{
-        border: 1px solid #a7f3d0;
-        border-radius: 6px;
-        padding: 4px 8px;
-        font-size: 11.5px;
-        width: 180px;
-        background: #fff;
-        color: #166534;
-        transition: all 0.2s;
-    }
-    .custom-req-input::placeholder { color: #86efac; font-style: italic; }
-    .custom-req-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 2px rgba(16,185,129,.2); background: #f0fdf4; }
-
-    .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;transition:background .2s;font-family:inherit;white-space:nowrap;}
+    .custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:180px;background:#fff;color:#166534;}
+    .custom-req-input::placeholder{color:#86efac;font-style:italic;}
+    .custom-req-input:focus{outline:none;border-color:#10b981;background:#f0fdf4;}
+    .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap;}
     .copy-btn:hover{background:#059669;}
-    .copy-btn.copied{background:var(--primary);}
-    .optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;margin-bottom:15px;resize:vertical;}
-    .optimized-textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+    .optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;line-height:1.6;color:#0f172a;margin-bottom:15px;resize:vertical;font-family:inherit;}
+    .optimized-textarea:focus{outline:none;border-color:var(--success);}
+    .optimized-textarea.downgraded{border-color:#fecaca;background:#fef2f2;}
     .byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right;}
     .byte-counter.over{color:var(--danger);font-weight:700;}
     .byte-counter.under{color:var(--warning);font-weight:700;}
-    .bp-item{border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;background:#f0fdf4;transition:border-color .2s;}
-    .bp-item:hover{border-color:#86efac;}
+    .bp-item{border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;background:#f0fdf4;}
+    .bp-item.downgraded{border-color:#fecaca;background:#fef2f2;}
     .bp-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
     .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
     .bp-item-header .bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px;}
-    .bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;font-family:inherit;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;resize:vertical;min-height:70px;}
-    .bp-item textarea:focus{outline:none;border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.12);}
-    .kw-hit-report{margin-top:20px;padding:14px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;}
-    .kw-hit-report .report-ttl{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:8px;}
-    .kw-hit-report .report-stats{font-size:12.5px;color:#0c4a6e;margin-bottom:8px;}
-    .kw-hit-report .report-stats b{color:#0ea5e9;font-size:15px;}
-    .kw-hit-report .kw-tag{display:inline-block;font-size:11px;font-family:ui-monospace,Menlo,monospace;padding:2px 7px;border-radius:4px;margin:2px 4px 2px 0;}
-    .kw-hit-report .kw-tag.used{background:#dcfce7;color:#166534;border:1px solid #86efac;}
-    .kw-hit-report .kw-tag.miss{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+    .bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;line-height:1.6;color:#0f172a;resize:vertical;min-height:70px;font-family:inherit;}
+    .bp-item textarea:focus{outline:none;border-color:var(--success);}
+    .validation-report{margin-top:20px;padding:16px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;}
+    .validation-report.has-errors{background:#fffbeb;border-color:#fde68a;border-left-color:#f59e0b;}
+    .validation-report .report-ttl{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:10px;}
+    .validation-report.has-errors .report-ttl{color:#b45309;}
+    .validation-report .issue-row{font-size:12.5px;color:#334155;padding:6px 0;border-bottom:1px dashed #e2e8f0;}
+    .validation-report .issue-row:last-child{border-bottom:none;}
+    .validation-report .issue-row .module-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;background:#dbeafe;color:#1e40af;margin-right:6px;}
+    .validation-report .issue-row.error .module-tag{background:#fee2e2;color:#991b1b;}
+    .validation-report .issue-row.warn .module-tag{background:#fef3c7;color:#92400e;}
     .hidden{display:none;}
     .fade-in{animation:fadeIn .45s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
-    #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 10px 25px -5px rgba(0,0,0,.3);}
+    #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
     #toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
@@ -183,47 +145,32 @@
 
 <div class="container">
     <header>
-        <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · 高分化与防杜撰完美平衡版（2026 商品文本新规 + 自定义固化）</p>
+        <h1>亚马逊 COSMO + A9 双算法智能打分系统</h1>
+        <p>三层防护架构 · 本地校验 → AI 自查 → AI 他查 · 输出前必过体检</p>
     </header>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h2 style="margin: 0;">📥 输入商品信息与文案</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;">📥 输入商品信息与文案</h2>
             <button class="btn-sm" onclick="loadSampleByUrl()">载入表盒示例数据</button>
         </div>
-        
         <div class="input-layout">
             <div class="input-layout-left">
                 <div class="keywords-box">
-                    <label for="hotKeywords">🎯 品类热词 / 长尾词库（每行一个或用逗号/空格分隔）</label>
-                    <textarea id="hotKeywords" placeholder="例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage&#10;watch display box"></textarea>
-                    <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。</div>
+                    <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
+                    <textarea id="hotKeywords" placeholder="例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage"></textarea>
+                    <div class="hint">💡 每行一个或用逗号/空格分隔。这些词会被 A9 打分识别为核心词。</div>
                 </div>
             </div>
-            
             <div class="input-layout-right">
-                <div class="form-group">
-                    <label for="productTitle">商品标题 (Title · ≤75 字符)</label>
-                    <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
-                </div>
-                <div class="form-group">
-                    <label for="bulletPoints">5 点描述 (Bullet Points · 每条 10-255 字符 · 总 ≤1000)</label>
-                    <textarea id="bulletPoints" placeholder="请输入或粘贴 5 点描述..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="description">详细描述 / A+ 内容 (Description · ≤2000 字符)</label>
-                    <textarea id="description" placeholder="请输入或粘贴详细描述或 A+ 内容..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="searchTerms">后台搜索词 (Search Terms · ≤250 字节 · 全小写)</label>
-                    <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
-                </div>
+                <div class="form-group"><label for="productTitle">商品标题 (≤75 字符)</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
+                <div class="form-group"><label for="bulletPoints">5 点描述 (每条 10-255 字符 · 总 ≤1000)</label><textarea id="bulletPoints" placeholder="请输入 5 点描述..."></textarea></div>
+                <div class="form-group"><label for="description">详细描述 (≤2000 字符)</label><textarea id="description" placeholder="请输入详细描述..."></textarea></div>
+                <div class="form-group"><label for="searchTerms">后台搜索词 (≤250 字节 · 全小写)</label><input type="text" id="searchTerms" placeholder="请输入 Search Terms..."></div>
             </div>
         </div>
-
         <div class="btn-row">
-            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始执行 A9 + COSMO 双算法打分与 DeepSeek 优化</button>
+            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始执行三层防护流水线</button>
             <button class="btn ghost" onclick="clearAll()">清空</button>
         </div>
     </div>
@@ -261,19 +208,32 @@
                 <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
                 <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
                 <span class="stat r" id="statRed">🔴 严重缺失 0</span>
-                <span id="aiStatus" class="ai-status hidden">DeepSeek 生成中…</span>
+                <span id="aiStatus" class="ai-status hidden">流水线执行中…</span>
+            </div>
+            <div class="pipeline-progress" id="pipelineProgress">
+                <div class="pipeline-step" data-step="1">① 输入净化</div>
+                <div class="pipeline-step" data-step="2">② 违禁词过滤</div>
+                <div class="pipeline-step" data-step="3">③ 事实提取</div>
+                <div class="pipeline-step" data-step="4">④ AI 生成标题+亮点</div>
+                <div class="pipeline-step" data-step="5">⑤ AI 生成五点</div>
+                <div class="pipeline-step" data-step="6">⑥ AI 生成描述+ST</div>
+                <div class="pipeline-step" data-step="7">⑦ AI 他查评审</div>
+                <div class="pipeline-step" data-step="8">⑧ 后处理+打分</div>
             </div>
         </div>
+
+        <div id="validationReport" class="validation-report hidden"></div>
+
         <div class="compare-grid">
             <div class="pane pane-left">
                 <h3>📋 当前原始文案（核对底本）</h3>
                 <div class="form-group"><label>原始商品标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
                 <div class="form-group"><label>原始 5 点描述</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
                 <div class="form-group"><label>原始详细描述</label><textarea id="origDescView" readonly style="background:#fff;height:80px;"></textarea></div>
-                <div class="form-group" style="margin-bottom:0;"><label>原始后台 Search Terms</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
+                <div class="form-group"><label>原始后台 Search Terms</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
             </div>
             <div class="pane pane-right">
-                <h3>✨ DeepSeek 优化文案（一键复制 · 可固化自定义要求）</h3>
+                <h3>✨ AI 优化文案（一键复制 · 可固化自定义要求）</h3>
                 
                 <div class="copy-section-header">
                     <span>优化后的商品标题 (Title · 目标 70-75 字符)</span>
@@ -282,407 +242,136 @@
                         <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                     </div>
                 </div>
-                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
+                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="流水线生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125 字符 · 必须与标题互补不重复)</span>
+                    <span>Item Highlights (≤125 字符 · 必须与标题互补)</span>
                     <div class="header-actions">
                         <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点特殊要求(固化)">
-                        <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
+                        <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制亮点</button>
                     </div>
                 </div>
-                <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+                <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="流水线生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
                 
-                <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
-                    <span>优化后的 5 点描述 (每条 10-255 字符 · 总 ≤1000 · 结尾不加句号)</span>
+                <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
+                    <span>优化后的 5 点描述 (每条 10-255 · 总 ≤1000 · 结尾不加句号)</span>
                     <div class="header-actions">
                         <input type="text" id="reqBp" class="custom-req-input" placeholder="五点特殊要求(固化)">
                         <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                     </div>
                 </div>
-                <div id="bulletPointsContainer">
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 1 点</span><span class="bp-role">核心功能 + 容量属性</span></span><button class="copy-btn" onclick="copyTextElement('optBp0', this)">复制此点</button></div><textarea id="optBp0" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter0" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 2 点</span><span class="bp-role">材质工艺 + 保护效果</span></span><button class="copy-btn" onclick="copyTextElement('optBp1', this)">复制此点</button></div><textarea id="optBp1" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter1" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 3 点</span><span class="bp-role">尺寸规格 + 空间表现</span></span><button class="copy-btn" onclick="copyTextElement('optBp2', this)">复制此点</button></div><textarea id="optBp2" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter2" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 4 点</span><span class="bp-role">重量便携 + 运输特性</span></span><button class="copy-btn" onclick="copyTextElement('optBp3', this)">复制此点</button></div><textarea id="optBp3" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter3" class="byte-counter">0 / 255 字符</div></div>
-                    <div class="bp-item"><div class="bp-item-header"><span><span class="bp-label">第 5 点</span><span class="bp-role">日常使用 + 便捷体验</span></span><button class="copy-btn" onclick="copyTextElement('optBp4', this)">复制此点</button></div><textarea id="optBp4" placeholder="DeepSeek 生成中…"></textarea><div id="bpCounter4" class="byte-counter">0 / 255 字符</div></div>
-                </div>
+                <div id="bulletPointsContainer"></div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
                 
                 <div class="copy-section-header" style="margin-top:10px;">
-                    <span>优化后的详细描述 (Description · ≤2000 字符)</span>
+                    <span>优化后的详细描述 (≤2000 字符)</span>
                     <div class="header-actions">
                         <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述特殊要求(固化)">
-                        <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制详细描述</button>
+                        <button class="copy-btn" onclick="copyTextElement('optDescText', this)">复制描述</button>
                     </div>
                 </div>
-                <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="DeepSeek 生成中…"></textarea>
+                <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="流水线生成中…"></textarea>
                 <div id="descByteCounter" class="byte-counter">0 / 2000 字符</div>
                 
                 <div class="copy-section-header">
-                    <span>优化后的后台搜索词 (Search Terms · ≤250 字节 · 全小写)</span>
+                    <span>优化后的后台搜索词 (≤250 字节 · 全小写)</span>
                     <div class="header-actions">
                         <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词特殊要求(固化)">
                         <button class="copy-btn" onclick="copyTextElement('optStText', this)">复制搜索词</button>
                     </div>
                 </div>
-                <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
+                <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="流水线生成中…"></textarea>
                 <div id="stByteCounter" class="byte-counter">0 / 250 字节</div>
-                <div id="kwHitReport" class="kw-hit-report hidden"></div>
+                <div id="kwHitReport" class="validation-report hidden"></div>
             </div>
         </div>
         <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
         <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">诊断说明</th></tr>
-                </thead>
-                <tbody id="a9MatrixBody"></tbody>
-            </table>
+            <table><thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">诊断说明</th></tr></thead><tbody id="a9MatrixBody"></tbody></table>
         </div>
         <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
         <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">文案命中简析</th><th style="width:40%;">💡 诊断与优化方案</th></tr>
-                </thead>
-                <tbody id="matrixTableBody"></tbody>
-            </table>
+            <table><thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">文案命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead><tbody id="matrixTableBody"></tbody></table>
         </div>
     </div>
 </div>
 
 <script>
+/* ============================================================
+   常量区
+   ============================================================ */
+const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
+const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
+const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
+const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
+const VERB_PATTERNS = /\b(is|are|was|were|has|have|had|features|provides|ensures|helps|includes|offers|makes|keeps|gives|works|fits|allows|lets|comes)\b/i;
+
 const L = {
-    func:    ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch','display','showcase'],
-    goal:    ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
-    capable: ['durab','waterproof','water-resistant','water resistant','weather','resistant','heavy duty','heavy-duty','absorbent','washable','reusable','sturdy','non-slip','non slip','withstand','long-lasting','premium material','high quality','lockable','secure'],
-    identity:['doormat','floor mat','door mat','rug','pad','outfit','clothes','clothing','statue','ornament','organizer','holder','stand','case','sleeve','brush','tool','kit','tray','rack','dispenser','lamp','light','box','boxes','carton','container','drawer'],
-    role:    ['decorative','decor','functional','commercial','household','gift','display','accessory','essential','practical','multi-purpose','multi-functional','versatile'],
-    audience:['homeowner','family','families','guest','enthusiast','gift','commercial','operator','shopper','kids','children','pet owner','women','adult','beginner','professional','everyone','anyone','seller','business','girls','boys','men'],
-    ease:    ['easy','simple','hassle-free','quick','effortless','user-friendly','convenient','install','maintenance','ready to use','no tools','assemble'],
-    size:    ['size','inch','cm','dimension','fits','standard','universal','large','small','medium','length','width','height','shoe','sole','neck','hand','foot','feet','adjustable','6x6','cube','slot','tier','compartment'],
-    location:['porch','yard','lawn','garden','entrance','entryway','doorway','floor','hallway','patio','office','restaurant','indoor','outdoor','kitchen','bathroom','garage','balcony','walkway','lobby','store','home','warehouse','bedroom','closet','dresser'],
-    occasion:['holiday','christmas','halloween','valentine','thanksgiving','easter','party','wedding','birthday','festival','celebration','daily','everyday','anniversary','housewarming','seasonal','shipping','packing','moving'],
-    season:  ['season','winter','summer','spring','fall','autumn','year-round','year round','all-season','all season','all year','day and night','anytime','nightly'],
-    lifestyle:['lifestyle','decor','aesthetic','modern','style','cozy','cheer','hygien','eco-friendly','sustainable','minimalist','rustic','charm','vibe','design','craft'],
-    together:['compatible','works with','work with','pairs with','pair with','along with','accessories','standard','together with','combine','match'],
-    image:   ['professional','elegant','refined','welcoming','hospital','premium','sophisticated','organized','taste','impress','stylish','luxury','high-end','chic'],
-    emotion: ['joy','happy','happiness','satisfaction','satisfied','peace of mind','delight','cheer','worry-free','worry free','love','enjoy','comfort','relax','proud','smile']
+    func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify'],
+    goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
+    capable:['durab','resistant','sturdy','non-slip','withstand','long-lasting','lockable','secure'],
+    identity:['watch box','watch case','storage box','organizer','holder','tray','box','case','container','display case','watch holder'],
+    role:['decorative','functional','household','display','accessory','essential','practical','multi-purpose','versatile'],
+    audience:['collector','enthusiast','family','adult','men','women','husband','boyfriend','dad','gift'],
+    ease:['easy','simple','quick','effortless','convenient','ready to use','no tools'],
+    size:['size','inch','cm','dimension','fits','standard','slot','compartment','tier'],
+    location:['home','bedroom','closet','dresser','shelf','office','indoor','nightstand','drawer'],
+    occasion:['daily','everyday','holiday','birthday','anniversary','christmas'],
+    season:['year-round','all-season','all year'],
+    lifestyle:['lifestyle','modern','minimalist','organized','tidy'],
+    together:['compatible','works with','pairs with','accessories','standard'],
+    image:['elegant','refined','sophisticated','organized','tidy','stylish'],
+    emotion:['peace of mind','satisfaction','worry-free','enjoy','comfort','tidy']
 };
 
 const ANCHORS = [
     { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
-    { cluster:'功能集群', name:'used_to',        cn:'达成使用目标', kws:L.goal },
-    { cluster:'功能集群', name:'capable_of',     cn:'性能材质能力', kws:L.capable },
-    { cluster:'身份集群', name:'is_a',          cn:'品类身份归属', kws:L.identity },
-    { cluster:'身份集群', name:'used_as',       cn:'扮演角色定位', kws:L.role },
+    { cluster:'功能集群', name:'used_to', cn:'达成使用目标', kws:L.goal },
+    { cluster:'功能集群', name:'capable_of', cn:'性能材质能力', kws:L.capable },
+    { cluster:'身份集群', name:'is_a', cn:'品类身份归属', kws:L.identity },
+    { cluster:'身份集群', name:'used_as', cn:'扮演角色定位', kws:L.role },
     { cluster:'受众集群', name:'target_audience', cn:'目标受众群体', kws:L.audience },
-    { cluster:'受众集群', name:'used_by',       cn:'操作者使用体验', kws:L.ease },
-    { cluster:'受众集群', name:'body_part',     cn:'尺寸/接触部位', kws:L.size },
+    { cluster:'受众集群', name:'used_by', cn:'操作者使用体验', kws:L.ease },
+    { cluster:'受众集群', name:'body_part', cn:'尺寸/接触部位', kws:L.size },
     { cluster:'场景集群', name:'used_in_location', cn:'使用地点场景', kws:L.location },
     { cluster:'场景集群', name:'used_for_eve/occasion', cn:'节日场合', kws:L.occasion },
     { cluster:'场景集群', name:'used_at_time/season', cn:'时间季节', kws:L.season },
     { cluster:'场景集群', name:'lifestyle_support', cn:'生活方式共鸣', kws:L.lifestyle },
-    { cluster:'生态集群', name:'used_with',     cn:'配套关联生态', kws:L.together },
-    { cluster:'生态集群', name:'self_image',    cn:'自我形象表达', kws:L.image },
+    { cluster:'生态集群', name:'used_with', cn:'配套关联生态', kws:L.together },
+    { cluster:'生态集群', name:'self_image', cn:'自我形象表达', kws:L.image },
     { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
 ];
 
-const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
-const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
-const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
-
-const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
-
-const TITLE_BOOST_WORDS = [
-    'Compact Size', 'Elegant Design', 'Storage Box', 'Home Decor', 
-    'Daily Use', 'Multi Purpose', 'Space Saving', 'Modern Look', 
-    'Versatile', 'Easy to Use', 'Classic Style'
-];
-
-const FALLBACK = {
-    'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable daily performance.',
-    'used_to':'HELPS YOU GET IT DONE: Designed to prevent everyday mess and keep items organized.',
-    'capable_of':'BUILT TO WITHSTAND: Made from durable materials for long-lasting use.',
-    'is_a':'WELL-MADE QUALITY: A well-crafted product built for modern everyday living.',
-    'used_as':'DOUBLE DUTY: Works as both a practical everyday essential and a decorative piece.',
-    'target_audience':'IDEAL FOR: People looking for a smart, practical upgrade and a thoughtful gift idea.',
-    'used_by':'EASY FOR EVERYONE: Lightweight, hassle-free and simple to set up.',
-    'body_part':'EXACT SIZE & FIT: Please double-check the size chart above to confirm a fitting result.',
-    'used_in_location':'INDOOR & OUTDOOR: Ideal for entryways, closets, offices and any other space where you need it most.',
-    'used_for_eve/occasion':'GREAT FOR EVERY OCCASION: Ready for holidays, parties and everyday use.',
-    'used_at_time/season':'ALL-SEASON READY: Built for year-round use.',
-    'lifestyle_support':'UPGRADE YOUR LIFESTYLE: Brings a cleaner, cozier and more stylish feel to your everyday routine.',
-    'used_with':'PAIRS WELL WITH: Compatible with standard accessories and existing setups.',
-    'self_image':'LOOKS THE PART: A refined, professional touch that shows you care about the details.',
-    'emotional_outcome':'PEACE OF MIND: Enjoy a space that finally feels effortless and comfortable.'
-};
-
-const FALLBACK_BULLETS = [
-    'PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
-    'MADE FOR BUSY LIFESTYLES: Designed for people tired of constant clutter who want one tidy spot for their essentials instead of hunting through drawers',
-    'SAVE TIME EVERY DAY: Made from durable materials that hold up to daily use, giving you long-term value and worry-free ownership',
-    'CLEANER SPACES INSTANTLY: Advanced construction keeps items protected and organized, giving you a space that looks neat and feels effortless',
-    'SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
-];
-
 const PROHIBITED_WORDS = {
-    subjectic: ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
-    promotional: ['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
-    regulated: ['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free','dustproof','moldproof'],
-    temporary: ['new','brand new','just launched','latest','current','available now','this week','this month','this year','today','last chance','last minute'],
-    customer_service: ['contact us','24 hours','reply','respond','our team','our company','we will','we offer','we are'],
-    first_person: ['our','we','my','i'],
-    trademark: ['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
+    subjectic:['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have'],
+    promotional:['free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','bargain','deal','review','feedback','rating','star','positive','negative','comment','evaluation','gift','warranty','guarantee'],
+    regulated:['antibacterial','antimicrobial','disinfect','sanitize','sterilize','mold proof','mildew proof','fungus','insect repellent','pest control','cure','heal','treat','therapeutic','anti-inflammatory','pain relief','antibiotic','antiviral','hygienic','sterile','kill germs','germ free','dustproof','moldproof'],
+    temporary:['new','brand new','just launched','latest','current','available now','this week','this month','this year','today','last chance','last minute'],
+    customer_service:['contact us','24 hours','reply','respond','our team','our company','we will','we offer','we are'],
+    first_person:['our','we','my','i'],
+    trademark:['nike','apple','amazon','adidas','coca cola','hula hoop','frisbee','tetris']
 };
 
 const SAFE_REPLACEMENTS = {
-    'best':'reliable','top':'high-performance','premium':'refined','high quality':'well-made',
-    'highest quality':'well-made','perfect':'ideal','perfectly':'ideally',
-    'amazing':'impressive','excellent':'dependable',
-    'ultimate':'versatile','unbeatable':'durable','finest':'quality','greatest':'notable',
-    'incredible':'remarkable','superior':'enhanced','world class':'professional-grade',
-    'number 1':'leading','no.1':'leading','#1':'leading','top rated':'well-reviewed',
-    'most popular':'widely chosen','trending':'in-demand','viral':'popular',
-    'must have':'essential','must-have':'essential','free shipping':'','free gift':'',
-    'on sale':'','discount':'','sale':'','clearance':'','limited time':'','best deal':'',
-    'bargain':'','deal':'','review':'','feedback':'','rating':'','star':'',
-    'positive':'','negative':'','comment':'','evaluation':'','gift':'','warranty':'',
-    'guarantee':'','antibacterial':'surface-cleaning','antimicrobial':'surface-cleaning',
-    'disinfect':'clean','sanitize':'clean','sterilize':'clean','mold proof':'resistant',
-    'mildew proof':'resistant','fungus':'resistant','insect repellent':'','pest control':'',
-    'cure':'help','heal':'help','treat':'help','therapeutic':'supportive',
-    'anti-inflammatory':'','pain relief':'','antibiotic':'','antiviral':'',
-    'hygienic':'clean','sterile':'clean','kill germs':'clean','germ free':'clean',
-    'dustproof':'dust-resistant','moldproof':'mold-resistant','new':'updated',
-    'brand new':'updated','just launched':'recently released','latest':'updated',
-    'current':'modern','available now':'available','this week':'','this month':'',
-    'this year':'','today':'','last chance':'','last minute':'','contact us':'',
-    '24 hours':'','reply':'','respond':'','our team':'','our company':'',
-    'we will':'','we offer':'','we are':'','our':'the','we':'the product',
-    'my':'the','i':'the product'
+    'best':'reliable','top':'high-performance','premium':'refined','high quality':'well-made','highest quality':'well-made','perfect':'ideal','perfectly':'ideally','amazing':'impressive','excellent':'dependable','ultimate':'versatile','unbeatable':'durable','finest':'quality','greatest':'notable','incredible':'remarkable','superior':'enhanced','world class':'professional-grade','number 1':'leading','no.1':'leading','#1':'leading','top rated':'well-reviewed','most popular':'widely chosen','trending':'in-demand','viral':'popular','must have':'essential','must-have':'essential','free shipping':'','free gift':'','on sale':'','discount':'','sale':'','clearance':'','limited time':'','best deal':'','bargain':'','deal':'','review':'','feedback':'','rating':'','star':'','positive':'','negative':'','comment':'','evaluation':'','gift':'','warranty':'','guarantee':'','antibacterial':'surface-cleaning','antimicrobial':'surface-cleaning','disinfect':'clean','sanitize':'clean','sterilize':'clean','mold proof':'resistant','mildew proof':'resistant','fungus':'resistant','insect repellent':'','pest control':'','cure':'help','heal':'help','treat':'help','therapeutic':'supportive','anti-inflammatory':'','pain relief':'','antibiotic':'','antiviral':'','hygienic':'clean','sterile':'clean','kill germs':'clean','germ free':'clean','dustproof':'dust-resistant','moldproof':'mold-resistant','new':'updated','brand new':'updated','just launched':'recently released','latest':'updated','current':'modern','available now':'available','this week':'','this month':'','this year':'','today':'','last chance':'','last minute':'','contact us':'','24 hours':'','reply':'','respond':'','our team':'','our company':'','we will':'','we offer':'','we are':'','our':'the','we':'the product','my':'the','i':'the product'
 };
 
-function buildProhibitedRegex(word){
-    if (!word) return null;
-    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    if (word.length < 4) return new RegExp('\\b' + escaped + '\\b', 'gi');
-    return new RegExp('\\b' + escaped + '(ly|s|es|ed|ing|d)?\\b', 'gi');
-}
+const FALLBACK_BULLETS = [
+    'ORGANIZED STORAGE: Keeps your collection separated and easy to browse',
+    'QUALITY MATERIAL: Made from durable materials for everyday use',
+    'COMPACT SIZE: Fits standard spaces without taking up much room',
+    'LIGHTWEIGHT BUILD: Easy to move between rooms or pack for travel',
+    'EASY ACCESS: Opens smoothly for quick daily use'
+];
 
-const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
-
-const HALLUCINATION_RISK_MAP = {
-    'waterproof': ['water', 'waterproof', 'moisture', 'liquid', 'wet'],
-    'water-resistant': ['water', 'waterproof', 'water-resistant', 'water resistant', 'moisture', 'liquid', 'wet'],
-    'water resistant': ['water', 'waterproof', 'water-resistant', 'water resistant', 'moisture', 'liquid', 'wet'],
-    'heavy duty': ['heavy duty', 'heavy-duty', 'sturdy', 'durable', 'strong'],
-    'non-slip': ['non-slip', 'non slip', 'anti-slip', 'slip resistant'],
-    'antibacterial': ['antibacterial', 'anti-bacterial', 'disinfect', 'sanitize'],
-    'eco-friendly': ['eco', 'environment', 'recycl', 'sustainab'],
-    'machine washable': ['wash', 'clean', 'machine'],
-    'reusable': ['reuse', 'reusable', 'washable'],
-    'scratch resistant': ['scratch', 'durable', 'protection'],
-    'lockable': ['lock', 'lockable', 'key', 'secure'],
-    'lock': ['lock', 'lockable', 'key', 'secure'],
-    'safe': ['safe', 'security', 'secure', 'lock'],
-    'gift': ['gift', 'present'],
-    'christmas': ['christmas', 'xmas', 'holiday'],
-    'commercial': ['commercial', 'business', 'shop', 'store']
-};
-
-function checkHallucination(originalText, generatedText) {
-    if (!originalText || !generatedText) return generatedText;
-    let safeText = generatedText;
-    const lowerOriginal = originalText.toLowerCase();
-    
-    for (const [riskWord, synonyms] of Object.entries(HALLUCINATION_RISK_MAP)) {
-        const escaped = riskWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp('\\b' + escaped + '\\b', 'gi');
-        
-        if (regex.test(safeText)) {
-            const hasSupport = synonyms.some(syn => lowerOriginal.includes(syn));
-            if (!hasSupport) {
-                safeText = safeText.replace(regex, `[需核实:无中生有-${riskWord}]`);
-            }
-        }
-    }
-    return safeText;
-}
-
-function replaceProhibitedWords(text) {
-    if (!text) return '';
-    let result = text;
-    const sortedKeys = Object.keys(SAFE_REPLACEMENTS).sort((a,b) => b.length - a.length);
-    let safety = 0;
-    while (safety < 5){
-        safety++;
-        let changed = false;
-        sortedKeys.forEach(key => {
-            if (!key) return;
-            const replacement = SAFE_REPLACEMENTS[key];
-            const regex = buildProhibitedRegex(key);
-            if (regex){
-                const before = result;
-                result = result.replace(regex, replacement);
-                if (before !== result) changed = true;
-            }
-        });
-        if (!changed) break;
-    }
-    result = result.replace(/[ \t]{2,}/g, ' ');
-    return result;
-}
-
-function detectProhibitedWords(text) {
-    if (!text) return [];
-    const hits = new Set();
-    ALL_PROHIBITED_WORDS.forEach(word => {
-        const regex = buildProhibitedRegex(word);
-        if (regex && regex.test(text)) hits.add(word);
-    });
-    return [...hits];
-}
-
-function sanitizeVerifyTags(text){
-    if (!text) return '';
-    let result = text;
-    result = result.replace(/[^.!?]*\[需核实[:：][^\]]+\][^.!?]*[.!?]\s*/g, '');
-    result = result.replace(/\[需核实[:：][^\]]+\]/g, '');
-    result = result.replace(/,{2,}/g, ',');
-    result = result.replace(/\s*,\s*/g, ', ');
-    result = result.replace(/([,;])\s*([,;])/g, '$1');
-    result = result.replace(/\(\s*\)/g, '');
-    result = result.replace(/:\s*([,.])/g, '$1');
-    result = result.replace(/\s+([,.;])/g, '$1');
-    result = result.replace(/\.\s*\./g, '.');
-    result = result.replace(/[ \t]{2,}/g, ' ');
-    result = result.replace(/\n{3,}/g, '\n\n');
-    return result.trim();
-}
-
-function cleanTextArtifacts(text) {
-    if (!text) return '';
-    let result = text;
-    result = result.replace(/Watchs/ig, 'Watches');
-    result = result.replace(/watchs/ig, 'watches');
-    result = result.replace(/,\s*-\s*[a-zA-Z]+/g, '');
-    result = result.replace(/\s*-\s*[a-zA-Z]+/g, '');
-    result = result.replace(/^[, \s]+|[, \s]+$/g, '');
-    return result;
-}
-
-function cleanTrailingBadWords(title){
-    if (!title) return '';
-    let result = title.trim();
-    let safety = 0;
-    while (safety < 5){
-        safety++;
-        const words = result.split(/\s+/);
-        const lastWord = (words[words.length - 1] || '').toLowerCase().replace(/[^a-z]/g, '');
-        if (TRAILING_BAD_WORDS.includes(lastWord)){
-            words.pop();
-            result = words.join(' ').trim();
-        } else {
-            break;
-        }
-    }
-    return result;
-}
-
-function boostTitleLength(title, hotKeywords){
-    if (!title) return title;
-    let result = title.trim();
-    if (result.length >= 70) return result;
-
-    const candidates = [];
-    const usedLower = result.toLowerCase();
-
-    if (hotKeywords && hotKeywords.length){
-        hotKeywords.forEach(kw => {
-            const clean = kw.trim();
-            if (!clean || clean.length < 3 || clean.length > 20) return;
-            if (usedLower.includes(clean.toLowerCase())) return;
-            if (detectProhibitedWords(clean).length > 0) return;
-            candidates.push(clean);
-        });
-    }
-    A9_ATTR_WORDS.forEach(w => {
-        if (w.length <= 15 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
-    });
-    A9_SCENE_WORDS.forEach(w => {
-        if (w.length <= 12 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
-    });
-    TITLE_BOOST_WORDS.forEach(w => {
-        if (!usedLower.includes(w.toLowerCase())) candidates.push(w);
-    });
-
-    const seen = new Set();
-    const uniqueCandidates = candidates.filter(c => {
-        const lower = c.toLowerCase();
-        if (seen.has(lower)) return false;
-        seen.add(lower);
-        return true;
-    });
-
-    for (const c of uniqueCandidates){
-        const capitalized = c.split(' ').map(w => {
-            const low = w.toLowerCase();
-            if (['and','or','for','the','a','an','in','on','with','to','of','by','at'].includes(low)) return low;
-            return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-        }).join(' ');
-        const candidate = result + ', ' + capitalized;
-        if (candidate.length <= 75){
-            result = candidate;
-            if (result.length >= 73) break;
-        }
-    }
-    
-    if (result.length < 70) {
-        for (const c of TITLE_BOOST_WORDS) {
-            if (result.length >= 73) break;
-            const candidate = result + ', ' + c;
-            if (candidate.length <= 75 && !result.toLowerCase().includes(c.toLowerCase())) {
-                result = candidate;
-            }
-        }
-    }
-    return result;
-}
-
-function parseHotKeywords(){
-    const raw = ($('hotKeywords').value || '').trim();
-    if (!raw) return [];
-    return raw.split(/[\n,;|\t]+/)
-        .map(w => w.trim().toLowerCase())
-        .filter(w => w.length >= 2 && w.length <= 60)
-        .filter((w, i, arr) => arr.indexOf(w) === i);
-}
-
+/* ============================================================
+   工具函数
+   ============================================================ */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
 const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
-
-const CUSTOM_REQ_IDS = ['reqTitle', 'reqIh', 'reqBp', 'reqDesc', 'reqSt'];
-function saveCustomRequirements() {
-    CUSTOM_REQ_IDS.forEach(id => {
-        const el = $(id);
-        if (el) localStorage.setItem('cosmo_req_' + id, el.value);
-    });
-}
-function loadCustomRequirements() {
-    CUSTOM_REQ_IDS.forEach(id => {
-        const el = $(id);
-        const saved = localStorage.getItem('cosmo_req_' + id);
-        if (el && saved) el.value = saved;
-        if (el) {
-            el.addEventListener('input', saveCustomRequirements);
-        }
-    });
-}
 
 function showToast(msg){
     let t = $('toast');
@@ -692,16 +381,12 @@ function showToast(msg){
     clearTimeout(t._tid);
     t._tid = setTimeout(() => t.classList.remove('show'), 2600);
 }
-
 function escapeHtml(str){
-    return String(str).replace(/[&<>"']/g, s => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[s]));
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
-
-function getByteLength(str) {
+function getByteLength(str){
     let len = 0;
-    for (let i = 0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++){
         const code = str.charCodeAt(i);
         if (code <= 0x7f) len += 1;
         else if (code <= 0x7ff) len += 2;
@@ -710,419 +395,853 @@ function getByteLength(str) {
     }
     return len;
 }
-
-function trimToMaxChars(str, maxChars) {
-    if (!str) return '';
-    if (str.length <= maxChars) return str;
-    let trimmed = str.substring(0, maxChars);
-    const lastSpace = trimmed.lastIndexOf(' ');
-    if (lastSpace > maxChars * 0.7) trimmed = trimmed.substring(0, lastSpace);
-    return trimmed.trim();
+function buildProhibitedRegex(word){
+    if (!word) return null;
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (word.length < 4) return new RegExp('\\b' + escaped + '\\b', 'gi');
+    return new RegExp('\\b' + escaped + '(ly|s|es|ed|ing|d)?\\b', 'gi');
 }
+const ALL_PROHIBITED_WORDS = Object.values(PROHIBITED_WORDS).flat().map(w => w.toLowerCase());
 
-function trimToMaxBytes(str, maxBytes) {
+function detectProhibited(text){
+    if (!text) return [];
+    const hits = new Set();
+    ALL_PROHIBITED_WORDS.forEach(word => {
+        const regex = buildProhibitedRegex(word);
+        if (regex && regex.test(text)) hits.add(word);
+    });
+    return [...hits];
+}
+function filterProhibited(text){
+    if (!text) return '';
+    let result = text;
+    const sortedKeys = Object.keys(SAFE_REPLACEMENTS).sort((a,b) => b.length - a.length);
+    let safety = 0;
+    while (safety < 5){
+        safety++;
+        let changed = false;
+        sortedKeys.forEach(key => {
+            if (!key) return;
+            const regex = buildProhibitedRegex(key);
+            if (regex){
+                const before = result;
+                result = result.replace(regex, SAFE_REPLACEMENTS[key]);
+                if (before !== result) changed = true;
+            }
+        });
+        if (!changed) break;
+    }
+    return result.replace(/[ \t]{2,}/g, ' ').trim();
+}
+function trimToMaxChars(str, max){
+    if (!str) return '';
+    if (str.length <= max) return str;
+    let t = str.substring(0, max);
+    const lastSpace = t.lastIndexOf(' ');
+    if (lastSpace > max * 0.7) t = t.substring(0, lastSpace);
+    return t.trim();
+}
+function trimToMaxBytes(str, max){
     if (!str) return '';
     const words = str.split(/\s+/).filter(Boolean);
     let result = '';
-    for (let w of words) {
-        const candidate = result ? result + ' ' + w : w;
-        if (getByteLength(candidate) <= maxBytes) result = candidate;
+    for (const w of words){
+        const c = result ? result + ' ' + w : w;
+        if (getByteLength(c) <= max) result = c;
         else break;
     }
     return result.trim();
 }
-
+function cleanTrailingBadWords(title){
+    if (!title) return '';
+    let r = title.trim();
+    let safety = 0;
+    while (safety < 5){
+        safety++;
+        const ws = r.split(/\s+/);
+        const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g, '');
+        if (TRAILING_BAD_WORDS.includes(lw)){ ws.pop(); r = ws.join(' ').trim(); }
+        else break;
+    }
+    return r;
+}
 function cleanItemHighlights(ih){
     if (!ih) return '';
-    let result = ih.trim();
-    result = result.replace(/[.。]/g, '');
-    result = result.replace(/[;；]/g, ',');
-    result = result.replace(/,{2,}/g, ',');
-    result = result.replace(/\s*,\s*/g, ', ');
-    result = result.split(',').map(s => {
-        const trimmed = s.trim();
-        if (!trimmed) return '';
-        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    let r = ih.trim();
+    r = r.replace(/[.。]/g, '');
+    r = r.replace(/[;；]/g, ',');
+    r = r.replace(/,{2,}/g, ',');
+    r = r.replace(/\s*,\s*/g, ', ');
+    return r.split(',').map(s => {
+        const t = s.trim();
+        if (!t) return '';
+        return t.charAt(0).toUpperCase() + t.slice(1);
     }).filter(Boolean).join(', ');
-    return result;
 }
 
-function autoTrimBulletsToLimit(limit){
-    let bullets = [];
-    for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
-    let total = bullets.reduce((a,b) => a + b.length, 0);
-    if (total <= limit) return { trimmed: false, before: total, after: total };
+/* ============================================================
+   自定义要求持久化
+   ============================================================ */
+const CUSTOM_REQ_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
+function saveCustomRequirements(){
+    CUSTOM_REQ_IDS.forEach(id => {
+        const el = $(id);
+        if (el) localStorage.setItem('cosmo_req_' + id, el.value);
+    });
+}
+function loadCustomRequirements(){
+    CUSTOM_REQ_IDS.forEach(id => {
+        const el = $(id);
+        const saved = localStorage.getItem('cosmo_req_' + id);
+        if (el && saved) el.value = saved;
+        if (el) el.addEventListener('input', saveCustomRequirements);
+    });
+}
 
-    const before = total;
-    let safety = 0;
-    const MIN_LEN = 10;
+/* ============================================================
+   流水线进度
+   ============================================================ */
+function setStepState(step, state){
+    const el = document.querySelector('.pipeline-step[data-step="' + step + '"]');
+    if (!el) return;
+    el.classList.remove('active','done','error','retry');
+    if (state) el.classList.add(state);
+}
+function resetPipeline(){
+    document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error','retry'));
+}
 
-    while (total > limit && safety < 500){
-        safety++;
-        let maxIdx = 0, maxLen = 0;
-        for (let i = 0; i < 5; i++){
-            if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
+/* ============================================================
+   ★★★ 第①层：本地兜底校验（生成后必过）
+   ============================================================ */
+function validateTitle(title){
+    const errors = [], warnings = [];
+    if (!title || !title.trim()) errors.push('标题为空');
+    if (title.length > 75) errors.push('标题超过 75 字符（当前 ' + title.length + '）');
+    if (title.length < 50) warnings.push('标题仅 ' + title.length + ' 字符，浪费权重位（建议 70-75）');
+    if (/[,;.!?]$/.test(title.trim())) errors.push('标题不能以标点结尾');
+    const lastWord = title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
+    if (TRAILING_BAD_WORDS.includes(lastWord)) errors.push('标题以介词 "' + lastWord + '" 结尾');
+    const hits = detectProhibited(title);
+    if (hits.length) errors.push('标题含违禁词：' + hits.join(', '));
+    return { errors, warnings };
+}
+function validateIH(ih, title){
+    const errors = [], warnings = [];
+    if (!ih || !ih.trim()) errors.push('Item Highlights 为空');
+    if (ih.length > 125) errors.push('Item Highlights 超过 125 字符（当前 ' + ih.length + '）');
+    if (ih.length < 80) warnings.push('Item Highlights 仅 ' + ih.length + ' 字符，浪费权重位（建议 100-125）');
+    if (VERB_PATTERNS.test(ih)) errors.push('Item Highlights 含动词，必须为纯名词/形容词短语');
+    if (/[.。]$/.test(ih.trim())) errors.push('Item Highlights 结尾不应有句号');
+    const titleWords = new Set(title.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+    const ihWords = ih.toLowerCase().split(/[\s,]+/).filter(w => w.length > 3);
+    if (ihWords.length > 0){
+        const dup = ihWords.filter(w => titleWords.has(w));
+        if (dup.length >= ihWords.length * 0.6) errors.push('Item Highlights 与标题重复过多（重复词：' + dup.slice(0,5).join(', ') + '）');
+    }
+    return { errors, warnings };
+}
+function validateBullets(bullets){
+    const errors = [], warnings = [];
+    if (!Array.isArray(bullets) || bullets.length !== 5) errors.push('五点描述数量不是 5 条（当前 ' + (bullets ? bullets.length : 0) + '）');
+    let total = 0;
+    bullets.forEach((b, i) => {
+        if (!b || !b.trim()) errors.push('第 ' + (i+1) + ' 点为空');
+        if (b.length > 255) errors.push('第 ' + (i+1) + ' 点超过 255 字符（' + b.length + '）');
+        if (b.length < 30) warnings.push('第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，信息太少');
+        if (/[.。]$/.test(b.trim())) errors.push('第 ' + (i+1) + ' 点以句号结尾（应去除）');
+        total += b.length;
+    });
+    if (total > 1000) errors.push('五点总字符 ' + total + ' 超过 1000');
+    return { errors, warnings, total };
+}
+function validateDescription(desc){
+    const errors = [], warnings = [];
+    if (!desc || !desc.trim()) errors.push('详细描述为空');
+    if (desc.length > 2000) errors.push('详细描述超过 2000 字符（当前 ' + desc.length + '）');
+    if (desc.length < 100) warnings.push('详细描述仅 ' + desc.length + ' 字符，内容偏少');
+    return { errors, warnings };
+}
+function validateST(st){
+    const errors = [], warnings = [];
+    const bytes = getByteLength(st);
+    if (bytes > 250) errors.push('Search Terms 超过 250 字节（当前 ' + bytes + '）');
+    if (st !== st.toLowerCase()) errors.push('Search Terms 必须全小写');
+    if (bytes < 30) warnings.push('Search Terms 仅 ' + bytes + ' 字节，浪费补充字段');
+    return { errors, warnings };
+}
+function hasTruncation(text){
+    if (!text) return false;
+    // 检测截断特征：结尾是逗号、连接词、不完整的括号
+    return /[,,]$/.test(text) ||
+           /\b(and|or|with|for|the|a|an|in|on|at|to|of)$/i.test(text.trim()) ||
+           /\([^)]*$/.test(text);
+}
+
+/* ============================================================
+   ★★★ 第②层：AI 自查（本地校验不通过时调用）
+   ============================================================ */
+async function aiSelfFix(moduleName, currentContent, errors, warnings, rules, originalContext){
+    const prompt = [
+        '你是亚马逊 Listing 严格审核修复专家。上一轮生成的【' + moduleName + '】未通过本地校验。',
+        '',
+        '【上轮生成内容】',
+        typeof currentContent === 'string' ? currentContent : JSON.stringify(currentContent, null, 2),
+        '',
+        '【检测到的问题（必须全部修复）】',
+        errors.length ? errors.map(e => '❌ ' + e).join('\n') : '（无硬性问题）',
+        warnings.length ? warnings.map(w => '⚠️ ' + w).join('\n') : '',
+        '',
+        '【原始上下文（仅供理解产品事实，不得编造新信息）】',
+        originalContext,
+        '',
+        '【本轮必须满足的规则】',
+        rules,
+        '',
+        '【修复原则】',
+        '1. 针对每一条问题精准修复，不要改动其他合格部分',
+        '2. 严禁编造原文没有的信息',
+        '3. 输出严格 JSON',
+        '',
+        '输出格式：' + (typeof currentContent === 'string' ?
+            '{ "content": "修复后的内容" }' :
+            '{ "content": ' + (Array.isArray(currentContent) ? '["第1点",...]' : '...') + ' }')
+    ].join('\n');
+
+    const result = await callDeepSeekAPI([
+        { role: 'system', content: '你是亚马逊 Listing 修复专家。严格按问题清单精准修复，严禁编造原文没有的信息。输出严格 JSON，字段名为 content。' },
+        { role: 'user', content: prompt }
+    ]);
+    return result.content;
+}
+
+/* ============================================================
+   ★★★ 第③层：AI 他查（最终输出的独立评审）
+   ============================================================ */
+async function aiCrossReview(title, ih, bullets, desc, st, originalInput){
+    const prompt = [
+        '你是一位极度严格的亚马逊 Listing 审核员，风格是"鸡蛋里挑骨头"。',
+        '请审查以下完整的 Listing 输出，找出所有真实存在的问题。',
+        '',
+        '【原始商品信息（真相基准）】',
+        originalInput,
+        '',
+        '【待审核的 Listing 输出】',
+        '标题：' + title,
+        '',
+        'Item Highlights：' + ih,
+        '',
+        '五点描述：',
+        bullets.map((b, i) => (i+1) + '. ' + b).join('\n'),
+        '',
+        '详细描述：' + desc,
+        '',
+        'Search Terms：' + st,
+        '',
+        '【审查维度】',
+        '1. 是否出现原文没有的虚假信息（材质、尺寸、功能属性等）',
+        '2. 是否有明显截断、语法错误、拼写错误',
+        '3. 是否存在重复啰嗦、凑字数的废话',
+        '4. 是否存在违禁词（best/premium/perfect/warranty 等）',
+        '5. 是否违反 2026 商品文本新规（标题 ≤75、亮点 ≤125、五点总计 ≤1000、描述 ≤2000、ST ≤250 字节且全小写）',
+        '6. 是否与标题重复（Item Highlights 必须与标题互补）',
+        '',
+        '【输出 JSON】',
+        '{',
+        '  "issues": [',
+        '    { "module": "标题/亮点/五点/描述/ST", "severity": "error/warn", "message": "具体问题描述" }',
+        '  ],',
+        '  "overall": "整体评价（一句话）"',
+        '}',
+        '',
+        '注意：如果没有问题，返回空数组。'
+    ].join('\n');
+
+    try {
+        const result = await callDeepSeekAPI([
+            { role: 'system', content: '你是极度严格的亚马逊 Listing 审核员，只输出真实存在的问题，不轻易放过任何瑕疵。输出严格 JSON。' },
+            { role: 'user', content: prompt }
+        ]);
+        return {
+            issues: Array.isArray(result.issues) ? result.issues : [],
+            overall: result.overall || ''
+        };
+    } catch (err){
+        console.error('他查失败', err);
+        return { issues: [], overall: '（他查失败，请自行核查）' };
+    }
+}
+
+/* ============================================================
+   AI 生成模块（带自查重试）
+   ============================================================ */
+async function callDeepSeekAPI(messages, maxRetries = 3){
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxRetries; attempt++){
+        try {
+            const resp = await fetch('/api/deepseek', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages, temperature: 0.7, max_tokens: 8000, response_format: { type: 'json_object' } })
+            });
+            const result = await resp.json();
+            if (!result.success) throw new Error(result.error || 'API 返回失败');
+            let content = result.data.choices[0].message.content.trim()
+                .replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+            const fb = content.indexOf('{'), lb = content.lastIndexOf('}');
+            if (fb !== -1 && lb !== -1) content = content.substring(fb, lb + 1);
+            return JSON.parse(content);
+        } catch (err){
+            lastError = err;
+            if (attempt < maxRetries) await new Promise(r => setTimeout(r, 1500));
         }
-        if (maxLen <= MIN_LEN) break;
+    }
+    throw lastError || new Error('DeepSeek 调用失败');
+}
 
-        let text = bullets[maxIdx];
-        const sentences = text.split(/(?<=[.!?])\s+/);
-        if (sentences.length > 1){
-            sentences.pop();
-            bullets[maxIdx] = sentences.join(' ').trim();
-        } else {
-            const ws = text.split(/\s+/);
-            if (ws.length > 1){
-                ws.pop();
-                bullets[maxIdx] = ws.join(' ');
+// 通用带自查的重试生成器
+async function generateWithRetry(generateFn, validateFn, moduleName, rules, originalContext, maxAttempts = 3){
+    let lastContent = null;
+    let lastErrors = [], lastWarnings = [];
+    const history = [];
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++){
+        let content;
+        try {
+            if (attempt === 1){
+                content = await generateFn();
             } else {
-                bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
+                // 带错误清单重试
+                content = await generateFn(lastErrors, lastWarnings);
+            }
+        } catch (err){
+            history.push({ attempt, error: err.message });
+            if (attempt === maxAttempts) throw err;
+            continue;
+        }
+
+        lastContent = content;
+        const v = validateFn(content);
+        lastErrors = v.errors || [];
+        lastWarnings = v.warnings || [];
+        history.push({ attempt, errors: lastErrors.length, warnings: lastWarnings.length });
+
+        // 无硬性错误 → 通过
+        if (lastErrors.length === 0){
+            return { content, attempts: attempt, passed: true, warnings: lastWarnings, history };
+        }
+
+        // 有硬性错误但还没到最大尝试次数 → 让 AI 自查修复
+        if (attempt < maxAttempts){
+            try {
+                const fixedContent = await aiSelfFix(moduleName, content, lastErrors, lastWarnings, rules, originalContext);
+                if (fixedContent){
+                    const v2 = validateFn(fixedContent);
+                    lastContent = fixedContent;
+                    lastErrors = v2.errors || [];
+                    lastWarnings = v2.warnings || [];
+                    if (lastErrors.length === 0){
+                        history.push({ attempt: attempt + 0.5, note: 'AI 自查修复成功' });
+                        return { content: fixedContent, attempts: attempt, passed: true, warnings: lastWarnings, history };
+                    }
+                }
+            } catch (err){
+                console.error('AI 自查修复失败', err);
             }
         }
-        total = bullets.reduce((a,b) => a + b.length, 0);
     }
 
-    for (let i = 0; i < 5; i++){
-        const el = $('optBp' + i);
-        if (el) el.value = bullets[i];
-        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
-    }
-    updateBpTotal();
-    return { trimmed: true, before: before, after: total };
+    // 达到最大尝试次数仍未通过 → 降级输出
+    return { content: lastContent, attempts: maxAttempts, passed: false, errors: lastErrors, warnings: lastWarnings, history };
 }
 
+/* ============================================================
+   输入净化 + 事实提取
+   ============================================================ */
+function cleanInput(text){
+    if (!text) return '';
+    let r = String(text);
+    r = r.replace(/<[^>]+>/g, ' ');
+    r = r.replace(/Watchs/ig, 'Watches');
+    r = r.replace(/watchs/ig, 'watches');
+    r = r.replace(/\s+/g, ' ');
+    r = r.replace(/\s*([,.!?;:])\s*/g, '$1 ');
+    return r.trim();
+}
+
+function extractFacts(title, bp, desc){
+    const full = [title, bp, desc].join(' ');
+    const facts = { productType:'', material:'', size:'', weight:'', count:'', color:'', features:[], rawInput:{ title, bp, desc } };
+    const cm = full.match(/(\d+)\s*(compartment|slot|piece|pcs|pack|tier|layer)/i);
+    if (cm) facts.count = cm[1] + ' ' + cm[2];
+    const sm = full.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)(?:\s*[xX×]\s*(\d+(?:\.\d+)?))?\s*(inch|inches|cm|mm|")/i);
+    if (sm) facts.size = sm[0];
+    const wm = full.match(/(\d+(?:\.\d+)?)\s*(oz|ounce|g|gram|kg|lb|pound)/i);
+    if (wm) facts.weight = wm[0];
+    ['PU Leather','PU leather','leather','pearl fleece','fleece','wood','metal','plastic','glass','velvet','suede'].forEach(m => { if (full.toLowerCase().includes(m.toLowerCase()) && !facts.material) facts.material = m; });
+    ['Black','White','Brown','Blue','Red','Green','Pink','Grey','Gray'].forEach(c => { if (full.includes(c) && !facts.color) facts.color = c; });
+    ['Watch Box','Watch Case','Storage Box','Organizer','Display Box','Watch Holder'].forEach(t => { if (full.toLowerCase().includes(t.toLowerCase()) && !facts.productType) facts.productType = t; });
+    ['portable','compact','lockable','dust-proof','scratch-resistant','durable','easy to operate','opening style'].forEach(f => { if (full.toLowerCase().includes(f.toLowerCase())) facts.features.push(f); });
+    return facts;
+}
+
+function factsToString(facts){
+    const lines = [];
+    if (facts.productType) lines.push('产品类型：' + facts.productType);
+    if (facts.count) lines.push('数量规格：' + facts.count);
+    if (facts.material) lines.push('材质：' + facts.material);
+    if (facts.size) lines.push('尺寸：' + facts.size);
+    if (facts.weight) lines.push('重量：' + facts.weight);
+    if (facts.color) lines.push('颜色：' + facts.color);
+    if (facts.features.length) lines.push('功能特性：' + facts.features.join('、'));
+    return lines.length ? lines.join('\n') : '（未提取到结构化事实，请严格基于原文谨慎生成）';
+}
+
+/* ============================================================
+   各模块生成函数
+   ============================================================ */
+async function genTitleIH(facts, hotKeywords, customReqs, prevErrors){
+    const hotKwBlock = hotKeywords.length ? '\n【用户热词库（优先融入）】\n' + hotKeywords.join('\n') : '';
+    const customBlock = (customReqs.title || customReqs.ih) ? '\n【自定义要求】\n' + (customReqs.title ? '· 标题：' + customReqs.title + '\n' : '') + (customReqs.ih ? '· 亮点：' + customReqs.ih : '') : '';
+    const errBlock = prevErrors && prevErrors.length ? '\n【上轮问题（本次必须修复）】\n' + prevErrors.map(e => '❌ ' + e).join('\n') : '';
+
+    const prompt = [
+        '你是亚马逊 Listing 优化专家。基于产品事实生成标题和 Item Highlights。',
+        '',
+        '【产品事实（绝对保真）】',
+        factsToString(facts),
+        '',
+        '【原始输入参考】',
+        '标题：' + facts.rawInput.title,
+        '五点：' + (facts.rawInput.bp || '（未提供）'),
+        hotKwBlock, customBlock, errBlock,
+        '',
+        '【标题规则】',
+        '· 70-75 字符（含空格），必须 ≥70 且 ≤75',
+        '· 首屏含核心词（产品类型 + 数量 + 材质 + 颜色）',
+        '· 不以标点或介词结尾（禁止 for/with/in/on/by/to/of/and/or 结尾）',
+        '· 不含促销、主观夸大词',
+        '',
+        '【Item Highlights 规则】',
+        '· ≤125 字符，在自然通顺前提下尽量 100-125',
+        '· 必须与标题互补不重复（标题已有的信息不要重复）',
+        '· 只输出名词/形容词短语，英文逗号分隔，严禁完整句子（禁出现 is/are/has/features 等动词）',
+        '· 严禁为了凑字数堆砌无意义形容词',
+        '· 如果原文信息不足以支撑 100 字符，宁可留白也严禁编造',
+        '',
+        '【绝对保真】',
+        '· 严禁编造原文没有的信息（材质、尺寸、功能属性等）',
+        '· 原文是 10 格就写 10，Box 就写 Box',
+        '',
+        '【输出 JSON】',
+        '{ "title": "...", "itemHighlights": "..." }'
+    ].join('\n');
+
+    const r = await callDeepSeekAPI([
+        { role: 'system', content: '你是亚马逊标题与亮点专家。严格遵循产品事实，严禁编造。标题 70-75 字符，不以介词结尾。Item Highlights 与标题互补不重复，只输出名词/形容词短语，100-125 字符。输出严格 JSON。' },
+        { role: 'user', content: prompt }
+    ]);
+    return { title: r.title || '', itemHighlights: r.itemHighlights || '' };
+}
+
+async function genBullets(facts, title, ih, hotKeywords, customReqs, prevErrors){
+    const hotKwBlock = hotKeywords.length ? '\n【用户热词库】\n' + hotKeywords.join('\n') : '';
+    const customBlock = customReqs.bp ? '\n【自定义要求】五点：' + customReqs.bp : '';
+    const errBlock = prevErrors && prevErrors.length ? '\n【上轮问题（必须修复）】\n' + prevErrors.map(e => '❌ ' + e).join('\n') : '';
+
+    const prompt = [
+        '你是亚马逊 Listing 优化专家。生成 5 点描述。',
+        '',
+        '【已确定的标题（不要重复）】',
+        title,
+        '',
+        '【已确定的亮点（不要重复）】',
+        ih,
+        '',
+        '【产品事实】',
+        factsToString(facts),
+        '',
+        '【原始五点参考】',
+        facts.rawInput.bp || '（未提供）',
+        hotKwBlock, customBlock, errBlock,
+        '',
+        '【规则】',
+        '· 每条 10-255 字符，5 条合计 ≤1000 字符',
+        '· 每条以「好处优先」的英文短语开头（全大写可）',
+        '· 第 1 点写核心卖点 + 完整规格（材质/尺寸/重量/数量），不要套用 "COMPLETE SET INCLUDES 1 x"',
+        '· 第 2-5 点分别写：材质保护 / 尺寸空间 / 便携体验 / 日常使用',
+        '· 每条结尾不加句号',
+        '· 按正常人类逻辑撰写',
+        '',
+        '【绝对保真】严禁编造原文没有的信息，严禁堆砌"春夏秋冬"等废话',
+        '',
+        '【输出 JSON】',
+        '{ "bullets": ["第1点","第2点","第3点","第4点","第5点"] }'
+    ].join('\n');
+
+    const r = await callDeepSeekAPI([
+        { role: 'system', content: '你是亚马逊五点描述专家。严格遵循产品事实，严禁编造。5 条合计 ≤1000 字符，每条 10-255 字符，结尾不加句号。按正常人类逻辑撰写。输出严格 JSON。' },
+        { role: 'user', content: prompt }
+    ]);
+    let bullets = Array.isArray(r.bullets) ? r.bullets : [];
+    while (bullets.length < 5) bullets.push('');
+    return bullets.slice(0, 5);
+}
+
+async function genDescST(facts, title, ih, bullets, hotKeywords, customReqs, prevErrors){
+    const hotKwBlock = hotKeywords.length ? '\n【用户热词库】\n' + hotKeywords.join('\n') : '';
+    const customBlock = (customReqs.desc || customReqs.st) ? '\n【自定义要求】\n' + (customReqs.desc ? '· 描述：' + customReqs.desc + '\n' : '') + (customReqs.st ? '· ST：' + customReqs.st : '') : '';
+    const errBlock = prevErrors && prevErrors.length ? '\n【上轮问题（必须修复）】\n' + prevErrors.map(e => '❌ ' + e).join('\n') : '';
+
+    const prompt = [
+        '你是亚马逊 Listing 优化专家。生成详细描述和 Search Terms。',
+        '',
+        '【已确定的标题】', title, '',
+        '【已确定的亮点】', ih, '',
+        '【已确定的五点】',
+        bullets.map((b, i) => (i+1) + '. ' + b).join('\n'),
+        '',
+        '【产品事实】', factsToString(facts),
+        hotKwBlock, customBlock, errBlock,
+        '',
+        '【描述规则】',
+        '· ≤2000 字符，自然段，无 HTML',
+        '· 场景痛点开头 → 材质保护 → 规格 → 使用体验 → 适用场景收束',
+        '· 不用夸大、促销、保证类表述',
+        '',
+        '【Search Terms 规则】',
+        '· ≤250 字节，全小写，空格分隔',
+        '· 不含品牌名、ASIN、主观词、时效词',
+        '· 与标题/亮点/五点已含词不重复',
+        '· 补充长尾词和同义词',
+        '',
+        '【输出 JSON】',
+        '{ "description": "...", "searchTerms": "..." }'
+    ].join('\n');
+
+    const r = await callDeepSeekAPI([
+        { role: 'system', content: '你是亚马逊描述与搜索词专家。描述 ≤2000 字符自然段，Search Terms ≤250 字节全小写。严格遵循产品事实，严禁编造。输出严格 JSON。' },
+        { role: 'user', content: prompt }
+    ]);
+    return { description: r.description || '', searchTerms: (r.searchTerms || '').toLowerCase() };
+}
+
+/* ============================================================
+   后处理
+   ============================================================ */
+function postProcessTitle(t){ return cleanTrailingBadWords(trimToMaxChars(filterProhibited(t), 75)); }
+function postProcessIH(h){ return cleanItemHighlights(trimToMaxChars(filterProhibited(h), 125)); }
+function postProcessBullets(bullets, limit){
+    let arr = bullets.map(b => trimToMaxChars(filterProhibited(b || '').replace(/[.。;；,，]+$/, ''), 255));
+    let total = arr.reduce((a,b) => a + b.length, 0);
+    let safety = 0;
+    while (total > limit && safety < 500){
+        safety++;
+        let mi = 0, ml = 0;
+        arr.forEach((b, i) => { if (b.length > ml){ ml = b.length; mi = i; } });
+        if (ml <= 10) break;
+        const ws = arr[mi].split(/\s+/);
+        if (ws.length > 1){ ws.pop(); arr[mi] = ws.join(' '); }
+        else arr[mi] = arr[mi].substring(0, Math.max(0, arr[mi].length - 8)).trim();
+        total = arr.reduce((a,b) => a + b.length, 0);
+    }
+    return arr;
+}
+function postProcessDesc(d){ return filterProhibited(d).substring(0, 2000); }
+function postProcessST(s){ return trimToMaxBytes(filterProhibited(s).toLowerCase(), 250); }
+
+/* ============================================================
+   打分
+   ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
-    const t = (title || '').toLowerCase();
-    const b = (bp || '').toLowerCase();
-    const d = (desc || '').toLowerCase();
-    const s = (st || '').toLowerCase();
+    const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
     const full = t + ' ' + b + ' ' + d + ' ' + s;
     const coreKeywords = (hotKeywords || []).map(k => k.toLowerCase());
-
-    function words(str){
-        return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g, '')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w));
-    }
-
+    function words(str){ return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g,'')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w)); }
     const results = [];
-
-    let titleCoreScore = 0, titleCoreNote = '';
+    let tcs = 0, tcn = '';
     if (coreKeywords.length){
         const found = coreKeywords.filter(kw => t.includes(kw));
-        if (found.length >= 3) titleCoreScore = 10;
-        else if (found.length === 2) titleCoreScore = 8;
-        else if (found.length === 1) titleCoreScore = 5;
-        else titleCoreScore = 2;
-        titleCoreNote = found.length ? ('命中热词：' + found.slice(0,5).join(' / ')) : '标题未命中任何热词库中的核心词';
+        if (found.length >= 3) tcs = 10; else if (found.length === 2) tcs = 8; else if (found.length === 1) tcs = 5; else tcs = 2;
+        tcn = found.length ? '命中热词：' + found.slice(0,5).join(' / ') : '标题未命中热词';
     } else {
-        const wordsInTitle = words(t);
-        titleCoreScore = wordsInTitle.length >= 4 ? 8 : (wordsInTitle.length >= 2 ? 6 : 3);
-        titleCoreNote = '未提供热词库，基于标题本身评估';
+        const wt = words(t); tcs = wt.length >= 4 ? 8 : (wt.length >= 2 ? 6 : 3);
+        tcn = '未提供热词库，基于标题本身评估';
     }
-    results.push({ key:'title_core', cn:'标题核心词', score: titleCoreScore, max:10, note: titleCoreNote });
-
+    results.push({ key:'title_core', cn:'标题核心词', score:tcs, max:10, note:tcn });
     const first80 = t.substring(0, 80);
-    let titleFrontScore = 0, titleFrontNote = '';
+    let tfs = 0, tfn = '';
     if (coreKeywords.length){
-        const foundIn80 = coreKeywords.filter(kw => first80.includes(kw));
-        if (foundIn80.length >= 2) titleFrontScore = 10;
-        else if (foundIn80.length === 1) titleFrontScore = 7;
-        else titleFrontScore = 3;
-        titleFrontNote = foundIn80.length ? ('首屏命中：' + foundIn80.join(' / ')) : '前 80 字符未命中主关键词';
-    } else {
-        titleFrontScore = t.length >= 30 ? 6 : 4;
-        titleFrontNote = '未提供热词库，基于标题长度评估';
-    }
-    results.push({ key:'title_front', cn:'标题首屏权重', score: titleFrontScore, max:10, note: titleFrontNote });
-
-    const tLen = (title || '').length;
-    let tLenScore, tLenNote;
-    if (tLen === 0){ tLenScore = 0; tLenNote = '标题为空'; }
-    else if (tLen < 30){ tLenScore = 4; tLenNote = '标题仅 ' + tLen + ' 字符，过短（建议 70-75）'; }
-    else if (tLen < 60){ tLenScore = 7; tLenNote = '标题 ' + tLen + ' 字符，未充分利用 75 字符空间'; }
-    else if (tLen <= 75){ tLenScore = 10; tLenNote = '标题 ' + tLen + ' 字符，充分利用了 75 字符新规'; }
-    else if (tLen <= 100){ tLenScore = 6; tLenNote = '标题 ' + tLen + ' 字符，超出 75 字符规范'; }
-    else { tLenScore = 3; tLenNote = '标题 ' + tLen + ' 字符，严重超长'; }
-    results.push({ key:'title_length', cn:'标题长度规范', score: tLenScore, max:10, note: tLenNote });
-
-    const bpParts = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
-    let bpDistScore = 0, bpDistNote = '';
-    if (bpParts.length === 0){ bpDistScore = 0; bpDistNote = '五点描述为空'; }
+        const f = coreKeywords.filter(kw => first80.includes(kw));
+        if (f.length >= 2) tfs = 10; else if (f.length === 1) tfs = 7; else tfs = 3;
+        tfn = f.length ? '首屏命中：' + f.join(' / ') : '前 80 字符未命中主关键词';
+    } else { tfs = t.length >= 30 ? 6 : 4; tfn = '未提供热词库'; }
+    results.push({ key:'title_front', cn:'标题首屏权重', score:tfs, max:10, note:tfn });
+    const tl = (title || '').length;
+    let tls, tln;
+    if (tl === 0){ tls = 0; tln = '标题为空'; }
+    else if (tl < 30){ tls = 4; tln = '标题仅 ' + tl + ' 字符，过短'; }
+    else if (tl < 60){ tls = 7; tln = '标题 ' + tl + ' 字符，未充分利用'; }
+    else if (tl <= 75){ tls = 10; tln = '标题 ' + tl + ' 字符，充分利用新规'; }
+    else if (tl <= 100){ tls = 6; tln = '标题 ' + tl + ' 字符，超规范'; }
+    else { tls = 3; tln = '标题 ' + tl + ' 字符，严重超长'; }
+    results.push({ key:'title_length', cn:'标题长度规范', score:tls, max:10, note:tln });
+    const bpp = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
+    let bds = 0, bdn = '';
+    if (bpp.length === 0){ bds = 0; bdn = '五点为空'; }
     else {
-        const perPointWords = bpParts.map(part => new Set(words(part)));
-        const allWords = new Set();
-        perPointWords.forEach(set => set.forEach(w => allWords.add(w)));
-        const totalCount = perPointWords.reduce((sum, set) => sum + set.size, 0);
-        const uniqueCount = allWords.size;
-        const duplicateRate = totalCount > 0 ? (1 - uniqueCount / totalCount) : 0;
-        if (bpParts.length >= 5 && duplicateRate < 0.4){ bpDistScore = 10; bpDistNote = '5 点完整且词分布分散（重复率 ' + Math.round(duplicateRate*100) + '%）'; }
-        else if (bpParts.length >= 5 && duplicateRate < 0.6){ bpDistScore = 7; bpDistNote = '5 点完整，但部分词重复（重复率 ' + Math.round(duplicateRate*100) + '%）'; }
-        else if (bpParts.length >= 3){ bpDistScore = 5; bpDistNote = '仅 ' + bpParts.length + ' 点，建议补全 5 点'; }
-        else { bpDistScore = 2; bpDistNote = '五点不足，需补全'; }
+        const perP = bpp.map(p => new Set(words(p)));
+        const allW = new Set(); perP.forEach(s => s.forEach(w => allW.add(w)));
+        const tc = perP.reduce((sum,s) => sum + s.size, 0);
+        const dr = tc > 0 ? (1 - allW.size / tc) : 0;
+        if (bpp.length >= 5 && dr < 0.4){ bds = 10; bdn = '5 点完整，词分布分散（重复率 ' + Math.round(dr*100) + '%）'; }
+        else if (bpp.length >= 5 && dr < 0.6){ bds = 7; bdn = '5 点完整，部分重复（' + Math.round(dr*100) + '%）'; }
+        else if (bpp.length >= 3){ bds = 5; bdn = '仅 ' + bpp.length + ' 点'; }
+        else { bds = 2; bdn = '五点不足'; }
     }
-    results.push({ key:'bp_distribution', cn:'五点词分布', score: bpDistScore, max:10, note: bpDistNote });
-
-    let longTailCount = 0, longTailNote = '';
+    results.push({ key:'bp_distribution', cn:'五点词分布', score:bds, max:10, note:bdn });
+    let ltc = 0, ltn = '';
     if (coreKeywords.length){
-        const found = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
-        longTailCount = found.length;
-        longTailNote = found.length ? ('命中长尾词：' + found.slice(0,5).join(' / ')) : '未命中热词库中的长尾词';
-    } else {
-        const matches = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || [];
-        longTailCount = Math.min(matches.length, 15);
-        longTailNote = '未提供热词库，文本中检测到约 ' + matches.length + ' 个双词组合';
+        const f = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
+        ltc = f.length; ltn = f.length ? '命中长尾词：' + f.slice(0,5).join(' / ') : '未命中长尾词';
+    } else { const m = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || []; ltc = Math.min(m.length,15); ltn = '检测到约 ' + m.length + ' 个双词组合'; }
+    results.push({ key:'long_tail', cn:'长尾词覆盖', score:Math.min(10, ltc*2), max:10, note:ltn });
+    const scF = A9_SCENE_WORDS.filter(w => full.includes(w));
+    results.push({ key:'scene_words', cn:'场景词覆盖', score:Math.min(10, scF.length*2), max:10, note: scF.length ? '命中场景词：' + scF.slice(0,8).join(' / ') : '未检测到场景词' });
+    const atF = A9_ATTR_WORDS.filter(w => full.includes(w));
+    results.push({ key:'attr_words', cn:'属性词覆盖', score:Math.min(10, atF.length*1.5), max:10, note: atF.length ? '命中属性词：' + atF.slice(0,8).join(' / ') : '未检测到属性词' });
+    let sts = 0, stn = '';
+    if (!s.trim()){ sts = 0; stn = '搜索词为空'; }
+    else {
+        const sw = new Set(words(s)), tw = new Set([...words(t), ...words(b), ...words(d)]);
+        const nw = [...sw].filter(w => !tw.has(w));
+        if (nw.length >= 6){ sts = 10; stn = '补充了 ' + nw.length + ' 个新词'; }
+        else if (nw.length >= 3){ sts = 7; stn = '补充了 ' + nw.length + ' 个新词'; }
+        else if (nw.length >= 1){ sts = 4; stn = '补充仅 ' + nw.length + ' 个新词'; }
+        else { sts = 1; stn = '搜索词与标题/五点完全重复'; }
     }
-    let longTailScore = Math.min(10, longTailCount * 2);
-    results.push({ key:'long_tail', cn:'长尾词覆盖', score: longTailScore, max:10, note: longTailNote });
-
-    const sceneFound = A9_SCENE_WORDS.filter(w => full.includes(w));
-    let sceneScore = Math.min(10, sceneFound.length * 2);
-    results.push({ key:'scene_words', cn:'场景词覆盖', score: sceneScore, max:10,
-        note: sceneFound.length ? ('命中场景词（' + sceneFound.length + '）：' + sceneFound.slice(0,8).join(' / ')) : '未检测到场景词' });
-
-    const attrFound = A9_ATTR_WORDS.filter(w => full.includes(w));
-    let attrScore = Math.min(10, attrFound.length * 1.5);
-    results.push({ key:'attr_words', cn:'属性词覆盖', score: attrScore, max:10,
-        note: attrFound.length ? ('命中属性词（' + attrFound.length + '）：' + attrFound.slice(0,8).join(' / ')) : '未检测到属性词' });
-
-    let stSupScore = 0, stSupNote = '';
-    if (!s.trim()){
-        stSupScore = 0;
-        stSupNote = '搜索词为空，未利用 A9 补充字段';
-    } else {
-        const stWords = new Set(words(s));
-        const titleBpWords = new Set([...words(t), ...words(b), ...words(d)]);
-        const newWords = [...stWords].filter(w => !titleBpWords.has(w));
-        if (newWords.length >= 6){ stSupScore = 10; stSupNote = '搜索词补充了 ' + newWords.length + ' 个新词'; }
-        else if (newWords.length >= 3){ stSupScore = 7; stSupNote = '搜索词补充了 ' + newWords.length + ' 个新词'; }
-        else if (newWords.length >= 1){ stSupScore = 4; stSupNote = '搜索词补充仅 ' + newWords.length + ' 个新词'; }
-        else { stSupScore = 1; stSupNote = '搜索词与标题/五点完全重复'; }
-    }
-    results.push({ key:'st_supplement', cn:'搜索词补充', score: stSupScore, max:10, note: stSupNote });
-
-    let variantCount = 0;
-    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases']];
-    pairs.forEach(([s1, p1]) => {
-        if (full.includes(s1) && full.includes(p1)) variantCount++;
-    });
-    let variantScore = Math.min(10, variantCount * 3);
-    results.push({ key:'word_variants', cn:'词形变体', score: variantScore, max:10,
-        note: variantCount ? ('检测到 ' + variantCount + ' 组词形变体') : '未检测到单复数变体' });
-
-    let noStuffScore = 10, noStuffNote = '未检测到关键词堆砌';
+    results.push({ key:'st_supplement', cn:'搜索词补充', score:sts, max:10, note:stn });
+    let vc = 0;
+    [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases']].forEach(([s1,p1]) => { if (full.includes(s1) && full.includes(p1)) vc++; });
+    results.push({ key:'word_variants', cn:'词形变体', score:Math.min(10, vc*3), max:10, note: vc ? '检测到 ' + vc + ' 组词形变体' : '未检测到单复数变体' });
+    let nss = 10, nsn = '未检测到关键词堆砌';
     if (coreKeywords.length){
-        let maxRepeat = 0;
+        let mr = 0;
         coreKeywords.forEach(kw => {
-            const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp('\\b' + escaped + '\\b', 'gi');
-            const count = (full.match(regex) || []).length;
-            if (count > maxRepeat) maxRepeat = count;
+            const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const c = (full.match(new RegExp('\\b' + esc + '\\b', 'gi')) || []).length;
+            if (c > mr) mr = c;
         });
-        if (maxRepeat <= 3){ noStuffScore = 10; noStuffNote = '核心词最大重复 ' + maxRepeat + ' 次，密度健康'; }
-        else if (maxRepeat <= 5){ noStuffScore = 6; noStuffNote = '核心词重复 ' + maxRepeat + ' 次，接近堆砌红线'; }
-        else { noStuffScore = 2; noStuffNote = '核心词重复 ' + maxRepeat + ' 次，存在堆砌风险'; }
+        if (mr <= 3){ nss = 10; nsn = '核心词最大重复 ' + mr + ' 次，健康'; }
+        else if (mr <= 5){ nss = 6; nsn = '核心词重复 ' + mr + ' 次，接近红线'; }
+        else { nss = 2; nsn = '核心词重复 ' + mr + ' 次，堆砌风险'; }
     }
-    results.push({ key:'no_stuffing', cn:'无关键词堆砌', score: noStuffScore, max:10, note: noStuffNote });
-
-    const totalScore = results.reduce((sum, r) => sum + r.score, 0);
+    results.push({ key:'no_stuffing', cn:'无关键词堆砌', score:nss, max:10, note:nsn });
+    const total = results.reduce((s,r) => s + r.score, 0);
     let grade, lv;
-    if (totalScore >= 90){ grade='A+'; lv='lv-a'; }
-    else if (totalScore >= 80){ grade='A'; lv='lv-a'; }
-    else if (totalScore >= 70){ grade='B+'; lv='lv-b'; }
-    else if (totalScore >= 60){ grade='B'; lv='lv-b'; }
-    else if (totalScore >= 50){ grade='C'; lv='lv-c'; }
+    if (total >= 90){ grade='A+'; lv='lv-a'; }
+    else if (total >= 80){ grade='A'; lv='lv-a'; }
+    else if (total >= 70){ grade='B+'; lv='lv-b'; }
+    else if (total >= 60){ grade='B'; lv='lv-b'; }
+    else if (total >= 50){ grade='C'; lv='lv-c'; }
     else { grade='D'; lv='lv-d'; }
-
-    return { totalScore, grade, lv, dimensions: results, coreKeywords };
+    return { totalScore: total, grade, lv, dimensions: results, coreKeywords };
 }
 
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
-    let rawScore = 0, green = 0, yellow = 0, red = 0;
+    let raw = 0, g = 0, y = 0, r = 0;
     const anchorResults = [];
     ANCHORS.forEach(a => {
         const hits = uniq(a.kws.filter(k => full.includes(k)));
         let level, score;
-        if (hits.length === 0){ level='red'; score=0; red++; }
-        else if (hits.length <= 2){ level='yellow'; score=hits.length===1?4:5; yellow++; }
-        else { level='green'; score=7; green++; }
-        rawScore += score;
+        if (hits.length === 0){ level='red'; score=0; r++; }
+        else if (hits.length <= 2){ level='yellow'; score=hits.length===1?4:5; y++; }
+        else { level='green'; score=7; g++; }
+        raw += score;
         anchorResults.push({ ...a, level, score, hits });
     });
-    const totalScore = Math.round(rawScore / 105 * 100);
+    const total = Math.round(raw / 105 * 100);
     let grade, lv;
-    if (totalScore >= 95)      { grade='A+'; lv='lv-a'; }
-    else if (totalScore >= 90) { grade='A';  lv='lv-a'; }
-    else if (totalScore >= 80) { grade='B+'; lv='lv-b'; }
-    else if (totalScore >= 70) { grade='B';  lv='lv-b'; }
-    else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
-    else                       { grade='D';  lv='lv-d'; }
-    return { totalScore, grade, lv, green, yellow, red, anchorResults };
+    if (total >= 95){ grade='A+'; lv='lv-a'; }
+    else if (total >= 90){ grade='A'; lv='lv-a'; }
+    else if (total >= 80){ grade='B+'; lv='lv-b'; }
+    else if (total >= 70){ grade='B'; lv='lv-b'; }
+    else if (total >= 60){ grade='C'; lv='lv-c'; }
+    else { grade='D'; lv='lv-d'; }
+    return { totalScore: total, grade, lv, green: g, yellow: y, red: r, anchorResults };
 }
 
-function showProhibitedWarning(hits, targetName) {
-    if (!hits.length) return;
-    const existing = document.getElementById('prohibited-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'prohibited-warning';
-    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML =
-        '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '）</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
-            hits.map(function(h){ return '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>'; }).join('') +
-        '</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showLengthWarning(message) {
-    const existing = document.getElementById('length-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'length-warning';
-    warning.style.cssText = 'background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">⚠️ ' + message + '</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showCoverageWarning(message) {
-    const existing = document.getElementById('coverage-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'coverage-warning';
-    warning.style.cssText = 'background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#0369a1;font-size:13px;">🔁 ' + message + '</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showBoostSuccess(oldScore, newScore, boostCount){
-    const existing = document.getElementById('boost-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'boost-warning';
-    warning.style.cssText = 'background:#ede9fe;border:1px solid #c4b5fd;border-left:4px solid #8b5cf6;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#6d28d9;font-size:13px;">🚀 A9 迭代增强完成：第 ' + boostCount + ' 轮优化，A9 分数 ' + oldScore + ' → ' + newScore + ' 分。</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showTitleBoostInfo(originalLen, newLen){
-    const existing = document.getElementById('title-boost-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'title-boost-warning';
-    warning.style.cssText = 'background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">🎯 标题未充分利用 75 字符，已自动补强：' + originalLen + ' → ' + newLen + ' 字符。</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
-function showBulletTrimInfo(before, after){
-    const existing = document.getElementById('bp-trim-warning');
-    if (existing) existing.remove();
-    const warning = document.createElement('div');
-    warning.id = 'bp-trim-warning';
-    warning.style.cssText = 'background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#047857;font-size:13px;">✂️ 五点描述总字符超限，已自动裁剪：' + before + ' → ' + after + ' 字符（保留 5 点，从最长点开始删减）。</div>';
-    const resultCard = document.getElementById('resultCard');
-    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
-}
-
+/* ============================================================
+   UI 渲染
+   ============================================================ */
 function updateByteCounter(inputId, counterId, max, unit, min){
-    const el = $(inputId);
-    const counter = $(counterId);
-    if (!el || !counter) return;
+    const el = $(inputId), c = $(counterId);
+    if (!el || !c) return;
     const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
-    counter.textContent = len + ' / ' + max + ' ' + unit + (min ? '（下限 ' + min + '）' : '');
+    c.textContent = len + ' / ' + max + ' ' + unit + (min ? '（下限 ' + min + '）' : '');
     let cls = 'byte-counter';
     if (len > max) cls += ' over';
     else if (min && len < min) cls += ' under';
-    counter.className = cls;
+    c.className = cls;
 }
-
 function updateBpTotal(){
     let total = 0;
-    for (let i = 0; i < 5; i++){
-        const el = $('optBp' + i);
-        if (el) total += el.value.length;
-    }
-    const counter = $('bpTotalCounter');
-    if (counter){
-        counter.textContent = '总字符：' + total + ' / 1000';
-        counter.className = 'byte-counter' + (total > 1000 ? ' over' : '');
-    }
+    for (let i = 0; i < 5; i++){ const el = $('optBp'+i); if (el) total += el.value.length; }
+    const c = $('bpTotalCounter');
+    if (c){ c.textContent = '总字符：' + total + ' / 1000'; c.className = 'byte-counter' + (total > 1000 ? ' over' : ''); }
 }
-
 function initByteCounters(){
-    const bindings = [
-        { input: 'optTitleText', counter: 'titleByteCounter', max: 75,   unit: '字符', min: null },
-        { input: 'optIhText',    counter: 'ihByteCounter',    max: 125,  unit: '字符', min: null },
-        { input: 'optDescText',  counter: 'descByteCounter',  max: 2000, unit: '字符', min: null },
-        { input: 'optStText',    counter: 'stByteCounter',    max: 250,  unit: '字节', min: null }
-    ];
-    bindings.forEach(function(b){
-        const el = $(b.input);
-        if (!el) return;
-        const handler = function(){ updateByteCounter(b.input, b.counter, b.max, b.unit, b.min); };
-        el.addEventListener('input', handler);
-        el.addEventListener('paste', function(){ setTimeout(handler, 0); });
-        el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
+    [['optTitleText','titleByteCounter',75,'字符',null],['optIhText','ihByteCounter',125,'字符',null],['optDescText','descByteCounter',2000,'字符',null],['optStText','stByteCounter',250,'字节',null]].forEach(b => {
+        const el = $(b[0]); if (!el) return;
+        const h = () => updateByteCounter(b[0], b[1], b[2], b[3], b[4]);
+        el.addEventListener('input', h);
+        el.addEventListener('paste', () => setTimeout(h, 0));
+        el.addEventListener('cut', () => setTimeout(h, 0));
     });
     for (let i = 0; i < 5; i++){
         (function(idx){
-            const el = $('optBp' + idx);
-            if (!el) return;
-            const handler = function(){
-                updateByteCounter('optBp' + idx, 'bpCounter' + idx, 255, '字符', 10);
-                updateBpTotal();
-            };
-            el.addEventListener('input', handler);
-            el.addEventListener('paste', function(){ setTimeout(handler, 0); });
-            el.addEventListener('cut',   function(){ setTimeout(handler, 0); });
+            const el = $('optBp' + idx); if (!el) return;
+            const h = () => { updateByteCounter('optBp'+idx, 'bpCounter'+idx, 255, '字符', 10); updateBpTotal(); };
+            el.addEventListener('input', h);
+            el.addEventListener('paste', () => setTimeout(h, 0));
+            el.addEventListener('cut', () => setTimeout(h, 0));
         })(i);
     }
 }
-
-function renderA9Table(a9Result){
-    const rows = a9Result.dimensions.map(d => {
-        let statusClass, statusText;
+function renderA9Table(r){
+    $('a9MatrixBody').innerHTML = r.dimensions.map(d => {
+        let sc, st;
         const ratio = d.score / d.max;
-        if (ratio >= 0.8){ statusClass='status-green'; statusText='🟢 优秀'; }
-        else if (ratio >= 0.5){ statusClass='status-yellow'; statusText='🟡 待优化'; }
-        else { statusClass='status-red'; statusText='🔴 需补充'; }
-        return '<tr>' +
-            '<td><span class="cluster-tag a9">A9</span></td>' +
-            '<td><span class="anchor-name">' + escapeHtml(d.cn) + '</span></td>' +
-            '<td class="' + statusClass + '">' + statusText + '<span class="score-mini">' + d.score + ' / ' + d.max + ' 分</span></td>' +
-            '<td>' + escapeHtml(d.note) + '</td>' +
-        '</tr>';
+        if (ratio >= 0.8){ sc='status-green'; st='🟢 优秀'; }
+        else if (ratio >= 0.5){ sc='status-yellow'; st='🟡 待优化'; }
+        else { sc='status-red'; st='🔴 需补充'; }
+        return '<tr><td><span class="cluster-tag a9">A9</span></td><td><span class="anchor-name">'+escapeHtml(d.cn)+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+d.score+' / '+d.max+' 分</span></td><td>'+escapeHtml(d.note)+'</td></tr>';
     }).join('');
-    $('a9MatrixBody').innerHTML = rows;
+}
+function renderA9Score(a9A, a9B){
+    const bb = $('a9ScoreBefore'); bb.className = 'score-badge ' + a9B.lv; bb.textContent = a9B.totalScore + ' · ' + a9B.grade;
+    const ab = $('a9ScoreAfter'); ab.className = 'score-badge ' + a9A.lv; ab.textContent = a9A.totalScore + ' · ' + a9A.grade;
+    const imp = a9A.totalScore - a9B.totalScore;
+    const ie = $('a9ScoreImprove');
+    if (imp > 0){ ie.textContent = '⬆ A9 提升 +' + imp + ' 分'; ie.style.color = '#6d28d9'; }
+    else if (imp === 0){ ie.textContent = '→ A9 持平'; ie.style.color = '#64748b'; }
+    else { ie.textContent = '⬇ A9 下降 ' + imp + ' 分'; ie.style.color = '#b91c1c'; }
+}
+function buildBulletUI(){
+    const c = $('bulletPointsContainer');
+    if (!c) return;
+    const roles = ['核心功能 + 容量属性','材质工艺 + 保护效果','尺寸规格 + 空间表现','重量便携 + 运输特性','日常使用 + 便捷体验'];
+    c.innerHTML = '';
+    for (let i = 0; i < 5; i++){
+        const item = document.createElement('div');
+        item.className = 'bp-item';
+        item.id = 'bp-item-' + i;
+        item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role">' + roles[i] + '</span></span><button class="copy-btn" onclick="copyTextElement(\'optBp' + i + '\', this)">复制此点</button></div>' +
+            '<textarea id="optBp' + i + '" placeholder="流水线生成中…"></textarea>' +
+            '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
+        c.appendChild(item);
+    }
+}
+function displayResults(t, ih, bs, d, st, downgraded){
+    $('optTitleText').value = t;
+    $('optIhText').value = ih;
+    for (let i = 0; i < 5; i++) $('optBp' + i).value = bs[i] || '';
+    $('optDescText').value = d;
+    $('optStText').value = st;
+    $('optTitleText').classList.toggle('downgraded', downgraded.title);
+    $('optIhText').classList.toggle('downgraded', downgraded.ih);
+    for (let i = 0; i < 5; i++) $('bp-item-' + i).classList.toggle('downgraded', downgraded.bullets);
+    $('optDescText').classList.toggle('downgraded', downgraded.desc);
+    $('optStText').classList.toggle('downgraded', downgraded.st);
+    updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
+    updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
+    for (let i = 0; i < 5; i++) updateByteCounter('optBp'+i, 'bpCounter'+i, 255, '字符', 10);
+    updateBpTotal();
+    updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
+    updateByteCounter('optStText','stByteCounter',250,'字节',null);
+}
+function applyAfterScore(beforeResult, hotKeywords){
+    const t = $('optTitleText').value || '';
+    let bp = '';
+    for (let i = 0; i < 5; i++) bp += ($('optBp'+i).value || '') + '\n';
+    const d = $('optDescText').value || '', st = $('optStText').value || '';
+    const after = scoreText(t, bp, d, st);
+    const ab = $('scoreAfter'); ab.className = 'score-badge ' + after.lv; ab.textContent = after.totalScore + ' · ' + after.grade;
+    const imp = after.totalScore - beforeResult.totalScore;
+    const ie = $('scoreImprove');
+    if (imp > 0){ ie.textContent = '⬆ COSMO 提升 +' + imp + ' 分'; ie.style.color = '#047857'; }
+    else if (imp === 0){ ie.textContent = '→ COSMO 持平'; ie.style.color = '#64748b'; }
+    else { ie.textContent = '⬇ COSMO 下降 ' + imp + ' 分'; ie.style.color = '#b91c1c'; }
+    const a9B = scoreA9($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '', hotKeywords);
+    const a9A = scoreA9(t, bp, d, st, hotKeywords);
+    renderA9Table(a9A);
+    renderA9Score(a9A, a9B);
+}
+function renderValidationReport(allIssues, warnings, downgraded){
+    const report = $('validationReport');
+    const all = [];
+    allIssues.forEach(i => all.push({ ...i, severity: 'error' }));
+    warnings.forEach(w => all.push({ ...w, severity: 'warn' }));
+    if (downgraded.title) all.push({ module:'标题', severity:'error', message:'3 次重试仍未通过，已降级输出，请手动核查' });
+    if (downgraded.ih) all.push({ module:'亮点', severity:'error', message:'3 次重试仍未通过，已降级输出，请手动核查' });
+    if (downgraded.bullets) all.push({ module:'五点', severity:'error', message:'3 次重试仍未通过，已降级输出，请手动核查' });
+    if (downgraded.desc) all.push({ module:'描述', severity:'error', message:'3 次重试仍未通过，已降级输出，请手动核查' });
+    if (downgraded.st) all.push({ module:'ST', severity:'error', message:'3 次重试仍未通过，已降级输出，请手动核查' });
+
+    if (all.length === 0){
+        report.className = 'validation-report';
+        report.innerHTML = '<div class="report-ttl">✅ 三层防护全部通过 · 输出无问题</div>' +
+            '<div style="font-size:12.5px;color:#166534;">本地校验 ✓ &nbsp;&nbsp; AI 自查 ✓ &nbsp;&nbsp; AI 他查 ✓</div>';
+        report.classList.remove('hidden');
+        return;
+    }
+    report.className = 'validation-report has-errors';
+    let html = '<div class="report-ttl">⚠️ 三层防护共发现 ' + all.length + ' 项问题' + (downgraded.title || downgraded.ih || downgraded.bullets || downgraded.desc || downgraded.st ? '（含降级项）' : '') + '</div>';
+    all.forEach(i => {
+        html += '<div class="issue-row ' + i.severity + '">' +
+            '<span class="module-tag">' + escapeHtml(i.module || '未知') + '</span>' +
+            escapeHtml(i.message || '') + '</div>';
+    });
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+function renderKwHitReport(hotKeywords){
+    const report = $('kwHitReport');
+    if (!report) return;
+    if (!hotKeywords.length){ report.classList.add('hidden'); return; }
+    const t = $('optTitleText').value || '', ih = $('optIhText').value || '';
+    let bp = '';
+    for (let i = 0; i < 5; i++) bp += ($('optBp'+i).value || '') + ' ';
+    const d = $('optDescText').value || '', st = $('optStText').value || '';
+    const full = [t, ih, bp, d, st].join(' ').toLowerCase();
+    const used = [], miss = [];
+    hotKeywords.forEach(kw => {
+        const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (new RegExp('\\b' + esc + '\\b', 'i').test(full)) used.push(kw); else miss.push(kw);
+    });
+    report.className = 'validation-report';
+    let html = '<div class="report-ttl">🎯 热词埋词命中报告（' + used.length + ' / ' + hotKeywords.length + '）</div>';
+    if (used.length) html += '<div style="margin-bottom:6px;">' + used.map(k => '<span class="kw-chip hit">✓ ' + escapeHtml(k) + '</span>').join('') + '</div>';
+    if (miss.length) html += '<div style="margin-top:6px;font-size:11.5px;color:#991b1b;">未埋入：' + miss.map(k => '<span class="kw-chip miss">✗ ' + escapeHtml(k) + '</span>').join('') + '</div>';
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+function parseHotKeywords(){
+    const raw = ($('hotKeywords').value || '').trim();
+    if (!raw) return [];
+    return raw.split(/[\n,;|\t]+/).map(w => w.trim().toLowerCase()).filter(w => w.length >= 2 && w.length <= 60).filter((w,i,a) => a.indexOf(w) === i);
 }
 
-function renderA9Score(a9After, a9Before){
-    const beforeBadge = $('a9ScoreBefore');
-    beforeBadge.className = 'score-badge ' + a9Before.lv;
-    beforeBadge.textContent = a9Before.totalScore + ' · ' + a9Before.grade;
-    const afterBadge = $('a9ScoreAfter');
-    afterBadge.className = 'score-badge ' + a9After.lv;
-    afterBadge.textContent = a9After.totalScore + ' · ' + a9After.grade;
-    const improve = a9After.totalScore - a9Before.totalScore;
-    const improveEl = $('a9ScoreImprove');
-    if (improve > 0){ improveEl.textContent = '⬆ A9 提升 +' + improve + ' 分'; improveEl.style.color = '#6d28d9'; }
-    else if (improve === 0){ improveEl.textContent = '→ A9 分数持平'; improveEl.style.color = '#64748b'; }
-    else { improveEl.textContent = '⬇ A9 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
-}
-
+/* ============================================================
+   ★★★ 主流程
+   ============================================================ */
 async function runAnalysis(){
     const titleRaw = $('productTitle').value.trim();
-    const bpRaw    = $('bulletPoints').value.trim();
-    const descRaw  = $('description').value.trim();
-    const stRaw    = $('searchTerms').value.trim();
+    const bpRaw = $('bulletPoints').value.trim();
+    const descRaw = $('description').value.trim();
+    const stRaw = $('searchTerms').value.trim();
     const hotKeywords = parseHotKeywords();
-
     const customReqs = {
         title: $('reqTitle').value.trim(),
         ih: $('reqIh').value.trim(),
@@ -1131,64 +1250,47 @@ async function runAnalysis(){
         st: $('reqSt').value.trim()
     };
 
-    if (!titleRaw && !bpRaw && !descRaw && !stRaw){
-        showToast('请先填写标题或文案内容，或点击「载入表盒示例数据」');
-        return;
-    }
-    if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，A9 将据此打分，AI 将优先埋入');
+    if (!titleRaw && !bpRaw && !descRaw && !stRaw){ showToast('请先填写标题或文案内容'); return; }
 
+    // 清理旧警告
     ['prohibited-warning','length-warning','coverage-warning','boost-warning','title-boost-warning','bp-trim-warning'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.remove();
+        const el = document.getElementById(id); if (el) el.remove();
     });
+    resetPipeline();
+    $('validationReport').classList.add('hidden');
 
     $('origTitleView').value = titleRaw;
-    $('origBpView').value    = bpRaw;
-    $('origDescView').value  = descRaw;
-    $('origStView').value    = stRaw;
+    $('origBpView').value = bpRaw;
+    $('origDescView').value = descRaw;
+    $('origStView').value = stRaw;
 
     const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
     const a9Before = scoreA9(titleRaw, bpRaw, descRaw, stRaw, hotKeywords);
 
-    const rows = beforeResult.anchorResults.map(a => {
-        const shownHits = a.hits.slice(0, 5);
-        const chips = shownHits.map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('')
-                    + (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
+    $('matrixTableBody').innerHTML = beforeResult.anchorResults.map(a => {
+        const chips = a.hits.slice(0,5).map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('') +
+            (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
         const hitBlock = a.hits.length
-            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个语义信号词</div>'
-            : '<div style="font-size:12px;color:#b91c1c;">未检测到任何相关语义信号词</div>';
-        let statusClass, statusText;
-        if (a.level === 'red'){ statusClass='status-red'; statusText='🔴 严重缺失'; }
-        else if (a.level === 'yellow'){ statusClass='status-yellow'; statusText='🟡 部分覆盖'; }
-        else { statusClass='status-green'; statusText='🟢 完美覆盖'; }
-        let fixBlock;
-        if (a.level === 'green') fixBlock = '<div class="suggestion-cell ok">✅ 该锚点已充分覆盖，无需修改。</div>';
-        else fixBlock = '<div class="suggestion-cell loading">⏳ DeepSeek 正在生成优化方案…</div>';
-        return '<tr>' +
-            '<td><span class="cluster-tag">' + a.cluster + '</span></td>' +
-            '<td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td>' +
-            '<td class="' + statusClass + '">' + statusText + '<span class="score-mini">' + a.score + ' / 7 分</span></td>' +
-            '<td>' + hitBlock + '</td>' +
-            '<td id="fix-cell-' + safeId(a.name) + '">' + fixBlock + '</td>' +
-        '</tr>';
+            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个信号词</div>'
+            : '<div style="font-size:12px;color:#b91c1c;">未检测到相关信号词</div>';
+        let sc, st;
+        if (a.level === 'red'){ sc='status-red'; st='🔴 严重缺失'; }
+        else if (a.level === 'yellow'){ sc='status-yellow'; st='🟡 部分覆盖'; }
+        else { sc='status-green'; st='🟢 完美覆盖'; }
+        const fb = a.level === 'green' ? '<div class="suggestion-cell ok">✅ 已覆盖</div>' : '<div class="suggestion-cell">⏳ 流水线处理中…</div>';
+        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td><td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td><td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7 分</span></td><td>' + hitBlock + '</td><td id="fix-cell-' + safeId(a.name) + '">' + fb + '</td></tr>';
     }).join('');
-    $('matrixTableBody').innerHTML = rows;
     renderA9Table(a9Before);
 
-    const beforeBadge = $('scoreBefore');
-    beforeBadge.className = 'score-badge ' + beforeResult.lv;
-    beforeBadge.textContent = beforeResult.totalScore + ' · ' + beforeResult.grade;
-    const afterBadge = $('scoreAfter');
-    afterBadge.className = 'score-badge';
-    afterBadge.textContent = '--';
+    const bb = $('scoreBefore'); bb.className = 'score-badge ' + beforeResult.lv; bb.textContent = beforeResult.totalScore + ' · ' + beforeResult.grade;
+    const ab = $('scoreAfter'); ab.className = 'score-badge'; ab.textContent = '--';
     $('scoreImprove').textContent = '';
     renderA9Score(a9Before, a9Before);
 
-    $('statGreen').textContent  = '🟢 完美覆盖 ' + beforeResult.green;
+    $('statGreen').textContent = '🟢 完美覆盖 ' + beforeResult.green;
     $('statYellow').textContent = '🟡 部分覆盖 ' + beforeResult.yellow;
-    $('statRed').textContent    = '🔴 严重缺失 ' + beforeResult.red;
-
-    $('targetUrlDisplay').textContent = '当前分析目标链接：未绑定（基于本地文本进行独立评估）';
+    $('statRed').textContent = '🔴 严重缺失 ' + beforeResult.red;
+    $('targetUrlDisplay').textContent = '当前分析目标链接：未绑定（基于本地文本独立评估）';
 
     const card = $('resultCard');
     card.classList.remove('hidden');
@@ -1200,577 +1302,191 @@ async function runAnalysis(){
     const btn = $('analyzeBtn');
     const status = $('aiStatus');
     btn.disabled = true;
-    btn.textContent = '⏳ DeepSeek 双算法优化中，请稍候…';
+    btn.textContent = '⏳ 三层防护流水线执行中…';
     status.className = 'ai-status loading';
     status.classList.remove('hidden');
-    status.textContent = '🤖 DeepSeek 双算法优化中…';
+
+    // 记录所有问题和降级标志
+    const allIssues = [];
+    const allWarnings = [];
+    const downgraded = { title: false, ih: false, bullets: false, desc: false, st: false };
 
     try {
-        const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, 5);
-        applyAIResults(aiResult, beforeResult.anchorResults, beforeResult, hotKeywords);
+        // ① 输入净化
+        setStepState(1, 'active'); status.textContent = '① 输入净化中…';
+        const cleaned = { title: cleanInput(titleRaw), bp: cleanInput(bpRaw), desc: cleanInput(descRaw), st: cleanInput(stRaw) };
+        setStepState(1, 'done'); await new Promise(r => setTimeout(r, 150));
 
-        let currentTexts = readCurrentTexts();
-        let a9After = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
-        let boostRound = 0;
-        const MAX_BOOST = 2;
+        // ② 违禁词过滤
+        setStepState(2, 'active'); status.textContent = '② 违禁词过滤中…';
+        const hits = detectProhibited(cleaned.title + ' ' + cleaned.bp + ' ' + cleaned.desc + ' ' + cleaned.st);
+        const filtered = { title: filterProhibited(cleaned.title), bp: filterProhibited(cleaned.bp), desc: filterProhibited(cleaned.desc), st: filterProhibited(cleaned.st) };
+        if (hits.length) showProhibitedWarning(hits, '原始文案');
+        setStepState(2, 'done'); await new Promise(r => setTimeout(r, 150));
 
-        while (a9After.totalScore < 90 && boostRound < MAX_BOOST){
-            boostRound++;
-            const weakDims = a9After.dimensions.filter(d => d.score < d.max * 0.8);
-            if (weakDims.length === 0) break;
+        // ③ 事实提取
+        setStepState(3, 'active'); status.textContent = '③ 提取产品事实中…';
+        const facts = extractFacts(filtered.title, filtered.bp, filtered.desc);
+        const originalContext = '产品类型：' + (facts.productType || '未识别') + '\n数量：' + (facts.count || '未识别') + '\n材质：' + (facts.material || '未识别') + '\n尺寸：' + (facts.size || '未识别') + '\n颜色：' + (facts.color || '未识别') + '\n原文标题：' + filtered.title + '\n原文五点：' + filtered.bp;
+        setStepState(3, 'done'); await new Promise(r => setTimeout(r, 150));
 
-            status.className = 'ai-status boost';
-            status.textContent = '🚀 A9 迭代增强中 (第 ' + boostRound + ' / ' + MAX_BOOST + ' 轮，当前 ' + a9After.totalScore + ' 分)…';
-            const prevScore = a9After.totalScore;
-
-            try {
-                const boostResult = await boostA9ForWeakDimensions(weakDims, currentTexts, hotKeywords, customReqs, boostRound);
-                applyBoostResult(boostResult);
-                currentTexts = readCurrentTexts();
-                const newA9 = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
-                if (newA9.totalScore > a9After.totalScore){
-                    a9After = newA9;
-                    showBoostSuccess(prevScore, a9After.totalScore, boostRound);
-                } else {
-                    break;
-                }
-            } catch (boostErr){
-                break;
-            }
+        // ④ AI 生成标题+亮点（带自查重试）
+        setStepState(4, 'active'); status.textContent = '④ AI 生成标题 + 亮点（带自查）…';
+        const titleIHResult = await generateWithRetry(
+            async (errs) => await genTitleIH(facts, hotKeywords, customReqs, errs),
+            (c) => {
+                const v1 = validateTitle(c.title);
+                const v2 = validateIH(c.itemHighlights, c.title);
+                return { errors: [...v1.errors, ...v2.errors], warnings: [...v1.warnings, ...v2.warnings] };
+            },
+            '标题与亮点',
+            '标题 70-75 字符，不以介词结尾。Item Highlights ≤125 字符，与标题互补，只输出名词/形容词短语。',
+            originalContext,
+            3
+        );
+        if (!titleIHResult.passed){
+            allIssues.push({ module:'标题/亮点', message: titleIHResult.errors.join('；') });
+            downgraded.title = true;
+            downgraded.ih = true;
         }
+        allWarnings.push(...(titleIHResult.warnings || []).map(w => ({ module:'标题/亮点', message: w })));
+        setStepState(4, 'done'); await new Promise(r => setTimeout(r, 150));
 
-        autoTrimBulletsToLimit(1000);
+        // ⑤ AI 生成五点（带自查重试）
+        setStepState(5, 'active'); status.textContent = '⑤ AI 生成五点（带自查）…';
+        const bulletsResult = await generateWithRetry(
+            async (errs) => await genBullets(facts, titleIHResult.content.title, titleIHResult.content.itemHighlights, hotKeywords, customReqs, errs),
+            (bs) => validateBullets(bs),
+            '五点描述',
+            '每条 10-255 字符，合计 ≤1000，好处优先开头，结尾不加句号。',
+            originalContext,
+            3
+        );
+        if (!bulletsResult.passed){
+            allIssues.push({ module:'五点', message: (bulletsResult.errors || []).join('；') });
+            downgraded.bullets = true;
+        }
+        allWarnings.push(...(bulletsResult.warnings || []).map(w => ({ module:'五点', message: w })));
+        setStepState(5, 'done'); await new Promise(r => setTimeout(r, 150));
+
+        // ⑥ AI 生成描述+ST（带自查重试）
+        setStepState(6, 'active'); status.textContent = '⑥ AI 生成描述 + 搜索词（带自查）…';
+        const descSTResult = await generateWithRetry(
+            async (errs) => await genDescST(facts, titleIHResult.content.title, titleIHResult.content.itemHighlights, bulletsResult.content, hotKeywords, customReqs, errs),
+            (c) => {
+                const v1 = validateDescription(c.description);
+                const v2 = validateST(c.searchTerms);
+                return { errors: [...v1.errors, ...v2.errors], warnings: [...v1.warnings, ...v2.warnings] };
+            },
+            '描述与搜索词',
+            '描述 ≤2000 字符自然段。Search Terms ≤250 字节全小写，不与标题/五点重复。',
+            originalContext,
+            3
+        );
+        if (!descSTResult.passed){
+            allIssues.push({ module:'描述/ST', message: (descSTResult.errors || []).join('；') });
+            downgraded.desc = true;
+            downgraded.st = true;
+        }
+        allWarnings.push(...(descSTResult.warnings || []).map(w => ({ module:'描述/ST', message: w })));
+        setStepState(6, 'done'); await new Promise(r => setTimeout(r, 150));
+
+        // 本地后处理
+        const finalTitle = postProcessTitle(titleIHResult.content.title);
+        const finalIH = postProcessIH(titleIHResult.content.itemHighlights);
+        const finalBullets = postProcessBullets(bulletsResult.content, 1000);
+        const finalDesc = postProcessDesc(descSTResult.content.description);
+        const finalST = postProcessST(descSTResult.content.searchTerms);
+
+        // 输出到 UI（先渲染，供他查看）
+        displayResults(finalTitle, finalIH, finalBullets, finalDesc, finalST, downgraded);
+
+        // ⑦ AI 他查
+        setStepState(7, 'active'); status.textContent = '⑦ AI 独立评审（他查）中…';
+        const originalInputForReview = '原始标题：' + titleRaw + '\n原始五点：' + bpRaw + '\n原始描述：' + descRaw + '\n原始ST：' + stRaw;
+        const review = await aiCrossReview(finalTitle, finalIH, finalBullets, finalDesc, finalST, originalInputForReview);
+        if (review.issues && review.issues.length){
+            review.issues.forEach(i => {
+                if (i.severity === 'error') allIssues.push({ module: i.module || '他查', message: i.message });
+                else allWarnings.push({ module: i.module || '他查', message: i.message });
+            });
+        }
+        setStepState(7, 'done'); await new Promise(r => setTimeout(r, 150));
+
+        // ⑧ 打分 + 报告
+        setStepState(8, 'active'); status.textContent = '⑧ 后处理 + 打分中…';
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
+        renderValidationReport(allIssues, allWarnings, downgraded);
+        setStepState(8, 'done');
+
+        // 更新锚点诊断栏
+        beforeResult.anchorResults.forEach(a => {
+            if (a.level === 'green') return;
+            const cell = $('fix-cell-' + safeId(a.name));
+            if (!cell) return;
+            cell.innerHTML = '<div class="suggestion-cell ' + (a.level === 'red' ? 'red' : '') + '">建议自然融入相关词汇，或补充该维度信息</div>';
+        });
 
         status.className = 'ai-status done';
-        status.textContent = '✅ DeepSeek 生成完成' + (boostRound > 0 ? '（含 ' + boostRound + ' 轮 A9 迭代增强）' : '');
+        status.textContent = '✅ 三层防护完成 · ' + (allIssues.length === 0 ? '输出全部合格' : '发现 ' + allIssues.length + ' 项问题');
+
     } catch (err){
-        console.error('API 调用失败，使用本地模板', err);
-        applyFallback(beforeResult.anchorResults, hotKeywords);
-        autoTrimBulletsToLimit(1000);
-        applyAfterScore(beforeResult, hotKeywords);
-        renderKwHitReport(hotKeywords);
+        console.error('流水线执行失败', err);
         status.className = 'ai-status error';
-        status.textContent = '⚠️ AI 已重试 5 次仍失败，已降级本地模板。';
-        showToast('DeepSeek 调用失败：' + err.message);
+        status.textContent = '⚠️ 流水线失败：' + err.message;
+        showToast('执行失败：' + err.message);
+        document.querySelectorAll('.pipeline-step.active').forEach(el => { el.classList.remove('active'); el.classList.add('error'); });
     } finally {
         btn.disabled = false;
-        btn.textContent = '🚀 开始执行 A9 + COSMO 双算法打分与 DeepSeek 优化';
+        btn.textContent = '🚀 开始执行三层防护流水线';
     }
 }
 
-function readCurrentTexts(){
-    let bullets = '';
-    for (let i = 0; i < 5; i++) bullets += ($('optBp' + i).value || '') + '\n\n';
-    return {
-        title: $('optTitleText').value || '',
-        ih: $('optIhText').value || '',
-        bullets: bullets.trim(),
-        desc: $('optDescText').value || '',
-        st: $('optStText').value || ''
-    };
+/* ============================================================
+   辅助 UI 函数
+   ============================================================ */
+function showProhibitedWarning(hits, targetName){
+    if (!hits.length) return;
+    const existing = document.getElementById('prohibited-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'prohibited-warning';
+    warning.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #ef4444;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b91c1c;margin-bottom:6px;font-size:14px;">⚠️ 检测到 ' + hits.length + ' 个违禁词（' + targetName + '），已在净化阶段自动替换</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + hits.map(h => '<span style="background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:4px;font-size:12px;font-family:monospace;font-weight:600;">' + h + '</span>').join('') + '</div>';
+    const rc = document.getElementById('resultCard');
+    if (rc) rc.insertBefore(warning, rc.firstChild);
 }
-
-function applyBoostResult(boostResult){
-    const originalFullText = ($('productTitle').value || '') + ' ' + 
-                             ($('bulletPoints').value || '') + ' ' + 
-                             ($('description').value || '') + ' ' + 
-                             ($('searchTerms').value || '');
-
-    if (boostResult.optimizedTitle){
-        let title = replaceProhibitedWords(boostResult.optimizedTitle);
-        title = checkHallucination(originalFullText, title);
-        title = sanitizeVerifyTags(title);
-        title = cleanTextArtifacts(title);
-        title = trimToMaxChars(title, 75);
-        title = cleanTrailingBadWords(title);
-        const originalLen = title.length;
-        title = boostTitleLength(title, parseHotKeywords());
-        if (title.length > originalLen && title.length >= 70){
-            if (typeof showTitleBoostInfo === 'function') showTitleBoostInfo(originalLen, title.length);
-        }
-        $('optTitleText').value = title;
-        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
-    }
-    if (boostResult.optimizedItemHighlights){
-        let ih = replaceProhibitedWords(boostResult.optimizedItemHighlights);
-        ih = checkHallucination(originalFullText, ih);
-        ih = sanitizeVerifyTags(ih);
-        ih = cleanTextArtifacts(ih);
-        ih = trimToMaxChars(ih, 125);
-        ih = cleanItemHighlights(ih);
-        $('optIhText').value = ih;
-        updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
-    }
-    if (boostResult.optimizedBullets){
-        let bullets = boostResult.optimizedBullets;
-        if (typeof bullets === 'string') bullets = bullets.split(/\n\s*\n|\n/).filter(s => s.trim());
-        for (let i = 0; i < 5; i++){
-            let text = bullets[i] || $('optBp' + i).value || '';
-            text = replaceProhibitedWords(text);
-            text = checkHallucination(originalFullText, text);
-            text = sanitizeVerifyTags(text);
-            text = cleanTextArtifacts(text);
-            text = text.replace(/[.。;；,，]+$/, '');
-            text = trimToMaxChars(text, 255);
-            const el = $('optBp' + i);
-            if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
-        }
-        updateBpTotal();
-        const trimResult = autoTrimBulletsToLimit(1000);
-        if (trimResult.trimmed){
-            if (typeof showBulletTrimInfo === 'function') showBulletTrimInfo(trimResult.before, trimResult.after);
-        }
-    }
-    if (boostResult.optimizedDesc){
-        let desc = replaceProhibitedWords(boostResult.optimizedDesc);
-        desc = checkHallucination(originalFullText, desc);
-        desc = sanitizeVerifyTags(desc);
-        desc = cleanTextArtifacts(desc);
-        if (desc.length > 2000) desc = desc.substring(0, 2000);
-        $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
-    }
-    if (boostResult.optimizedST){
-        let st = replaceProhibitedWords(boostResult.optimizedST);
-        st = checkHallucination(originalFullText, st);
-        st = st.toLowerCase();
-        st = trimToMaxBytes(st, 250);
-        $('optStText').value = st;
-        updateByteCounter('optStText','stByteCounter',250,'字节',null);
-    }
-}
-
-async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, customReqs, boostRound){
-    const weakList = weakDimensions.map(d => {
-        const keywordsToInclude = d.kws && d.kws.length ? d.kws.slice(0, 6).join(', ') : 'N/A';
-        return `- ${d.cn}（当前 ${d.score} / ${d.max} 分）：${d.note}。参考词汇（需根据原文真实情况自然融入，严禁生造功能）：${keywordsToInclude}`;
-    }).join('\n');
-
-    let customReqSection = '';
-    if (customReqs && Object.values(customReqs).some(v => v)) {
-        customReqSection = '\n【用户自定义要求（必须严格遵守）】\n' +
-            (customReqs.title ? '· 标题：' + customReqs.title + '\n' : '') +
-            (customReqs.ih ? '· Item Highlights：' + customReqs.ih + '\n' : '') +
-            (customReqs.bp ? '· 五点描述：' + customReqs.bp + '\n' : '') +
-            (customReqs.desc ? '· 详细描述：' + customReqs.desc + '\n' : '') +
-            (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '');
-    }
-
-    const prompt = [
-        '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
-        '【当前已有的优化文案】',
-        '标题：' + currentTexts.title,
-        'Item Highlights：' + currentTexts.ih,
-        '五点描述：\n' + currentTexts.bullets,
-        '详细描述：\n' + currentTexts.desc,
-        'Search Terms：' + currentTexts.st,
-        '',
-        '【A9 待改进维度】\n' + weakList,
-        customReqSection,
-        '',
-        '【硬性规则】绝对保真：严禁添加原文没有的任何功能属性（如原文没写防水，绝对不准写 waterproof/water resistant；原文没写吸尘，绝对不准写 absorb dust）。',
-        '【硬性规则】Item Highlights 必须与标题互补，必须为名词/形容词短语。在信息自然通顺的前提下，尽量在 100-125 字符之间，严禁为了凑字数堆砌无意义的形容词（如 elegant refined decorative）。',
-        '【硬性规则】五点描述按正常人类逻辑撰写，第一点不要强行套用 "COMPLETE SET INCLUDES 1 x" 这种生硬模板，直接写核心卖点和规格。',
-        '输出合法 JSON。'
-    ].join('\n');
-
-    const resp = await fetch('/api/deepseek', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            messages: [
-                { role: 'system', content: '你是亚马逊优化专家。严格遵循原商品信息，非必要不修改原信息。严禁添加杜撰任何基本信息或功能属性。Item Highlights 绝对不能与标题重复，必须提供互补信息，长度在自然的前提下接近 125 字符（100-125）。严禁编造原文没有的属性凑字数。必须严格遵守用户的自定义要求。' },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 8000,
-            response_format: { type: 'json_object' }
-        })
-    });
-    const result = await resp.json();
-    if (!result.success) throw new Error(result.error);
-    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-    return JSON.parse(content);
-}
-
-async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRetries){
-    let lastError = null;
-    const status = $('aiStatus');
-    for (let attempt = 1; attempt <= maxRetries; attempt++){
-        try {
-            if (status && attempt > 1){
-                status.textContent = '🤖 DeepSeek 重试中 (第 ' + attempt + ' / ' + maxRetries + ' 次)…';
-            }
-            return await callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs);
-        } catch (err){
-            lastError = err;
-            if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000));
-        }
-    }
-    throw lastError || new Error('DeepSeek 调用失败');
-}
-
-async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
-    const notPassed = anchorResults.filter(a => a.level !== 'green');
-    const anchorList = notPassed.length
-        ? notPassed.map(a => {
-            const keywordsToInclude = a.kws && a.kws.length ? a.kws.slice(0, 6).join(', ') : 'N/A';
-            return `- ${a.name} (${a.cn}): 当前${a.level === 'red' ? '严重缺失' : '部分覆盖'}。参考词汇（需根据原文真实情况自然融入，严禁生造功能）：${keywordsToInclude}`;
-        }).join('\n')
-        : '（无）';
-
-    let hotKeywordsSection = '';
-    if (hotKeywords && hotKeywords.length){
-        hotKeywordsSection = '\n【用户热词库】\n' + hotKeywords.join('\n');
-    }
-
-    let customReqSection = '';
-    if (customReqs && Object.values(customReqs).some(v => v)) {
-        customReqSection = '\n════════ 用户自定义要求（必须严格执行，优先级最高） ════════\n' +
-            (customReqs.title ? '· 标题要求：' + customReqs.title + '\n' : '') +
-            (customReqs.ih ? '· Item Highlights 要求：' + customReqs.ih + '\n' : '') +
-            (customReqs.bp ? '· 五点描述要求：' + customReqs.bp + '\n' : '') +
-            (customReqs.desc ? '· 详细描述要求：' + customReqs.desc + '\n' : '') +
-            (customReqs.st ? '· Search Terms 要求：' + customReqs.st + '\n' : '');
-    }
-
-    const prompt = [
-        '你是亚马逊 Listing 优化专家，精通 A9 和 COSMO 算法，且熟知 2026 年亚马逊商品文本新规。',
-        '【商品原始文案】',
-        '标题：' + (titleRaw || '（未提供）'),
-        '五点描述：' + (bpRaw || '（未提供）'),
-        '详细描述：' + (descRaw || '（未提供）'),
-        '搜索词：' + (stRaw || '（未提供）'),
-        '',
-        '════════ 2026 亚马逊商品文本硬性规则（务必全部遵守） ════════',
-        '· 标题：≤75 字符（含空格），首屏含核心词，不以标点或介词结尾，不含促销用语与主观夸大词。',
-        '· Item Highlights：≤125 字符（含空格），必须与标题互补不重复，只输出名词/形容词短语，严禁完整句子和动词。在信息自然通顺的前提下，尽量在 100-125 字符之间，严禁为了凑字数堆砌无意义的形容词（如 elegant refined decorative）。如果原文信息不足以支撑 125 字符，宁可留白也严禁编造。',
-        '· 五点描述：每条 10–255 字符，5 条合计 ≤1000 字符；每条以英文短语或大写标签开头，句段形式，**结尾一律不加句号**。第一点不要强行套用 "COMPLETE SET INCLUDES 1 x" 这种生硬模板，直接写核心卖点和完整的规格参数（材质、尺寸、重量等）。',
-        '· 详细描述：≤2000 字符（HTML 标签计入），不使用夸大、促销、保证类表述。',
-        '· Search Term：≤250 字节（非字符），**全部小写**，空格分隔；不含品牌名、ASIN、主观词、时效词、与标题/五点已含词不重复。',
-        '',
-        '════════ 核心铁律：保真原则与严禁无中生有 ════════',
-        '1. 【绝对保真】严格遵循原商品信息，严禁添加杜撰任何基本信息（如材质、尺寸、数量、颜色等）或功能属性。',
-        '   - ⚠️ 严禁编造！如果原文写的是“10 Compartments”，绝对不能写成“12 slots”。',
-        '   - ⚠️ 严禁张冠李戴！如果原文写的是“Watch Box (手表盒)”，绝对不准提“Pad (垫子)”或“Glasses Box (眼镜盒)”。',
-        '   - ⚠️ 如果原文没有写防水/防风雨，绝对不准写 weather resistant 或 waterproof。',
-        '   - ⚠️ 如果原文没有写吸尘/防潮，绝对不准写 absorb dust 或 trap moisture。',
-        '   - ⚠️ 严禁生搬硬套“春夏秋冬”等时间词来凑字数。',
-        '2. 违禁词红线：严禁使用 best, top, premium, high quality, perfect, amazing, 100%, warranty, guarantee, gift 等主观夸大、促销、保证类词。',
-        '',
-        '【定向锚点强化指令】以下是当前未达标的COSMO语义锚点，你必须根据下面的提示，将这些具体词汇自然融入你的文案中，以提升评分（严禁生造功能）：',
-        anchorList,
-        hotKeywordsSection,
-        customReqSection,
-        '',
-        '【输出格式】严格返回合法 JSON：',
-        '{',
-        '  "anchorFixes": { "used_for_func": "...", ... },',
-        '  "optimizedTitle": "...",',
-        '  "optimizedItemHighlights": "...",',
-        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
-        '  "optimizedDesc": "...",',
-        '  "optimizedST": "..."',
-        '}'
-    ].join('\n');
-
-    const resp = await fetch('/api/deepseek', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            messages: [
-                { role: 'system', content: '你是亚马逊双算法专家，熟知 2026 年亚马逊商品文本新规。严格遵循原商品信息。严禁添加杜撰任何基本信息。必须 100% 保留原始文案中的参数。严禁编造原文没有的功能属性（如防水、防尘、防潮等）。Item Highlights 绝对不能与标题重复，必须为纯名词/形容词短语，在信息自然通顺的前提下尽量接近 125 字符（100-125），严禁堆砌无意义形容词。五点描述按正常人类逻辑撰写，第一点不要强行套用死板模板，结尾不加句号。描述 ≤2000 字符。Search Term ≤250 字节、全小写。必须严格遵守用户自定义要求。' },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 8000,
-            response_format: { type: 'json_object' }
-        })
-    });
-    const result = await resp.json();
-    if (!result.success) throw new Error(result.error);
-    let content = result.data.choices[0].message.content.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-    const firstBrace = content.indexOf('{');
-    const lastBrace = content.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
-    return JSON.parse(content);
-}
-
-function patchSearchTerms(anchorResults, hotKeywords){
-    const el = $('optStText');
-    let st = (el.value || '').trim().toLowerCase();
-    if (!st) st = '';
-    let bytes = getByteLength(st);
-    if (bytes >= 250) return { added: 0, bytes: bytes };
-
-    const seen = new Set();
-    st.split(/\s+/).filter(Boolean).forEach(w => seen.add(w));
-
-    const titleBpText = [
-        $('optTitleText').value || '',
-        $('optIhText').value || '',
-        $('optBp0').value || '', $('optBp1').value || '',
-        $('optBp2').value || '', $('optBp3').value || '',
-        $('optBp4').value || '',
-        $('optDescText').value || ''
-    ].join(' ').toLowerCase();
-    const existingWords = new Set(titleBpText.split(/\s+/).filter(Boolean));
-
-    const candidates = [];
-    if (hotKeywords && hotKeywords.length){
-        hotKeywords.forEach(kw => {
-            const clean = kw.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
-            if (!clean) return;
-            if (seen.has(clean)) return;
-            const tokens = clean.split(' ').filter(Boolean);
-            const allAlreadyUsed = tokens.every(tk => existingWords.has(tk));
-            if (allAlreadyUsed) return;
-            seen.add(clean);
-            candidates.push(clean);
-        });
-    }
-    for (const c of candidates) {
-        const candidate = st ? st + ' ' + c : c;
-        if (getByteLength(candidate) <= 250) { st = candidate; }
-        if (getByteLength(st) >= 245) break;
-    }
-    el.value = st;
-    updateByteCounter('optStText', 'stByteCounter', 250, '字节', null);
-    return { added: 1, bytes: getByteLength(st) };
-}
-
-function applyAfterScore(beforeResult, hotKeywords){
-    const title = $('optTitleText').value || '';
-    let bpText = '';
-    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + '\n';
-    const desc = $('optDescText').value || '';
-    const st = $('optStText').value || '';
-
-    const afterResult = scoreText(title, bpText, desc, st);
-    const afterBadge = $('scoreAfter');
-    afterBadge.className = 'score-badge ' + afterResult.lv;
-    afterBadge.textContent = afterResult.totalScore + ' · ' + afterResult.grade;
-    const improve = afterResult.totalScore - beforeResult.totalScore;
-    const improveEl = $('scoreImprove');
-    if (improve > 0){ improveEl.textContent = '⬆ COSMO 提升 +' + improve + ' 分'; improveEl.style.color = '#047857'; }
-    else if (improve === 0){ improveEl.textContent = '→ COSMO 分数持平'; improveEl.style.color = '#64748b'; }
-    else { improveEl.textContent = '⬇ COSMO 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
-
-    const a9Before = scoreA9($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '', hotKeywords);
-    const a9After = scoreA9(title, bpText, desc, st, hotKeywords);
-    renderA9Table(a9After);
-    renderA9Score(a9After, a9Before);
-    return afterResult;
-}
-
-function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
-    const originalFullText = ($('productTitle').value || '') + ' ' + 
-                             ($('bulletPoints').value || '') + ' ' + 
-                             ($('description').value || '') + ' ' + 
-                             ($('searchTerms').value || '');
-
-    const fixes = aiResult.anchorFixes || {};
-    anchorResults.forEach(a => {
-        if (a.level === 'green') return;
-        const cell = $('fix-cell-' + safeId(a.name));
-        if (!cell) return;
-        let suggestion = fixes[a.name] || FALLBACK[a.name] || '';
-        suggestion = replaceProhibitedWords(suggestion);
-        suggestion = checkHallucination(originalFullText, suggestion);
-        suggestion = sanitizeVerifyTags(suggestion);
-        suggestion = cleanTextArtifacts(suggestion);
-        const isRed = a.level === 'red';
-        cell.innerHTML =
-            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
-                '<div class="gemini-box">' +
-                    '<p class="ttl">✨ DeepSeek 双算法优化方案：</p>' +
-                    '<code>' + escapeHtml(suggestion) + '</code>' +
-                '</div>' +
-            '</div>';
-    });
-    if (aiResult.optimizedTitle) {
-        let title = replaceProhibitedWords(aiResult.optimizedTitle);
-        title = checkHallucination(originalFullText, title);
-        title = sanitizeVerifyTags(title);
-        title = cleanTextArtifacts(title);
-        title = trimToMaxChars(title, 75);
-        title = cleanTrailingBadWords(title);
-        const originalLen = title.length;
-        title = boostTitleLength(title, hotKeywords);
-        if (title.length > originalLen && title.length >= 70){
-            if (typeof showTitleBoostInfo === 'function') showTitleBoostInfo(originalLen, title.length);
-        }
-        $('optTitleText').value = title;
-        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
-    }
-    if (aiResult.optimizedItemHighlights) {
-        let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
-        ih = checkHallucination(originalFullText, ih);
-        ih = sanitizeVerifyTags(ih);
-        ih = cleanTextArtifacts(ih);
-        ih = trimToMaxChars(ih, 125);
-        ih = cleanItemHighlights(ih);
-        $('optIhText').value = ih;
-        updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
-    }
-    if (aiResult.optimizedBullets) {
-        let bullets = aiResult.optimizedBullets;
-        if (typeof bullets === 'string') {
-            bullets = bullets.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-        }
-        for (let i = 0; i < 5; i++){
-            let text = bullets[i] || '';
-            text = replaceProhibitedWords(text);
-            text = checkHallucination(originalFullText, text);
-            text = sanitizeVerifyTags(text);
-            text = cleanTextArtifacts(text);
-            text = text.replace(/[.。;；,，]+$/, '');
-            text = trimToMaxChars(text, 255);
-            const el = $('optBp' + i);
-            if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
-        }
-        updateBpTotal();
-        const trimResult = autoTrimBulletsToLimit(1000);
-        if (trimResult.trimmed){
-            if (typeof showBulletTrimInfo === 'function') showBulletTrimInfo(trimResult.before, trimResult.after);
-        }
-    } else {
-        for (let i = 0; i < 5; i++){
-            let text = FALLBACK_BULLETS[i] || '';
-            text = replaceProhibitedWords(text);
-            text = text.replace(/[.。;；,，]+$/, '');
-            const el = $('optBp' + i);
-            if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
-        }
-        updateBpTotal();
-        autoTrimBulletsToLimit(1000);
-    }
-    if (aiResult.optimizedDesc) {
-        let desc = replaceProhibitedWords(aiResult.optimizedDesc);
-        desc = checkHallucination(originalFullText, desc);
-        desc = sanitizeVerifyTags(desc);
-        desc = cleanTextArtifacts(desc);
-        if (desc.length > 2000) desc = desc.substring(0, 2000);
-        $('optDescText').value = desc;
-        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
-    }
-    if (aiResult.optimizedST) {
-        let st = replaceProhibitedWords(aiResult.optimizedST);
-        st = checkHallucination(originalFullText, st);
-        st = st.toLowerCase();
-        st = trimToMaxBytes(st, 250);
-        $('optStText').value = st;
-        updateByteCounter('optStText','stByteCounter',250,'字节',null);
-    }
-
-    patchSearchTerms(anchorResults, hotKeywords);
-    renderKwHitReport(hotKeywords);
-    applyAfterScore(beforeResult, hotKeywords);
-}
-
-function applyFallback(anchorResults, hotKeywords){
-    anchorResults.forEach(a => {
-        if (a.level === 'green') return;
-        const cell = $('fix-cell-' + safeId(a.name));
-        if (!cell) return;
-        let suggestion = FALLBACK[a.name] || '';
-        suggestion = replaceProhibitedWords(suggestion);
-        suggestion = sanitizeVerifyTags(suggestion);
-        suggestion = cleanTextArtifacts(suggestion);
-        const isRed = a.level === 'red';
-        cell.innerHTML =
-            '<div class="suggestion-cell ' + (isRed ? 'red' : '') + '">' +
-                '<div class="gemini-box">' +
-                    '<p class="ttl">✨ 本地模板建议（DeepSeek 不可用）：</p>' +
-                    '<code>' + escapeHtml(suggestion) + '</code>' +
-                '</div>' +
-            '</div>';
-    });
-    if (!$('optTitleText').value.trim()) {
-        let title = 'Storage Organizer Box for Home and Everyday Use';
-        $('optTitleText').value = title;
-        updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
-    }
-    if (!$('optBp0').value.trim()) {
-        for (let i = 0; i < 5; i++){
-            let text = FALLBACK_BULLETS[i] || '';
-            text = text.replace(/[.。;；,，]+$/, '');
-            const el = $('optBp' + i);
-            if (el) el.value = text;
-            updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 10);
-        }
-        updateBpTotal();
-    }
-    if (!$('optDescText').value.trim()) {
-        $('optDescText').value = 'Keep your items neat, protected and easy to reach with this practical storage organizer.';
-        updateByteCounter('optDescText','descByteCounter',2000,'字符',null);
-    }
-    if (!$('optStText').value.trim()) {
-        $('optStText').value = 'storage organizer box home everyday display case';
-        updateByteCounter('optStText','stByteCounter',250,'字节',null);
-    }
-}
-
-function renderKwHitReport(hotKeywords){
-    const report = $('kwHitReport');
-    if (!report) return;
-    if (!hotKeywords.length){ report.classList.add('hidden'); return; }
-    const title = $('optTitleText').value || '';
-    const ih = $('optIhText').value || '';
-    let bpText = '';
-    for (let i = 0; i < 5; i++) bpText += ($('optBp' + i).value || '') + ' ';
-    const desc = $('optDescText').value || '';
-    const st = $('optStText').value || '';
-    const allText = [title, ih, bpText, desc, st].join(' ').toLowerCase();
-    const used = [], miss = [];
-    hotKeywords.forEach(kw => {
-        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp('\\b' + escaped + '\\b', 'i');
-        if (regex.test(allText)) used.push(kw);
-        else miss.push(kw);
-    });
-    const usedTags = used.map(k => '<span class="kw-tag used">✓ ' + escapeHtml(k) + '</span>').join('');
-    const missTags = miss.map(k => '<span class="kw-tag miss">✗ ' + escapeHtml(k) + '</span>').join('');
-    let html = '<div class="report-ttl">🎯 热词埋词命中报告（共 ' + hotKeywords.length + ' 个热词）</div>';
-    html += '<div class="report-stats">已埋入：<b>' + used.length + '</b> / ' + hotKeywords.length + ' &nbsp;&nbsp; 未埋入：<b>' + miss.length + '</b></div>';
-    if (usedTags) html += '<div style="margin-bottom:6px;">' + usedTags + '</div>';
-    if (missTags) html += '<div style="margin-top:6px;"><div style="font-size:11.5px;color:#991b1b;margin-bottom:4px;">以下词未能埋入：</div>' + missTags + '</div>';
-    report.innerHTML = html;
-    report.classList.remove('hidden');
-}
-
 async function copyAllBullets(btn){
     const parts = [];
-    for (let i = 0; i < 5; i++){
-        const el = $('optBp' + i);
-        if (el && el.value.trim()) parts.push(el.value.trim());
-    }
-    if (!parts.length){ showToast('五点描述为空'); return; }
+    for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el && el.value.trim()) parts.push(el.value.trim()); }
+    if (!parts.length){ showToast('五点为空'); return; }
     const text = parts.join('\n\n');
     let ok = false;
-    if (navigator.clipboard && window.isSecureContext){
-        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
-    }
+    if (navigator.clipboard && window.isSecureContext){ try { await navigator.clipboard.writeText(text); ok = true; } catch(e){} }
     if (!ok){
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta); ta.select();
-        try { ok = document.execCommand('copy'); } catch(e){ ok = false; }
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch(e){}
         document.body.removeChild(ta);
     }
     if (ok){
-        const original = btn.dataset.label || btn.innerText;
-        btn.dataset.label = original;
-        btn.innerText = '复制成功 ✓';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
+        const o = btn.dataset.label || btn.innerText; btn.dataset.label = o;
+        btn.innerText = '复制成功 ✓'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerText = o; btn.classList.remove('copied'); }, 1800);
     } else showToast('复制失败');
 }
-
+async function copyTextElement(elementId, btn){
+    const el = $(elementId); const text = el.value || '';
+    if (!text.trim()){ showToast('内容为空'); return; }
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){ try { await navigator.clipboard.writeText(text); ok = true; } catch(e){} }
+    if (!ok){ try { el.focus(); el.select(); el.setSelectionRange(0, text.length); ok = document.execCommand('copy'); window.getSelection().removeAllRanges(); } catch(e){} }
+    if (!ok){ showToast('复制失败'); return; }
+    const o = btn.dataset.label || btn.innerText; btn.dataset.label = o;
+    btn.innerText = '复制成功 ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.innerText = o; btn.classList.remove('copied'); }, 1800);
+}
 function loadSampleByUrl(){
     if ($('productTitle')) $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
     if ($('bulletPoints')) $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.';
@@ -1779,53 +1495,14 @@ function loadSampleByUrl(){
     if ($('hotKeywords')) $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
     runAnalysis();
 }
-
-async function copyTextElement(elementId, btn){
-    const el = $(elementId);
-    const text = el.value || '';
-    if (!text.trim()){ showToast('内容为空'); return; }
-    let ok = false;
-    if (navigator.clipboard && window.isSecureContext){
-        try { await navigator.clipboard.writeText(text); ok = true; } catch(e){ ok = false; }
-    }
-    if (!ok){
-        try {
-            el.focus(); el.select();
-            el.setSelectionRange(0, text.length);
-            ok = document.execCommand('copy');
-            window.getSelection().removeAllRanges();
-        } catch(e){ ok = false; }
-    }
-    if (!ok){ showToast('复制失败'); return; }
-    const original = btn.dataset.label || btn.innerText;
-    btn.dataset.label = original;
-    btn.innerText = '复制成功 ✓';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.innerText = original; btn.classList.remove('copied'); }, 1800);
-}
-
 function clearAll(){
-    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => {
-        const el = $(id);
-        if (el) el.value = '';
-    });
-    const rc = $('resultCard');
-    if (rc) rc.classList.add('hidden');
+    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+    const rc = $('resultCard'); if (rc) rc.classList.add('hidden');
     showToast('已清空全部内容');
 }
-
-document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    initByteCounters();
-    loadCustomRequirements();
-});
-if (document.readyState !== 'loading') {
-    initByteCounters();
-    loadCustomRequirements();
-}
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); } });
+document.addEventListener('DOMContentLoaded', () => { buildBulletUI(); initByteCounters(); loadCustomRequirements(); });
+if (document.readyState !== 'loading'){ buildBulletUI(); initByteCounters(); loadCustomRequirements(); }
 </script>
 
 </body>
