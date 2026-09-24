@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 五点总字符自动裁剪</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 五点好处优先结构</p>
     </header>
 
     <div class="card">
@@ -291,7 +291,7 @@
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="ihByteCounter" class="byte-counter">0 / 125 字符</div>
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;margin-top:5px;">
-                    <span>优化后的 5 点描述 (每点 150-255 字符，总 ≤1000)</span>
+                    <span>优化后的 5 点描述 (每点 150-220 字符，总 ≤1000 · 好处优先)</span>
                     <button class="copy-btn" onclick="copyAllBullets(this)">复制全部 5 点</button>
                 </div>
                 <div id="bulletPointsContainer">
@@ -350,7 +350,6 @@
 </div>
 
 <script>
-/* ================= COSMO 关键词库 ================= */
 const L = {
     func:      ['sanitiz','disinfect','clean','absorb','trap','protect','decorat','dress up','outfit','organiz','storage','wipe','scrub','catch'],
     goal:      ['prevent','reduce','avoid','ensure','help','transform','turn your','eliminat','minimiz','maintain','achiev','no more','without','so you'],
@@ -419,11 +418,11 @@ const FALLBACK = {
 };
 
 const FALLBACK_BULLETS = [
-    'WHAT YOU GET: The set includes the main product and all essential accessories needed for immediate use, ready to set up right out of the box',
-    'IDEAL FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
-    'BUILT TO LAST: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
-    'SMART ENGINEERING: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
-    'BUY WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
+    'PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
+    'MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
+    'SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
+    'CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
+    'SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free'
 ];
 
 const PROHIBITED_WORDS = {
@@ -542,8 +541,7 @@ function cleanTrailingBadWords(title){
 function boostTitleLength(title, hotKeywords){
     if (!title) return title;
     let result = title.trim();
-    const currentLen = result.length;
-    if (currentLen >= 70) return result;
+    if (result.length >= 70) return result;
 
     const candidates = [];
     const usedLower = result.toLowerCase();
@@ -666,7 +664,6 @@ function cleanItemHighlights(ih){
     return result;
 }
 
-/* ⭐ 五点自动裁剪：多次从最长点删减，直到 ≤1000 */
 function autoTrimBulletsToLimit(limit){
     let bullets = [];
     for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
@@ -675,26 +672,22 @@ function autoTrimBulletsToLimit(limit){
 
     const before = total;
     let safety = 0;
-    const MIN_LEN = 130; // 每点最低保留 130 字符，避免裁太狠
+    const MIN_LEN = 130;
 
     while (total > limit && safety < 500){
         safety++;
-        // 找最长的一点
         let maxIdx = 0, maxLen = 0;
         for (let i = 0; i < 5; i++){
             if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
         }
-        // 如果最长一点都不超过 MIN_LEN，则不再裁剪（避免删没了）
         if (maxLen <= MIN_LEN) break;
 
         let text = bullets[maxIdx];
-        // 优先按句子删（句号/问号/感叹号后的空格）
         const sentences = text.split(/(?<=[.!?])\s+/);
         if (sentences.length > 1){
             sentences.pop();
             bullets[maxIdx] = sentences.join(' ').trim();
         } else {
-            // 按空格词删
             const ws = text.split(/\s+/);
             if (ws.length > 1){
                 ws.pop();
@@ -706,7 +699,6 @@ function autoTrimBulletsToLimit(limit){
         total = bullets.reduce((a,b) => a + b.length, 0);
     }
 
-    // 写回
     for (let i = 0; i < 5; i++){
         const el = $('optBp' + i);
         if (el) el.value = bullets[i];
@@ -741,7 +733,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     } else {
         const wordsInTitle = words(t);
         titleCoreScore = wordsInTitle.length >= 4 ? 8 : (wordsInTitle.length >= 2 ? 6 : 3);
-        titleCoreNote = '未提供热词库，基于标题本身评估（含 ' + wordsInTitle.length + ' 个有效名词）';
+        titleCoreNote = '未提供热词库，基于标题本身评估';
     }
     results.push({ key:'title_core', cn:'标题核心词', score: titleCoreScore, max:10, note: titleCoreNote });
 
@@ -765,7 +757,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else if (tLen < 30){ tLenScore = 4; tLenNote = '标题仅 ' + tLen + ' 字符，过短（建议 70-75）'; }
     else if (tLen < 60){ tLenScore = 7; tLenNote = '标题 ' + tLen + ' 字符，未充分利用 75 字符空间'; }
     else if (tLen <= 75){ tLenScore = 10; tLenNote = '标题 ' + tLen + ' 字符，充分利用了 75 字符新规'; }
-    else if (tLen <= 100){ tLenScore = 6; tLenNote = '标题 ' + tLen + ' 字符，超出 75 字符规范（会被截断）'; }
+    else if (tLen <= 100){ tLenScore = 6; tLenNote = '标题 ' + tLen + ' 字符，超出 75 字符规范'; }
     else { tLenScore = 3; tLenNote = '标题 ' + tLen + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score: tLenScore, max:10, note: tLenNote });
 
@@ -1168,7 +1160,6 @@ async function runAnalysis(){
             }
         }
 
-        // ⭐ 最终保底：再次裁剪五点，确保总字符 ≤ 1000
         autoTrimBulletsToLimit(1000);
 
         applyAfterScore(beforeResult, hotKeywords);
@@ -1239,7 +1230,6 @@ function applyBoostResult(boostResult){
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
-        // ⭐ 关键：迭代增强后立即裁剪，防止超 1000
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
             showBulletTrimInfo(trimResult.before, trimResult.after);
@@ -1290,18 +1280,36 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '════════ 改进目标 ════════',
         '1. 保留已有文案的核心内容，不要推翻重写。',
         '2. 只针对薄弱维度做针对性补充和优化。',
-        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-255、**总字符 ≤1000（这是硬性要求！）**；描述 ≤5000；搜索词 240-250 字节。',
+        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-220、总字符 ≤1000（硬性要求！）；描述 ≤5000；搜索词 240-250 字节。',
         '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
         '',
-        '【改进策略】',
-        '• 标题核心词 / 首屏权重不足 → 把热词更靠前放入标题，最多埋 3-5 个核心热词',
-        '• 标题长度不足 → 标题必须充分利用 70-75 字符，补入额外的属性词或场景词',
-        '• 五点词分布不足 → 确保 5 点各自覆盖不同关键词',
-        '• 长尾词不足 → 五点/描述里加入带空格的长尾短语',
-        '• 场景词不足 → 描述/五点里自然融入 indoor/outdoor/entryway/office 等场景词',
-        '• 属性词不足 → 描述/五点里自然融入 non-slip/washable/durable 等属性词（不能编造不存在的属性）',
-        '• 搜索词补充不足 → 让 Search Terms 包含标题/五点里没有出现的新词',
-        '• 词形变体不足 → 搜索词里可以包含单复数或紧凑形式变体',
+        '════════ 五点描述必须严格遵守的结构 ════════',
+        '',
+        '⚠️⚠️ 核心原则：所有 5 个要点都必须以【好处优先】为标题，全部大写。',
+        '⚠️⚠️ 标题必须是"买家能获得什么好处"，而不是"产品有什么属性/功能"。',
+        '',
+        '【五点分工】',
+        '第 1 点：基本属性（尺寸、颜色等，原文已提供的才写）+ 包装内容',
+        '第 2 点：核心痛点 / 人群',
+        '第 3 点：商品特点 + 买后的好处、收益点',
+        '第 4 点：功能性、原理性，攻破买家心智',
+        '第 5 点：保证 / 担保 / 风险逆转声明',
+        '',
+        '【每点格式】「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
+        '',
+        '【正确示范】',
+        '  第1点：PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
+        '  第2点：MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
+        '  第3点：SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
+        '  第4点：CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
+        '  第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
+        '',
+        '【错误示范（绝对不要写成这样）】',
+        '  ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch... （这是属性，不是好处）',
+        '  ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP... （这是功能，不是好处）',
+        '  ❌ TWO STEP CLEANING DESIGN: Step on the wet pad... （这是设计，不是好处）',
+        '',
+        '⚠️⚠️ 五点描述总字符数绝对不要超过 1000！每点控制在 150-220 字符。',
         '',
         '【输出格式】',
         '必须严格返回合法 JSON，结构同上一轮：',
@@ -1311,9 +1319,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
-        '}',
-        '',
-        '⚠️⚠️ 五点描述总字符数绝对不要超过 1000！每点控制在 150-220 字符，留足余量。'
+        '}'
     ].filter(Boolean).join('\n');
 
     const controller = new AbortController();
@@ -1325,7 +1331,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。五点描述总字符必须 ≤1000（硬性要求）。标题 70-75 字符。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），不是产品属性/功能。正确示例 PERFECT FIT FOR YOUR SPACE / SAVE TIME EVERY DAY，错误示例 SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE。五点总字符 ≤1000（硬性）。标题 70-75 字符。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1417,7 +1423,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '',
         '════════ 防杜撰红线 ════════',
         '绝对不可以编造任何原则性信息：具体尺寸、具体颜色、具体材质成分、认证与合规、特殊功能等级、具体性能参数、具体数量、使用寿命年限。',
-        '如果原文没有提供这些信息，请在文案中直接跳过，不要提及，绝对不要写任何占位符。宁可不写、宁可字数少，也绝不编造。',
+        '如果原文没有提供这些信息，请在文案中直接跳过，不要提及，绝对不要写任何占位符。',
         '【允许推断】：通用应用场景、通用使用方式、目标人群、情感价值。',
         '',
         '════════ 违禁词红线 ════════',
@@ -1426,12 +1432,12 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '【你的任务】',
         '1. 为每个未达标 COSMO 锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词）。',
         '2. 生成优化后的商品标题（英文）：',
-        '   ⚠️⚠️⚠️ 标题字符数必须在 70-75 之间（充分利用！不要只写 50-60 字符，那是浪费 A9 权重最高的位置）',
+        '   ⚠️ 标题字符数必须在 70-75 之间（充分利用！不要只写 50-60 字符）',
         '   - 前 80 字符必须包含至少 1-2 个核心热词。',
         '   - 整标题埋入 3-5 个核心热词。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
         '   - ⚠️ 标题结尾禁止以介词或连词（for, with, in, on, by, to, of, and, or 等）结尾。',
-        '   - 如果核心词写完后还不到 70 字符，补入 1-2 个属性词或场景词（如 Indoor Outdoor, Easy Clean, Heavy Duty）。',
+        '   - 如果核心词写完后还不到 70 字符，补入 1-2 个属性词或场景词。',
         '3. 生成优化后的 Item Highlights（英文，≤125 字符）。',
         '   ⚠️ 格式要求：必须写成逗号分隔的短语，而不是完整句子。',
         '   - 内容聚焦于：材质、推荐使用场景、兼容性、关键规格。',
@@ -1439,20 +1445,40 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - 结尾不要使用句号或任何标点。',
         '   - 不要重复标题中已经出现过的关键词。',
         '   - 正确示例：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
-        '   - 错误示例：2-in-1 floor mat for entryway; easy to clean, reusable（这是句子不是短语）',
-        '4. 生成优化后的五点描述（英文），严格按以下结构：',
-        '   ▸ ⚠️⚠️ 每点 150-220 字符（不要写超过 220，给总字数留余量），五点总字符数必须 ≤1000（硬性上限！）。',
-        '   ▸ 每点格式：「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
-        '   【第 1 点 · 基本属性 + 包装内容】：商品基本属性（原文已提供的才写）+ 订单包含什么。',
-        '   【第 2 点 · 核心痛点 / 人群】：针对哪类人群、解决什么核心痛点。',
-        '   【第 3 点 · 商品特点 + 收益】：核心特点 + 买之后的收益。',
-        '   【第 4 点 · 功能性 / 原理性 + 攻心】：功能原理，深度说服。',
-        '   【第 5 点 · 保证 / 担保 / 风险逆转】：让买家放心。不写具体退款天数、保修年限。',
+        '   - 错误示例：2-in-1 floor mat for entryway; easy to clean, reusable',
+        '4. 生成优化后的五点描述（英文）。',
+        '',
+        '   ════════ 五点描述必须严格遵守以下结构 ════════',
+        '',
+        '   ⚠️⚠️ 核心原则：所有 5 个要点都必须以【好处优先】为标题，全部大写。',
+        '   ⚠️⚠️ 标题必须是"买家能获得什么好处"，而不是"产品有什么属性/功能"。',
+        '',
+        '   【五点分工】',
+        '   - 第 1 点：基本属性（尺寸、颜色等，原文已提供的才写）+ 包装内容',
+        '   - 第 2 点：核心痛点 / 人群',
+        '   - 第 3 点：商品特点 + 买后的好处、收益点',
+        '   - 第 4 点：功能性、原理性，攻破买家心智',
+        '   - 第 5 点：保证 / 担保 / 风险逆转声明',
+        '',
+        '   【每点格式】「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
+        '',
+        '   【正确示范】',
+        '     第1点：PERFECT FIT FOR YOUR SPACE: Includes the main product and all essential accessories you need, sized to fit standard setups and ready to use right out of the box',
+        '     第2点：MADE FOR BUSY HOMES: Designed for homeowners, parents, pet owners and anyone tired of constant cleaning and clutter in high-traffic areas',
+        '     第3点：SAVE TIME EVERY DAY: Made from durable, water-resistant materials that hold up to daily use, giving you long-term value and worry-free ownership',
+        '     第4点：CLEANER FLOORS INSTANTLY: Advanced construction traps dirt and moisture at the source, protecting your floors and keeping your space cleaner longer',
+        '     第5点：SHOP WITH CONFIDENCE: Backed by dependable quality and a satisfaction-focused design so you can enjoy a cleaner, tidier home risk-free',
+        '',
+        '   【错误示范（绝对不要写成这样）】',
+        '     ❌ SIZE AND COLOR OPTIONS: Small 17x31 inch...（属性，不是好处）',
+        '     ❌ EASY TO CLEAN AND REUSABLE: Made of PVA, PP...（功能，不是好处）',
+        '     ❌ TWO STEP CLEANING DESIGN: Step on the wet pad...（设计，不是好处）',
+        '',
+        '   ▸ 每点 150-220 字符，五点总字符数必须 ≤1000（硬性上限！）',
         '   ▸ 五点每点分散埋入 1-2 个热词，每点融入 1 个场景词或属性词。',
         '   ▸ 若用户未提供原始五点描述，每个新点开头加 [AI推测] 字样。',
         '5. 生成优化后的详细描述（Description）：',
         '   - 无硬性下限，上限 5000 字符。',
-        '   - 把五点未埋完的热词和长尾场景词自然融入。',
         '   - 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250，只使用空格分隔，全小写，无标点。',
@@ -1479,7 +1505,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题字符数必须在 70-75 之间。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语。⚠️ 五点描述总字符必须 ≤1000（硬性），每点 150-220 字符。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。⚠️ 五点描述必须严格遵守"好处优先"原则：每点标题必须是买家能获得的好处（全大写），绝对禁止写成属性式标题。正确示例：PERFECT FIT FOR YOUR SPACE / MADE FOR BUSY HOMES / SAVE TIME EVERY DAY / CLEANER FLOORS INSTANTLY / SHOP WITH CONFIDENCE。错误示例：SIZE AND COLOR OPTIONS / EASY TO CLEAN AND REUSABLE / TWO STEP CLEANING DESIGN。五点结构：第1点基本属性+包装、第2点核心痛点/人群、第3点特点+收益、第4点功能原理+攻心、第5点保证/风险逆转。每点 150-220 字符，五点总 ≤1000（硬性）。标题 70-75 字符，禁止以介词结尾。Item Highlights 写成逗号分隔短语。严格禁止违禁词，严格防杜撰。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1685,7 +1711,6 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
-        // ⭐ 第一轮生成后立即裁剪
         const trimResult = autoTrimBulletsToLimit(1000);
         if (trimResult.trimmed){
             showBulletTrimInfo(trimResult.before, trimResult.after);
