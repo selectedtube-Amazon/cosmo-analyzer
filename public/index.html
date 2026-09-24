@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · A9 迭代增强 · 埋词命中报告</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · Item Highlights 新规适配</p>
     </header>
 
     <div class="card">
@@ -285,7 +285,7 @@
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
                 <div id="titleByteCounter" class="byte-counter">0 / 75 字符</div>
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125字符)</span>
+                    <span>Item Highlights (≤125字符 · 逗号分隔短语)</span>
                     <button class="copy-btn" onclick="copyTextElement('optIhText', this)">复制 Item Highlights</button>
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -391,6 +391,9 @@ const ANCHORS = [
 const A9_SCENE_WORDS = ['indoor','outdoor','entryway','porch','patio','garden','kitchen','bathroom','office','classroom','front door','mudroom','hallway','garage','commercial','home','living room','bedroom','entrance','lobby','store','walkway','balcony','yard','lawn','warehouse','shipping','packing','moving','storage'];
 const A9_ATTR_WORDS = ['non-slip','non slip','absorbent','washable','reusable','durable','waterproof','water-resistant','water resistant','heavy duty','soft','thick','easy clean','machine washable','eco-friendly','recyclable','lightweight','sturdy','weather-resistant','long-lasting','foldable','portable','reversible','breathable','sturdy','crush-resistant'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
+
+/* 标题禁止以这些介词/连词结尾 */
+const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
 
 const FALLBACK = {
     'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
@@ -513,6 +516,25 @@ function sanitizeVerifyTags(text){
     return result.trim();
 }
 
+/* ⭐ 标题防悬空：如果截断后最后一个词是介词/连词，就删掉它 */
+function cleanTrailingBadWords(title){
+    if (!title) return '';
+    let result = title.trim();
+    let safety = 0;
+    while (safety < 5){
+        safety++;
+        const words = result.split(/\s+/);
+        const lastWord = (words[words.length - 1] || '').toLowerCase().replace(/[^a-z]/g, '');
+        if (TRAILING_BAD_WORDS.includes(lastWord)){
+            words.pop();
+            result = words.join(' ').trim();
+        } else {
+            break;
+        }
+    }
+    return result;
+}
+
 function parseHotKeywords(){
     const raw = ($('hotKeywords').value || '').trim();
     if (!raw) return [];
@@ -574,7 +596,62 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ================= A9 打分 ================= */
+/* ⭐ Item Highlights 格式清洗：逗号分隔短语，首字母大写，无句号 */
+function cleanItemHighlights(ih){
+    if (!ih) return '';
+    let result = ih.trim();
+    // 去掉句号、分号（分号在 Item Highlights 里也不推荐）
+    result = result.replace(/[.。]/g, '');
+    // 中英文分号统一为逗号
+    result = result.replace(/[;；]/g, ',');
+    // 连续逗号合并
+    result = result.replace(/,{2,}/g, ',');
+    // 逗号前后空格规范化
+    result = result.replace(/\s*,\s*/g, ', ');
+    // 按逗号拆分，每个短语首字母大写
+    result = result.split(',').map(s => {
+        const trimmed = s.trim();
+        if (!trimmed) return '';
+        return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+    }).filter(Boolean).join(', ');
+    return result;
+}
+
+function autoTrimBulletsToLimit(limit){
+    let bullets = [];
+    for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
+    let total = bullets.reduce((a,b) => a + b.length, 0);
+    if (total <= limit) return { trimmed: false, before: total, after: total };
+    const before = total;
+    let safety = 0;
+    while (total > limit && safety < 500){
+        safety++;
+        let maxIdx = 0, maxLen = 0;
+        for (let i = 0; i < 5; i++){
+            if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
+        }
+        let text = bullets[maxIdx];
+        const sentences = text.split(/(?<=[.!?])\s+/);
+        if (sentences.length > 1){
+            sentences.pop();
+            bullets[maxIdx] = sentences.join(' ').trim();
+        } else {
+            const ws = text.split(/\s+/);
+            if (ws.length > 1){ ws.pop(); bullets[maxIdx] = ws.join(' '); }
+            else bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
+        }
+        total = bullets.reduce((a,b) => a + b.length, 0);
+        if (bullets.every(b => b.length <= 150)) break;
+    }
+    for (let i = 0; i < 5; i++){
+        const el = $('optBp' + i);
+        if (el) el.value = bullets[i];
+        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
+    }
+    updateBpTotal();
+    return { trimmed: true, before: before, after: total };
+}
+
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase();
     const b = (bp || '').toLowerCase();
@@ -683,7 +760,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     results.push({ key:'st_supplement', cn:'搜索词补充', score: stSupScore, max:10, note: stSupNote });
 
     let variantCount = 0;
-    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['tile','tiles'],['shoe','shoes'],['pet','pets'],['home','homes'],['box','boxes'],['carton','cartons'],['bag','bags'],['pad','pads']];
+    const pairs = [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['tile','tiles'],['shoe','shoes'],['pet','pets'],['home','homes'],['box','boxes'],['carton','cartons'],['bag','bags']];
     pairs.forEach(([s1, p1]) => {
         if (full.includes(s1) && full.includes(p1)) variantCount++;
     });
@@ -721,7 +798,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     return { totalScore, grade, lv, dimensions: results, coreKeywords };
 }
 
-/* ================= COSMO 打分 ================= */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let rawScore = 0, green = 0, yellow = 0, red = 0;
@@ -744,41 +820,6 @@ function scoreText(title, bp, desc, st){
     else if (totalScore >= 60) { grade='C';  lv='lv-c'; }
     else                       { grade='D';  lv='lv-d'; }
     return { totalScore, grade, lv, green, yellow, red, anchorResults };
-}
-
-function autoTrimBulletsToLimit(limit){
-    let bullets = [];
-    for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
-    let total = bullets.reduce((a,b) => a + b.length, 0);
-    if (total <= limit) return { trimmed: false, before: total, after: total };
-    const before = total;
-    let safety = 0;
-    while (total > limit && safety < 500){
-        safety++;
-        let maxIdx = 0, maxLen = 0;
-        for (let i = 0; i < 5; i++){
-            if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
-        }
-        let text = bullets[maxIdx];
-        const sentences = text.split(/(?<=[.!?])\s+/);
-        if (sentences.length > 1){
-            sentences.pop();
-            bullets[maxIdx] = sentences.join(' ').trim();
-        } else {
-            const ws = text.split(/\s+/);
-            if (ws.length > 1){ ws.pop(); bullets[maxIdx] = ws.join(' '); }
-            else bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
-        }
-        total = bullets.reduce((a,b) => a + b.length, 0);
-        if (bullets.every(b => b.length <= 150)) break;
-    }
-    for (let i = 0; i < 5; i++){
-        const el = $('optBp' + i);
-        if (el) el.value = bullets[i];
-        updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
-    }
-    updateBpTotal();
-    return { trimmed: true, before: before, after: total };
 }
 
 function showProhibitedWarning(hits, targetName) {
@@ -916,92 +957,6 @@ function renderA9Score(a9After, a9Before){
     else { improveEl.textContent = '⬇ A9 下降 ' + improve + ' 分'; improveEl.style.color = '#b91c1c'; }
 }
 
-/* ================= A9 迭代增强 ================= */
-async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, boostRound){
-    const weakList = weakDimensions.map(d =>
-        '- ' + d.cn + '（当前 ' + d.score + ' / ' + d.max + ' 分）：' + d.note
-    ).join('\n');
-
-    const prompt = [
-        '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
-        '',
-        '你的前一轮优化已经生成了一份文案，但 A9 打分未达到 90 分。现在需要你针对性改进，专门解决以下短板维度。',
-        '',
-        '【当前已有的优化文案】',
-        '标题：' + currentTexts.title,
-        'Item Highlights：' + currentTexts.ih,
-        '五点描述：',
-        currentTexts.bullets,
-        '详细描述：',
-        currentTexts.desc,
-        'Search Terms：' + currentTexts.st,
-        '',
-        '【A9 待改进维度（必须针对性提升）】',
-        weakList,
-        '',
-        hotKeywords && hotKeywords.length ? [
-            '【用户热词库（优先级最高，尽量全部埋入）】',
-            hotKeywords.join('\n')
-        ].join('\n') : '',
-        '',
-        '════════ 改进目标 ════════',
-        '1. 保留已有文案的核心内容，不要推翻重写。',
-        '2. 只针对薄弱维度做针对性补充和优化。',
-        '3. 严格控制字符限制：标题 ≤75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
-        '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
-        '',
-        '【改进策略】',
-        '• 标题核心词 / 首屏权重不足 → 把热词更靠前放入标题，最多埋 3-5 个核心热词',
-        '• 五点词分布不足 → 确保 5 点各自覆盖不同关键词',
-        '• 长尾词不足 → 五点/描述里加入带空格的长尾短语',
-        '• 场景词不足 → 描述/五点里自然融入 indoor/outdoor/entryway/office 等场景词',
-        '• 属性词不足 → 描述/五点里自然融入 non-slip/washable/durable 等属性词（不能编造不存在的属性）',
-        '• 搜索词补充不足 → 让 Search Terms 包含标题/五点里没有出现的新词',
-        '• 词形变体不足 → 搜索词里可以包含单复数或紧凑形式变体',
-        '',
-        '【输出格式】',
-        '必须严格返回合法 JSON，结构同上一轮：',
-        '{',
-        '  "optimizedTitle": "...",',
-        '  "optimizedItemHighlights": "...",',
-        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
-        '  "optimizedDesc": "...",',
-        '  "optimizedST": "..."',
-        '}'
-    ].filter(Boolean).join('\n');
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000);
-    let resp;
-    try {
-        resp = await fetch('/api/deepseek', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。' },
-                    { role: 'user', content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 8000,
-                response_format: { type: 'json_object' }
-            }),
-            signal: controller.signal
-        });
-    } finally {
-        clearTimeout(timeoutId);
-    }
-    const result = await resp.json();
-    if (!result.success) throw new Error(result.error || '未知错误');
-    let content = result.data.choices[0].message.content.trim();
-    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
-    const firstBrace = content.indexOf('{');
-    const lastBrace = content.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
-    return JSON.parse(content);
-}
-
-/* ================= 主流程 ================= */
 async function runAnalysis(){
     const url      = $('productUrl').value.trim();
     const titleRaw = $('productTitle').value.trim();
@@ -1091,17 +1046,14 @@ async function runAnalysis(){
     status.textContent = '🤖 DeepSeek 双算法优化中…';
 
     try {
-        // 第一轮生成
         const aiResult = await callDeepSeekWithRetry(beforeResult.anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, 5);
         applyAIResults(aiResult, beforeResult.anchorResults, beforeResult, hotKeywords);
 
-        // 计算第一次优化后的 A9 分数
         let currentTexts = readCurrentTexts();
         let a9After = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
         let boostRound = 0;
         const MAX_BOOST = 2;
 
-        // 迭代增强循环
         while (a9After.totalScore < 90 && boostRound < MAX_BOOST){
             boostRound++;
             const weakDims = a9After.dimensions.filter(d => d.score < d.max * 0.8);
@@ -1114,10 +1066,8 @@ async function runAnalysis(){
             try {
                 const boostResult = await boostA9ForWeakDimensions(weakDims, currentTexts, hotKeywords, boostRound);
                 applyBoostResult(boostResult);
-
                 currentTexts = readCurrentTexts();
                 const newA9 = scoreA9(currentTexts.title, currentTexts.bullets, currentTexts.desc, currentTexts.st, hotKeywords);
-
                 if (newA9.totalScore > a9After.totalScore){
                     a9After = newA9;
                     showBoostSuccess(prevScore, a9After.totalScore, boostRound);
@@ -1131,7 +1081,6 @@ async function runAnalysis(){
             }
         }
 
-        // 最终重算 COSMO 和 A9
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
 
@@ -1168,6 +1117,7 @@ function applyBoostResult(boostResult){
         let title = replaceProhibitedWords(boostResult.optimizedTitle);
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
+        title = cleanTrailingBadWords(title);
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
@@ -1175,6 +1125,7 @@ function applyBoostResult(boostResult){
         let ih = replaceProhibitedWords(boostResult.optimizedItemHighlights);
         ih = sanitizeVerifyTags(ih);
         ih = trimToMaxChars(ih, 125);
+        ih = cleanItemHighlights(ih);
         $('optIhText').value = ih;
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
@@ -1206,6 +1157,90 @@ function applyBoostResult(boostResult){
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
+}
+
+async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeywords, boostRound){
+    const weakList = weakDimensions.map(d =>
+        '- ' + d.cn + '（当前 ' + d.score + ' / ' + d.max + ' 分）：' + d.note
+    ).join('\n');
+
+    const prompt = [
+        '你是亚马逊 A9 搜索算法优化专家。这是 A9 迭代增强任务（第 ' + boostRound + ' 轮）。',
+        '',
+        '你的前一轮优化已经生成了一份文案，但 A9 打分未达到 90 分。现在需要你针对性改进，专门解决以下短板维度。',
+        '',
+        '【当前已有的优化文案】',
+        '标题：' + currentTexts.title,
+        'Item Highlights：' + currentTexts.ih,
+        '五点描述：',
+        currentTexts.bullets,
+        '详细描述：',
+        currentTexts.desc,
+        'Search Terms：' + currentTexts.st,
+        '',
+        '【A9 待改进维度（必须针对性提升）】',
+        weakList,
+        '',
+        hotKeywords && hotKeywords.length ? [
+            '【用户热词库（优先级最高，尽量全部埋入）】',
+            hotKeywords.join('\n')
+        ].join('\n') : '',
+        '',
+        '════════ 改进目标 ════════',
+        '1. 保留已有文案的核心内容，不要推翻重写。',
+        '2. 只针对薄弱维度做针对性补充和优化。',
+        '3. 严格控制字符限制：标题 ≤75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
+        '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
+        '',
+        '【改进策略】',
+        '• 标题核心词 / 首屏权重不足 → 把热词更靠前放入标题，最多埋 3-5 个核心热词',
+        '• 五点词分布不足 → 确保 5 点各自覆盖不同关键词',
+        '• 长尾词不足 → 五点/描述里加入带空格的长尾短语',
+        '• 场景词不足 → 描述/五点里自然融入 indoor/outdoor/entryway/office 等场景词',
+        '• 属性词不足 → 描述/五点里自然融入 non-slip/washable/durable 等属性词（不能编造不存在的属性）',
+        '• 搜索词补充不足 → 让 Search Terms 包含标题/五点里没有出现的新词',
+        '• 词形变体不足 → 搜索词里可以包含单复数或紧凑形式变体',
+        '',
+        '【输出格式】',
+        '必须严格返回合法 JSON，结构同上一轮：',
+        '{',
+        '  "optimizedTitle": "...",',
+        '  "optimizedItemHighlights": "...",',
+        '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
+        '  "optimizedDesc": "...",',
+        '  "optimizedST": "..."',
+        '}'
+    ].filter(Boolean).join('\n');
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
+    let resp;
+    try {
+        resp = await fetch('/api/deepseek', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                messages: [
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。Item Highlights 必须写成逗号分隔短语。' },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 8000,
+                response_format: { type: 'json_object' }
+            }),
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+    const result = await resp.json();
+    if (!result.success) throw new Error(result.error || '未知错误');
+    let content = result.data.choices[0].message.content.trim();
+    content = content.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    const firstBrace = content.indexOf('{');
+    const lastBrace = content.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) content = content.substring(firstBrace, lastBrace + 1);
+    return JSON.parse(content);
 }
 
 async function callDeepSeekWithRetry(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, maxRetries){
@@ -1291,7 +1326,15 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - 前 80 字符必须包含至少 1-2 个核心热词。',
         '   - 整标题埋入 3-5 个核心热词。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
-        '3. 生成优化后的 Item Highlights（英文，≤125 字符）。尽量埋入热词。',
+        '   - ⚠️ 标题结尾禁止以介词或连词（for, with, in, on, by, to, of, and, or 等）结尾。如果字数不够，宁可删掉一些修饰词，也不要让标题以介词结尾。',
+        '3. 生成优化后的 Item Highlights（英文，≤125 字符）。',
+        '   - ⚠️ 格式要求：必须写成逗号分隔的短语，而不是完整句子。',
+        '   - 内容聚焦于：材质、推荐使用场景、兼容性、关键规格。',
+        '   - 每个短语首字母大写，短语之间用逗号 + 空格分隔。',
+        '   - 结尾不要使用句号或任何标点。',
+        '   - 不要重复标题中已经出现过的关键词。',
+        '   - 示例正确格式：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
+        '   - 示例错误格式：2-in-1 floor mat for entryway and daily use; PVA, PP, microfiber; easy to clean（这是句子不是短语）',
         '4. 生成优化后的五点描述（英文），严格按以下结构：',
         '   ▸ 每点 150-255 字符，五点总字符数 ≤1000。',
         '   ▸ 每点格式：「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
@@ -1308,8 +1351,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - 5-8 个自然段覆盖功能、材质、场景、人群、使用保养、情感价值。',
         '6. 生成优化后的后台搜索词（Search Terms）：',
         '   - 字节数 240-250，只使用空格分隔，全小写，无标点。',
-        '   - ⚠️ A9 要求：把标题、五点、描述里还没埋进去的热词全部塞进去，并补充 6+ 个新词。',
-        '   - 可以包含单复数变体或紧凑形式。',
+        '   - 把标题、五点、描述里还没埋进去的热词全部塞进去，并补充 6+ 个新词。',
         '',
         '【输出格式】',
         '严格返回合法 JSON，不要 markdown 代码块：',
@@ -1332,7 +1374,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语（不要句子）。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1504,6 +1546,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         let title = replaceProhibitedWords(aiResult.optimizedTitle);
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
+        title = cleanTrailingBadWords(title);
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
@@ -1511,6 +1554,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         let ih = replaceProhibitedWords(aiResult.optimizedItemHighlights);
         ih = sanitizeVerifyTags(ih);
         ih = trimToMaxChars(ih, 125);
+        ih = cleanItemHighlights(ih);
         $('optIhText').value = ih;
         updateByteCounter('optIhText','ihByteCounter',125,'字符',null);
     }
@@ -1615,6 +1659,7 @@ function applyFallback(anchorResults, hotKeywords){
         let title = replaceProhibitedWords(titleRaw);
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
+        title = cleanTrailingBadWords(title);
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
