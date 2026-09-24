@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统（高分防杜撰终极版）</title>
+<title>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</title>
 <style>
     :root{
         --primary:#2563eb; --primary-dark:#1d4ed8;
@@ -38,18 +38,33 @@
         outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);
     }
     textarea{resize:vertical;height:90px;}
-    .url-box{background:#f8fafc;padding:16px;border-radius:10px;margin-bottom:20px;border:1px dashed #94a3b8;}
-    .url-box .hint{font-size:12px;color:var(--muted);margin-top:6px;}
-    .url-flex{display:flex;gap:10px;align-items:flex-end;}
-    .url-flex input{flex:1;}
-    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;margin-bottom:20px;border:1px dashed #f59e0b;}
+    /* 新增双栏布局样式 */
+    .input-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 20px;
+    }
+    .input-layout-left {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .input-layout-right {
+        display: flex;
+        flex-direction: column;
+    }
+    @media (max-width: 900px) {
+        .input-layout { grid-template-columns: 1fr; }
+    }
+    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;border:1px dashed #f59e0b; display: flex; flex-direction: column; flex-grow: 1;}
     .keywords-box .hint{font-size:12px;color:#92400e;margin-top:6px;}
     .keywords-box label{color:#92400e;margin-bottom:8px;}
-    .keywords-box textarea{background:#fffbeb;border-color:#fde68a;}
+    .keywords-box textarea{background:#fffbeb;border-color:#fde68a; flex-grow: 1; min-height: 200px; resize: none;}
     .keywords-box textarea:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.15);}
     .btn-sm{
-        background:#0f172a;color:#fff;border:none;padding:0 18px;height:41px;
-        font-size:13px;font-weight:600;border-radius:9px;cursor:pointer;
+        background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;
+        font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;
         white-space:nowrap;transition:background .2s;font-family:inherit;
     }
     .btn-sm:hover{background:#334155;}
@@ -181,40 +196,47 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 高分防杜撰终极版</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · 高分化与防杜撰完美平衡版</p>
     </header>
 
     <div class="card">
-        <h2>📥 输入商品信息与文案</h2>
-        <div class="url-box">
-            <label for="productUrl" style="margin-bottom:8px;">🔗 亚马逊商品详情页网址（URL / ASIN 链接 · 可选）</label>
-            <div class="url-flex">
-                <input type="text" id="productUrl" placeholder="例如: https://www.amazon.com/dp/B00...">
-                <button class="btn-sm" onclick="loadSampleByUrl()">载入表盒示例数据</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0;">📥 输入商品信息与文案</h2>
+            <button class="btn-sm" onclick="loadSampleByUrl()">载入表盒示例数据</button>
+        </div>
+        
+        <!-- 新增：左右双栏布局 -->
+        <div class="input-layout">
+            <!-- 左侧区域：热词 / 长尾词库（竖条摆放） -->
+            <div class="input-layout-left">
+                <div class="keywords-box">
+                    <label for="hotKeywords">🎯 品类热词 / 长尾词库（每行一个或用逗号/空格分隔）</label>
+                    <textarea id="hotKeywords" placeholder="例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage&#10;watch display box"></textarea>
+                    <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。</div>
+                </div>
             </div>
-            <div class="hint">提示：点击后将自动载入“10格手表盒”的数据，方便快速测试。</div>
+            
+            <!-- 右侧区域：商品基础信息 -->
+            <div class="input-layout-right">
+                <div class="form-group">
+                    <label for="productTitle">商品标题 (Title)</label>
+                    <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
+                </div>
+                <div class="form-group">
+                    <label for="bulletPoints">5 点描述 (Bullet Points)</label>
+                    <textarea id="bulletPoints" placeholder="请输入或粘贴 5 点描述..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="description">详细描述 / A+ 内容 (Description / A+)</label>
+                    <textarea id="description" placeholder="请输入或粘贴详细描述或 A+ 内容..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="searchTerms">后台搜索词 (Search Terms)</label>
+                    <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
+                </div>
+            </div>
         </div>
-        <div class="keywords-box">
-            <label for="hotKeywords">🎯 品类热词 / 长尾词库（可选，每行一个或用逗号/空格分隔）</label>
-            <textarea id="hotKeywords" placeholder="例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage&#10;watch display box"></textarea>
-            <div class="hint">💡 粘贴该品类真实的热门搜索词和长尾词。这些词会被 A9 打分识别为核心词，AI 会优先埋入文案。</div>
-        </div>
-        <div class="form-group">
-            <label for="productTitle">商品标题 (Title)</label>
-            <input type="text" id="productTitle" placeholder="请输入或粘贴商品标题...">
-        </div>
-        <div class="form-group">
-            <label for="bulletPoints">5 点描述 (Bullet Points)</label>
-            <textarea id="bulletPoints" placeholder="请输入或粘贴 5 点描述..."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="description">详细描述 / A+ 内容 (Description / A+)</label>
-            <textarea id="description" placeholder="请输入或粘贴详细描述或 A+ 内容..."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="searchTerms">后台搜索词 (Search Terms)</label>
-            <input type="text" id="searchTerms" placeholder="请输入后台 Search Terms...">
-        </div>
+
         <div class="btn-row">
             <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始执行 A9 + COSMO 双算法打分与 DeepSeek 优化</button>
             <button class="btn ghost" onclick="clearAll()">清空</button>
@@ -1090,7 +1112,7 @@ function renderA9Score(a9After, a9Before){
 }
 
 async function runAnalysis(){
-    const url      = $('productUrl').value.trim();
+    const url      = $('productUrl') ? $('productUrl').value.trim() : '';
     const titleRaw = $('productTitle').value.trim();
     const bpRaw    = $('bulletPoints').value.trim();
     const descRaw  = $('description').value.trim();
@@ -1716,7 +1738,6 @@ async function copyAllBullets(btn){
 }
 
 function loadSampleByUrl(){
-    $('productUrl').value = 'https://www.amazon.com/dp/B07_WATCH_BOX';
     $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
     $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.';
     $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
@@ -1750,7 +1771,7 @@ async function copyTextElement(elementId, btn){
 }
 
 function clearAll(){
-    ['productUrl','productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => {
+    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => {
         const el = $(id);
         if (el) el.value = '';
     });
