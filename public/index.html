@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 标题充分利用 75 字符</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 五点总字符自动裁剪</p>
     </header>
 
     <div class="card">
@@ -387,15 +387,12 @@ const ANCHORS = [
     { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
 ];
 
-/* ================= A9 词库 ================= */
 const A9_SCENE_WORDS = ['indoor','outdoor','entryway','porch','patio','garden','kitchen','bathroom','office','classroom','front door','mudroom','hallway','garage','commercial','home','living room','bedroom','entrance','lobby','store','walkway','balcony','yard','lawn','warehouse','shipping','packing','moving','storage'];
 const A9_ATTR_WORDS = ['non-slip','non slip','absorbent','washable','reusable','durable','waterproof','water-resistant','water resistant','heavy duty','soft','thick','easy clean','machine washable','eco-friendly','recyclable','lightweight','sturdy','weather-resistant','long-lasting','foldable','portable','reversible','breathable','sturdy','crush-resistant'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
 
-/* 标题禁止以这些介词/连词结尾 */
 const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
 
-/* 标题补强词池（用于自动补足 70-75 字符） */
 const TITLE_BOOST_WORDS = [
     'Indoor Outdoor', 'Heavy Duty', 'Easy Clean', 'Long Lasting', 'Multi Purpose',
     'Daily Use', 'Home Office', 'Commercial Grade', 'All Season', 'Pet Friendly',
@@ -524,7 +521,6 @@ function sanitizeVerifyTags(text){
     return result.trim();
 }
 
-/* 标题防悬空：如果截断后最后一个词是介词/连词，就删掉它 */
 function cleanTrailingBadWords(title){
     if (!title) return '';
     let result = title.trim();
@@ -543,18 +539,15 @@ function cleanTrailingBadWords(title){
     return result;
 }
 
-/* ⭐ 标题补强：如果 < 70 字符，自动从热词库/属性词/场景词挑词追加 */
 function boostTitleLength(title, hotKeywords){
     if (!title) return title;
     let result = title.trim();
     const currentLen = result.length;
     if (currentLen >= 70) return result;
 
-    // 候选词优先级：热词库（未埋入的短词）> 属性词 > 场景词 > 兜底词
     const candidates = [];
     const usedLower = result.toLowerCase();
 
-    // 1. 从热词库挑未埋入的短词（长度 ≤ 20，避免挤爆）
     if (hotKeywords && hotKeywords.length){
         hotKeywords.forEach(kw => {
             const clean = kw.trim();
@@ -564,23 +557,16 @@ function boostTitleLength(title, hotKeywords){
             candidates.push(clean);
         });
     }
-
-    // 2. 属性词（挑短的）
     A9_ATTR_WORDS.forEach(w => {
         if (w.length <= 15 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
     });
-
-    // 3. 场景词（挑短的）
     A9_SCENE_WORDS.forEach(w => {
         if (w.length <= 12 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
     });
-
-    // 4. 兜底补强词
     TITLE_BOOST_WORDS.forEach(w => {
         if (!usedLower.includes(w.toLowerCase())) candidates.push(w);
     });
 
-    // 去重
     const seen = new Set();
     const uniqueCandidates = candidates.filter(c => {
         const lower = c.toLowerCase();
@@ -589,10 +575,8 @@ function boostTitleLength(title, hotKeywords){
         return true;
     });
 
-    // 逐个尝试追加，直到接近 75 字符
     for (const c of uniqueCandidates){
         const capitalized = c.split(' ').map(w => {
-            // 短介词/连词小写
             const low = w.toLowerCase();
             if (['and','or','for','the','a','an','in','on','with','to','of','by','at'].includes(low)) return low;
             return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
@@ -600,7 +584,7 @@ function boostTitleLength(title, hotKeywords){
         const candidate = result + ', ' + capitalized;
         if (candidate.length <= 75){
             result = candidate;
-            if (result.length >= 73) break; // 足够接近上限就停
+            if (result.length >= 73) break;
         }
     }
     return result;
@@ -667,7 +651,6 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* Item Highlights 格式清洗：逗号分隔短语，首字母大写，无句号 */
 function cleanItemHighlights(ih){
     if (!ih) return '';
     let result = ih.trim();
@@ -683,32 +666,47 @@ function cleanItemHighlights(ih){
     return result;
 }
 
+/* ⭐ 五点自动裁剪：多次从最长点删减，直到 ≤1000 */
 function autoTrimBulletsToLimit(limit){
     let bullets = [];
     for (let i = 0; i < 5; i++) bullets.push($('optBp' + i).value || '');
     let total = bullets.reduce((a,b) => a + b.length, 0);
     if (total <= limit) return { trimmed: false, before: total, after: total };
+
     const before = total;
     let safety = 0;
+    const MIN_LEN = 130; // 每点最低保留 130 字符，避免裁太狠
+
     while (total > limit && safety < 500){
         safety++;
+        // 找最长的一点
         let maxIdx = 0, maxLen = 0;
         for (let i = 0; i < 5; i++){
             if (bullets[i].length > maxLen){ maxLen = bullets[i].length; maxIdx = i; }
         }
+        // 如果最长一点都不超过 MIN_LEN，则不再裁剪（避免删没了）
+        if (maxLen <= MIN_LEN) break;
+
         let text = bullets[maxIdx];
+        // 优先按句子删（句号/问号/感叹号后的空格）
         const sentences = text.split(/(?<=[.!?])\s+/);
         if (sentences.length > 1){
             sentences.pop();
             bullets[maxIdx] = sentences.join(' ').trim();
         } else {
+            // 按空格词删
             const ws = text.split(/\s+/);
-            if (ws.length > 1){ ws.pop(); bullets[maxIdx] = ws.join(' '); }
-            else bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
+            if (ws.length > 1){
+                ws.pop();
+                bullets[maxIdx] = ws.join(' ');
+            } else {
+                bullets[maxIdx] = text.substring(0, Math.max(0, text.length - 8)).trim();
+            }
         }
         total = bullets.reduce((a,b) => a + b.length, 0);
-        if (bullets.every(b => b.length <= 150)) break;
     }
+
+    // 写回
     for (let i = 0; i < 5; i++){
         const el = $('optBp' + i);
         if (el) el.value = bullets[i];
@@ -944,7 +942,18 @@ function showTitleBoostInfo(originalLen, newLen){
     const warning = document.createElement('div');
     warning.id = 'title-boost-warning';
     warning.style.cssText = 'background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
-    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">🎯 标题未充分利用 75 字符，已自动补强：' + originalLen + ' → ' + newLen + ' 字符（补入了品类相关词）。</div>';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">🎯 标题未充分利用 75 字符，已自动补强：' + originalLen + ' → ' + newLen + ' 字符。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
+function showBulletTrimInfo(before, after){
+    const existing = document.getElementById('bp-trim-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'bp-trim-warning';
+    warning.style.cssText = 'background:#ecfdf5;border:1px solid #a7f3d0;border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#047857;font-size:13px;">✂️ 五点描述总字符超限，已自动裁剪：' + before + ' → ' + after + ' 字符（保留 5 点，从最长点开始删减）。</div>';
     const resultCard = document.getElementById('resultCard');
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
@@ -1051,7 +1060,7 @@ async function runAnalysis(){
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
     if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，A9 将据此打分，AI 将优先埋入');
 
-    ['prohibited-warning','length-warning','coverage-warning','boost-warning','title-boost-warning'].forEach(id => {
+    ['prohibited-warning','length-warning','coverage-warning','boost-warning','title-boost-warning','bp-trim-warning'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.remove();
     });
@@ -1159,6 +1168,9 @@ async function runAnalysis(){
             }
         }
 
+        // ⭐ 最终保底：再次裁剪五点，确保总字符 ≤ 1000
+        autoTrimBulletsToLimit(1000);
+
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
 
@@ -1167,6 +1179,7 @@ async function runAnalysis(){
     } catch (err){
         console.error('所有重试均失败：', err);
         applyFallback(beforeResult.anchorResults, hotKeywords);
+        autoTrimBulletsToLimit(1000);
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
         status.className = 'ai-status error';
@@ -1196,6 +1209,11 @@ function applyBoostResult(boostResult){
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
+        const originalLen = title.length;
+        title = boostTitleLength(title, parseHotKeywords());
+        if (title.length > originalLen && title.length >= 70){
+            showTitleBoostInfo(originalLen, title.length);
+        }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
@@ -1221,6 +1239,11 @@ function applyBoostResult(boostResult){
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
+        // ⭐ 关键：迭代增强后立即裁剪，防止超 1000
+        const trimResult = autoTrimBulletsToLimit(1000);
+        if (trimResult.trimmed){
+            showBulletTrimInfo(trimResult.before, trimResult.after);
+        }
     }
     if (boostResult.optimizedDesc){
         let desc = replaceProhibitedWords(boostResult.optimizedDesc);
@@ -1267,7 +1290,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '════════ 改进目标 ════════',
         '1. 保留已有文案的核心内容，不要推翻重写。',
         '2. 只针对薄弱维度做针对性补充和优化。',
-        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
+        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-255、**总字符 ≤1000（这是硬性要求！）**；描述 ≤5000；搜索词 240-250 字节。',
         '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
         '',
         '【改进策略】',
@@ -1288,7 +1311,9 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '  "optimizedBullets": ["第1点", "第2点", "第3点", "第4点", "第5点"],',
         '  "optimizedDesc": "...",',
         '  "optimizedST": "..."',
-        '}'
+        '}',
+        '',
+        '⚠️⚠️ 五点描述总字符数绝对不要超过 1000！每点控制在 150-220 字符，留足余量。'
     ].filter(Boolean).join('\n');
 
     const controller = new AbortController();
@@ -1300,7 +1325,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。Item Highlights 必须写成逗号分隔短语。标题禁止以介词结尾。' },
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。五点描述总字符必须 ≤1000（硬性要求）。标题 70-75 字符。Item Highlights 写成逗号分隔短语。禁止违禁词，禁止编造原则性信息。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1416,7 +1441,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '   - 正确示例：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
         '   - 错误示例：2-in-1 floor mat for entryway; easy to clean, reusable（这是句子不是短语）',
         '4. 生成优化后的五点描述（英文），严格按以下结构：',
-        '   ▸ 每点 150-255 字符，五点总字符数 ≤1000。',
+        '   ▸ ⚠️⚠️ 每点 150-220 字符（不要写超过 220，给总字数留余量），五点总字符数必须 ≤1000（硬性上限！）。',
         '   ▸ 每点格式：「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
         '   【第 1 点 · 基本属性 + 包装内容】：商品基本属性（原文已提供的才写）+ 订单包含什么。',
         '   【第 2 点 · 核心痛点 / 人群】：针对哪类人群、解决什么核心痛点。',
@@ -1454,7 +1479,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题字符数必须在 70-75 之间（不要浪费 A9 权重）。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语（不要句子）。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题字符数必须在 70-75 之间。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语。⚠️ 五点描述总字符必须 ≤1000（硬性），每点 150-220 字符。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1627,7 +1652,6 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
-        // ⭐ 标题补强
         const originalLen = title.length;
         title = boostTitleLength(title, hotKeywords);
         if (title.length > originalLen && title.length >= 70){
@@ -1661,6 +1685,11 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
+        // ⭐ 第一轮生成后立即裁剪
+        const trimResult = autoTrimBulletsToLimit(1000);
+        if (trimResult.trimmed){
+            showBulletTrimInfo(trimResult.before, trimResult.after);
+        }
     } else {
         for (let i = 0; i < 5; i++){
             let text = FALLBACK_BULLETS[i] || '';
@@ -1672,6 +1701,7 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
             updateByteCounter('optBp' + i, 'bpCounter' + i, 255, '字符', 150);
         }
         updateBpTotal();
+        autoTrimBulletsToLimit(1000);
     }
     if (aiResult.optimizedDesc) {
         let desc = replaceProhibitedWords(aiResult.optimizedDesc);
@@ -1687,8 +1717,6 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
 
-    const trimResult = autoTrimBulletsToLimit(1000);
-    if (trimResult.trimmed) showCoverageWarning('五点描述总字符超限，已自动裁剪：' + trimResult.before + ' → ' + trimResult.after + ' 字符。');
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0) showCoverageWarning('检测到 ' + coverage.fixed + ' 个 COSMO 锚点原本文案未覆盖，已自动在详细描述末尾追加语义补充段落。');
     if (coverage.missing.length > 0){
@@ -1778,8 +1806,6 @@ function applyFallback(anchorResults, hotKeywords){
         $('optStText').value = st;
         updateByteCounter('optStText','stByteCounter',250,'字节',240);
     }
-    const trimResult = autoTrimBulletsToLimit(1000);
-    if (trimResult.trimmed) showCoverageWarning('五点描述总字符超限，已自动裁剪。');
     const coverage = selfCoverageCheck(anchorResults);
     if (coverage.fixed > 0) showCoverageWarning('本地模板检测到 ' + coverage.fixed + ' 个锚点未覆盖，已自动追加语义补充。');
     const stPatch = patchSearchTerms(anchorResults, hotKeywords);
