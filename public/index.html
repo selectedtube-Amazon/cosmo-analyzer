@@ -180,7 +180,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 COSMO 15 锚点 + A9 双算法智能打分系统</h1>
-        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · Item Highlights 新规适配</p>
+        <p>COSMO 语义锚点 · A9 关键词策略 · DeepSeek 双算法协同优化 · 标题充分利用 75 字符</p>
     </header>
 
     <div class="card">
@@ -279,7 +279,7 @@
             <div class="pane pane-right">
                 <h3>✨ DeepSeek 优化文案（一键复制）</h3>
                 <div class="copy-section-header">
-                    <span>优化后的商品标题 (Title · ≤75字符)</span>
+                    <span>优化后的商品标题 (Title · 目标 70-75字符)</span>
                     <button class="copy-btn" onclick="copyTextElement('optTitleText', this)">复制标题</button>
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="DeepSeek 生成中…"></textarea>
@@ -394,6 +394,14 @@ const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','o
 
 /* 标题禁止以这些介词/连词结尾 */
 const TRAILING_BAD_WORDS = ['for','with','in','on','by','to','of','and','or','the','a','an','from','at','into','onto','about','after','before','during','through','between'];
+
+/* 标题补强词池（用于自动补足 70-75 字符） */
+const TITLE_BOOST_WORDS = [
+    'Indoor Outdoor', 'Heavy Duty', 'Easy Clean', 'Long Lasting', 'Multi Purpose',
+    'Daily Use', 'Home Office', 'Commercial Grade', 'All Season', 'Pet Friendly',
+    'Non Slip', 'Washable', 'Reusable', 'Durable', 'Modern', 'Premium Look',
+    'Space Saving', 'Easy to Use', 'Versatile', 'High Traffic'
+];
 
 const FALLBACK = {
     'used_for_func':'PURPOSE-BUILT DESIGN: Engineered to deliver reliable, everyday performance that solves exactly the problem shoppers are searching for.',
@@ -516,7 +524,7 @@ function sanitizeVerifyTags(text){
     return result.trim();
 }
 
-/* ⭐ 标题防悬空：如果截断后最后一个词是介词/连词，就删掉它 */
+/* 标题防悬空：如果截断后最后一个词是介词/连词，就删掉它 */
 function cleanTrailingBadWords(title){
     if (!title) return '';
     let result = title.trim();
@@ -530,6 +538,69 @@ function cleanTrailingBadWords(title){
             result = words.join(' ').trim();
         } else {
             break;
+        }
+    }
+    return result;
+}
+
+/* ⭐ 标题补强：如果 < 70 字符，自动从热词库/属性词/场景词挑词追加 */
+function boostTitleLength(title, hotKeywords){
+    if (!title) return title;
+    let result = title.trim();
+    const currentLen = result.length;
+    if (currentLen >= 70) return result;
+
+    // 候选词优先级：热词库（未埋入的短词）> 属性词 > 场景词 > 兜底词
+    const candidates = [];
+    const usedLower = result.toLowerCase();
+
+    // 1. 从热词库挑未埋入的短词（长度 ≤ 20，避免挤爆）
+    if (hotKeywords && hotKeywords.length){
+        hotKeywords.forEach(kw => {
+            const clean = kw.trim();
+            if (!clean || clean.length < 3 || clean.length > 20) return;
+            if (usedLower.includes(clean.toLowerCase())) return;
+            if (detectProhibitedWords(clean).length > 0) return;
+            candidates.push(clean);
+        });
+    }
+
+    // 2. 属性词（挑短的）
+    A9_ATTR_WORDS.forEach(w => {
+        if (w.length <= 15 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
+    });
+
+    // 3. 场景词（挑短的）
+    A9_SCENE_WORDS.forEach(w => {
+        if (w.length <= 12 && !usedLower.includes(w.toLowerCase())) candidates.push(w);
+    });
+
+    // 4. 兜底补强词
+    TITLE_BOOST_WORDS.forEach(w => {
+        if (!usedLower.includes(w.toLowerCase())) candidates.push(w);
+    });
+
+    // 去重
+    const seen = new Set();
+    const uniqueCandidates = candidates.filter(c => {
+        const lower = c.toLowerCase();
+        if (seen.has(lower)) return false;
+        seen.add(lower);
+        return true;
+    });
+
+    // 逐个尝试追加，直到接近 75 字符
+    for (const c of uniqueCandidates){
+        const capitalized = c.split(' ').map(w => {
+            // 短介词/连词小写
+            const low = w.toLowerCase();
+            if (['and','or','for','the','a','an','in','on','with','to','of','by','at'].includes(low)) return low;
+            return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+        }).join(' ');
+        const candidate = result + ', ' + capitalized;
+        if (candidate.length <= 75){
+            result = candidate;
+            if (result.length >= 73) break; // 足够接近上限就停
         }
     }
     return result;
@@ -596,19 +667,14 @@ function trimToMaxBytes(str, maxBytes) {
     return result.trim();
 }
 
-/* ⭐ Item Highlights 格式清洗：逗号分隔短语，首字母大写，无句号 */
+/* Item Highlights 格式清洗：逗号分隔短语，首字母大写，无句号 */
 function cleanItemHighlights(ih){
     if (!ih) return '';
     let result = ih.trim();
-    // 去掉句号、分号（分号在 Item Highlights 里也不推荐）
     result = result.replace(/[.。]/g, '');
-    // 中英文分号统一为逗号
     result = result.replace(/[;；]/g, ',');
-    // 连续逗号合并
     result = result.replace(/,{2,}/g, ',');
-    // 逗号前后空格规范化
     result = result.replace(/\s*,\s*/g, ', ');
-    // 按逗号拆分，每个短语首字母大写
     result = result.split(',').map(s => {
         const trimmed = s.trim();
         if (!trimmed) return '';
@@ -698,8 +764,9 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     const tLen = (title || '').length;
     let tLenScore, tLenNote;
     if (tLen === 0){ tLenScore = 0; tLenNote = '标题为空'; }
-    else if (tLen < 30){ tLenScore = 4; tLenNote = '标题仅 ' + tLen + ' 字符，过短（建议 50-75）'; }
-    else if (tLen <= 75){ tLenScore = 10; tLenNote = '标题 ' + tLen + ' 字符，符合 75 字符新规'; }
+    else if (tLen < 30){ tLenScore = 4; tLenNote = '标题仅 ' + tLen + ' 字符，过短（建议 70-75）'; }
+    else if (tLen < 60){ tLenScore = 7; tLenNote = '标题 ' + tLen + ' 字符，未充分利用 75 字符空间'; }
+    else if (tLen <= 75){ tLenScore = 10; tLenNote = '标题 ' + tLen + ' 字符，充分利用了 75 字符新规'; }
     else if (tLen <= 100){ tLenScore = 6; tLenNote = '标题 ' + tLen + ' 字符，超出 75 字符规范（会被截断）'; }
     else { tLenScore = 3; tLenNote = '标题 ' + tLen + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score: tLenScore, max:10, note: tLenNote });
@@ -871,6 +938,17 @@ function showBoostSuccess(oldScore, newScore, boostCount){
     if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
 }
 
+function showTitleBoostInfo(originalLen, newLen){
+    const existing = document.getElementById('title-boost-warning');
+    if (existing) existing.remove();
+    const warning = document.createElement('div');
+    warning.id = 'title-boost-warning';
+    warning.style.cssText = 'background:#fef3c7;border:1px solid #fde68a;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-bottom:16px;';
+    warning.innerHTML = '<div style="font-weight:700;color:#b45309;font-size:13px;">🎯 标题未充分利用 75 字符，已自动补强：' + originalLen + ' → ' + newLen + ' 字符（补入了品类相关词）。</div>';
+    const resultCard = document.getElementById('resultCard');
+    if (resultCard) resultCard.insertBefore(warning, resultCard.firstChild);
+}
+
 function updateByteCounter(inputId, counterId, max, unit, min){
     const el = $(inputId);
     const counter = $(counterId);
@@ -973,7 +1051,7 @@ async function runAnalysis(){
     if (!descRaw && titleRaw) showToast('⚠️ 您未填写详细描述，AI将基于已有信息谨慎拓展，请务必核实！');
     if (hotKeywords.length) showToast('🎯 已识别 ' + hotKeywords.length + ' 个热词，A9 将据此打分，AI 将优先埋入');
 
-    ['prohibited-warning','length-warning','coverage-warning','boost-warning'].forEach(id => {
+    ['prohibited-warning','length-warning','coverage-warning','boost-warning','title-boost-warning'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.remove();
     });
@@ -1189,11 +1267,12 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
         '════════ 改进目标 ════════',
         '1. 保留已有文案的核心内容，不要推翻重写。',
         '2. 只针对薄弱维度做针对性补充和优化。',
-        '3. 严格控制字符限制：标题 ≤75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
+        '3. 严格控制字符限制：标题 70-75；Item Highlights ≤125；五点每点 150-255、总 ≤1000；描述 ≤5000；搜索词 240-250 字节。',
         '4. 保持所有英文原文风格，禁止促销词、违禁词、编造原则性信息。',
         '',
         '【改进策略】',
         '• 标题核心词 / 首屏权重不足 → 把热词更靠前放入标题，最多埋 3-5 个核心热词',
+        '• 标题长度不足 → 标题必须充分利用 70-75 字符，补入额外的属性词或场景词',
         '• 五点词分布不足 → 确保 5 点各自覆盖不同关键词',
         '• 长尾词不足 → 五点/描述里加入带空格的长尾短语',
         '• 场景词不足 → 描述/五点里自然融入 indoor/outdoor/entryway/office 等场景词',
@@ -1221,7 +1300,7 @@ async function boostA9ForWeakDimensions(weakDimensions, currentTexts, hotKeyword
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。Item Highlights 必须写成逗号分隔短语。' },
+                    { role: 'system', content: '你是亚马逊 A9 优化专家。针对薄弱维度改进已有文案，不要推翻重写。严格保持字符限制。禁止违禁词，禁止编造原则性信息。Item Highlights 必须写成逗号分隔短语。标题禁止以介词结尾。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1288,7 +1367,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '【A9 算法】负责关键词字面匹配，有 10 个维度：',
         '1. 标题核心词——标题必须埋入 3-5 个核心热词',
         '2. 标题首屏权重——前 80 字符至少含 1 个核心热词',
-        '3. 标题长度规范——总字符 ≤75',
+        '3. 标题长度规范——标题总字符数应在 70-75 之间（充分利用，不要浪费）',
         '4. 五点词分布——5 点各自覆盖不同词，重复率 <40%',
         '5. 长尾词覆盖——全文至少 5 个带空格的长尾短语',
         '6. 场景词覆盖——全文至少 5 个场景词（indoor/outdoor/entryway/office/porch 等）',
@@ -1322,19 +1401,20 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
         '【你的任务】',
         '1. 为每个未达标 COSMO 锚点，生成一句自然融入该锚点语义的英文优化文案（30-50 词）。',
         '2. 生成优化后的商品标题（英文）：',
-        '   - 总字符数（含空格）≤75。',
+        '   ⚠️⚠️⚠️ 标题字符数必须在 70-75 之间（充分利用！不要只写 50-60 字符，那是浪费 A9 权重最高的位置）',
         '   - 前 80 字符必须包含至少 1-2 个核心热词。',
         '   - 整标题埋入 3-5 个核心热词。',
         '   - 每个单词首字母大写，但连词/冠词/短介词不大写。',
-        '   - ⚠️ 标题结尾禁止以介词或连词（for, with, in, on, by, to, of, and, or 等）结尾。如果字数不够，宁可删掉一些修饰词，也不要让标题以介词结尾。',
+        '   - ⚠️ 标题结尾禁止以介词或连词（for, with, in, on, by, to, of, and, or 等）结尾。',
+        '   - 如果核心词写完后还不到 70 字符，补入 1-2 个属性词或场景词（如 Indoor Outdoor, Easy Clean, Heavy Duty）。',
         '3. 生成优化后的 Item Highlights（英文，≤125 字符）。',
-        '   - ⚠️ 格式要求：必须写成逗号分隔的短语，而不是完整句子。',
+        '   ⚠️ 格式要求：必须写成逗号分隔的短语，而不是完整句子。',
         '   - 内容聚焦于：材质、推荐使用场景、兼容性、关键规格。',
         '   - 每个短语首字母大写，短语之间用逗号 + 空格分隔。',
         '   - 结尾不要使用句号或任何标点。',
         '   - 不要重复标题中已经出现过的关键词。',
-        '   - 示例正确格式：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
-        '   - 示例错误格式：2-in-1 floor mat for entryway and daily use; PVA, PP, microfiber; easy to clean（这是句子不是短语）',
+        '   - 正确示例：PVA, PP, Microfiber, Entryway, Daily Use, Anti-Slip, Reusable',
+        '   - 错误示例：2-in-1 floor mat for entryway; easy to clean, reusable（这是句子不是短语）',
         '4. 生成优化后的五点描述（英文），严格按以下结构：',
         '   ▸ 每点 150-255 字符，五点总字符数 ≤1000。',
         '   ▸ 每点格式：「全大写好处优先标题: 具体描述内容」，结尾不加标点。',
@@ -1374,7 +1454,7 @@ async function callDeepSeek(anchorResults, titleRaw, bpRaw, descRaw, stRaw, hotK
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 messages: [
-                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语（不要句子）。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
+                    { role: 'system', content: '你是亚马逊双算法（A9 + COSMO）Listing 优化专家。必须同时满足：A9 十维度（标题核心词/首屏权重/长度规范/五点分布/长尾词/场景词/属性词/搜索词补充/词形变体/无堆砌）和 COSMO 15 语义锚点。标题字符数必须在 70-75 之间（不要浪费 A9 权重）。标题禁止以介词结尾。Item Highlights 必须写成逗号分隔短语（不要句子）。严格禁止违禁词。严格防杜撰：原则性信息缺失直接跳过，不写任何占位符。' },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
@@ -1547,6 +1627,12 @@ function applyAIResults(aiResult, anchorResults, beforeResult, hotKeywords){
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
+        // ⭐ 标题补强
+        const originalLen = title.length;
+        title = boostTitleLength(title, hotKeywords);
+        if (title.length > originalLen && title.length >= 70){
+            showTitleBoostInfo(originalLen, title.length);
+        }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
@@ -1660,6 +1746,11 @@ function applyFallback(anchorResults, hotKeywords){
         title = sanitizeVerifyTags(title);
         title = trimToMaxChars(title, 75);
         title = cleanTrailingBadWords(title);
+        const originalLen = title.length;
+        title = boostTitleLength(title, hotKeywords);
+        if (title.length > originalLen && title.length >= 70){
+            showTitleBoostInfo(originalLen, title.length);
+        }
         $('optTitleText').value = title;
         updateByteCounter('optTitleText','titleByteCounter',75,'字符',null);
     }
