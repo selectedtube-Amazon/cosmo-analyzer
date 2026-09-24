@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 一次生成版 v2</title>
+<title>亚马逊 Listing 智能优化系统 · 可配置约束版</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -16,8 +16,8 @@
     .card h2{margin:0 0 16px;font-size:17px;}
     .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
     label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
-    input[type="text"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
-    input[type="text"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    input[type="text"],input[type="number"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
+    input[type="text"]:focus,input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
     textarea{resize:vertical;height:90px;}
     .input-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;}
     .input-layout-left{display:flex;flex-direction:column;height:100%;}
@@ -29,12 +29,39 @@
     .keywords-box textarea{background:#fffbeb;border-color:#fde68a;flex-grow:1;min-height:200px;resize:none;}
     .btn-sm{background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;}
     .btn-sm:hover{background:#334155;}
-    .btn-row{display:flex;gap:12px;margin-top:20px;}
+    .btn-sm.gray{background:#64748b;}
+    .btn-sm.gray:hover{background:#475569;}
+    .btn-sm.red{background:#dc2626;}
+    .btn-sm.red:hover{background:#b91c1c;}
+    .btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
     button.btn{background:var(--primary);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
     button.btn:hover{background:var(--primary-dark);}
     button.btn:disabled{background:#94a3b8;cursor:not-allowed;}
     button.btn.ghost{flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px;}
     button.btn.ghost:hover{background:#f1f5f9;}
+
+    /* 约束条件卡片 */
+    .constraint-card{background:linear-gradient(135deg,#f0f9ff 0%,#f0fdf4 100%);border:1px solid #bae6fd;}
+    .constraint-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+    .constraint-header h2{margin:0;font-size:16px;color:#0369a1;}
+    .constraint-header .toggle-hint{font-size:12px;color:#0369a1;font-weight:600;}
+    .constraint-body{margin-top:18px;padding-top:16px;border-top:1px dashed #bae6fd;}
+    .constraint-section{margin-bottom:22px;}
+    .constraint-section .sec-title{font-size:13px;font-weight:700;color:#075985;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .constraint-section .sec-desc{font-size:12px;color:#0369a1;margin-bottom:10px;line-height:1.5;}
+    .num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+    .num-grid .num-item label{font-size:12px;color:#334155;}
+    .num-grid .num-item input[type="number"]{padding:8px 10px;font-size:13px;}
+    .rule-item{margin-bottom:14px;}
+    .rule-item label{font-size:12.5px;color:#075985;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .rule-item label .rule-hint{font-size:11px;color:#0369a1;font-weight:500;}
+    .rule-item textarea{font-size:12.5px;line-height:1.6;background:#fff;border-color:#bae6fd;min-height:80px;font-family:ui-monospace,Menlo,Consolas,monospace;}
+    .rule-item textarea:focus{border-color:#0284c7;box-shadow:0 0 0 3px rgba(2,132,199,.12);}
+    .forbidden-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#fff;border-color:#bae6fd;min-height:120px;}
+    .example-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#fff;border-color:#bae6fd;min-height:280px;line-height:1.65;}
+    .constraint-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:14px;border-top:1px dashed #bae6fd;flex-wrap:wrap;gap:10px;}
+    .constraint-footer .status{font-size:12px;color:#0369a1;font-weight:600;}
+
     .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
     @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
     .pane{border-radius:12px;padding:18px;border:1px solid;}
@@ -140,8 +167,85 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>自由文本生成模式 · 移除 JSON 限制 · 释放 AI 写作能力</p>
+        <p>约束条件可编辑 · 自动固化 · 免改代码 · 一次生成高质量 Listing</p>
     </header>
+
+    <!-- 约束条件编辑区 -->
+    <div class="card constraint-card">
+        <div class="constraint-header" onclick="toggleConstraints()">
+            <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
+            <span class="toggle-hint" id="constraintToggle">展开 ▼</span>
+        </div>
+        <div class="constraint-body hidden" id="constraintBody">
+            <div class="constraint-section">
+                <div class="sec-title">📏 字数硬约束</div>
+                <div class="sec-desc">修改这些数字会立刻影响 AI 生成要求和本地校验。生成时按这里的最小值/最大值严格执行。</div>
+                <div class="num-grid">
+                    <div class="num-item"><label>标题 · 最小字符</label><input type="number" id="c_titleMin" min="0" max="200"></div>
+                    <div class="num-item"><label>标题 · 最大字符</label><input type="number" id="c_titleMax" min="0" max="200"></div>
+                    <div class="num-item"><label>Item Highlights · 最小字符</label><input type="number" id="c_ihMin" min="0" max="300"></div>
+                    <div class="num-item"><label>Item Highlights · 最大字符</label><input type="number" id="c_ihMax" min="0" max="300"></div>
+                    <div class="num-item"><label>五点 · 每条最小字符</label><input type="number" id="c_bulletMin" min="0" max="300"></div>
+                    <div class="num-item"><label>五点 · 每条最大字符</label><input type="number" id="c_bulletMax" min="0" max="500"></div>
+                    <div class="num-item"><label>五点 · 5 条合计上限</label><input type="number" id="c_bulletTotal" min="0" max="3000"></div>
+                    <div class="num-item"><label>描述 · 最小字符</label><input type="number" id="c_descMin" min="0" max="3000"></div>
+                    <div class="num-item"><label>描述 · 最大字符</label><input type="number" id="c_descMax" min="0" max="5000"></div>
+                    <div class="num-item"><label>Search Terms · 最大字节</label><input type="number" id="c_stMax" min="0" max="500"></div>
+                </div>
+            </div>
+
+            <div class="constraint-section">
+                <div class="sec-title">🚫 违禁词清单（每行一个）</div>
+                <div class="sec-desc">生成时会提醒 AI 避开；本地校验会扫描并列出命中的词。</div>
+                <textarea id="c_forbidden" class="forbidden-ta"></textarea>
+            </div>
+
+            <div class="constraint-section">
+                <div class="sec-title">📝 规则文本（会原样拼进 AI Prompt）</div>
+                <div class="sec-desc">这是 AI 生成时读到的具体指令。改这里 = 改 AI 的行为准则。</div>
+
+                <div class="rule-item">
+                    <label>标题规则 <span class="rule-hint">AI 会按此写标题</span></label>
+                    <textarea id="c_ruleTitle"></textarea>
+                </div>
+                <div class="rule-item">
+                    <label>Item Highlights 规则 <span class="rule-hint">必须与标题互补</span></label>
+                    <textarea id="c_ruleIH"></textarea>
+                </div>
+                <div class="rule-item">
+                    <label>五点规则 <span class="rule-hint">每条好处优先，结尾不加句号</span></label>
+                    <textarea id="c_ruleBullets"></textarea>
+                </div>
+                <div class="rule-item">
+                    <label>详细描述规则 <span class="rule-hint">自然段，场景开头</span></label>
+                    <textarea id="c_ruleDesc"></textarea>
+                </div>
+                <div class="rule-item">
+                    <label>Search Terms 规则 <span class="rule-hint">严禁照抄范例</span></label>
+                    <textarea id="c_ruleST"></textarea>
+                </div>
+                <div class="rule-item">
+                    <label>保真原则 <span class="rule-hint">严禁编造原文没有的信息</span></label>
+                    <textarea id="c_ruleFidelity"></textarea>
+                </div>
+            </div>
+
+            <div class="constraint-section">
+                <div class="sec-title">📖 参考范例（AI 会模仿这份范例的水准）</div>
+                <div class="sec-desc">这是 AI 心中的"好文案长什么样"。改动这里会显著影响输出风格。可以清空，但输出质量可能下降。</div>
+                <textarea id="c_example" class="example-ta"></textarea>
+            </div>
+
+            <div class="constraint-footer">
+                <div class="status" id="constraintStatus">已保存到浏览器 · 刷新不丢失</div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
+                    <button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
+                    <button class="btn-sm red" onclick="resetConstraints()">恢复默认</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -206,7 +310,7 @@
             </div>
             <div class="pipeline-progress">
                 <div class="pipeline-step" data-step="1">① 输入净化</div>
-                <div class="pipeline-step" data-step="2">② 事实提取</div>
+                <div class="pipeline-step" data-step="2">② 分析信息</div>
                 <div class="pipeline-step" data-step="3">③ AI 自由生成</div>
                 <div class="pipeline-step" data-step="4">④ 本地校验</div>
                 <div class="pipeline-step" data-step="5">⑤ 输出</div>
@@ -224,10 +328,10 @@
                 <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
             </div>
             <div class="pane pane-right">
-                <h3>✨ 优化后文案（可固化自定义要求）</h3>
+                <h3>✨ 优化后文案</h3>
                 
                 <div class="copy-section-header">
-                    <span>商品标题 (Title · ≤75 字符)</span>
+                    <span>商品标题 (Title · ≤<span id="titleMaxHint">75</span> 字符)</span>
                     <div class="header-actions">
                         <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题特殊要求(固化)">
                         <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
@@ -237,7 +341,7 @@
                 <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
                 
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤125 字符 · 与标题互补)</span>
+                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符 · 与标题互补)</span>
                     <div class="header-actions">
                         <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点特殊要求(固化)">
                         <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
@@ -247,7 +351,7 @@
                 <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
                 
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                    <span>5 点描述 (每条 10-255 · 总 ≤1000 · 结尾不加句号)</span>
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 结尾不加句号)</span>
                     <div class="header-actions">
                         <input type="text" id="reqBp" class="custom-req-input" placeholder="五点特殊要求(固化)">
                         <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
@@ -257,7 +361,7 @@
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
                 
                 <div class="copy-section-header" style="margin-top:10px;">
-                    <span>详细描述 (≤2000 字符)</span>
+                    <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
                     <div class="header-actions">
                         <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述特殊要求(固化)">
                         <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
@@ -267,7 +371,7 @@
                 <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
                 
                 <div class="copy-section-header">
-                    <span>Search Terms (≤250 字节 · 全小写)</span>
+                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节 · 全小写)</span>
                     <div class="header-actions">
                         <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词特殊要求(固化)">
                         <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
@@ -315,6 +419,260 @@ function getByteLength(str){
 }
 
 /* ============================================================
+   ★★★ 约束条件 —— 默认值 + 加载 + 保存
+   ============================================================ */
+const CONSTRAINTS_KEY = 'cosmo_constraints_v2';
+
+const DEFAULT_CONSTRAINTS = {
+    titleMin: 70,
+    titleMax: 75,
+    ihMin: 100,
+    ihMax: 125,
+    bulletMin: 150,
+    bulletMax: 220,
+    bulletTotal: 1000,
+    descMin: 600,
+    descMax: 2000,
+    stMax: 250,
+    forbidden: `best
+cheapest
+amazing
+perfect
+top
+premium
+high quality
+superior
+excellent
+ultimate
+unbeatable
+finest
+greatest
+incredible
+world class
+number 1
+no.1
+#1
+top rated
+most popular
+trending
+viral
+must have
+must-have
+free shipping
+free gift
+on sale
+discount
+sale
+clearance
+limited time
+best deal
+warranty
+guarantee
+contact us
+24 hours`,
+    ruleTitle: `标题必须 70-75 字符（含空格）。
+首屏（前 70 字符）必须包含核心搜索词（产品类型 + 关键属性）。
+不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。
+不含促销、主观夸大词。
+能省字符就省字符：例如"10-Slot"比"10 Compartments"更优，"Watch Box Organizer"比"Watch Collection Storage Box Organizer"更优。避免三个同义词堆叠。
+自然流畅，不要逗号堆砌。`,
+    ruleIH: `Item Highlights 必须 100-125 字符（含空格）。
+必须与标题互补，不重复标题已出现的关键信息（数量、材质、颜色等）。
+只输出名词/形容词短语，英文逗号或分号分隔，严禁完整句子（禁 is/are/has/features/provides 等动词）。
+最后一段必须指向具体用途或受众（如 "ideal for storing watches, bracelets, and small jewelry"），不要写 "compact portable design" 这类空泛词。
+严禁为了凑字数堆砌无意义形容词。`,
+    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足）。
+5 条合计 ≤1000 字符。
+每条以「利益点短语」开头，自然过渡到具体好处。
+每条结尾不加句号。
+第 1 点写核心功能 + 规格参数。
+第 2 点写材质保护。
+第 3 点写尺寸空间。
+第 4 点写便携运输。
+第 5 点写日常使用便捷性。
+按正常人类逻辑撰写，不要生硬套模板。`,
+    ruleDesc: `必须 600-900 字符。
+分 3-4 个自然段。
+以场景痛点开头。
+展开材质保护、规格尺寸、使用体验。
+最后回到适用场景收束。
+不使用夸大、促销、保证类表述。`,
+    ruleST: `≤250 字节（不是字符，中文字符 3 字节）。
+全小写，空格分隔。
+不含品牌名、ASIN、主观词、时效词。
+⚠️ 严禁照抄参考范例中的 Search Terms！必须基于当前产品重新生成。
+⚠️ 如果某个词已经在标题或五点中出现，ST 中不要重复。ST 的价值在于补充标题/五点没有覆盖的同义词、场景词、受众词。`,
+    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。
+· 原文写 10 格就写 10 格，绝不能写 12 格。
+· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container。
+· 原文没写防水，绝不写 waterproof / water resistant。
+· 原文没写防尘，绝不写 dustproof / dust-proof。
+· 原文没写防潮，绝不写 absorb moisture / trap moisture。
+· 如果原文没有重量信息，就不要提具体重量。
+· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词。
+· 严禁把 "High-grade" 这类主观词直接搬进输出，应改用具体描述（如 "PU leather"）。`,
+    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格
+
+【好的标题】
+10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black
+（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量。不是逗号堆砌）
+
+【好的 Item Highlights】
+PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry
+（108字符。与标题互补，不重复"10-Slot""Black"等标题已有的信息，补充了"存储什么"的价值信息）
+
+【好的五点描述】
+Each compartment fits one watch securely, keeping your collection separated and easy to browse; no more tangled straps or misplaced pieces
+The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth
+Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches
+At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport
+Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler
+（每条 130-140 字符，5 条总计 685 字符。以功能短语开头，后接具体利益点。每条结尾不加句号）
+
+【好的详细描述】
+If you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.
+
+The exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.
+
+At 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.
+
+Whether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.
+（约 780 字符。以场景痛点开头，展开材质、尺寸、使用体验，最后回到适用场景收束。4 个自然段）
+
+【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！必须基于当前产品重新生成】
+watch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot
+（约 138 字节。全小写，补充标题未包含的同义词、场景词、受众词。注意：这只是格式示范，请根据当前产品的实际属性生成）`
+};
+
+let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
+
+function saveConstraints(){
+    try {
+        localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C));
+        $('constraintStatus').textContent = '✅ 已保存到浏览器 · ' + new Date().toLocaleTimeString();
+    } catch (e){
+        $('constraintStatus').textContent = '⚠️ 保存失败：' + e.message;
+    }
+}
+function loadConstraints(){
+    try {
+        const raw = localStorage.getItem(CONSTRAINTS_KEY);
+        if (raw){
+            const saved = JSON.parse(raw);
+            C = Object.assign({}, DEFAULT_CONSTRAINTS, saved);
+        }
+    } catch (e){
+        console.warn('加载约束失败，使用默认值', e);
+        C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
+    }
+    syncFormFromConstraints();
+}
+function syncFormFromConstraints(){
+    $('c_titleMin').value = C.titleMin;
+    $('c_titleMax').value = C.titleMax;
+    $('c_ihMin').value = C.ihMin;
+    $('c_ihMax').value = C.ihMax;
+    $('c_bulletMin').value = C.bulletMin;
+    $('c_bulletMax').value = C.bulletMax;
+    $('c_bulletTotal').value = C.bulletTotal;
+    $('c_descMin').value = C.descMin;
+    $('c_descMax').value = C.descMax;
+    $('c_stMax').value = C.stMax;
+    $('c_forbidden').value = C.forbidden;
+    $('c_ruleTitle').value = C.ruleTitle;
+    $('c_ruleIH').value = C.ruleIH;
+    $('c_ruleBullets').value = C.ruleBullets;
+    $('c_ruleDesc').value = C.ruleDesc;
+    $('c_ruleST').value = C.ruleST;
+    $('c_ruleFidelity').value = C.ruleFidelity;
+    $('c_example').value = C.example;
+    updateHints();
+}
+function syncConstraintsFromForm(){
+    C.titleMin = Number($('c_titleMin').value) || 0;
+    C.titleMax = Number($('c_titleMax').value) || 0;
+    C.ihMin = Number($('c_ihMin').value) || 0;
+    C.ihMax = Number($('c_ihMax').value) || 0;
+    C.bulletMin = Number($('c_bulletMin').value) || 0;
+    C.bulletMax = Number($('c_bulletMax').value) || 0;
+    C.bulletTotal = Number($('c_bulletTotal').value) || 0;
+    C.descMin = Number($('c_descMin').value) || 0;
+    C.descMax = Number($('c_descMax').value) || 0;
+    C.stMax = Number($('c_stMax').value) || 0;
+    C.forbidden = $('c_forbidden').value;
+    C.ruleTitle = $('c_ruleTitle').value;
+    C.ruleIH = $('c_ruleIH').value;
+    C.ruleBullets = $('c_ruleBullets').value;
+    C.ruleDesc = $('c_ruleDesc').value;
+    C.ruleST = $('c_ruleST').value;
+    C.ruleFidelity = $('c_ruleFidelity').value;
+    C.example = $('c_example').value;
+    updateHints();
+    saveConstraints();
+}
+function updateHints(){
+    $('titleMaxHint').textContent = C.titleMax;
+    $('ihMaxHint').textContent = C.ihMax;
+    $('bulletMinHint').textContent = C.bulletMin;
+    $('bulletMaxHint').textContent = C.bulletMax;
+    $('bulletTotalHint').textContent = C.bulletTotal;
+    $('descMaxHint').textContent = C.descMax;
+    $('stMaxHint').textContent = C.stMax;
+}
+function toggleConstraints(){
+    const body = $('constraintBody');
+    const hint = $('constraintToggle');
+    body.classList.toggle('hidden');
+    hint.textContent = body.classList.contains('hidden') ? '展开 ▼' : '收起 ▲';
+}
+function resetConstraints(){
+    if (!confirm('确定恢复所有约束到默认值吗？当前修改会丢失。')) return;
+    C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
+    syncFormFromConstraints();
+    saveConstraints();
+    showToast('已恢复默认约束');
+}
+function exportConstraints(){
+    const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+function importConstraintsPrompt(){
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            try {
+                const imported = JSON.parse(ev.target.result);
+                C = Object.assign({}, DEFAULT_CONSTRAINTS, imported);
+                syncFormFromConstraints();
+                saveConstraints();
+                showToast('导入成功');
+            } catch (err){
+                showToast('导入失败：' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+function initConstraintListeners(){
+    const ids = ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'];
+    ids.forEach(id => {
+        const el = $(id);
+        if (el) el.addEventListener('input', syncConstraintsFromForm);
+    });
+}
+
+/* ============================================================
    自定义要求固化
    ============================================================ */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
@@ -340,7 +698,7 @@ function setStep(step, state){
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
 /* ============================================================
-   常量
+   常量（打分用）
    ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
@@ -380,11 +738,11 @@ const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresse
 const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
 const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
 
-const PROHIBITED_WORDS = ['best','cheapest','amazing','perfect','top','premium','high quality','highest quality','superior','excellent','ultimate','unbeatable','finest','greatest','incredible','world class','number 1','no.1','#1','top rated','most popular','trending','viral','must have','must-have','free shipping','free gift','on sale','discount','sale','clearance','limited time','best deal','warranty','guarantee','contact us','24 hours'];
 function detectProhibited(text){
     if (!text) return [];
     const hits = new Set();
-    PROHIBITED_WORDS.forEach(w => {
+    const list = C.forbidden.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
+    list.forEach(w => {
         const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp('\\b' + escaped + '(ly|s|es|ed|ing|d)?\\b', 'gi');
         if (regex.test(text)) hits.add(w);
@@ -393,7 +751,7 @@ function detectProhibited(text){
 }
 
 /* ============================================================
-   净化 + 事实提取
+   净化
    ============================================================ */
 function cleanInput(text){
     if (!text) return '';
@@ -406,7 +764,7 @@ function cleanInput(text){
 }
 
 /* ============================================================
-   ★★★ 核心：一次自由生成（移除 JSON 模式）
+   ★★★ 核心：一次自由生成（动态约束）
    ============================================================ */
 async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
@@ -419,6 +777,14 @@ async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, cus
         (customReqs.st ? '· 搜索词：' + customReqs.st : '') : '';
     const errBlock = (prevErrors && prevErrors.length) ?
         '\n⚠️⚠️ 上一轮问题 · 本轮必须全部修复 ⚠️⚠️\n' + prevErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n' : '';
+
+    // 字数约束文字块（动态拼）
+    const wordBlock = '【字数硬约束 · 不满足视为不合格】\n' +
+        '· 标题：' + C.titleMin + '-' + C.titleMax + ' 字符（含空格）\n' +
+        '· Item Highlights：' + C.ihMin + '-' + C.ihMax + ' 字符（含空格）\n' +
+        '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
+        '· 详细描述：' + C.descMin + '-' + C.descMax + ' 字符\n' +
+        '· Search Terms：≤' + C.stMax + ' 字节，全小写';
 
     const prompt = `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。你擅长把干瘪的产品参数写成让买家产生购买欲望的描述。
 
@@ -434,66 +800,29 @@ ${hotBlock}${customBlock}${errBlock}
 
 ━━━━━━━━━━━━━━ 参考范例 · 这是一份"好文案"该有的样子 ━━━━━━━━━━━━━━
 
-【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格
+${C.example}
 
-【好的输出】
+━━━━━━━━━━━━━━ ${wordBlock} ━━━━━━━━━━━━━━
 
-标题：
-10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black
-（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量。不是逗号堆砌）
+━━━━━━━━━━━━━━ 规则 · 必须全部满足 ━━━━━━━━━━━━━━
 
-Item Highlights：
-PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry
-（108字符。与标题互补，不重复"10-Slot""Black"等标题已有的信息，补充了"存储什么"的价值信息）
+【标题规则】
+${C.ruleTitle}
 
-五点描述：
-Each compartment fits one watch securely, keeping your collection separated and easy to browse; no more tangled straps or misplaced pieces
-The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth
-Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches
-At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport
-Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler
-（每条 130-140 字符，5 条总计 685 字符。以功能短语开头，后接具体利益点。每条结尾不加句号）
+【Item Highlights 规则】
+${C.ruleIH}
 
-描述：
-If you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.
+【五点规则】
+${C.ruleBullets}
 
-The exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.
+【详细描述规则】
+${C.ruleDesc}
 
-At 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.
+【Search Terms 规则】
+${C.ruleST}
 
-Whether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.
-（约 780 字符。以场景痛点开头，展开材质、尺寸、使用体验，最后回到适用场景收束。4 个自然段）
-
-搜索词：
-watch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot
-（约 138 字节。全小写，补充标题未包含的同义词、场景词、受众词）
-
-━━━━━━━━━━━━━━ 硬性规则 · 必须全部满足 ━━━━━━━━━━━━━━
-
-【字数 · 不合格就是不合格】
-· 标题：必须 70-75 字符（含空格）。低于 70 字符视为不合格，浪费权重位。
-· Item Highlights：必须 100-125 字符。低于 100 字符视为不合格。
-· 五点描述：每条必须 150-220 字符（低于 150 视为内容不足）。5 条合计 ≤1000 字符。结尾不加句号。
-· 详细描述：必须 600-900 字符。低于 600 视为内容单薄。
-· 搜索词：≤250 字节，全小写，空格分隔。
-
-【语言质量】
-· 自然流畅，像人写的一样。禁止生硬堆砌关键词、禁止逗号割裂（不要写成 A, B, C, D 这种）
-· Item Highlights 只输出名词/形容词短语，英文逗号分隔。不能出现完整句子（禁 is/are/has/features/provides 等动词）
-· Item Highlights 必须与标题互补，标题已出现的关键信息（数量、材质、颜色）不要重复
-· 五点描述以「利益点短语」开头（例如 "Each compartment fits one watch securely"、"The soft fleece lining protects..."），自然过渡到具体好处
-· 详细描述分 3-4 个自然段，以场景痛点开头，展开材质保护、规格尺寸、使用体验，回到适用场景收束
-
-【绝对保真 · 最重要】
-· 严禁编造原文没有的任何信息：材质、尺寸、数量、颜色、功能属性
-· 原文写 10 格就写 10 格，绝不能写 12 格
-· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container
-· 原文没写防水，绝不写 waterproof / water resistant
-· 原文没写防尘，绝不写 dustproof / dust-proof
-· 原文没写防潮，绝不写 absorb moisture / trap moisture
-· 如果原文没有重量信息，就不要在文案里提具体重量
-· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词
-· 严禁把 "High-grade" 这类主观词直接搬进输出，应改用具体描述（如 "PU leather"）
+【保真原则 · 最重要】
+${C.ruleFidelity}
 
 ━━━━━━━━━━━━━━ 输出格式 · 严格按标记输出 ━━━━━━━━━━━━━━
 
@@ -536,18 +865,13 @@ Item Highlights 写在这里
 搜索词写在这里
 [/ST]`;
 
-    // ★ 关键：不使用 response_format，让 AI 自由写长文本
     const rawText = await callDeepSeekRaw([
-        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案以信息密度高、语言自然、逻辑清晰著称。你必须严格遵守字数要求：标题 70-75 字符、Item Highlights 100-125 字符、五点每条 150-220 字符、详细描述 600-900 字符。你绝对不能编造原始信息中没有的任何内容。你只输出指定格式的内容，不加任何解释。' },
+        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案以信息密度高、语言自然、逻辑清晰著称。你必须严格遵守用户在提示中给出的所有字数要求和规则。你绝对不能编造原始信息中没有的任何内容。你只输出指定格式的内容，不加任何解释。' },
         { role: 'user', content: prompt }
     ]);
-
     return parseStructuredOutput(rawText);
 }
 
-/* ============================================================
-   原始文本调用（无 JSON 模式）
-   ============================================================ */
 async function callDeepSeekRaw(messages, maxRetries = 3){
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++){
@@ -555,12 +879,7 @@ async function callDeepSeekRaw(messages, maxRetries = 3){
             const resp = await fetch('/api/deepseek', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: messages,
-                    temperature: 0.7,
-                    max_tokens: 8000
-                    // ★ 关键：没有 response_format
-                })
+                body: JSON.stringify({ messages: messages, temperature: 0.7, max_tokens: 8000 })
             });
             const result = await resp.json();
             if (!result.success) throw new Error(result.error || 'API 返回失败');
@@ -575,9 +894,6 @@ async function callDeepSeekRaw(messages, maxRetries = 3){
     throw lastError || new Error('DeepSeek 调用失败');
 }
 
-/* ============================================================
-   解析 [TITLE]...[/TITLE] 格式
-   ============================================================ */
 function parseStructuredOutput(text){
     const extract = (tag) => {
         const regex = new RegExp('\\[' + tag + '\\]([\\s\\S]*?)\\[\\/' + tag + '\\]', 'i');
@@ -592,7 +908,6 @@ function parseStructuredOutput(text){
         searchTerms: extract('ST')
     };
     console.log('解析结果：', result);
-    // 检查解析是否成功
     if (!result.title && !result.itemHighlights && result.bullets.every(b => !b)){
         throw new Error('AI 未按标记格式输出，解析失败');
     }
@@ -600,25 +915,28 @@ function parseStructuredOutput(text){
 }
 
 /* ============================================================
-   校验
+   ★★★ 校验（用动态约束）
    ============================================================ */
 function validateAll(r){
     const errors = [], warnings = [];
+    // 标题
     if (!r.title || !r.title.trim()) errors.push({ module:'标题', msg:'标题为空' });
     else {
-        if (r.title.length > 75) errors.push({ module:'标题', msg:'超过 75 字符（' + r.title.length + '）' });
-        if (r.title.length < 60) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，偏短（建议 70-75）' });
+        if (r.title.length > C.titleMax) errors.push({ module:'标题', msg:'超过 ' + C.titleMax + ' 字符（' + r.title.length + '）' });
+        if (r.title.length < C.titleMin) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，低于下限 ' + C.titleMin });
         const lastWord = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
         if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lastWord)) errors.push({ module:'标题', msg:'以介词 "' + lastWord + '" 结尾' });
         const pHits = detectProhibited(r.title);
         if (pHits.length) errors.push({ module:'标题', msg:'含违禁词：' + pHits.join(', ') });
     }
+    // IH
     if (!r.itemHighlights || !r.itemHighlights.trim()) errors.push({ module:'亮点', msg:'Item Highlights 为空' });
     else {
-        if (r.itemHighlights.length > 125) errors.push({ module:'亮点', msg:'超过 125 字符（' + r.itemHighlights.length + '）' });
-        if (r.itemHighlights.length < 80) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，偏短（建议 100-125）' });
+        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符（' + r.itemHighlights.length + '）' });
+        if (r.itemHighlights.length < C.ihMin) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，低于下限 ' + C.ihMin });
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词，必须为名词/形容词短语' });
     }
+    // 五点
     const bullets = r.bullets || [];
     if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5（' + bullets.length + '）' });
     else {
@@ -626,30 +944,29 @@ function validateAll(r){
         bullets.forEach((b, i) => {
             if (!b || !b.trim()) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点为空' });
             else {
-                if (b.length > 255) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 255 字符（' + b.length + '）' });
-                if (b.length < 100) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，偏短（建议 150-220）' });
+                if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符（' + b.length + '）' });
+                if (b.length < C.bulletMin) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，低于下限 ' + C.bulletMin });
                 if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
             }
             total += (b || '').length;
         });
-        if (total > 1000) errors.push({ module:'五点', msg:'总字符 ' + total + ' 超过 1000' });
+        if (total > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + total + ' 超过 ' + C.bulletTotal });
     }
+    // 描述
     if (!r.description || !r.description.trim()) errors.push({ module:'描述', msg:'描述为空' });
     else {
-        if (r.description.length > 2000) errors.push({ module:'描述', msg:'超过 2000 字符（' + r.description.length + '）' });
-        if (r.description.length < 400) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，偏短（建议 600-900）' });
+        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符（' + r.description.length + '）' });
+        if (r.description.length < C.descMin) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，低于下限 ' + C.descMin });
     }
+    // ST
     if (r.searchTerms){
         const bytes = getByteLength(r.searchTerms);
-        if (bytes > 250) errors.push({ module:'搜索词', msg:'超过 250 字节（' + bytes + '）' });
+        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节（' + bytes + '）' });
         if (r.searchTerms !== r.searchTerms.toLowerCase()) errors.push({ module:'搜索词', msg:'必须全小写' });
     }
     return { errors, warnings };
 }
 
-/* ============================================================
-   带错重试
-   ============================================================ */
 async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRounds = 3){
     let lastResult = null, lastErrors = [], lastWarnings = [];
     const history = [];
@@ -658,7 +975,6 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
         try {
             result = await generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null);
         } catch (err){
-            console.error('第 ' + round + ' 轮调用失败：', err);
             history.push({ round, error: err.message });
             if (round === maxRounds) throw err;
             continue;
@@ -674,7 +990,7 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
 }
 
 /* ============================================================
-   后处理
+   后处理（用动态约束）
    ============================================================ */
 function trimToMax(str, max){
     if (!str) return '';
@@ -698,7 +1014,7 @@ function trimBytes(str, max){
 function postTitle(t){
     if (!t) return '';
     let r = t.trim().replace(/[,;.!]+$/, '');
-    r = trimToMax(r, 75);
+    r = trimToMax(r, C.titleMax);
     let safety = 0;
     while (safety < 3){
         safety++;
@@ -714,15 +1030,15 @@ function postIH(ih){
     let r = ih.trim().replace(/[.。]/g, '').replace(/[;；]/g, ',');
     r = r.replace(/,{2,}/g, ',').replace(/\s*,\s*/g, ', ');
     r = r.split(',').map(s => { const t = s.trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : ''; }).filter(Boolean).join(', ');
-    return trimToMax(r, 125);
+    return trimToMax(r, C.ihMax);
 }
 function postBullets(bullets){
     if (!Array.isArray(bullets)) return ['','','','',''];
-    let arr = bullets.map(b => trimToMax((b || '').trim().replace(/[.。;；,，]+$/, ''), 255));
+    let arr = bullets.map(b => trimToMax((b || '').trim().replace(/[.。;；,，]+$/, ''), C.bulletMax));
     while (arr.length < 5) arr.push('');
     let total = arr.reduce((a,b) => a + b.length, 0);
     let safety = 0;
-    while (total > 1000 && safety < 500){
+    while (total > C.bulletTotal && safety < 500){
         safety++;
         let mi = 0, ml = 0;
         arr.forEach((b, i) => { if (b.length > ml){ ml = b.length; mi = i; } });
@@ -734,8 +1050,8 @@ function postBullets(bullets){
     }
     return arr.slice(0, 5);
 }
-function postDesc(d){ return trimToMax((d || '').trim(), 2000); }
-function postST(st){ return trimBytes((st || '').trim().toLowerCase(), 250); }
+function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
+function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
 /* ============================================================
    打分
@@ -765,8 +1081,8 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     let tls, tln;
     if (tl === 0){ tls = 0; tln = '标题为空'; }
     else if (tl < 30){ tls = 4; tln = '标题仅 ' + tl + ' 字符'; }
-    else if (tl < 60){ tls = 7; tln = '标题 ' + tl + ' 字符，未充分利用'; }
-    else if (tl <= 75){ tls = 10; tln = '标题 ' + tl + ' 字符，充分利用新规'; }
+    else if (tl < 60){ tls = 7; tln = '标题 ' + tl + ' 字符'; }
+    else if (tl <= C.titleMax){ tls = 10; tln = '标题 ' + tl + ' 字符，符合规范'; }
     else if (tl <= 100){ tls = 6; tln = '标题 ' + tl + ' 字符，超规范'; }
     else { tls = 3; tln = '标题 ' + tl + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score:tls, max:10, note:tln });
@@ -869,10 +1185,10 @@ function updateBpTotal(){
     let total = 0;
     for (let i = 0; i < 5; i++){ const el = $('optBp'+i); if (el) total += el.value.length; }
     const c = $('bpTotalCounter');
-    if (c){ c.textContent = '总字符：' + total + ' / 1000'; c.className = 'byte-counter' + (total > 1000 ? ' over' : ''); }
+    if (c){ c.textContent = '总字符：' + total + ' / ' + C.bulletTotal; c.className = 'byte-counter' + (total > C.bulletTotal ? ' over' : ''); }
 }
 function initCounters(){
-    [['optTitleText','titleCounter',75,'字符'],['optIhText','ihCounter',125,'字符'],['optDescText','descCounter',2000,'字符'],['optStText','stCounter',250,'字节']].forEach(b => {
+    [['optTitleText','titleCounter',C.titleMax,'字符'],['optIhText','ihCounter',C.ihMax,'字符'],['optDescText','descCounter',C.descMax,'字符'],['optStText','stCounter',C.stMax,'字节']].forEach(b => {
         const el = $(b[0]); if (!el) return;
         const h = () => updateCounter(b[0], b[1], b[2], b[3]);
         el.addEventListener('input', h);
@@ -881,7 +1197,7 @@ function initCounters(){
     for (let i = 0; i < 5; i++){
         (function(idx){
             const el = $('optBp' + idx); if (!el) return;
-            const h = () => { updateCounter('optBp'+idx, 'bpCounter'+idx, 255, '字符'); updateBpTotal(); };
+            const h = () => { updateCounter('optBp'+idx, 'bpCounter'+idx, C.bulletMax, '字符'); updateBpTotal(); };
             el.addEventListener('input', h);
             el.addEventListener('paste', () => setTimeout(h, 0));
         })(i);
@@ -907,12 +1223,12 @@ function renderResult(t, ih, bs, d, st){
     for (let i = 0; i < 5; i++) $('optBp' + i).value = bs[i] || '';
     $('optDescText').value = d;
     $('optStText').value = st;
-    updateCounter('optTitleText','titleCounter',75,'字符');
-    updateCounter('optIhText','ihCounter',125,'字符');
-    for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,255,'字符');
+    updateCounter('optTitleText','titleCounter',C.titleMax,'字符');
+    updateCounter('optIhText','ihCounter',C.ihMax,'字符');
+    for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符');
     updateBpTotal();
-    updateCounter('optDescText','descCounter',2000,'字符');
-    updateCounter('optStText','stCounter',250,'字节');
+    updateCounter('optDescText','descCounter',C.descMax,'字符');
+    updateCounter('optStText','stCounter',C.stMax,'字节');
 }
 function renderA9Table(r){
     $('a9MatrixBody').innerHTML = r.dimensions.map(d => {
@@ -1166,8 +1482,20 @@ async function runAnalysis(){
    初始化
    ============================================================ */
 document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); } });
-document.addEventListener('DOMContentLoaded', () => { buildBulletUI(); initCounters(); loadCustom(); });
-if (document.readyState !== 'loading'){ buildBulletUI(); initCounters(); loadCustom(); }
+document.addEventListener('DOMContentLoaded', () => {
+    loadConstraints();
+    initConstraintListeners();
+    buildBulletUI();
+    initCounters();
+    loadCustom();
+});
+if (document.readyState !== 'loading'){
+    loadConstraints();
+    initConstraintListeners();
+    buildBulletUI();
+    initCounters();
+    loadCustom();
+}
 </script>
 
 </body>
