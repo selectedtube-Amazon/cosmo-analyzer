@@ -171,8 +171,8 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 单引擎 · COSMO + A9 双评分 · 一键生成</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 单引擎</div>
+        <p>Gemini 单引擎 · COSMO + A9 双评分 · 五点大写标题</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 单引擎 · v2</div>
     </header>
 
     <div class="card apikey-card">
@@ -283,7 +283,6 @@
             <div class="pipeline-step" data-step="4">④ 输出</div>
         </div>
 
-        <!-- 评分卡片区 -->
         <div class="score-section">
             <div class="score-card cosmo">
                 <div class="sc-ttl">🧠 COSMO 语义评分</div>
@@ -305,7 +304,6 @@
             </div>
         </div>
 
-        <!-- COSMO 状态统计 -->
         <div class="stat-row">
             <div class="stat-line">
                 <span class="line-label">COSMO</span>
@@ -352,7 +350,7 @@
                 <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
 
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span>)</span>
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
                     <div class="header-actions">
                         <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
                         <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
@@ -403,10 +401,7 @@
 </div>
 
 <script>
-/* ============================================================
-   版本
-   ============================================================ */
-const APP_VERSION = '928版 · Gemini 单引擎';
+const APP_VERSION = '928版 · Gemini 单引擎 · v2';
 const APP_VERSION_DATE = '2024-09-28';
 const GEMINI_MODEL = 'gemini-3.8-flash';
 
@@ -434,11 +429,7 @@ function getByteLength(str){
     return len;
 }
 
-/* ============================================================
-   Gemini API Key 管理
-   ============================================================ */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
-
 function saveGeminiKey(){
     const key = $('geminiApiKey').value.trim();
     if (!key){ showToast('请先输入 Key'); return; }
@@ -485,9 +476,9 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件
+   约束条件（v10 —— 五点加了大写小标题）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v9';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v10';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -497,11 +488,11 @@ const DEFAULT_CONSTRAINTS = {
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如 "10-Slot" 比 "10 Compartments" 更优。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
-    ruleBullets: `每条 150-220 字符。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 用纯短语直接列出信息，每个信息独立，用句号分隔。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点】\n第 2 点材质保护 · 第 3 点尺寸空间 · 第 4 点便携运输 · 第 5 点日常使用便捷性。`,
+    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 大写标题建议：COMPLETE SET 或 FULL SPECS 或 PRODUCT SPECS\n· 标题后只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n✅ 完整五点示例：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
     ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）`,
     ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。`,
-    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的第 1 点】10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n【好的第 2 点】The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n【好的第 3 点】Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n【好的第 4 点】At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n【好的第 5 点】Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces\n（约 233 字节。填满 8 类：同义词 + 单复数 + 场景 + 受众 + 材质 + 外语 + 变体）`
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头】\n\n第 1 点：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces\n（约 233 字节）`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -557,9 +548,6 @@ function loadCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); const s = lo
 function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
-/* ============================================================
-   常量（评分用）
-   ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
     goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
@@ -616,9 +604,6 @@ function cleanInput(text){
     r = r.replace(/\s+/g, ' '); return r.trim();
 }
 
-/* ============================================================
-   构建 Prompt
-   ============================================================ */
 function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
@@ -646,7 +631,7 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
             }
             if (prevContent.description) wordFixBlock += '【当前描述】(' + prevContent.description.length + ' 字符)\n';
             wordFixBlock += '\n【本轮必须做到】\n' + wordErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n';
-            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写';
+            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写\n· ⚠️ 五点每条必须保留大写小标题格式（BENEFIT TITLE: description）';
         }
     }
     const errBlock = (prevErrors && prevErrors.length && !wordFixBlock) ?
@@ -680,7 +665,7 @@ ${C.example}
 ━━━━━━━━━━━━━━ 规则 ━━━━━━━━━━━━━━
 【标题规则】${C.ruleTitle}
 【IH 规则】${C.ruleIH}
-【五点规则】${C.ruleBullets}
+【五点规则 · 每条必须用全大写小标题开头】${C.ruleBullets}
 【描述规则】${C.ruleDesc}
 【ST 规则】${C.ruleST}
 【保真原则】${C.ruleFidelity}
@@ -697,23 +682,23 @@ Item Highlights
 [/IH]
 
 [BULLET1]
-第 1 点
+大写标题: 内容
 [/BULLET1]
 
 [BULLET2]
-第 2 点
+大写标题: 内容
 [/BULLET2]
 
 [BULLET3]
-第 3 点
+大写标题: 内容
 [/BULLET3]
 
 [BULLET4]
-第 4 点
+大写标题: 内容
 [/BULLET4]
 
 [BULLET5]
-第 5 点
+大写标题: 内容
 [/BULLET5]
 
 [DESC]
@@ -725,7 +710,7 @@ Item Highlights
 [/ST]`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【其他规则】第 1 点只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。例如：COMPLETE SET: / SCRATCH-FREE LINING: / COMPACT DESIGN: / PORTABLE & LIGHTWEIGHT: / QUICK ACCESS:。这是为了让买家一眼看清每条的重点。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
 async function callGemini(messages, maxRetries = 3){
     const apiKey = getGeminiKey();
@@ -795,6 +780,10 @@ function validateAll(r, isRetry){
                 if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符' });
                 if (b.length < C.bulletMin) { if (isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); else errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); }
                 if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
+                // ★ 检查是否以大写小标题开头
+                const firstLine = b.split(':')[0] || '';
+                const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
+                if (!hasAllCaps && !isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点未以全大写小标题开头（建议格式：BENEFIT TITLE: description）' });
             }
             total += (b || '').length;
         });
@@ -837,9 +826,6 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
     return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings };
 }
 
-/* ============================================================
-   后处理
-   ============================================================ */
 function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
 function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
 function postTitle(t){ if (!t) return ''; let r = t.trim().replace(/[,;.!]+$/, ''); r = trimToMax(r, C.titleMax); let s = 0; while (s < 3){ s++; const ws = r.split(/\s+/); const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,''); if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); } else break; } return r; }
@@ -878,16 +864,12 @@ function smartTrimBullet1(text, max){
 function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
-/* ============================================================
-   评分：A9（10 维度）
-   ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
     const full = t + ' ' + b + ' ' + d + ' ' + s;
     const coreKeywords = (hotKeywords || []).map(k => k.toLowerCase());
     function words(str){ return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g,'')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w)); }
     const results = [];
-    // 标题核心词
     let tcs = 0, tcn = '';
     if (coreKeywords.length){
         const found = coreKeywords.filter(kw => t.includes(kw));
@@ -895,7 +877,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         tcn = found.length ? '命中热词：' + found.slice(0,5).join(' / ') : '标题未命中热词';
     } else { const wt = words(t); tcs = wt.length >= 4 ? 8 : (wt.length >= 2 ? 6 : 3); tcn = '未提供热词库'; }
     results.push({ key:'title_core', cn:'标题核心词', score:tcs, max:10, note:tcn });
-    // 标题首屏
     const first80 = t.substring(0, 80);
     let tfs = 0, tfn = '';
     if (coreKeywords.length){
@@ -904,7 +885,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         tfn = f.length ? '首屏命中：' + f.join(' / ') : '前 80 字符未命中';
     } else { tfs = t.length >= 30 ? 6 : 4; tfn = '未提供热词库'; }
     results.push({ key:'title_front', cn:'标题首屏权重', score:tfs, max:10, note:tfn });
-    // 标题长度
     const tl = (title || '').length;
     let tls, tln;
     if (tl === 0){ tls = 0; tln = '标题为空'; }
@@ -914,7 +894,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else if (tl <= 100){ tls = 6; tln = '标题 ' + tl + ' 字符，超规范'; }
     else { tls = 3; tln = '标题 ' + tl + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score:tls, max:10, note:tln });
-    // 五点词分布
     const bpp = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
     let bds = 0, bdn = '';
     if (bpp.length === 0){ bds = 0; bdn = '五点为空'; }
@@ -929,20 +908,16 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { bds = 2; bdn = '五点不足'; }
     }
     results.push({ key:'bp_distribution', cn:'五点词分布', score:bds, max:10, note:bdn });
-    // 长尾词覆盖
     let ltc = 0, ltn = '';
     if (coreKeywords.length){
         const f = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
         ltc = f.length; ltn = f.length ? '命中长尾词：' + f.slice(0,5).join(' / ') : '未命中长尾词';
     } else { const m = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || []; ltc = Math.min(m.length,15); ltn = '检测到约 ' + m.length + ' 个双词组合'; }
     results.push({ key:'long_tail', cn:'长尾词覆盖', score:Math.min(10, ltc*2), max:10, note:ltn });
-    // 场景词覆盖
     const scF = A9_SCENE_WORDS.filter(w => full.includes(w));
     results.push({ key:'scene_words', cn:'场景词覆盖', score:Math.min(10, scF.length*2), max:10, note: scF.length ? '命中：' + scF.slice(0,8).join(' / ') : '未检测到场景词' });
-    // 属性词覆盖
     const atF = A9_ATTR_WORDS.filter(w => full.includes(w));
     results.push({ key:'attr_words', cn:'属性词覆盖', score:Math.min(10, atF.length*1.5), max:10, note: atF.length ? '命中：' + atF.slice(0,8).join(' / ') : '未检测到属性词' });
-    // 搜索词补充
     let sts = 0, stn = '';
     if (!s.trim()){ sts = 0; stn = '搜索词为空'; }
     else {
@@ -954,11 +929,9 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { sts = 1; stn = '与标题/五点完全重复'; }
     }
     results.push({ key:'st_supplement', cn:'搜索词补充', score:sts, max:10, note:stn });
-    // 词形变体
     let vc = 0;
     [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases'],['watch','watches'],['tray','trays']].forEach(([s1,p1]) => { if (full.includes(s1) && full.includes(p1)) vc++; });
     results.push({ key:'word_variants', cn:'词形变体', score:Math.min(10, vc*3), max:10, note: vc ? '检测到 ' + vc + ' 组词形变体' : '未检测到单复数变体' });
-    // 无关键词堆砌
     let nss = 10, nsn = '未检测到堆砌';
     if (coreKeywords.length){
         let mr = 0;
@@ -972,7 +945,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { nss = 2; nsn = '核心词重复 ' + mr + ' 次，堆砌风险'; }
     }
     results.push({ key:'no_stuffing', cn:'无关键词堆砌', score:nss, max:10, note:nsn });
-
     const total = results.reduce((s,r) => s + r.score, 0);
     let grade, lv;
     if (total >= 90){ grade='A+'; lv='lv-a'; }
@@ -983,10 +955,6 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else { grade='D'; lv='lv-d'; }
     return { totalScore: total, grade, lv, dimensions: results };
 }
-
-/* ============================================================
-   评分：COSMO（15 锚点）
-   ============================================================ */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let raw = 0, g = 0, y = 0, r = 0;
@@ -1011,9 +979,6 @@ function scoreText(title, bp, desc, st){
     return { totalScore: total, grade, lv, green: g, yellow: y, red: r, anchorResults };
 }
 
-/* ============================================================
-   UI 渲染
-   ============================================================ */
 function updateCounter(id, cid, max, unit, min){
     const el = $(id), c = $(cid);
     if (!el || !c) return;
@@ -1103,7 +1068,6 @@ function renderCosmoTable(result){
     }).join('');
 }
 function renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo){
-    // A9 卡片
     const a9b = $('a9ScoreBefore'), a9a = $('a9ScoreAfter');
     if (a9b){ a9b.className = 'score-badge ' + beforeA9.lv; a9b.textContent = beforeA9.totalScore + ' · ' + beforeA9.grade; }
     if (a9a){ a9a.className = 'score-badge ' + afterA9.lv; a9a.textContent = afterA9.totalScore + ' · ' + afterA9.grade; }
@@ -1114,7 +1078,6 @@ function renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo){
         else if (a9imp === 0){ a9impEl.textContent = '→ A9 持平'; a9impEl.style.color = '#64748b'; }
         else { a9impEl.textContent = '↓ A9 下降 ' + a9imp + ' 分'; a9impEl.style.color = '#b91c1c'; }
     }
-    // COSMO 卡片
     const cb = $('scoreBefore'), ca = $('scoreAfter');
     if (cb){ cb.className = 'score-badge ' + beforeCosmo.lv; cb.textContent = beforeCosmo.totalScore + ' · ' + beforeCosmo.grade; }
     if (ca){ ca.className = 'score-badge ' + afterCosmo.lv; ca.textContent = afterCosmo.totalScore + ' · ' + afterCosmo.grade; }
@@ -1125,7 +1088,6 @@ function renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo){
         else if (cImp === 0){ cImpEl.textContent = '→ COSMO 持平'; cImpEl.style.color = '#64748b'; }
         else { cImpEl.textContent = '↓ COSMO 下降 ' + cImp + ' 分'; cImpEl.style.color = '#b91c1c'; }
     }
-    // COSMO 状态统计
     const sg = $('statGreen'), sy = $('statYellow'), sr = $('statRed');
     if (sg) sg.textContent = '🟢 完美覆盖 ' + afterCosmo.green;
     if (sy) sy.textContent = '🟡 部分覆盖 ' + afterCosmo.yellow;
@@ -1185,6 +1147,27 @@ function updateExpandBar(){
     if (shortCount > 0){ bar.classList.remove('hidden'); msg.textContent = '检测到 ' + shortCount + ' 处字数不足，可一键补全'; }
     else bar.classList.add('hidden');
 }
+function reScoreAndRender(){
+    const hotKeywords = parseHotKeywords();
+    const origTitle = $('origTitleView').value || '';
+    const origBp = $('origBpView').value || '';
+    const origDesc = $('origDescView').value || '';
+    const origSt = $('origStView').value || '';
+    const beforeA9 = scoreA9(origTitle, origBp, origDesc, origSt, hotKeywords);
+    const beforeCosmo = scoreText(origTitle, origBp, origDesc, origSt);
+
+    const t = $('optTitleText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp'+i).value || '') + '\n';
+    const d = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+    const afterA9 = scoreA9(t, bpText, d, st, hotKeywords);
+    const afterCosmo = scoreText(t, bpText, d, st);
+
+    renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo);
+    renderA9Table(afterA9);
+    renderCosmoTable(afterCosmo);
+}
 
 async function expandAll(){
     const btn = $('expandBtn');
@@ -1205,6 +1188,8 @@ async function expandAll(){
         const customNote = $('reqBp').value.trim() ? '\n⚠️ 用户对第 1 点的格式要求（必须保持）：' + $('reqBp').value.trim() + '\n' : '';
         const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下扩写。
 ${customNote}
+⚠️ 五点每条必须保持大写小标题格式（BENEFIT TITLE: description）
+
 【当前内容】
 标题（${cur.title.length}字符）：${cur.title}
 
@@ -1228,6 +1213,7 @@ ${cur.description}
 3. 通过添加细节描述、举例场景、补充受益点来增加字数
 4. 只输出字数不足的部分
 5. 每条结尾不加句号
+6. ⚠️ 五点每条必须保留大写小标题格式
 
 【输出格式】
 [TITLE]
@@ -1250,7 +1236,7 @@ ${cur.description}
 [/ST]`;
 
         const rawText = await callGemini([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。第 1 点保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式（BENEFIT TITLE: description）。第 1 点大写标题后保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
         const parsed = parseStructuredOutput(rawText);
@@ -1259,7 +1245,6 @@ ${cur.description}
         for (let i = 0; i < 5; i++){ if (parsed.bullets[i] && parsed.bullets[i].length >= C.bulletMin && cur.bullets[i].length < C.bulletMin) $('optBp' + i).value = parsed.bullets[i]; }
         if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
 
-        // 刷新计数器和评分
         updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
         updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
         for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
@@ -1276,28 +1261,6 @@ ${cur.description}
     } finally {
         btn.disabled = false; btn.textContent = '✨ 一键补全字数';
     }
-}
-
-function reScoreAndRender(){
-    const hotKeywords = parseHotKeywords();
-    const origTitle = $('origTitleView').value || '';
-    const origBp = $('origBpView').value || '';
-    const origDesc = $('origDescView').value || '';
-    const origSt = $('origStView').value || '';
-    const beforeA9 = scoreA9(origTitle, origBp, origDesc, origSt, hotKeywords);
-    const beforeCosmo = scoreText(origTitle, origBp, origDesc, origSt);
-
-    const t = $('optTitleText').value || '';
-    let bpText = '';
-    for (let i = 0; i < 5; i++) bpText += ($('optBp'+i).value || '') + '\n';
-    const d = $('optDescText').value || '';
-    const st = $('optStText').value || '';
-    const afterA9 = scoreA9(t, bpText, d, st, hotKeywords);
-    const afterCosmo = scoreText(t, bpText, d, st);
-
-    renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo);
-    renderA9Table(afterA9);
-    renderCosmoTable(afterCosmo);
 }
 
 async function copyText(elementId, btn){
@@ -1409,10 +1372,8 @@ async function runAnalysis(){
         updateCounter('optStText','stCounter',C.stMax,'字节',null);
         updateExpandBar();
 
-        // 完整评分：COSMO + A9，各含优化前/后
         reScoreAndRender();
 
-        // 校验
         const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST }, true);
         renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮' + (genResult.passed ? '（通过）' : ''));
         renderKwHitReport(hotKeywords);
