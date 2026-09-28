@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 完整性校验版</title>
+<title>亚马逊 Listing 智能优化系统 · 928版 · 完整性校验</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -171,15 +171,15 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 多模型容错 · 完整性校验 · 缺失自动重试</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · 完整性校验</div>
+        <p>Gemini 多模型容错 · 完整性校验 · 第1点格式已固化</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · 完整性校验 · 固化v1</div>
     </header>
 
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
             · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
-            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警，绝不"假装成功"
+            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
@@ -401,7 +401,7 @@
 </div>
 
 <script>
-const APP_VERSION = '928版 · 完整性校验';
+const APP_VERSION = '928版 · 完整性校验 · 固化v1';
 const APP_VERSION_DATE = '2024-09-28';
 
 const GEMINI_MODELS = [
@@ -411,7 +411,7 @@ const GEMINI_MODELS = [
     'gemini-2.5-pro'
 ];
 
-const MAX_RETRIES = 2; // ★ 生成最多尝试 2 轮（1 轮原始 + 1 轮补齐）
+const MAX_RETRIES = 2;
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -483,9 +483,9 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v14）
+   约束条件（v15）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v14';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v15';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -548,9 +548,32 @@ function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)]
 function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
 function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
 
+/* ============================================================
+   ★★★ 自定义要求 —— 已固化默认值
+   ============================================================ */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
+
+// ★ 固化默认值：localStorage 为空时使用这些值
+const CUSTOM_DEFAULTS = {
+    reqTitle: '',
+    reqIh: '',
+    reqBp: '第1点格式：Size,Color,Weight,Package Includes:',
+    reqDesc: '',
+    reqSt: ''
+};
+
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
-function loadCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); const s = localStorage.getItem('cosmo_req_' + id); if (el && s) el.value = s; if (el) el.addEventListener('input', saveCustom); }); }
+function loadCustom(){
+    CUSTOM_IDS.forEach(id => {
+        const el = $(id);
+        const saved = localStorage.getItem('cosmo_req_' + id);
+        // 优先用 localStorage 里保存的；如果没有，用代码里的默认值
+        if (el){
+            el.value = (saved !== null && saved !== undefined && saved !== '') ? saved : (CUSTOM_DEFAULTS[id] || '');
+            el.addEventListener('input', saveCustom);
+        }
+    });
+}
 
 function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
@@ -626,7 +649,6 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '') +
         '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成！\n' : '';
 
-    // ★ 上一轮的完整性问题清单
     let prevErrorBlock = '';
     if (prevErrors && prevErrors.length && prevContent){
         prevErrorBlock = '\n╔════════════════════════════════════════════════════════╗\n' +
@@ -724,7 +746,7 @@ Item Highlights
 [/ST]`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。任何板块缺失、内容为空、或者中途截断都视为失败。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式（如用户指定 Size,Color,Weight,Package Includes），必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。任何板块缺失、内容为空、或者中途截断都视为失败。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
 async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
@@ -767,13 +789,9 @@ async function callGeminiWithFallback(messages){
     throw lastError || new Error('所有 Gemini 模型都不可用，请稍后重试');
 }
 
-/* ============================================================
-   ★★★ 解析函数（兼容多种标记变体）
-   ============================================================ */
 function parseStructuredOutput(text){
     const extract = (tag) => {
         const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        // 兼容 [TAG]、[ TAG ]、[TAG ]等变体
         const regex = new RegExp('\\[\\s*' + escaped + '\\s*\\]([\\s\\S]*?)\\[\\s*\\/\\s*' + escaped + '\\s*\\]', 'i');
         const m = text.match(regex);
         return m ? m[1].trim() : '';
@@ -795,18 +813,11 @@ function parseStructuredOutput(text){
     return result;
 }
 
-/* ============================================================
-   ★★★ 完整性校验（本轮核心）
-   任何板块缺失/为空/截断都算 error
-   ============================================================ */
 function hasTruncation(text, moduleName){
     if (!text || !text.trim()) return false;
     const trimmed = text.trim();
-    // 结尾是逗号、冒号、连词、介词、破折号
     if (/[,:;\-]$/.test(trimmed)) return moduleName + ' 结尾是逗号/冒号/破折号，疑似被截断';
-    // 结尾是不完整的连接词
     if (/\b(and|or|with|for|the|a|an|in|on|at|to|of|by|but|so|as|is|are|was|were)$/i.test(trimmed)) return moduleName + ' 结尾是介词/连词，疑似被截断';
-    // 结尾是未闭合的括号或引号
     const openCount = (trimmed.match(/[（(]/g) || []).length;
     const closeCount = (trimmed.match(/[）)]/g) || []).length;
     if (openCount !== closeCount) return moduleName + ' 括号未闭合，疑似被截断';
@@ -816,7 +827,6 @@ function hasTruncation(text, moduleName){
 function validateAll(r){
     const errors = [], warnings = [];
 
-    // ===== 标题 =====
     if (!r.title || !r.title.trim()){
         errors.push({ module:'标题', msg:'❌ 标题为空（AI 未返回）' });
     } else {
@@ -831,7 +841,6 @@ function validateAll(r){
         if (trunc) errors.push({ module:'标题', msg: trunc });
     }
 
-    // ===== IH =====
     if (!r.itemHighlights || !r.itemHighlights.trim()){
         errors.push({ module:'亮点', msg:'❌ Item Highlights 为空（AI 未返回）' });
     } else {
@@ -841,7 +850,6 @@ function validateAll(r){
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
     }
 
-    // ===== 五点 =====
     const bullets = r.bullets || [];
     if (bullets.length !== 5){
         errors.push({ module:'五点', msg:'❌ 五点数量不是 5（实际 ' + bullets.length + '）' });
@@ -866,7 +874,6 @@ function validateAll(r){
     });
     if (bulletTotal > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + bulletTotal + ' 超过 ' + C.bulletTotal });
 
-    // ===== 描述 =====
     if (!r.description || !r.description.trim()){
         errors.push({ module:'描述', msg:'❌ 详细描述为空（AI 未返回）' });
     } else {
@@ -877,7 +884,6 @@ function validateAll(r){
         if (trunc) errors.push({ module:'描述', msg: trunc });
     }
 
-    // ===== ST =====
     if (!r.searchTerms || !r.searchTerms.trim()){
         errors.push({ module:'搜索词', msg:'❌ Search Terms 为空（AI 未返回）' });
     } else {
@@ -892,9 +898,6 @@ function validateAll(r){
     return { errors, warnings };
 }
 
-/* ============================================================
-   ★★★ 生成（带完整性校验 + 自动重试）
-   ============================================================ */
 async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
     let lastResult = null;
     let lastErrors = [];
@@ -930,14 +933,12 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
         }
         console.warn('[生成] 第 ' + round + ' 轮存在问题：', v.errors.map(e => e.module + ': ' + e.msg).join(' | '));
 
-        // 还有重试机会就继续
         if (round < MAX_RETRIES){
             console.log('[生成] 等待 1 秒后重试，把错误清单交给 AI 补齐...');
             await new Promise(r => setTimeout(r, 1000));
         }
     }
 
-    // 2 轮后仍有错误
     return { result: lastResult, passed: false, rounds: MAX_RETRIES, errors: lastErrors, warnings: [], model: lastModel };
 }
 
@@ -1491,7 +1492,6 @@ async function runAnalysis(){
 
         reScoreAndRender();
 
-        // 最终校验（后处理后）
         const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST });
         renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮 · ' + genResult.model);
         renderKwHitReport(hotKeywords);
