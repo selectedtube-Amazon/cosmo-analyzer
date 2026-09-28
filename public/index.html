@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · Gemini 单引擎 · 928版</title>
+<title>亚马逊 Listing 智能优化系统 · Gemini 2.5 Flash · 928版</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -171,15 +171,16 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 单引擎 · COSMO + A9 双评分 · 五点大写标题</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 单引擎 · v2</div>
+        <p>Gemini 2.5 Flash · COSMO + A9 双评分 · 五点大写标题</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 2.5 Flash</div>
     </header>
 
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
             · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（新版以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头）<br>
-            · 填一次就自动存到浏览器，以后打开都还在。
+            · 填一次就自动存到浏览器，以后打开都还在。<br>
+            · 当前使用模型：<b>gemini-2.5-flash</b>（免费层每日 1500 次）
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
@@ -401,9 +402,10 @@
 </div>
 
 <script>
-const APP_VERSION = '928版 · Gemini 单引擎 · v2';
+const APP_VERSION = '928版 · Gemini 2.5 Flash';
 const APP_VERSION_DATE = '2024-09-28';
-const GEMINI_MODEL = 'gemini-3.8-flash';
+// ★ 已切换为 2.5-flash（免费层每日 1500 次）
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -476,9 +478,9 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v10 —— 五点加了大写小标题）
+   约束条件（v11）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v10';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v11';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -712,7 +714,7 @@ Item Highlights
 
 const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。例如：COMPLETE SET: / SCRATCH-FREE LINING: / COMPACT DESIGN: / PORTABLE & LIGHTWEIGHT: / QUICK ACCESS:。这是为了让买家一眼看清每条的重点。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
-async function callGemini(messages, maxRetries = 3){
+async function callGemini(messages, maxRetries = 2){
     const apiKey = getGeminiKey();
     if (!apiKey) throw new Error('未配置 Gemini API Key');
     let lastError = null;
@@ -780,10 +782,9 @@ function validateAll(r, isRetry){
                 if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符' });
                 if (b.length < C.bulletMin) { if (isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); else errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); }
                 if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
-                // ★ 检查是否以大写小标题开头
                 const firstLine = b.split(':')[0] || '';
                 const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
-                if (!hasAllCaps && !isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点未以全大写小标题开头（建议格式：BENEFIT TITLE: description）' });
+                if (!hasAllCaps && !isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点未以全大写小标题开头' });
             }
             total += (b || '').length;
         });
@@ -802,28 +803,16 @@ function validateAll(r, isRetry){
     return { errors, warnings };
 }
 
-async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRounds = 3){
-    let lastResult = null, lastErrors = [], lastWarnings = [];
-    for (let round = 1; round <= maxRounds; round++){
-        let result;
-        try {
-            const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
-            const rawText = await callGemini([
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: prompt }
-            ]);
-            result = parseStructuredOutput(rawText);
-        } catch (err){
-            if (round === maxRounds) throw err;
-            continue;
-        }
-        lastResult = result;
-        const v = validateAll(result, round > 1);
-        lastErrors = v.errors;
-        lastWarnings = v.warnings;
-        if (lastErrors.length === 0) return { result, passed: true, rounds: round, warnings: lastWarnings };
-    }
-    return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings };
+// ★ 只生成 1 轮，不重试（省额度）
+async function generateOnce(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
+    const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, null, null);
+    const rawText = await callGemini([
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: prompt }
+    ]);
+    const result = parseStructuredOutput(rawText);
+    const v = validateAll(result, false);
+    return { result, passed: v.errors.length === 0, rounds: 1, errors: v.errors, warnings: v.warnings };
 }
 
 function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
@@ -1343,7 +1332,8 @@ async function runAnalysis(){
         setStep(1, 'done');
 
         setStep(2, 'active'); status.textContent = '② 调用 Gemini 生成…';
-        const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3);
+        // ★ 单次生成，不重试（省额度）
+        const genResult = await generateOnce(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
         setStep(2, 'done');
 
         setStep(3, 'active'); status.textContent = '③ 评分与校验中…';
@@ -1374,14 +1364,14 @@ async function runAnalysis(){
 
         reScoreAndRender();
 
-        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST }, true);
-        renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮' + (genResult.passed ? '（通过）' : ''));
+        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST }, false);
+        renderValidationReport(v.errors, v.warnings, '单次生成');
         renderKwHitReport(hotKeywords);
         setStep(3, 'done');
 
         setStep(4, 'active');
-        status.className = genResult.passed ? 'ai-status done' : 'ai-status error';
-        status.textContent = genResult.passed ? '✅ 生成完成（第 ' + genResult.rounds + ' 轮通过）' : '⚠️ 生成完成，仍有问题（已 ' + genResult.rounds + ' 轮）';
+        status.className = v.errors.length === 0 ? 'ai-status done' : 'ai-status error';
+        status.textContent = v.errors.length === 0 ? '✅ 生成完成' : '⚠️ 生成完成，有 ' + v.errors.length + ' 项问题（可点下方一键补全）';
     } catch (err){
         console.error('生成失败', err);
         status.className = 'ai-status error';
