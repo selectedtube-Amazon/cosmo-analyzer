@@ -398,9 +398,9 @@ function getByteLength(str){
 }
 
 /* ============================================================
-   ★★★ 约束条件（版本升级到 v5）
+   ★★★ 约束条件（版本升级到 v6）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v5';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v6';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -411,13 +411,13 @@ const DEFAULT_CONSTRAINTS = {
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词（产品类型 + 关键属性）。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如"10-Slot"比"10 Compartments"更优，避免三个同义词堆叠。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符（含空格）。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段必须指向具体用途或受众，不要写"compact portable design"这类空泛词。`,
-    // ★ 五点规则：第 1 点专用于规格 + 包装内容
-    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足，会触发补全）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装（重要）】\n· 第 1 点专用于罗列产品的【关键规格参数】和【订单包含内容】，不写"利益点"，不做营销。\n· ⚠️ 用自然完整的句子撰写，不要用分号/逗号把参数堆成参数表！\n· ⚠️ 产品名要简洁：用 "10-compartment watch box" 这种简洁说法，不要直接抄原标题里冗长的 "10 Compartment High-grade Leather Watch Collection Storage Box"。\n· ⚠️ 严禁使用 High-grade、High-Class、High-end、Premium 等主观词——直接写具体材质，如 "PU leather"。\n· ⚠️ 尺寸和重量只保留一种单位：只写 inches 或只写 cm，不要 "9.84 x 7.87 x 3.15 inches (25 x 20 x 8 cm)" 双单位。\n· Package includes 独立成句放在结尾，例如 "Package includes 1 x Watch Storage Box"。\n· 参考句式（字数 180-220）："This 10-compartment watch box in black features a PU leather exterior and pearl fleece lining. It measures 9.84 x 7.87 x 3.15 inches and weighs 38.8 oz. Package includes 1 x Watch Storage Box"\n· 严禁编造原文没有的规格参数。原文没写重量就不写重量，原文没写 Package includes 就不写 Package includes。\n\n【第 2-5 点 · 利益点】\n· 第 2 点写材质保护（材质 + 保护效果）。\n· 第 3 点写尺寸空间（尺寸带来的空间表现）。\n· 第 4 点写便携运输（重量/结构带来的便携性）。\n· 第 5 点写日常使用便捷性（开合方式/日常体验）。\n· 每点以「利益点短语」开头，自然过渡到具体好处，按正常人类逻辑撰写。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
+    // ★ 五点规则：第 1 点改为纯参数列表（最简练）
+    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足，会触发补全）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照（重要）】\n· 第 1 点只列【关键规格参数】和【订单包含内容】，不做任何叙事描述。\n· ⚠️ 用纯短语直接列出信息，每个信息独立，用句号分隔。\n· ⚠️ 严禁任何叙述性动词：features、comes with、is、are、has、provides、designed with、made of、measures、weighs 等。\n· ⚠️ 严禁使用 High-grade、High-Class、High-end、Premium 等主观词。\n· 信息顺序：产品类型+数量 → 颜色 → 尺寸 → 重量 → 材质 → Package includes\n· ✅ 正确示例：10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ❌ 错误示例：This 10-compartment watch box in black features a PU leather exterior and pearl fleece lining. It measures 9.84 x 7.87 x 3.15 inches and weighs 38.8 oz.（不要叙事句，只列参数）\n· 产品名要简洁，尺寸重量只写一种单位，严禁编造原文没有的规格\n\n【第 2-5 点 · 利益点】\n· 第 2 点写材质保护（材质 + 保护效果）。\n· 第 3 点写尺寸空间（尺寸带来的空间表现）。\n· 第 4 点写便携运输（重量/结构带来的便携性）。\n· 第 5 点写日常使用便捷性（开合方式/日常体验）。\n· 每点以「利益点短语」开头，自然过渡到具体好处。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
     ruleST: `≤250 字节（不是字符，中文字符 3 字节）。\n全小写，空格分隔。\n不含品牌名、ASIN、主观词、时效词。\n⚠️ 严禁照抄参考范例中的 Search Terms！必须基于当前产品重新生成。`,
     ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格，绝不能写 12 格。\n· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container。\n· 原文没写防水，绝不写 waterproof / water resistant。\n· 原文没写防尘，绝不写 dustproof / dust-proof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。\n· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词。`,
-    // ★ 范例更新：第 1 点改成自然句快照
-    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格 / Package Includes: 1 x Watch Storage Box\n\n【好的标题】\n10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量）\n\n【好的 Item Highlights】\nPU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n（108字符。与标题互补，补充"存储什么"的价值信息）\n\n【好的五点描述】\n\n第 1 点（规格 + 包装快照 · 用自然句，不用分号堆参数）：\nThis 10-compartment watch box in black features a PU leather exterior and pearl fleece lining. It measures 9.84 x 7.87 x 3.15 inches and weighs 38.8 oz. Package includes 1 x Watch Storage Box\n（约 200 字符。用自然句 + 关键参数 + Package includes 结尾。产品名简洁，单单位，无主观词）\n\n第 2 点（材质保护）：\nThe soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点（尺寸空间）：\nSlim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点（便携运输）：\nAt just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点（日常使用便捷性）：\nLift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n（五点每条 150-220 字符，5 条总计 ≤1000 字符。每条结尾不加句号）\n\n【好的详细描述】\nIf you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.\n\nThe exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.\n\nAt 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.\n\nWhether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.\n\n【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！】\nwatch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot`
+    // ★ 范例更新：第 1 点改成纯参数列表（无叙事句）
+    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格 / Package Includes: 1 x Watch Storage Box\n\n【好的标题】\n10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量）\n\n【好的 Item Highlights】\nPU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n（108字符。与标题互补，补充"存储什么"的价值信息）\n\n【好的五点描述】\n\n第 1 点（规格 + 包装快照 · 纯参数列表，无叙事动词）：\n10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n（约 175 字符。纯参数短语 + 句号分隔，没有 features/is/has/measures 等叙事动词）\n\n第 2 点（材质保护）：\nThe soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点（尺寸空间）：\nSlim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点（便携运输）：\nAt just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点（日常使用便捷性）：\nLift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n（五点每条 150-220 字符，5 条总计 ≤1000 字符。每条结尾不加句号）\n\n【好的详细描述】\nIf you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.\n\nThe exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.\n\nAt 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.\n\nWhether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.\n\n【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！】\nwatch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -614,7 +614,7 @@ async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, cus
             }
             if (prevContent.description) wordFixBlock += '【当前描述】(' + prevContent.description.length + ' 字符) ' + prevContent.description.substring(0, 200) + '...\n';
             wordFixBlock += '\n【本轮必须做到】\n' + wordErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n';
-            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写\n· 如果第 1 点字数不足，通过补充规格细节（如单位转换、"Package includes 1 x ..."完整表述）来扩写，不要加利益点';
+            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写\n· 如果第 1 点字数不足，通过补充更多规格细节（如更多维度、Package includes 完整表述）来扩写，不要加利益点，不要加叙事动词';
         }
     }
     const errBlock = (prevErrors && prevErrors.length && !wordFixBlock) ?
@@ -664,7 +664,7 @@ Item Highlights
 [/IH]
 
 [BULLET1]
-第 1 点（规格 + 包装内容，用自然句，不用分号堆参数）
+第 1 点（规格 + 包装内容，纯参数列表，无叙事动词）
 [/BULLET1]
 
 [BULLET2]
@@ -692,7 +692,7 @@ Item Highlights
 [/ST]`;
 
     const rawText = await callDeepSeekRaw([
-        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案信息密度高、语言自然、逻辑清晰。你必须严格遵守字数要求。你绝对不能编造原始信息中没有的内容。特别重要：五点的第 1 点只写【关键规格参数】和【订单包含内容】，用自然完整的句子撰写（不要用分号堆参数），产品名要简洁（如 "10-compartment watch box"），尺寸重量只写一种单位，严禁用 High-grade/Premium 等主观词。只输出指定格式。' },
+        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案信息密度高、语言自然、逻辑清晰。你必须严格遵守字数要求。你绝对不能编造原始信息中没有的内容。特别重要：五点的第 1 点只做【关键规格参数】和【订单包含内容】的纯参数列表，绝不用任何叙事性动词（features、is、has、measures、weighs、comes with、designed with、made of 等），每个信息独立用句号分隔。格式如"10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior, pearl fleece lining. Package includes 1 x Watch Storage Box"。严禁用 High-grade、Premium 等主观词。只输出指定格式。' },
         { role: 'user', content: prompt }
     ]);
     return parseStructuredOutput(rawText);
@@ -861,7 +861,7 @@ ${cur.description}
 3. 通过添加细节（例如"wipes clean"→"wipes clean easily with a damp cloth"）、举例场景、补充受益点来增加字数
 4. 只输出字数不足的部分，达标的部分原样保留
 5. 每条结尾不加句号
-6. ⚠️ 第 1 点如果字数不足，通过补充规格细节（如"Package includes 1 x ..."完整表述）来扩写，不要加利益点，不要用分号堆参数
+6. ⚠️ 第 1 点如果字数不足，通过补充更多规格细节（如更多维度、Package includes 完整表述）来扩写，不要加利益点，不要加叙事动词（features/is/has/measures/weighs）
 
 【输出格式】
 [TITLE]
@@ -901,7 +901,7 @@ ${cur.description}
 [/ST]`;
 
         const rawText = await callDeepSeekRaw([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写，绝不改变原文事实，绝不编造新信息。第 1 点保持"规格+包装"快照风格，不加利益点，不用分号堆参数。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写，绝不改变原文事实，绝不编造新信息。第 1 点保持纯参数列表风格，不用任何叙事动词，不加利益点。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
 
@@ -1004,29 +1004,26 @@ function postIH(ih){
     return trimToMax(r, C.ihMax);
 }
 
-// ★ 关键改进：第 1 点特殊处理 —— 按句子截断，避免出现 "Package" 这种残缺词
+// ★ 第 1 点按句子截断，避免残缺词
 function postBullets(bullets){
     if (!Array.isArray(bullets)) return ['','','','',''];
     let arr = bullets.map(b => (b || '').trim().replace(/[.。;；,，]+$/, ''));
     while (arr.length < 5) arr.push('');
 
-    // 第 1 点特殊处理
     if (arr[0] && arr[0].length > C.bulletMax){
         arr[0] = smartTrimBullet1(arr[0], C.bulletMax);
     }
-    // 其他点用简单的空格截断
     for (let i = 1; i < 5; i++){
         if (arr[i] && arr[i].length > C.bulletMax){
             arr[i] = trimToMax(arr[i], C.bulletMax);
         }
     }
 
-    // 总字数控制
     let total = arr.reduce((a,b) => a + b.length, 0);
     let safety = 0;
     while (total > C.bulletTotal && safety < 500){
         safety++;
-        let mi = 1, ml = 0;  // 从第 2 点开始删（第 1 点保留规格完整性）
+        let mi = 1, ml = 0;
         for (let i = 1; i < 5; i++){ if (arr[i].length > ml){ ml = arr[i].length; mi = i; } }
         if (ml <= 10){ mi = 0; ml = arr[0].length; }
         if (ml <= 10) break;
@@ -1038,10 +1035,8 @@ function postBullets(bullets){
     return arr.slice(0, 5);
 }
 
-// 智能截断第 1 点：优先按句子边界截断，避免残缺词
 function smartTrimBullet1(text, max){
     if (text.length <= max) return text;
-    // 先按句子切分
     const sentences = text.split(/(?<=[.!?])\s+/);
     if (sentences.length > 1){
         let result = '';
@@ -1052,7 +1047,6 @@ function smartTrimBullet1(text, max){
         }
         if (result.trim()) return result.trim();
     }
-    // 如果按句子切分不行，按空格截断
     let t = text.substring(0, max);
     const lastSpace = t.lastIndexOf(' ');
     if (lastSpace > max * 0.7) t = t.substring(0, lastSpace);
