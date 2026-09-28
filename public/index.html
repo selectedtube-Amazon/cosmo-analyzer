@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · Gemini 2.5 Flash · 928版</title>
+<title>亚马逊 Listing 智能优化系统 · Gemini 3.8 Flash · 928版</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -171,8 +171,8 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 2.5 Flash · COSMO + A9 双评分 · 五点大写标题</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 2.5 Flash</div>
+        <p>Gemini 3.8 Flash · COSMO + A9 双评分 · 五点大写标题</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 3.8 Flash</div>
     </header>
 
     <div class="card apikey-card">
@@ -180,7 +180,7 @@
         <div class="key-hint">
             · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（新版以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头）<br>
             · 填一次就自动存到浏览器，以后打开都还在。<br>
-            · 当前使用模型：<b>gemini-2.5-flash</b>（免费层每日 1500 次）
+            · 当前使用模型：<b>gemini-3.8-flash</b>（付费层级，无限速）
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
@@ -402,10 +402,10 @@
 </div>
 
 <script>
-const APP_VERSION = '928版 · Gemini 2.5 Flash';
+const APP_VERSION = '928版 · Gemini 3.8 Flash';
 const APP_VERSION_DATE = '2024-09-28';
-// ★ 已切换为 2.5-flash（免费层每日 1500 次）
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// ★ 已切换为 3.8-flash（付费层级，无限速）
+const GEMINI_MODEL = 'gemini-3.8-flash';
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -478,9 +478,9 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v11）
+   约束条件（v12）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v11';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v12';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -803,7 +803,7 @@ function validateAll(r, isRetry){
     return { errors, warnings };
 }
 
-// ★ 只生成 1 轮，不重试（省额度）
+// ★ 单次生成，不重试（省额度）
 async function generateOnce(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
     const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, null, null);
     const rawText = await callGemini([
@@ -1332,7 +1332,6 @@ async function runAnalysis(){
         setStep(1, 'done');
 
         setStep(2, 'active'); status.textContent = '② 调用 Gemini 生成…';
-        // ★ 单次生成，不重试（省额度）
         const genResult = await generateOnce(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
         setStep(2, 'done');
 
