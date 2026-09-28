@@ -33,7 +33,6 @@
     .btn-sm.gray{background:#64748b;} .btn-sm.gray:hover{background:#475569;}
     .btn-sm.red{background:#dc2626;} .btn-sm.red:hover{background:#b91c1c;}
     .btn-sm.green{background:#059669;} .btn-sm.green:hover{background:#047857;}
-    .btn-sm.blue{background:#2563eb;} .btn-sm.blue:hover{background:#1d4ed8;}
     .btn-sm.orange{background:#ea580c;} .btn-sm.orange:hover{background:#c2410c;}
     .btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
     button.btn{background:var(--primary);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
@@ -48,7 +47,6 @@
     .constraint-body{margin-top:18px;padding-top:16px;border-top:1px dashed #bae6fd;}
     .constraint-section{margin-bottom:22px;}
     .constraint-section .sec-title{font-size:13px;font-weight:700;color:#075985;margin-bottom:10px;}
-    .constraint-section .sec-desc{font-size:12px;color:#0369a1;margin-bottom:10px;line-height:1.5;}
     .num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
     .num-grid .num-item label{font-size:12px;color:#334155;}
     .num-grid .num-item input[type="number"]{padding:8px 10px;font-size:13px;}
@@ -189,16 +187,15 @@
         <div class="version-badge" id="versionBadge">📌 928暂行优化版 · 双引擎</div>
     </header>
 
-    <!-- ★ Gemini API Key 配置 -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
-            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 免费申请（用 Google 账号登录，点"Create API key"）<br>
-            · 复制以 <code>AIzaSy</code> 开头的密钥，粘贴到下面。填一次就自动存到浏览器，以后打开都还在。<br>
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（<b>新版 Google AI Studio 生成的密钥以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头，两种都支持</b>）<br>
+            · 填一次就自动存到浏览器，以后打开都还在。<br>
             · 只想用 DeepSeek 不想用 Gemini？留空即可，取消下方 Gemini 勾选就行。
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <input type="password" id="geminiApiKey" placeholder="AIzaSy..." style="flex:1;min-width:280px;">
+            <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
             <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
             <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
             <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
@@ -428,15 +425,9 @@
 </div>
 
 <script>
-/* ============================================================
-   版本
-   ============================================================ */
 const APP_VERSION = '928暂行优化版 · 双引擎';
 const APP_VERSION_DATE = '2024-09-28';
 
-/* ============================================================
-   工具
-   ============================================================ */
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
 const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -463,14 +454,14 @@ function getByteLength(str){
 }
 
 /* ============================================================
-   ★ Gemini API Key 管理
+   ★ Gemini API Key 管理（支持 AQ. 和 AIza 两种格式）
    ============================================================ */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
 
 function saveGeminiKey(){
     const key = $('geminiApiKey').value.trim();
     if (!key){ showToast('请先输入 Key'); return; }
-    if (!key.startsWith('AIza')){ showToast('⚠️ Key 应以 AIza 开头，请检查'); return; }
+    if (key.length < 20){ showToast('⚠️ Key 长度异常，请重新复制完整密钥'); return; }
     localStorage.setItem(GEMINI_KEY_STORAGE, key);
     $('geminiKeyStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString();
     showToast('已保存 Gemini Key');
@@ -496,7 +487,7 @@ async function testGeminiKey(){
     if (!key){ showToast('请先输入 Key'); return; }
     $('geminiKeyStatus').textContent = '⏳ 测试中…';
     try {
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key;
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(key);
         const r = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -513,7 +504,7 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v7）
+   约束条件
    ============================================================ */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v7';
 const DEFAULT_CONSTRAINTS = {
@@ -590,9 +581,6 @@ function toggleEngineCheck(engine){
 function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
-/* ============================================================
-   常量（评分）
-   ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
     goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
@@ -649,9 +637,6 @@ function cleanInput(text){
     r = r.replace(/\s+/g, ' '); return r.trim();
 }
 
-/* ============================================================
-   构建 Prompt
-   ============================================================ */
 function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
@@ -760,9 +745,6 @@ Item Highlights
 
 const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【其他规则】第 1 点只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。只输出指定格式。';
 
-/* ============================================================
-   ★★★ 调用引擎（DeepSeek 走后端，Gemini 走前端直连）
-   ============================================================ */
 async function callDeepSeek(messages, maxRetries = 3){
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++){
@@ -800,7 +782,7 @@ async function callGemini(messages, maxRetries = 3){
             if (systemMsg && systemMsg.content){
                 body.systemInstruction = { parts: [{ text: systemMsg.content }] };
             }
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(apiKey);
             const r = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -904,9 +886,6 @@ async function generateWithSelfFix(engine, titleRaw, bpRaw, descRaw, stRaw, hotK
     return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings };
 }
 
-/* ============================================================
-   后处理
-   ============================================================ */
 function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
 function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
 function postTitle(t){ if (!t) return ''; let r = t.trim().replace(/[,;.!]+$/, ''); r = trimToMax(r, C.titleMax); let s = 0; while (s < 3){ s++; const ws = r.split(/\s+/); const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,''); if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); } else break; } return r; }
@@ -945,9 +924,6 @@ function smartTrimBullet1(text, max){
 function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
-/* ============================================================
-   评分
-   ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
     const full = t + ' ' + b + ' ' + d + ' ' + s;
