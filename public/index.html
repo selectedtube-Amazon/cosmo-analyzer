@@ -145,6 +145,7 @@
     .bp-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
     .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
     .bp-item-header .bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px;}
+    .bp-item-header .bp-role.spec{background:#dbeafe;color:#1e40af;}
     .bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;line-height:1.6;color:#0f172a;resize:vertical;min-height:70px;font-family:inherit;}
     .bp-item textarea:focus{outline:none;border-color:var(--success);}
     .validation-report{margin-top:20px;padding:16px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;}
@@ -170,7 +171,7 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>约束可编辑 · 自动固化 · 字数不足自动补全 · 一次生成高质量 Listing</p>
+        <p>约束可编辑 · 自动固化 · 字数不足自动补全 · 第 1 点专用于规格与包装内容</p>
     </header>
 
     <div class="card constraint-card">
@@ -205,7 +206,7 @@
                 <div class="sec-desc">这是 AI 生成时读到的具体指令。改这里 = 改 AI 的行为准则。</div>
                 <div class="rule-item"><label>标题规则 <span class="rule-hint">AI 会按此写标题</span></label><textarea id="c_ruleTitle"></textarea></div>
                 <div class="rule-item"><label>Item Highlights 规则 <span class="rule-hint">必须与标题互补</span></label><textarea id="c_ruleIH"></textarea></div>
-                <div class="rule-item"><label>五点规则 <span class="rule-hint">每条好处优先，结尾不加句号</span></label><textarea id="c_ruleBullets"></textarea></div>
+                <div class="rule-item"><label>五点规则 <span class="rule-hint">第 1 点专用于规格 + 包装</span></label><textarea id="c_ruleBullets"></textarea></div>
                 <div class="rule-item"><label>详细描述规则 <span class="rule-hint">自然段，场景开头</span></label><textarea id="c_ruleDesc"></textarea></div>
                 <div class="rule-item"><label>Search Terms 规则 <span class="rule-hint">严禁照抄范例</span></label><textarea id="c_ruleST"></textarea></div>
                 <div class="rule-item"><label>保真原则 <span class="rule-hint">严禁编造原文没有的信息</span></label><textarea id="c_ruleFidelity"></textarea></div>
@@ -241,7 +242,7 @@
             </div>
             <div class="input-layout-right">
                 <div class="form-group"><label for="productTitle">商品标题 (≤75 字符)</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始 5 点、Introductions、Features、Specifications 等全部商品信息..."></textarea></div>
+                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始 5 点、Introductions、Features、Specifications、Package Includes 等全部商品信息..."></textarea></div>
                 <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选，没有可留空"></textarea></div>
                 <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选，没有可留空"></div>
             </div>
@@ -397,9 +398,9 @@ function getByteLength(str){
 }
 
 /* ============================================================
-   约束条件
+   ★★★ 约束条件（版本升级到 v4）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v3';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v4';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -410,11 +411,13 @@ const DEFAULT_CONSTRAINTS = {
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词（产品类型 + 关键属性）。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如"10-Slot"比"10 Compartments"更优，避免三个同义词堆叠。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符（含空格）。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段必须指向具体用途或受众，不要写"compact portable design"这类空泛词。`,
-    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足，会触发补全）。\n5 条合计 ≤1000 字符。\n每条以「利益点短语」开头，自然过渡到具体好处。\n每条结尾不加句号。\n第 1 点核心功能+规格，第 2 点材质保护，第 3 点尺寸空间，第 4 点便携运输，第 5 点日常使用便捷性。\n按正常人类逻辑撰写，不要生硬套模板。\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
+    // ★ 五点规则：第 1 点专用于规格 + 包装内容
+    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足，会触发补全）。\n5 条合计 ≤1000 字符。\n每条以「利益点短语」开头，自然过渡到具体好处。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装（重要）】\n· 第 1 点专用于罗列产品的【关键规格参数】和【订单包含内容】，不写"利益点"，只做"信息快照"。\n· 必含项（原文有的）：产品名称 + 数量（如 10 Compartments）+ 颜色 + 尺寸（含单位）+ 重量（原文有时才写）+ 材质。\n· 如果原文提供 "Package Includes"（订单包含 / 包装清单）字段，直接照搬该文本到第 1 点末尾，格式如 "Package includes 1 x Watch Storage Box"。\n· 用分号或句号分隔各参数，自然流畅，不要机械堆砌。\n· 严禁编造原文没有的规格参数。原文没写重量就不写重量，原文没写包装清单就不写 Package includes。\n\n【第 2-5 点 · 利益点】\n· 第 2 点写材质保护（材质 + 保护效果）。\n· 第 3 点写尺寸空间（尺寸带来的空间表现）。\n· 第 4 点写便携运输（重量/结构带来的便携性）。\n· 第 5 点写日常使用便捷性（开合方式/日常体验）。\n· 每点以「利益点短语」开头，自然过渡到具体好处，按正常人类逻辑撰写，不要生硬套模板。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
     ruleST: `≤250 字节（不是字符，中文字符 3 字节）。\n全小写，空格分隔。\n不含品牌名、ASIN、主观词、时效词。\n⚠️ 严禁照抄参考范例中的 Search Terms！必须基于当前产品重新生成。`,
-    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格，绝不能写 12 格。\n· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container。\n· 原文没写防水，绝不写 waterproof / water resistant。\n· 原文没写防尘，绝不写 dustproof / dust-proof。\n· 原文没有重量信息，就不要提具体重量。\n· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词。`,
-    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格\n\n【好的标题】\n10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量）\n\n【好的 Item Highlights】\nPU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n（108字符。与标题互补，补充"存储什么"的价值信息）\n\n【好的五点描述】\nEach compartment fits one watch securely, keeping your collection separated and easy to browse; no more tangled straps or misplaced pieces\nThe soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\nSlim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\nAt just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\nLift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n（每条 130-140 字符，5 条总计 685 字符。以功能短语开头，后接具体利益点。每条结尾不加句号）\n\n【好的详细描述】\nIf you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.\n\nThe exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.\n\nAt 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.\n\nWhether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.\n\n【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！】\nwatch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot`
+    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格，绝不能写 12 格。\n· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container。\n· 原文没写防水，绝不写 waterproof / water resistant。\n· 原文没写防尘，绝不写 dustproof / dust-proof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。\n· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词。`,
+    // ★ 范例更新：第 1 点改成规格 + 包装快照
+    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格 / Package Includes: 1 x Watch Storage Box\n\n【好的标题】\n10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n（72字符。自然流畅，包含核心词 watch box organizer、材质、颜色、容量）\n\n【好的 Item Highlights】\nPU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n（108字符。与标题互补，补充"存储什么"的价值信息）\n\n【好的五点描述】\n\n第 1 点（规格 + 包装快照）：\nCOMPLETE WATCH STORAGE SET: 1 x 10 Compartment Watch Storage Box in Black; dimensions 9.84 x 7.87 x 3.15 inches; weight 38.8 oz; exterior PU leather, interior pearl fleece lining; Package includes 1 x Watch Storage Box\n（约 220 字符。只罗列规格和包装内容，不写利益点）\n\n第 2 点（材质保护）：\nThe soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点（尺寸空间）：\nSlim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点（便携运输）：\nAt just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点（日常使用便捷性）：\nLift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n（五点每条 150-220 字符，5 条总计 ≤1000 字符。每条结尾不加句号）\n\n【好的详细描述】\nIf you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.\n\nThe exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.\n\nAt 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.\n\nWhether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.\n\n【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！】\nwatch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -452,8 +455,7 @@ function syncConstraintsFromForm(){
     C.ruleTitle = $('c_ruleTitle').value; C.ruleIH = $('c_ruleIH').value; C.ruleBullets = $('c_ruleBullets').value;
     C.ruleDesc = $('c_ruleDesc').value; C.ruleST = $('c_ruleST').value; C.ruleFidelity = $('c_ruleFidelity').value;
     C.example = $('c_example').value;
-    updateHints();
-    saveConstraints();
+    updateHints(); saveConstraints();
 }
 function updateHints(){
     $('titleMaxHint').textContent = C.titleMax;
@@ -588,7 +590,7 @@ function cleanInput(text){
 }
 
 /* ============================================================
-   ★★★ 生成（带字数不足的针对性提示）
+   ★★★ 生成
    ============================================================ */
 async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
@@ -600,7 +602,6 @@ async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, cus
         (customReqs.desc ? '· 描述：' + customReqs.desc + '\n' : '') +
         (customReqs.st ? '· 搜索词：' + customReqs.st : '') : '';
 
-    // 字数补全专用块
     let wordFixBlock = '';
     if (prevErrors && prevErrors.length && prevContent){
         const wordErrors = prevErrors.filter(e => e.msg.includes('低于下限') || e.msg.includes('字符'));
@@ -622,7 +623,7 @@ async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, cus
     const wordBlock = '【字数硬约束 · 不满足视为不合格】\n' +
         '· 标题：' + C.titleMin + '-' + C.titleMax + ' 字符\n' +
         '· Item Highlights：' + C.ihMin + '-' + C.ihMax + ' 字符\n' +
-        '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符（⭐ 每条必须 ≥' + C.bulletMin + ' 字符，否则不合格）；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
+        '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符（⭐ 每条必须 ≥' + C.bulletMin + ' 字符）；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
         '· 详细描述：' + C.descMin + '-' + C.descMax + ' 字符\n' +
         '· Search Terms：≤' + C.stMax + ' 字节，全小写';
 
@@ -663,23 +664,23 @@ Item Highlights
 [/IH]
 
 [BULLET1]
-第 1 点
+第 1 点（规格 + 包装内容）
 [/BULLET1]
 
 [BULLET2]
-第 2 点
+第 2 点（材质保护）
 [/BULLET2]
 
 [BULLET3]
-第 3 点
+第 3 点（尺寸空间）
 [/BULLET3]
 
 [BULLET4]
-第 4 点
+第 4 点（便携运输）
 [/BULLET4]
 
 [BULLET5]
-第 5 点
+第 5 点（日常使用便捷性）
 [/BULLET5]
 
 [DESC]
@@ -691,7 +692,7 @@ Item Highlights
 [/ST]`;
 
     const rawText = await callDeepSeekRaw([
-        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案信息密度高、语言自然、逻辑清晰。你必须严格遵守字数要求：标题 ' + C.titleMin + '-' + C.titleMax + ' 字符、IH ' + C.ihMin + '-' + C.ihMax + ' 字符、五点每条必须 ≥' + C.bulletMin + ' 字符、描述 ≥' + C.descMin + ' 字符。字数不足就是不合格。你绝对不能编造原始信息中没有的内容。只输出指定格式。' },
+        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案信息密度高、语言自然、逻辑清晰。你必须严格遵守字数要求。你绝对不能编造原始信息中没有的内容。特别重要：五点的第 1 点只写【关键规格参数】和【订单包含内容】，不写利益点，格式为"产品名称 + 数量 + 颜色 + 尺寸 + 重量 + 材质 + Package includes..."。只输出指定格式。' },
         { role: 'user', content: prompt }
     ]);
     return parseStructuredOutput(rawText);
@@ -730,17 +731,12 @@ function parseStructuredOutput(text){
     return result;
 }
 
-/* ============================================================
-   ★★★ 校验 —— 字数不足改为 error
-   ============================================================ */
 function validateAll(r, isRetry){
     const errors = [], warnings = [];
-    // 标题
     if (!r.title || !r.title.trim()) errors.push({ module:'标题', msg:'标题为空' });
     else {
         if (r.title.length > C.titleMax) errors.push({ module:'标题', msg:'超过 ' + C.titleMax + ' 字符（' + r.title.length + '）' });
         if (r.title.length < C.titleMin) {
-            // 第一次生成时用 warning，重试时用 error
             if (isRetry) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，低于下限 ' + C.titleMin });
             else errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，低于下限 ' + C.titleMin });
         }
@@ -749,7 +745,6 @@ function validateAll(r, isRetry){
         const pHits = detectProhibited(r.title);
         if (pHits.length) errors.push({ module:'标题', msg:'含违禁词：' + pHits.join(', ') });
     }
-    // IH
     if (!r.itemHighlights || !r.itemHighlights.trim()) errors.push({ module:'亮点', msg:'Item Highlights 为空' });
     else {
         if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符（' + r.itemHighlights.length + '）' });
@@ -759,7 +754,6 @@ function validateAll(r, isRetry){
         }
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
     }
-    // 五点
     const bullets = r.bullets || [];
     if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5（' + bullets.length + '）' });
     else {
@@ -778,7 +772,6 @@ function validateAll(r, isRetry){
         });
         if (total > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + total + ' 超过 ' + C.bulletTotal });
     }
-    // 描述
     if (!r.description || !r.description.trim()) errors.push({ module:'描述', msg:'描述为空' });
     else {
         if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符（' + r.description.length + '）' });
@@ -787,7 +780,6 @@ function validateAll(r, isRetry){
             else errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，低于下限 ' + C.descMin });
         }
     }
-    // ST
     if (r.searchTerms){
         const bytes = getByteLength(r.searchTerms);
         if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节（' + bytes + '）' });
@@ -823,13 +815,12 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
 }
 
 /* ============================================================
-   ★★★ 手动一键补全
+   手动一键补全
    ============================================================ */
 async function expandAll(){
     const btn = $('expandBtn');
     btn.disabled = true; btn.textContent = '⏳ 补全中…';
     try {
-        // 读取当前所有内容
         const cur = {
             title: $('optTitleText').value.trim(),
             itemHighlights: $('optIhText').value.trim(),
@@ -837,7 +828,6 @@ async function expandAll(){
             description: $('optDescText').value.trim(),
             searchTerms: $('optStText').value.trim()
         };
-        // 找出所有字数不足的
         const shortItems = [];
         if (cur.title && cur.title.length < C.titleMin) shortItems.push({ module:'标题', msg:'仅 ' + cur.title.length + ' 字符，低于下限 ' + C.titleMin });
         if (cur.itemHighlights && cur.itemHighlights.length < C.ihMin) shortItems.push({ module:'亮点', msg:'仅 ' + cur.itemHighlights.length + ' 字符，低于下限 ' + C.ihMin });
@@ -846,7 +836,6 @@ async function expandAll(){
 
         if (shortItems.length === 0){ showToast('所有模块都已达标'); btn.disabled = false; btn.textContent = '✨ 一键补全字数'; return; }
 
-        // 构造只针对字数的补全 prompt
         const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下，通过添加细节描述、举例场景、补充受益点来扩写，使每部分达到字数要求。
 
 【当前内容】
@@ -872,6 +861,7 @@ ${cur.description}
 3. 通过添加细节（例如"wipes clean"→"wipes clean easily with a damp cloth"）、举例场景、补充受益点来增加字数
 4. 只输出字数不足的部分，达标的部分原样保留
 5. 每条结尾不加句号
+6. 第 1 点仍然是"规格 + 包装"快照，不写利益点。如果第 1 点字数不足，可以通过补充规格细节（如单位转换、"Package includes 1 x ..."完整表述）来扩写，不要加利益点。
 
 【输出格式】
 [TITLE]
@@ -911,12 +901,11 @@ ${cur.description}
 [/ST]`;
 
         const rawText = await callDeepSeekRaw([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写，绝不改变原文事实，绝不编造新信息。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写，绝不改变原文事实，绝不编造新信息。第 1 点保持"规格+包装"快照风格，不加利益点。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
 
         const parsed = parseStructuredOutput(rawText);
-        // 只更新字数不足的部分
         if (parsed.title && parsed.title.length >= C.titleMin && cur.title.length < C.titleMin) $('optTitleText').value = parsed.title;
         if (parsed.itemHighlights && parsed.itemHighlights.length >= C.ihMin && cur.itemHighlights.length < C.ihMin) $('optIhText').value = parsed.itemHighlights;
         for (let i = 0; i < 5; i++){
@@ -926,7 +915,6 @@ ${cur.description}
         }
         if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
 
-        // 刷新所有计数器和打分
         renderResult(
             $('optTitleText').value, $('optIhText').value,
             [0,1,2,3,4].map(i => $('optBp' + i).value),
@@ -934,7 +922,6 @@ ${cur.description}
         );
         const beforeResult = scoreText($('origTitleView').value, $('origBpView').value, $('origDescView').value, $('origStView').value);
         applyAfterScore(beforeResult, parseHotKeywords());
-        // 重新校验显示最新状态
         const v = validateAll({
             title: $('optTitleText').value,
             itemHighlights: $('optIhText').value,
@@ -956,7 +943,6 @@ ${cur.description}
 function updateExpandBar(){
     const bar = $('expandBar');
     const msg = $('expandMsg');
-    // 检查当前所有字段
     const t = $('optTitleText').value, ih = $('optIhText').value, d = $('optDescText').value;
     let shortCount = 0;
     if (t && t.length < C.titleMin) shortCount++;
@@ -1168,7 +1154,6 @@ function updateCounter(id, cid, max, unit, min){
     if (len > max) cls += ' over';
     else if (min && len < min) cls += ' under';
     c.className = cls;
-    // 高亮字段
     if (el.classList.contains('optimized-textarea') && min){
         el.classList.toggle('undersized', len > 0 && len < min);
     }
@@ -1192,7 +1177,6 @@ function initCounters(){
             const h = () => {
                 updateCounter('optBp'+idx, 'bpCounter'+idx, C.bulletMax, '字符', C.bulletMin);
                 updateBpTotal();
-                // 高亮
                 const item = el.closest('.bp-item');
                 if (item) item.classList.toggle('undersized', el.value.length > 0 && el.value.length < C.bulletMin);
             };
@@ -1201,15 +1185,22 @@ function initCounters(){
         })(i);
     }
 }
+// ★ 第 1 点角色标签改为"规格 + 包装"，并高亮
 function buildBulletUI(){
-    const roles = ['核心功能','材质保护','尺寸空间','便携运输','日常使用'];
+    const roles = [
+        { text: '规格 + 包装', isSpec: true },
+        { text: '材质保护', isSpec: false },
+        { text: '尺寸空间', isSpec: false },
+        { text: '便携运输', isSpec: false },
+        { text: '日常使用', isSpec: false }
+    ];
     const c = $('bulletPointsContainer');
     if (!c) return;
     c.innerHTML = '';
     for (let i = 0; i < 5; i++){
         const item = document.createElement('div');
         item.className = 'bp-item';
-        item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role">' + roles[i] + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
+        item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role' + (roles[i].isSpec ? ' spec' : '') + '">' + roles[i].text + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
             '<textarea id="optBp' + i + '" placeholder="生成中…"></textarea>' +
             '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
         c.appendChild(item);
@@ -1348,7 +1339,7 @@ async function copyAllBullets(btn){
 
 function loadSample(){
     $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
-    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.\n\nSpecifications:\nTotal Watches: 10\nColor: Black\nDimension: (9.84 x 7.87 x 3.15)"/ (25 x 20 x 8)cm (L x W x H)\nWeight: 38.8oz / 1100g\nExterior Material: PU Leather\nInterior Material: Pearl Fleece Lining';
+    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.\n\nSpecifications:\nTotal Watches: 10\nColor: Black\nDimension: (9.84 x 7.87 x 3.15)"/ (25 x 20 x 8)cm (L x W x H)\nWeight: 38.8oz / 1100g\nExterior Material: PU Leather\nInterior Material: Pearl Fleece Lining\n\nPackage Includes:\n1 x Watch Storage Box';
     $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
     $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
     $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
@@ -1440,7 +1431,6 @@ async function runAnalysis(){
         setStep(5, 'active'); status.textContent = '⑤ 计算得分…';
         applyAfterScore(beforeResult, hotKeywords);
         renderKwHitReport(hotKeywords);
-        // 用当前的显示内容再校验一遍（因为后处理可能截断）
         const v = validateAll({
             title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST
         }, true);
