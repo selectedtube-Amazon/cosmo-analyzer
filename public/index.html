@@ -190,7 +190,7 @@
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
-            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（<b>新版 Google AI Studio 生成的密钥以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头，两种都支持</b>）<br>
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（新版以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头，两种都支持）<br>
             · 填一次就自动存到浏览器，以后打开都还在。<br>
             · 只想用 DeepSeek 不想用 Gemini？留空即可，取消下方 Gemini 勾选就行。
         </div>
@@ -427,10 +427,10 @@
 <script>
 const APP_VERSION = '928暂行优化版 · 双引擎';
 const APP_VERSION_DATE = '2024-09-28';
+const GEMINI_MODEL = 'gemini-3.8-flash';  // ★ 2024-09-28 更新：Google 已下架 gemini-2.0-flash
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
-const safeId = name => name.replace(/[^a-zA-Z0-9_]/g, '_');
 
 function showToast(msg){
     let t = $('toast');
@@ -454,7 +454,7 @@ function getByteLength(str){
 }
 
 /* ============================================================
-   ★ Gemini API Key 管理（支持 AQ. 和 AIza 两种格式）
+   Gemini API Key 管理
    ============================================================ */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
 
@@ -487,7 +487,7 @@ async function testGeminiKey(){
     if (!key){ showToast('请先输入 Key'); return; }
     $('geminiKeyStatus').textContent = '⏳ 测试中…';
     try {
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(key);
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(key);
         const r = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -765,7 +765,7 @@ async function callDeepSeek(messages, maxRetries = 3){
 
 async function callGemini(messages, maxRetries = 3){
     const apiKey = getGeminiKey();
-    if (!apiKey) throw new Error('未配置 Gemini API Key（请在页面顶部填写）');
+    if (!apiKey) throw new Error('未配置 Gemini API Key');
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++){
         try {
@@ -775,19 +775,10 @@ async function callGemini(messages, maxRetries = 3){
                 role: m.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: m.content }]
             }));
-            const body = {
-                contents: contents,
-                generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
-            };
-            if (systemMsg && systemMsg.content){
-                body.systemInstruction = { parts: [{ text: systemMsg.content }] };
-            }
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(apiKey);
-            const r = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
+            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
+            if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
+            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const data = await r.json();
             if (data.error) throw new Error('Gemini: ' + (data.error.message || JSON.stringify(data.error)));
             const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -1054,24 +1045,20 @@ function renderEnginePanel(engine, result, cosmoScore, a9Score){
         panel.classList.add('errored');
         return;
     }
-
     $(prefix + '_title').value = result.title || '';
     $(prefix + '_ih').value = result.itemHighlights || '';
     for (let i = 0; i < 5; i++) $(prefix + '_b' + i).value = (result.bullets || [])[i] || '';
     $(prefix + '_desc').value = result.description || '';
     $(prefix + '_st').value = result.searchTerms || '';
-
     updateEPCounter(prefix);
     ['title','ih','b0','b1','b2','b3','b4','desc','st'].forEach(f => {
         const el = $(prefix + '_' + f);
         if (el && !el._listenerAdded){ el.addEventListener('input', () => updateEPCounter(prefix)); el._listenerAdded = true; }
     });
-
     statusEl.className = 'ep-status done';
     statusEl.textContent = '✅ 完成';
     if (cosmoScore) cosmoEl.textContent = 'COSMO: ' + cosmoScore.totalScore + ' · ' + cosmoScore.grade;
     if (a9Score) a9El.textContent = 'A9: ' + a9Score.totalScore + ' · ' + a9Score.grade;
-
     engineResults[engine] = { result, cosmoScore, a9Score };
 }
 function updateEPCounter(prefix){
@@ -1173,11 +1160,8 @@ function initCounters(){
 }
 function buildBulletUI(){
     const roles = [
-        { text: '规格 + 包装', isSpec: true },
-        { text: '材质保护', isSpec: false },
-        { text: '尺寸空间', isSpec: false },
-        { text: '便携运输', isSpec: false },
-        { text: '日常使用', isSpec: false }
+        { text: '规格 + 包装', isSpec: true }, { text: '材质保护', isSpec: false },
+        { text: '尺寸空间', isSpec: false }, { text: '便携运输', isSpec: false }, { text: '日常使用', isSpec: false }
     ];
     const c = $('bulletPointsContainer');
     if (!c) return;
@@ -1217,8 +1201,7 @@ function renderValidationReport(issues, warnings, rounds){
     if (all.length === 0){
         report.className = 'validation-report';
         report.innerHTML = '<div class="report-ttl">✅ 全部合格 · ' + rounds + '</div>';
-        report.classList.remove('hidden');
-        return;
+        report.classList.remove('hidden'); return;
     }
     report.className = 'validation-report has-errors';
     let html = '<div class="report-ttl">⚠️ 共 ' + all.length + ' 项问题（' + rounds + '）</div>';
@@ -1307,7 +1290,6 @@ ${cur.description}
 3. 通过添加细节描述、举例场景、补充受益点来增加字数
 4. 只输出字数不足的部分
 5. 每条结尾不加句号
-6. ⚠️ 第 1 点如果字数不足，通过补充更多规格细节来扩写，不要加叙事动词
 
 【输出格式】
 [TITLE]
@@ -1445,18 +1427,13 @@ async function runDualEngines(){
     $('origDescView').value = descRaw; $('origStView').value = stRaw;
 
     const card = $('resultCard');
-    card.classList.remove('hidden');
-    card.classList.remove('fade-in');
-    void card.offsetWidth;
-    card.classList.add('fade-in');
+    card.classList.remove('hidden'); card.classList.remove('fade-in');
+    void card.offsetWidth; card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
-    const btn = $('analyzeBtn');
-    const status = $('aiStatus');
-    btn.disabled = true;
-    btn.textContent = '⏳ 双引擎并行生成中…';
-    status.className = 'ai-status loading';
-    status.classList.remove('hidden');
+    const btn = $('analyzeBtn'); const status = $('aiStatus');
+    btn.disabled = true; btn.textContent = '⏳ 双引擎并行生成中…';
+    status.className = 'ai-status loading'; status.classList.remove('hidden');
 
     try {
         setStep(1, 'active'); status.textContent = '① 输入净化中…';
@@ -1468,8 +1445,7 @@ async function runDualEngines(){
         $('statusDS').className = 'ep-status loading'; $('statusDS').textContent = useDS ? '生成中…' : '未启用';
         $('statusGM').className = 'ep-status loading'; $('statusGM').textContent = useGM ? '生成中…' : '未启用';
 
-        const promises = [];
-        const engines = [];
+        const promises = [], engines = [];
         if (useDS){ promises.push(generateWithSelfFix('ds', cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3)); engines.push('ds'); }
         if (useGM){ promises.push(generateWithSelfFix('gm', cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3)); engines.push('gm'); }
 
@@ -1478,15 +1454,12 @@ async function runDualEngines(){
 
         setStep(3, 'active'); status.textContent = '③ 各自评分中…';
         for (let i = 0; i < engines.length; i++){
-            const eng = engines[i];
-            const r = results[i];
+            const eng = engines[i]; const r = results[i];
             if (r.status === 'fulfilled' && r.value && r.value.result){
                 const rawResult = r.value.result;
                 const finalResult = {
-                    title: postTitle(rawResult.title),
-                    itemHighlights: postIH(rawResult.itemHighlights),
-                    bullets: postBullets(rawResult.bullets),
-                    description: postDesc(rawResult.description),
+                    title: postTitle(rawResult.title), itemHighlights: postIH(rawResult.itemHighlights),
+                    bullets: postBullets(rawResult.bullets), description: postDesc(rawResult.description),
                     searchTerms: postST(rawResult.searchTerms)
                 };
                 let bpText = '';
@@ -1516,8 +1489,7 @@ async function runDualEngines(){
         status.textContent = '⚠️ 失败：' + err.message;
         showToast('失败：' + err.message);
     } finally {
-        btn.disabled = false;
-        btn.textContent = '🚀 双引擎并行生成（DeepSeek + Gemini）';
+        btn.disabled = false; btn.textContent = '🚀 双引擎并行生成（DeepSeek + Gemini）';
     }
 }
 
