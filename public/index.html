@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · Gemini 单引擎版</title>
+<title>亚马逊 Listing 智能优化系统 · Gemini 单引擎 · 928版</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -73,7 +73,34 @@
     .results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
     .results-header h2{margin:0 0 6px;font-size:19px;}
     #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;}
+    .score-section{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
+    .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
+    .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;}
+    .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .score-card.cosmo .sc-ttl{color:#1d4ed8;}
+    .score-card.a9 .sc-ttl{color:#6d28d9;}
+    .score-pair{display:flex;gap:12px;align-items:center;}
+    .score-item{text-align:center;}
+    .score-item .score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
+    .score-badge{display:inline-block;font-size:20px;font-weight:800;padding:5px 12px;border-radius:9px;background:#fff;color:var(--primary);white-space:nowrap;border:1px solid #e2e8f0;}
+    .score-card.cosmo .score-badge{color:#1d4ed8;border-color:#bfdbfe;}
+    .score-card.a9 .score-badge{color:#6d28d9;border-color:#c4b5fd;}
+    .score-badge.lv-a{background:#ecfdf5;color:#047857;border-color:#a7f3d0 !important;}
+    .score-badge.lv-b{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe !important;}
+    .score-badge.lv-c{background:#fffbeb;color:#b45309;border-color:#fde68a !important;}
+    .score-badge.lv-d{background:#fef2f2;color:#b91c1c;border-color:#fecaca !important;}
+    .score-arrow{font-size:18px;color:#94a3b8;font-weight:700;}
+    .score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px;}
+    .score-card.cosmo .score-improve{color:#047857;}
+    .score-card.a9 .score-improve{color:#6d28d9;}
+    .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
     .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;}
+    .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
+    .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
+    .stat.r{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
     .ai-status{font-size:12.5px;padding:5px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600;}
     .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
     .ai-status.done{background:#ecfdf5;color:#047857;}
@@ -88,6 +115,7 @@
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
     th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
     th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
+    tbody tr:hover{background:#fafbfc;}
     .cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap;}
     .cluster-tag.a9{background:#f5f3ff;color:#6d28d9;}
     .anchor-name{font-family:monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
@@ -143,8 +171,8 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 单引擎 · 自评分 · 一键生成</p>
-        <div class="version-badge" id="versionBadge">📌 928暂行优化版 · Gemini 单引擎</div>
+        <p>Gemini 单引擎 · COSMO + A9 双评分 · 一键生成</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 单引擎</div>
     </header>
 
     <div class="card apikey-card">
@@ -240,18 +268,51 @@
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
-                <h2>📊 Gemini 生成结果</h2>
+                <h2>📊 Gemini 生成结果 · 双算法评分</h2>
                 <p id="targetUrlDisplay">基于本地文本独立生成</p>
             </div>
             <div class="stat-line">
                 <span id="aiStatus" class="ai-status hidden">生成中…</span>
             </div>
         </div>
+
         <div class="pipeline-progress" id="pipelineProgress">
             <div class="pipeline-step" data-step="1">① 输入净化</div>
             <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
             <div class="pipeline-step" data-step="3">③ 评分与校验</div>
             <div class="pipeline-step" data-step="4">④ 输出</div>
+        </div>
+
+        <!-- 评分卡片区 -->
+        <div class="score-section">
+            <div class="score-card cosmo">
+                <div class="sc-ttl">🧠 COSMO 语义评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="scoreImprove" class="score-improve"></div>
+            </div>
+            <div class="score-card a9">
+                <div class="sc-ttl">🔍 A9 关键词评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="a9ScoreImprove" class="score-improve"></div>
+            </div>
+        </div>
+
+        <!-- COSMO 状态统计 -->
+        <div class="stat-row">
+            <div class="stat-line">
+                <span class="line-label">COSMO</span>
+                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+            </div>
         </div>
 
         <div id="validationReport" class="validation-report hidden"></div>
@@ -279,6 +340,7 @@
                 </div>
                 <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
                 <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
+
                 <div class="copy-section-header">
                     <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
                     <div class="header-actions">
@@ -288,6 +350,7 @@
                 </div>
                 <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
                 <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
+
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
                     <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span>)</span>
                     <div class="header-actions">
@@ -297,6 +360,7 @@
                 </div>
                 <div id="bulletPointsContainer"></div>
                 <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
+
                 <div class="copy-section-header" style="margin-top:10px;">
                     <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
                     <div class="header-actions">
@@ -306,6 +370,7 @@
                 </div>
                 <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
                 <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
+
                 <div class="copy-section-header">
                     <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
                     <div class="header-actions">
@@ -318,15 +383,30 @@
                 <div id="kwHitReport" class="validation-report hidden"></div>
             </div>
         </div>
-        <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断</h3>
-        <div class="table-wrap"><table><thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead><tbody id="a9MatrixBody"></tbody></table></div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
+                <tbody id="a9MatrixBody"></tbody>
+            </table>
+        </div>
+
         <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
-        <div class="table-wrap"><table><thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead><tbody id="matrixTableBody"></tbody></table></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
+                <tbody id="matrixTableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-const APP_VERSION = '928暂行优化版 · Gemini 单引擎';
+/* ============================================================
+   版本
+   ============================================================ */
+const APP_VERSION = '928版 · Gemini 单引擎';
 const APP_VERSION_DATE = '2024-09-28';
 const GEMINI_MODEL = 'gemini-3.8-flash';
 
@@ -407,7 +487,7 @@ async function testGeminiKey(){
 /* ============================================================
    约束条件
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v8';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v9';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -477,6 +557,9 @@ function loadCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); const s = lo
 function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
+/* ============================================================
+   常量（评分用）
+   ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
     goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
@@ -533,6 +616,9 @@ function cleanInput(text){
     r = r.replace(/\s+/g, ' '); return r.trim();
 }
 
+/* ============================================================
+   构建 Prompt
+   ============================================================ */
 function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
@@ -751,6 +837,9 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
     return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings };
 }
 
+/* ============================================================
+   后处理
+   ============================================================ */
 function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
 function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
 function postTitle(t){ if (!t) return ''; let r = t.trim().replace(/[,;.!]+$/, ''); r = trimToMax(r, C.titleMax); let s = 0; while (s < 3){ s++; const ws = r.split(/\s+/); const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,''); if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); } else break; } return r; }
@@ -789,12 +878,16 @@ function smartTrimBullet1(text, max){
 function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
+/* ============================================================
+   评分：A9（10 维度）
+   ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
     const full = t + ' ' + b + ' ' + d + ' ' + s;
     const coreKeywords = (hotKeywords || []).map(k => k.toLowerCase());
     function words(str){ return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g,'')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w)); }
     const results = [];
+    // 标题核心词
     let tcs = 0, tcn = '';
     if (coreKeywords.length){
         const found = coreKeywords.filter(kw => t.includes(kw));
@@ -802,6 +895,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         tcn = found.length ? '命中热词：' + found.slice(0,5).join(' / ') : '标题未命中热词';
     } else { const wt = words(t); tcs = wt.length >= 4 ? 8 : (wt.length >= 2 ? 6 : 3); tcn = '未提供热词库'; }
     results.push({ key:'title_core', cn:'标题核心词', score:tcs, max:10, note:tcn });
+    // 标题首屏
     const first80 = t.substring(0, 80);
     let tfs = 0, tfn = '';
     if (coreKeywords.length){
@@ -810,6 +904,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         tfn = f.length ? '首屏命中：' + f.join(' / ') : '前 80 字符未命中';
     } else { tfs = t.length >= 30 ? 6 : 4; tfn = '未提供热词库'; }
     results.push({ key:'title_front', cn:'标题首屏权重', score:tfs, max:10, note:tfn });
+    // 标题长度
     const tl = (title || '').length;
     let tls, tln;
     if (tl === 0){ tls = 0; tln = '标题为空'; }
@@ -819,6 +914,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else if (tl <= 100){ tls = 6; tln = '标题 ' + tl + ' 字符，超规范'; }
     else { tls = 3; tln = '标题 ' + tl + ' 字符，严重超长'; }
     results.push({ key:'title_length', cn:'标题长度规范', score:tls, max:10, note:tln });
+    // 五点词分布
     const bpp = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
     let bds = 0, bdn = '';
     if (bpp.length === 0){ bds = 0; bdn = '五点为空'; }
@@ -833,16 +929,20 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { bds = 2; bdn = '五点不足'; }
     }
     results.push({ key:'bp_distribution', cn:'五点词分布', score:bds, max:10, note:bdn });
+    // 长尾词覆盖
     let ltc = 0, ltn = '';
     if (coreKeywords.length){
         const f = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
         ltc = f.length; ltn = f.length ? '命中长尾词：' + f.slice(0,5).join(' / ') : '未命中长尾词';
     } else { const m = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || []; ltc = Math.min(m.length,15); ltn = '检测到约 ' + m.length + ' 个双词组合'; }
     results.push({ key:'long_tail', cn:'长尾词覆盖', score:Math.min(10, ltc*2), max:10, note:ltn });
+    // 场景词覆盖
     const scF = A9_SCENE_WORDS.filter(w => full.includes(w));
     results.push({ key:'scene_words', cn:'场景词覆盖', score:Math.min(10, scF.length*2), max:10, note: scF.length ? '命中：' + scF.slice(0,8).join(' / ') : '未检测到场景词' });
+    // 属性词覆盖
     const atF = A9_ATTR_WORDS.filter(w => full.includes(w));
     results.push({ key:'attr_words', cn:'属性词覆盖', score:Math.min(10, atF.length*1.5), max:10, note: atF.length ? '命中：' + atF.slice(0,8).join(' / ') : '未检测到属性词' });
+    // 搜索词补充
     let sts = 0, stn = '';
     if (!s.trim()){ sts = 0; stn = '搜索词为空'; }
     else {
@@ -854,9 +954,11 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { sts = 1; stn = '与标题/五点完全重复'; }
     }
     results.push({ key:'st_supplement', cn:'搜索词补充', score:sts, max:10, note:stn });
+    // 词形变体
     let vc = 0;
-    [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases']].forEach(([s1,p1]) => { if (full.includes(s1) && full.includes(p1)) vc++; });
+    [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases'],['watch','watches'],['tray','trays']].forEach(([s1,p1]) => { if (full.includes(s1) && full.includes(p1)) vc++; });
     results.push({ key:'word_variants', cn:'词形变体', score:Math.min(10, vc*3), max:10, note: vc ? '检测到 ' + vc + ' 组词形变体' : '未检测到单复数变体' });
+    // 无关键词堆砌
     let nss = 10, nsn = '未检测到堆砌';
     if (coreKeywords.length){
         let mr = 0;
@@ -870,6 +972,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
         else { nss = 2; nsn = '核心词重复 ' + mr + ' 次，堆砌风险'; }
     }
     results.push({ key:'no_stuffing', cn:'无关键词堆砌', score:nss, max:10, note:nsn });
+
     const total = results.reduce((s,r) => s + r.score, 0);
     let grade, lv;
     if (total >= 90){ grade='A+'; lv='lv-a'; }
@@ -880,6 +983,10 @@ function scoreA9(title, bp, desc, st, hotKeywords){
     else { grade='D'; lv='lv-d'; }
     return { totalScore: total, grade, lv, dimensions: results };
 }
+
+/* ============================================================
+   评分：COSMO（15 锚点）
+   ============================================================ */
 function scoreText(title, bp, desc, st){
     const full = [title, bp, desc, st].join(' \n ').toLowerCase();
     let raw = 0, g = 0, y = 0, r = 0;
@@ -904,6 +1011,9 @@ function scoreText(title, bp, desc, st){
     return { totalScore: total, grade, lv, green: g, yellow: y, red: r, anchorResults };
 }
 
+/* ============================================================
+   UI 渲染
+   ============================================================ */
 function updateCounter(id, cid, max, unit, min){
     const el = $(id), c = $(cid);
     if (!el || !c) return;
@@ -960,7 +1070,9 @@ function buildBulletUI(){
     }
 }
 function renderA9Table(r){
-    $('a9MatrixBody').innerHTML = r.dimensions.map(d => {
+    const tbody = $('a9MatrixBody');
+    if (!tbody) return;
+    tbody.innerHTML = r.dimensions.map(d => {
         let sc, st;
         const ratio = d.score / d.max;
         if (ratio >= 0.8){ sc='status-green'; st='🟢 优秀'; }
@@ -968,6 +1080,56 @@ function renderA9Table(r){
         else { sc='status-red'; st='🔴 需补充'; }
         return '<tr><td><span class="cluster-tag a9">A9</span></td><td><span class="anchor-name">'+escapeHtml(d.cn)+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+d.score+' / '+d.max+' 分</span></td><td>'+escapeHtml(d.note)+'</td></tr>';
     }).join('');
+}
+function renderCosmoTable(result){
+    const tbody = $('matrixTableBody');
+    if (!tbody) return;
+    if (!result || !result.anchorResults){ tbody.innerHTML = ''; return; }
+    tbody.innerHTML = result.anchorResults.map(a => {
+        const chips = a.hits.slice(0,5).map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('') +
+            (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
+        const hitBlock = a.hits.length
+            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个信号词</div>'
+            : '<div style="font-size:12px;color:#b91c1c;">未检测到相关信号词</div>';
+        let sc, st;
+        if (a.level === 'red'){ sc='status-red'; st='🔴 严重缺失'; }
+        else if (a.level === 'yellow'){ sc='status-yellow'; st='🟡 部分覆盖'; }
+        else { sc='status-green'; st='🟢 完美覆盖'; }
+        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td>' +
+            '<td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td>' +
+            '<td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7</span></td>' +
+            '<td>' + hitBlock + '</td>' +
+            '<td style="font-size:12px;color:#64748b;">' + (a.level === 'green' ? '✅ 已覆盖' : '💡 建议补充相关语义') + '</td></tr>';
+    }).join('');
+}
+function renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo){
+    // A9 卡片
+    const a9b = $('a9ScoreBefore'), a9a = $('a9ScoreAfter');
+    if (a9b){ a9b.className = 'score-badge ' + beforeA9.lv; a9b.textContent = beforeA9.totalScore + ' · ' + beforeA9.grade; }
+    if (a9a){ a9a.className = 'score-badge ' + afterA9.lv; a9a.textContent = afterA9.totalScore + ' · ' + afterA9.grade; }
+    const a9imp = afterA9.totalScore - beforeA9.totalScore;
+    const a9impEl = $('a9ScoreImprove');
+    if (a9impEl){
+        if (a9imp > 0){ a9impEl.textContent = '⬆ A9 提升 +' + a9imp + ' 分'; a9impEl.style.color = '#6d28d9'; }
+        else if (a9imp === 0){ a9impEl.textContent = '→ A9 持平'; a9impEl.style.color = '#64748b'; }
+        else { a9impEl.textContent = '↓ A9 下降 ' + a9imp + ' 分'; a9impEl.style.color = '#b91c1c'; }
+    }
+    // COSMO 卡片
+    const cb = $('scoreBefore'), ca = $('scoreAfter');
+    if (cb){ cb.className = 'score-badge ' + beforeCosmo.lv; cb.textContent = beforeCosmo.totalScore + ' · ' + beforeCosmo.grade; }
+    if (ca){ ca.className = 'score-badge ' + afterCosmo.lv; ca.textContent = afterCosmo.totalScore + ' · ' + afterCosmo.grade; }
+    const cImp = afterCosmo.totalScore - beforeCosmo.totalScore;
+    const cImpEl = $('scoreImprove');
+    if (cImpEl){
+        if (cImp > 0){ cImpEl.textContent = '⬆ COSMO 提升 +' + cImp + ' 分'; cImpEl.style.color = '#047857'; }
+        else if (cImp === 0){ cImpEl.textContent = '→ COSMO 持平'; cImpEl.style.color = '#64748b'; }
+        else { cImpEl.textContent = '↓ COSMO 下降 ' + cImp + ' 分'; cImpEl.style.color = '#b91c1c'; }
+    }
+    // COSMO 状态统计
+    const sg = $('statGreen'), sy = $('statYellow'), sr = $('statRed');
+    if (sg) sg.textContent = '🟢 完美覆盖 ' + afterCosmo.green;
+    if (sy) sy.textContent = '🟡 部分覆盖 ' + afterCosmo.yellow;
+    if (sr) sr.textContent = '🔴 严重缺失 ' + afterCosmo.red;
 }
 function renderValidationReport(issues, warnings, rounds){
     const report = $('validationReport');
@@ -1097,18 +1259,14 @@ ${cur.description}
         for (let i = 0; i < 5; i++){ if (parsed.bullets[i] && parsed.bullets[i].length >= C.bulletMin && cur.bullets[i].length < C.bulletMin) $('optBp' + i).value = parsed.bullets[i]; }
         if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
 
+        // 刷新计数器和评分
         updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
         updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
         for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
         updateBpTotal();
         updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
         updateExpandBar();
-        const beforeResult = scoreText($('origTitleView').value, $('origBpView').value, $('origDescView').value, $('origStView').value);
-        const t = $('optTitleText').value;
-        let bpText = '';
-        for (let i = 0; i < 5; i++) bpText += ($('optBp'+i).value || '') + '\n';
-        const a9A = scoreA9(t, bpText, $('optDescText').value, $('optStText').value, parseHotKeywords());
-        renderA9Table(a9A);
+        reScoreAndRender();
         const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value }, true);
         renderValidationReport(v.errors, v.warnings, '补全后');
         showToast('补全完成');
@@ -1118,6 +1276,28 @@ ${cur.description}
     } finally {
         btn.disabled = false; btn.textContent = '✨ 一键补全字数';
     }
+}
+
+function reScoreAndRender(){
+    const hotKeywords = parseHotKeywords();
+    const origTitle = $('origTitleView').value || '';
+    const origBp = $('origBpView').value || '';
+    const origDesc = $('origDescView').value || '';
+    const origSt = $('origStView').value || '';
+    const beforeA9 = scoreA9(origTitle, origBp, origDesc, origSt, hotKeywords);
+    const beforeCosmo = scoreText(origTitle, origBp, origDesc, origSt);
+
+    const t = $('optTitleText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp'+i).value || '') + '\n';
+    const d = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+    const afterA9 = scoreA9(t, bpText, d, st, hotKeywords);
+    const afterCosmo = scoreText(t, bpText, d, st);
+
+    renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo);
+    renderA9Table(afterA9);
+    renderCosmoTable(afterCosmo);
 }
 
 async function copyText(elementId, btn){
@@ -1229,12 +1409,8 @@ async function runAnalysis(){
         updateCounter('optStText','stCounter',C.stMax,'字节',null);
         updateExpandBar();
 
-        // 评分
-        const beforeResult = scoreText($('origTitleView').value, $('origBpView').value, $('origDescView').value, $('origStView').value);
-        let bpText = '';
-        for (let i = 0; i < 5; i++) bpText += (finalBullets[i] || '') + '\n';
-        const a9A = scoreA9(finalTitle, bpText, finalDesc, finalST, hotKeywords);
-        renderA9Table(a9A);
+        // 完整评分：COSMO + A9，各含优化前/后
+        reScoreAndRender();
 
         // 校验
         const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST }, true);
