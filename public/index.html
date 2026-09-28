@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · Gemini 3.8 Flash · 928版</title>
+<title>亚马逊 Listing 智能优化系统 · 完整性校验版</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -171,16 +171,15 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 3.8 Flash · COSMO + A9 双评分 · 五点大写标题</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · Gemini 3.8 Flash</div>
+        <p>Gemini 多模型容错 · 完整性校验 · 缺失自动重试</p>
+        <div class="version-badge" id="versionBadge">📌 928版 · 完整性校验</div>
     </header>
 
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
-            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥（新版以 <code>AQ.</code> 开头，旧版以 <code>AIza</code> 开头）<br>
-            · 填一次就自动存到浏览器，以后打开都还在。<br>
-            · 当前使用模型：<b>gemini-3.8-flash</b>（付费层级，无限速）
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
+            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警，绝不"假装成功"
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
@@ -280,7 +279,7 @@
         <div class="pipeline-progress" id="pipelineProgress">
             <div class="pipeline-step" data-step="1">① 输入净化</div>
             <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
-            <div class="pipeline-step" data-step="3">③ 评分与校验</div>
+            <div class="pipeline-step" data-step="3">③ 完整性校验</div>
             <div class="pipeline-step" data-step="4">④ 输出</div>
         </div>
 
@@ -402,10 +401,17 @@
 </div>
 
 <script>
-const APP_VERSION = '928版 · Gemini 3.8 Flash';
+const APP_VERSION = '928版 · 完整性校验';
 const APP_VERSION_DATE = '2024-09-28';
-// ★ 已切换为 3.8-flash（付费层级，无限速）
-const GEMINI_MODEL = 'gemini-3.8-flash';
+
+const GEMINI_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-pro'
+];
+
+const MAX_RETRIES = 2; // ★ 生成最多尝试 2 轮（1 轮原始 + 1 轮补齐）
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -459,28 +465,27 @@ function getGeminiKey(){ return ($('geminiApiKey').value || localStorage.getItem
 async function testGeminiKey(){
     const key = getGeminiKey();
     if (!key){ showToast('请先输入 Key'); return; }
-    $('geminiKeyStatus').textContent = '⏳ 测试中…';
-    try {
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(key);
-        const r = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] })
-        });
-        const data = await r.json();
-        if (data.error){ $('geminiKeyStatus').textContent = '❌ 失败：' + (data.error.message || JSON.stringify(data.error)); return; }
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text){ $('geminiKeyStatus').textContent = '✅ 连接成功！Gemini 回复："' + text.substring(0,30) + '"'; showToast('✅ Gemini Key 可用'); }
-        else { $('geminiKeyStatus').textContent = '⚠️ 返回结构异常：' + JSON.stringify(data).substring(0,120); }
-    } catch (err){
-        $('geminiKeyStatus').textContent = '❌ 网络错误：' + err.message;
+    $('geminiKeyStatus').textContent = '⏳ 测试中（多模型探测）…';
+    let successModel = null;
+    for (const model of GEMINI_MODELS){
+        try {
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] }) });
+            const data = await r.json();
+            if (!data.error){
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text){ successModel = model; break; }
+            }
+        } catch (err){ continue; }
     }
+    if (successModel){ $('geminiKeyStatus').textContent = '✅ 连接成功！可用模型：' + successModel; showToast('✅ 可用模型：' + successModel); }
+    else { $('geminiKeyStatus').textContent = '❌ 所有模型都不可用，请检查 Key 或网络'; }
 }
 
 /* ============================================================
-   约束条件（v12）
+   约束条件（v14）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v12';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v14';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -490,11 +495,11 @@ const DEFAULT_CONSTRAINTS = {
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如 "10-Slot" 比 "10 Compartments" 更优。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
-    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 大写标题建议：COMPLETE SET 或 FULL SPECS 或 PRODUCT SPECS\n· 标题后只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n✅ 完整五点示例：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
+    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 大写标题建议：COMPLETE SET 或 FULL SPECS 或 PRODUCT SPECS\n· 标题后只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！\n⚠️⚠️ 必须完整输出 BULLET1 到 BULLET5 全部 5 点，一个都不能少！`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
-    ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）`,
+    ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）\n⚠️⚠️ 必须完整输出 [/ST] 结束标签，不能中途截断！`,
     ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。`,
-    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头】\n\n第 1 点：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces\n（约 233 字节）`
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头】\n\n第 1 点：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -621,23 +626,25 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '') +
         '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成！\n' : '';
 
-    let wordFixBlock = '';
+    // ★ 上一轮的完整性问题清单
+    let prevErrorBlock = '';
     if (prevErrors && prevErrors.length && prevContent){
-        const wordErrors = prevErrors.filter(e => e.msg.includes('低于下限') || e.msg.includes('字符'));
-        if (wordErrors.length){
-            wordFixBlock = '\n⚠️⚠️ 字数不合格 · 必须扩写 ⚠️⚠️\n';
-            if (prevContent.title) wordFixBlock += '【当前标题】' + prevContent.title + '\n';
-            if (prevContent.itemHighlights) wordFixBlock += '【当前 IH】' + prevContent.itemHighlights + '\n';
-            if (prevContent.bullets){
-                prevContent.bullets.forEach((b, i) => { if (b) wordFixBlock += '【当前第 ' + (i+1) + ' 点】' + b + '（' + b.length + ' 字符）\n'; });
-            }
-            if (prevContent.description) wordFixBlock += '【当前描述】(' + prevContent.description.length + ' 字符)\n';
-            wordFixBlock += '\n【本轮必须做到】\n' + wordErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n';
-            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写\n· ⚠️ 五点每条必须保留大写小标题格式（BENEFIT TITLE: description）';
+        prevErrorBlock = '\n╔════════════════════════════════════════════════════════╗\n' +
+            '║  ⚠️⚠️ 上一轮完整性问题 · 本轮必须全部修复 ⚠️⚠️       ║\n' +
+            '╚════════════════════════════════════════════════════════╝\n';
+        prevErrors.forEach(e => { prevErrorBlock += '❌ [' + e.module + '] ' + e.msg + '\n'; });
+        prevErrorBlock += '\n【上一轮你生成的内容（供参考，缺失部分必须补齐）】\n';
+        if (prevContent.title) prevErrorBlock += '【标题】' + prevContent.title + '\n';
+        if (prevContent.itemHighlights) prevErrorBlock += '【IH】' + prevContent.itemHighlights + '\n';
+        if (prevContent.bullets){
+            prevContent.bullets.forEach((b, i) => {
+                prevErrorBlock += '【BULLET' + (i+1) + '】' + (b ? b : '❌ 缺失！必须生成') + '\n';
+            });
         }
+        if (prevContent.description) prevErrorBlock += '【DESC】' + prevContent.description.substring(0, 300) + '\n';
+        if (prevContent.searchTerms) prevErrorBlock += '【ST】' + prevContent.searchTerms + '\n';
+        prevErrorBlock += '\n⚠️ 重点补齐上面标有 ❌ 缺失的部分。所有板块都要完整。\n';
     }
-    const errBlock = (prevErrors && prevErrors.length && !wordFixBlock) ?
-        '\n⚠️ 上一轮问题 · 本轮必须全部修复 ⚠️\n' + prevErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n' : '';
 
     const wordBlock = '【字数硬约束】\n' +
         '· 标题：' + C.titleMin + '-' + C.titleMax + ' 字符\n' +
@@ -657,7 +664,8 @@ ${customBlock}
 五点/信息：${bpRaw || '（未提供）'}
 描述：${descRaw || '（未提供）'}
 搜索词：${stRaw || '（未提供）'}
-${hotBlock}${wordFixBlock}${errBlock}
+${hotBlock}
+${prevErrorBlock}
 
 ━━━━━━━━━━━━━━ 参考范例 ━━━━━━━━━━━━━━
 ${C.example}
@@ -671,6 +679,10 @@ ${C.example}
 【描述规则】${C.ruleDesc}
 【ST 规则】${C.ruleST}
 【保真原则】${C.ruleFidelity}
+
+━━━━━━━━━━━━━━ ⚠️ 完整性红线 ⚠️ ━━━━━━━━━━━━━━
+必须输出全部 8 个标记：TITLE、IH、BULLET1、BULLET2、BULLET3、BULLET4、BULLET5、DESC、ST
+任何一个标记缺失或内容为空都算失败！禁止输出半截内容！
 
 ━━━━━━━━━━━━━━ 输出格式 ━━━━━━━━━━━━━━
 严格按以下标记输出，不要加任何其他解释：
@@ -712,13 +724,15 @@ Item Highlights
 [/ST]`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。例如：COMPLETE SET: / SCRATCH-FREE LINING: / COMPACT DESIGN: / PORTABLE & LIGHTWEIGHT: / QUICK ACCESS:。这是为了让买家一眼看清每条的重点。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。任何板块缺失、内容为空、或者中途截断都视为失败。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
-async function callGemini(messages, maxRetries = 2){
+async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
     if (!apiKey) throw new Error('未配置 Gemini API Key');
+
     let lastError = null;
-    for (let attempt = 1; attempt <= maxRetries; attempt++){
+    for (const model of GEMINI_MODELS){
+        console.log('[多模型] 尝试: ' + model);
         try {
             const systemMsg = messages.find(m => m.role === 'system');
             const userMsgs = messages.filter(m => m.role !== 'system');
@@ -726,93 +740,205 @@ async function callGemini(messages, maxRetries = 2){
                 role: m.role === 'assistant' ? 'model' : 'user',
                 parts: [{ text: m.content }]
             }));
-            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
+            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 16000 } };
             if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
             const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const data = await r.json();
-            if (data.error) throw new Error('Gemini: ' + (data.error.message || JSON.stringify(data.error)));
+
+            if (data.error){
+                const errMsg = data.error.message || JSON.stringify(data.error);
+                console.warn('[多模型] ' + model + ' 失败: ' + errMsg);
+                lastError = new Error(model + ': ' + errMsg);
+                continue;
+            }
+
             const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (!text.trim()) throw new Error('Gemini 返回空内容');
-            return text;
-        } catch (err){ lastError = err; if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000)); }
+            if (!text.trim()){ lastError = new Error(model + ': 返回空内容'); continue; }
+
+            console.log('[多模型] ' + model + ' 成功，返回长度: ' + text.length);
+            return { text, model };
+        } catch (err){
+            console.warn('[多模型] ' + model + ' 网络异常: ' + err.message);
+            lastError = err;
+            continue;
+        }
     }
-    throw lastError || new Error('Gemini 调用失败');
+    throw lastError || new Error('所有 Gemini 模型都不可用，请稍后重试');
 }
 
+/* ============================================================
+   ★★★ 解析函数（兼容多种标记变体）
+   ============================================================ */
 function parseStructuredOutput(text){
     const extract = (tag) => {
-        const regex = new RegExp('\\[' + tag + '\\]([\\s\\S]*?)\\[\\/' + tag + '\\]', 'i');
+        const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // 兼容 [TAG]、[ TAG ]、[TAG ]等变体
+        const regex = new RegExp('\\[\\s*' + escaped + '\\s*\\]([\\s\\S]*?)\\[\\s*\\/\\s*' + escaped + '\\s*\\]', 'i');
         const m = text.match(regex);
         return m ? m[1].trim() : '';
     };
     const result = {
-        title: extract('TITLE'), itemHighlights: extract('IH'),
+        title: extract('TITLE'),
+        itemHighlights: extract('IH'),
         bullets: [1,2,3,4,5].map(i => extract('BULLET' + i)),
-        description: extract('DESC'), searchTerms: extract('ST')
+        description: extract('DESC'),
+        searchTerms: extract('ST')
     };
-    if (!result.title && !result.itemHighlights && result.bullets.every(b => !b)) throw new Error('AI 未按标记格式输出');
+    console.log('[解析] 各板块长度：', {
+        title: result.title.length,
+        ih: result.itemHighlights.length,
+        bullets: result.bullets.map(b => b.length),
+        desc: result.description.length,
+        st: result.searchTerms.length
+    });
     return result;
 }
 
-function validateAll(r, isRetry){
+/* ============================================================
+   ★★★ 完整性校验（本轮核心）
+   任何板块缺失/为空/截断都算 error
+   ============================================================ */
+function hasTruncation(text, moduleName){
+    if (!text || !text.trim()) return false;
+    const trimmed = text.trim();
+    // 结尾是逗号、冒号、连词、介词、破折号
+    if (/[,:;\-]$/.test(trimmed)) return moduleName + ' 结尾是逗号/冒号/破折号，疑似被截断';
+    // 结尾是不完整的连接词
+    if (/\b(and|or|with|for|the|a|an|in|on|at|to|of|by|but|so|as|is|are|was|were)$/i.test(trimmed)) return moduleName + ' 结尾是介词/连词，疑似被截断';
+    // 结尾是未闭合的括号或引号
+    const openCount = (trimmed.match(/[（(]/g) || []).length;
+    const closeCount = (trimmed.match(/[）)]/g) || []).length;
+    if (openCount !== closeCount) return moduleName + ' 括号未闭合，疑似被截断';
+    return false;
+}
+
+function validateAll(r){
     const errors = [], warnings = [];
-    if (!r.title || !r.title.trim()) errors.push({ module:'标题', msg:'标题为空' });
-    else {
+
+    // ===== 标题 =====
+    if (!r.title || !r.title.trim()){
+        errors.push({ module:'标题', msg:'❌ 标题为空（AI 未返回）' });
+    } else {
         if (r.title.length > C.titleMax) errors.push({ module:'标题', msg:'超过 ' + C.titleMax + ' 字符（' + r.title.length + '）' });
-        if (r.title.length < C.titleMin) { if (isRetry) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符' }); else errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符' }); }
+        if (r.title.length < 30) errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，明显不完整' });
+        else if (r.title.length < C.titleMin) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，偏短' });
         const lw = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
         if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)) errors.push({ module:'标题', msg:'以介词 "' + lw + '" 结尾' });
         const pHits = detectProhibited(r.title);
         if (pHits.length) errors.push({ module:'标题', msg:'含违禁词：' + pHits.join(', ') });
+        const trunc = hasTruncation(r.title, '标题');
+        if (trunc) errors.push({ module:'标题', msg: trunc });
     }
-    if (!r.itemHighlights || !r.itemHighlights.trim()) errors.push({ module:'亮点', msg:'Item Highlights 为空' });
-    else {
-        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符' });
-        if (r.itemHighlights.length < C.ihMin) { if (isRetry) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符' }); else errors.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符' }); }
+
+    // ===== IH =====
+    if (!r.itemHighlights || !r.itemHighlights.trim()){
+        errors.push({ module:'亮点', msg:'❌ Item Highlights 为空（AI 未返回）' });
+    } else {
+        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符（' + r.itemHighlights.length + '）' });
+        if (r.itemHighlights.length < 50) errors.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，明显不完整' });
+        else if (r.itemHighlights.length < C.ihMin) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，偏短' });
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
     }
+
+    // ===== 五点 =====
     const bullets = r.bullets || [];
-    if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5' });
-    else {
-        let total = 0;
-        bullets.forEach((b, i) => {
-            if (!b || !b.trim()) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点为空' });
-            else {
-                if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符' });
-                if (b.length < C.bulletMin) { if (isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); else errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); }
-                if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
-                const firstLine = b.split(':')[0] || '';
-                const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
-                if (!hasAllCaps && !isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点未以全大写小标题开头' });
-            }
-            total += (b || '').length;
-        });
-        if (total > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + total + ' 超过 ' + C.bulletTotal });
+    if (bullets.length !== 5){
+        errors.push({ module:'五点', msg:'❌ 五点数量不是 5（实际 ' + bullets.length + '）' });
     }
-    if (!r.description || !r.description.trim()) errors.push({ module:'描述', msg:'描述为空' });
-    else {
-        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符' });
-        if (r.description.length < C.descMin) { if (isRetry) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符' }); else errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符' }); }
+    let bulletTotal = 0;
+    bullets.forEach((b, i) => {
+        const idx = i + 1;
+        if (!b || !b.trim()){
+            errors.push({ module:'五点', msg:'❌ 第 ' + idx + ' 点为空（AI 未返回此条内容）' });
+            return;
+        }
+        if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + idx + ' 点超过 ' + C.bulletMax + ' 字符（' + b.length + '）' });
+        if (b.length < 30) errors.push({ module:'五点', msg:'第 ' + idx + ' 点仅 ' + b.length + ' 字符，明显不完整' });
+        else if (b.length < C.bulletMin) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点仅 ' + b.length + ' 字符，偏短' });
+        if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + idx + ' 点以句号结尾' });
+        const firstLine = b.split(':')[0] || '';
+        const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
+        if (!hasAllCaps) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点未以全大写小标题开头' });
+        const trunc = hasTruncation(b, '第 ' + idx + ' 点');
+        if (trunc) errors.push({ module:'五点', msg: trunc });
+        bulletTotal += b.length;
+    });
+    if (bulletTotal > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + bulletTotal + ' 超过 ' + C.bulletTotal });
+
+    // ===== 描述 =====
+    if (!r.description || !r.description.trim()){
+        errors.push({ module:'描述', msg:'❌ 详细描述为空（AI 未返回）' });
+    } else {
+        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符（' + r.description.length + '）' });
+        if (r.description.length < 200) errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，明显不完整' });
+        else if (r.description.length < C.descMin) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，偏短' });
+        const trunc = hasTruncation(r.description, '描述');
+        if (trunc) errors.push({ module:'描述', msg: trunc });
     }
-    if (r.searchTerms){
+
+    // ===== ST =====
+    if (!r.searchTerms || !r.searchTerms.trim()){
+        errors.push({ module:'搜索词', msg:'❌ Search Terms 为空（AI 未返回）' });
+    } else {
         const bytes = getByteLength(r.searchTerms);
-        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节' });
+        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节（' + bytes + '）' });
         if (r.searchTerms !== r.searchTerms.toLowerCase()) errors.push({ module:'搜索词', msg:'必须全小写' });
+        if (bytes < 50) warnings.push({ module:'搜索词', msg:'仅 ' + bytes + ' 字节，偏短' });
+        const trunc = hasTruncation(r.searchTerms, '搜索词');
+        if (trunc) errors.push({ module:'搜索词', msg: trunc });
     }
+
     return { errors, warnings };
 }
 
-// ★ 单次生成，不重试（省额度）
-async function generateOnce(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
-    const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, null, null);
-    const rawText = await callGemini([
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: prompt }
-    ]);
-    const result = parseStructuredOutput(rawText);
-    const v = validateAll(result, false);
-    return { result, passed: v.errors.length === 0, rounds: 1, errors: v.errors, warnings: v.warnings };
+/* ============================================================
+   ★★★ 生成（带完整性校验 + 自动重试）
+   ============================================================ */
+async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
+    let lastResult = null;
+    let lastErrors = [];
+    let lastModel = '';
+
+    for (let round = 1; round <= MAX_RETRIES; round++){
+        const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
+        let rawText, model;
+        try {
+            const resp = await callGeminiWithFallback([
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: prompt }
+            ]);
+            rawText = resp.text;
+            model = resp.model;
+            lastModel = model;
+        } catch (err){
+            if (round === MAX_RETRIES) throw err;
+            console.warn('[生成] 第 ' + round + ' 轮失败: ' + err.message + '，重试中...');
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
+        }
+
+        const result = parseStructuredOutput(rawText);
+        const v = validateAll(result);
+        lastResult = result;
+        lastErrors = v.errors;
+
+        console.log('[生成] 第 ' + round + ' 轮完成，errors=' + v.errors.length + '，warnings=' + v.warnings.length);
+
+        if (v.errors.length === 0){
+            return { result, passed: true, rounds: round, warnings: v.warnings, model };
+        }
+        console.warn('[生成] 第 ' + round + ' 轮存在问题：', v.errors.map(e => e.module + ': ' + e.msg).join(' | '));
+
+        // 还有重试机会就继续
+        if (round < MAX_RETRIES){
+            console.log('[生成] 等待 1 秒后重试，把错误清单交给 AI 补齐...');
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+
+    // 2 轮后仍有错误
+    return { result: lastResult, passed: false, rounds: MAX_RETRIES, errors: lastErrors, warnings: [], model: lastModel };
 }
 
 function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
@@ -1018,7 +1144,7 @@ function buildBulletUI(){
         const item = document.createElement('div');
         item.className = 'bp-item';
         item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role' + (roles[i].isSpec ? ' spec' : '') + '">' + roles[i].text + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
-            '<textarea id="optBp' + i + '" placeholder="生成中…"></textarea>' +
+            '<textarea id="optBp' + i + '" placeholder="等待生成..."></textarea>' +
             '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
         c.appendChild(item);
     }
@@ -1178,6 +1304,7 @@ async function expandAll(){
         const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下扩写。
 ${customNote}
 ⚠️ 五点每条必须保持大写小标题格式（BENEFIT TITLE: description）
+⚠️⚠️ 必须完整输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少！
 
 【当前内容】
 标题（${cur.title.length}字符）：${cur.title}
@@ -1203,6 +1330,7 @@ ${cur.description}
 4. 只输出字数不足的部分
 5. 每条结尾不加句号
 6. ⚠️ 五点每条必须保留大写小标题格式
+7. ⚠️ 所有板块都要完整输出，禁止截断
 
 【输出格式】
 [TITLE]
@@ -1224,8 +1352,8 @@ ${cur.description}
 [ST]
 [/ST]`;
 
-        const rawText = await callGemini([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式（BENEFIT TITLE: description）。第 1 点大写标题后保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
+        const { text: rawText } = await callGeminiWithFallback([
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点大写标题后保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部 9 个标记，一个都不能少。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
         const parsed = parseStructuredOutput(rawText);
@@ -1241,7 +1369,7 @@ ${cur.description}
         updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
         updateExpandBar();
         reScoreAndRender();
-        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value }, true);
+        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value });
         renderValidationReport(v.errors, v.warnings, '补全后');
         showToast('补全完成');
     } catch (err){
@@ -1331,11 +1459,11 @@ async function runAnalysis(){
         await new Promise(r => setTimeout(r, 150));
         setStep(1, 'done');
 
-        setStep(2, 'active'); status.textContent = '② 调用 Gemini 生成…';
-        const genResult = await generateOnce(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
+        setStep(2, 'active'); status.textContent = '② 调用 Gemini 生成中（如有缺失会自动重试）…';
+        const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
         setStep(2, 'done');
 
-        setStep(3, 'active'); status.textContent = '③ 评分与校验中…';
+        setStep(3, 'active'); status.textContent = '③ 完整性校验与评分中…';
         const rawResult = genResult.result;
         const finalTitle = postTitle(rawResult.title);
         const finalIH = postIH(rawResult.itemHighlights);
@@ -1363,14 +1491,20 @@ async function runAnalysis(){
 
         reScoreAndRender();
 
-        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST }, false);
-        renderValidationReport(v.errors, v.warnings, '单次生成');
+        // 最终校验（后处理后）
+        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST });
+        renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮 · ' + genResult.model);
         renderKwHitReport(hotKeywords);
         setStep(3, 'done');
 
         setStep(4, 'active');
-        status.className = v.errors.length === 0 ? 'ai-status done' : 'ai-status error';
-        status.textContent = v.errors.length === 0 ? '✅ 生成完成' : '⚠️ 生成完成，有 ' + v.errors.length + ' 项问题（可点下方一键补全）';
+        if (v.errors.length === 0){
+            status.className = 'ai-status done';
+            status.textContent = '✅ 生成完整（' + genResult.rounds + ' 轮 · ' + genResult.model + '）';
+        } else {
+            status.className = 'ai-status error';
+            status.textContent = '⚠️ 生成完成，但仍有 ' + v.errors.length + ' 项问题，请查看下方清单';
+        }
     } catch (err){
         console.error('生成失败', err);
         status.className = 'ai-status error';
