@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 可配置约束 + 自动补全版</title>
+<title>亚马逊 Listing 智能优化系统 · 928暂行优化版 · 双引擎</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -12,12 +12,13 @@
     header{text-align:center;margin-bottom:26px;}
     header h1{margin:0 0 8px;font-size:26px;}
     header p{color:var(--muted);margin:0;font-size:14px;}
+    .version-badge{display:inline-block;margin-top:8px;padding:4px 14px;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);color:#92400e;border:1px solid #fcd34d;border-radius:99px;font-size:12px;font-weight:700;}
     .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);}
     .card h2{margin:0 0 16px;font-size:17px;}
     .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
     label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
-    input[type="text"],input[type="number"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
-    input[type="text"]:focus,input[type="number"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    input[type="text"],input[type="number"],input[type="password"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
+    input[type="text"]:focus,input[type="number"]:focus,input[type="password"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
     textarea{resize:vertical;height:90px;}
     .input-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;}
     .input-layout-left{display:flex;flex-direction:column;height:100%;}
@@ -29,12 +30,11 @@
     .keywords-box textarea{background:#fffbeb;border-color:#fde68a;flex-grow:1;min-height:200px;resize:none;}
     .btn-sm{background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;font-family:inherit;}
     .btn-sm:hover{background:#334155;}
-    .btn-sm.gray{background:#64748b;}
-    .btn-sm.gray:hover{background:#475569;}
-    .btn-sm.red{background:#dc2626;}
-    .btn-sm.red:hover{background:#b91c1c;}
-    .btn-sm.green{background:#059669;}
-    .btn-sm.green:hover{background:#047857;}
+    .btn-sm.gray{background:#64748b;} .btn-sm.gray:hover{background:#475569;}
+    .btn-sm.red{background:#dc2626;} .btn-sm.red:hover{background:#b91c1c;}
+    .btn-sm.green{background:#059669;} .btn-sm.green:hover{background:#047857;}
+    .btn-sm.blue{background:#2563eb;} .btn-sm.blue:hover{background:#1d4ed8;}
+    .btn-sm.orange{background:#ea580c;} .btn-sm.orange:hover{background:#c2410c;}
     .btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
     button.btn{background:var(--primary);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
     button.btn:hover{background:var(--primary-dark);}
@@ -53,14 +53,57 @@
     .num-grid .num-item label{font-size:12px;color:#334155;}
     .num-grid .num-item input[type="number"]{padding:8px 10px;font-size:13px;}
     .rule-item{margin-bottom:14px;}
-    .rule-item label{font-size:12.5px;color:#075985;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
-    .rule-item label .rule-hint{font-size:11px;color:#0369a1;font-weight:500;}
+    .rule-item label{font-size:12.5px;color:#075985;font-weight:700;}
     .rule-item textarea{font-size:12.5px;line-height:1.6;background:#fff;border-color:#bae6fd;min-height:80px;font-family:ui-monospace,Menlo,Consolas,monospace;}
-    .rule-item textarea:focus{border-color:#0284c7;box-shadow:0 0 0 3px rgba(2,132,199,.12);}
     .forbidden-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#fff;border-color:#bae6fd;min-height:120px;}
     .example-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#fff;border-color:#bae6fd;min-height:280px;line-height:1.65;}
     .constraint-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:14px;border-top:1px dashed #bae6fd;flex-wrap:wrap;gap:10px;}
     .constraint-footer .status{font-size:12px;color:#0369a1;font-weight:600;}
+    .apikey-card{background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;}
+    .apikey-card h2{margin:0 0 10px;font-size:16px;color:#9a3412;}
+    .apikey-card .key-hint{font-size:12px;color:#c2410c;margin-bottom:12px;line-height:1.5;}
+    .apikey-card input[type="password"]{background:#fff;border-color:#fed7aa;font-family:monospace;}
+    .apikey-card input[type="password"]:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.12);}
+    .engine-select{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;}
+    .engine-check{display:flex;align-items:center;gap:10px;padding:12px 18px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer;user-select:none;transition:all .2s;background:#fff;}
+    .engine-check:hover{border-color:#cbd5e1;}
+    .engine-check.ds.active{border-color:#2563eb;background:#eff6ff;}
+    .engine-check.gm.active{border-color:#ea580c;background:#fff7ed;}
+    .engine-check input[type="checkbox"]{width:18px;height:18px;cursor:pointer;}
+    .engine-check .ec-title{font-weight:700;font-size:14px;}
+    .engine-check.ds .ec-title{color:#1d4ed8;}
+    .engine-check.gm .ec-title{color:#c2410c;}
+    .engine-check .ec-desc{font-size:11.5px;color:var(--muted);margin-top:2px;}
+    .dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;}
+    @media (max-width:1100px){.dual-grid{grid-template-columns:1fr;}}
+    .engine-panel{border-radius:12px;padding:18px;border:2px solid;}
+    .engine-panel.ds{border-color:#bfdbfe;background:#f8fafc;}
+    .engine-panel.gm{border-color:#fed7aa;background:#fffbf5;}
+    .engine-panel.adopted{border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.15);}
+    .engine-panel.errored{border-color:#fecaca;background:#fef2f2;}
+    .engine-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid;}
+    .engine-panel.ds .engine-panel-header{border-color:#bfdbfe;}
+    .engine-panel.gm .engine-panel-header{border-color:#fed7aa;}
+    .engine-panel-header .ep-title{font-size:15px;font-weight:800;}
+    .engine-panel.ds .ep-title{color:#1d4ed8;}
+    .engine-panel.gm .ep-title{color:#c2410c;}
+    .engine-panel-header .ep-status{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:99px;background:#f1f5f9;color:#64748b;}
+    .engine-panel-header .ep-status.done{background:#ecfdf5;color:#047857;}
+    .engine-panel-header .ep-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
+    .engine-panel-header .ep-status.error{background:#fef2f2;color:#b91c1c;}
+    .engine-panel .ep-score-bar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+    .ep-score-chip{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:6px;background:#fff;border:1px solid #e2e8f0;}
+    .ep-score-chip.cosmo{color:#1d4ed8;}
+    .ep-score-chip.a9{color:#6d28d9;}
+    .ep-adopt-bar{margin-top:12px;display:flex;justify-content:flex-end;}
+    .ep-adopt-btn{background:#10b981;color:#fff;border:none;padding:8px 20px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;font-family:inherit;}
+    .ep-adopt-btn:hover{background:#059669;}
+    .ep-adopt-btn.adopted{background:#64748b;cursor:default;}
+    .ep-field{margin-bottom:10px;}
+    .ep-field label{font-size:11.5px;font-weight:700;color:#475569;margin-bottom:3px;display:block;}
+    .ep-field textarea{width:100%;font-size:12px;line-height:1.55;padding:8px 10px;border-radius:7px;border:1px solid #e2e8f0;background:#fff;resize:vertical;min-height:50px;font-family:inherit;}
+    .ep-field textarea.bullet{min-height:60px;}
+    .ep-field .ep-counter{font-size:10.5px;color:var(--muted);text-align:right;margin-top:2px;}
     .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
     @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
     .pane{border-radius:12px;padding:18px;border:1px solid;}
@@ -72,34 +115,7 @@
     .results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
     .results-header h2{margin:0 0 6px;font-size:19px;}
     #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;}
-    .score-section{display:flex;gap:16px;flex-wrap:wrap;}
-    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
-    .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
-    .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;}
-    .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-    .score-card.cosmo .sc-ttl{color:#1d4ed8;}
-    .score-card.a9 .sc-ttl{color:#6d28d9;}
-    .score-pair{display:flex;gap:12px;align-items:center;}
-    .score-item{text-align:center;}
-    .score-item .score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
-    .score-badge{display:inline-block;font-size:20px;font-weight:800;padding:5px 12px;border-radius:9px;background:#fff;color:var(--primary);white-space:nowrap;border:1px solid #e2e8f0;}
-    .score-card.cosmo .score-badge{color:#1d4ed8;border-color:#bfdbfe;}
-    .score-card.a9 .score-badge{color:#6d28d9;border-color:#c4b5fd;}
-    .score-badge.lv-a{background:#ecfdf5;color:#047857;border-color:#a7f3d0 !important;}
-    .score-badge.lv-b{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe !important;}
-    .score-badge.lv-c{background:#fffbeb;color:#b45309;border-color:#fde68a !important;}
-    .score-badge.lv-d{background:#fef2f2;color:#b91c1c;border-color:#fecaca !important;}
-    .score-arrow{font-size:18px;color:#94a3b8;font-weight:700;}
-    .score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px;}
-    .score-card.cosmo .score-improve{color:#047857;}
-    .score-card.a9 .score-improve{color:#6d28d9;}
-    .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
     .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;}
-    .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
-    .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
-    .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
-    .stat.r{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
     .ai-status{font-size:12.5px;padding:5px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600;}
     .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
     .ai-status.done{background:#ecfdf5;color:#047857;}
@@ -114,7 +130,6 @@
     table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
     th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
     th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
-    tbody tr:hover{background:#fafbfc;}
     .cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap;}
     .cluster-tag.a9{background:#f5f3ff;color:#6d28d9;}
     .anchor-name{font-family:monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
@@ -131,7 +146,6 @@
     .copy-section-header .header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;}
     .custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:180px;background:#fff;color:#166534;}
     .custom-req-input::placeholder{color:#86efac;font-style:italic;}
-    .custom-req-input:focus{outline:none;border-color:#10b981;background:#f0fdf4;}
     .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap;}
     .copy-btn:hover{background:#059669;}
     .optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;line-height:1.6;color:#0f172a;margin-bottom:15px;resize:vertical;font-family:inherit;}
@@ -171,8 +185,26 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>约束可编辑 · 自动固化 · 字数不足自动补全 · 用户自定义要求优先级最高</p>
+        <p>双引擎（DeepSeek + Gemini）· 独立评分 · 人工择优</p>
+        <div class="version-badge" id="versionBadge">📌 928暂行优化版 · 双引擎</div>
     </header>
+
+    <!-- ★ Gemini API Key 配置 -->
+    <div class="card apikey-card">
+        <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
+        <div class="key-hint">
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 免费申请（用 Google 账号登录，点"Create API key"）<br>
+            · 复制以 <code>AIzaSy</code> 开头的密钥，粘贴到下面。填一次就自动存到浏览器，以后打开都还在。<br>
+            · 只想用 DeepSeek 不想用 Gemini？留空即可，取消下方 Gemini 勾选就行。
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <input type="password" id="geminiApiKey" placeholder="AIzaSy..." style="flex:1;min-width:280px;">
+            <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
+            <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
+            <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
+        </div>
+        <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
+    </div>
 
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
@@ -182,42 +214,38 @@
         <div class="constraint-body hidden" id="constraintBody">
             <div class="constraint-section">
                 <div class="sec-title">📏 字数硬约束</div>
-                <div class="sec-desc">字数不足将触发 AI 自动补全重试（最多 3 轮）。</div>
                 <div class="num-grid">
-                    <div class="num-item"><label>标题 · 最小字符</label><input type="number" id="c_titleMin" min="0" max="200"></div>
-                    <div class="num-item"><label>标题 · 最大字符</label><input type="number" id="c_titleMax" min="0" max="200"></div>
-                    <div class="num-item"><label>Item Highlights · 最小字符</label><input type="number" id="c_ihMin" min="0" max="300"></div>
-                    <div class="num-item"><label>Item Highlights · 最大字符</label><input type="number" id="c_ihMax" min="0" max="300"></div>
-                    <div class="num-item"><label>五点 · 每条最小字符</label><input type="number" id="c_bulletMin" min="0" max="300"></div>
-                    <div class="num-item"><label>五点 · 每条最大字符</label><input type="number" id="c_bulletMax" min="0" max="500"></div>
-                    <div class="num-item"><label>五点 · 5 条合计上限</label><input type="number" id="c_bulletTotal" min="0" max="3000"></div>
-                    <div class="num-item"><label>描述 · 最小字符</label><input type="number" id="c_descMin" min="0" max="3000"></div>
-                    <div class="num-item"><label>描述 · 最大字符</label><input type="number" id="c_descMax" min="0" max="5000"></div>
-                    <div class="num-item"><label>Search Terms · 最大字节</label><input type="number" id="c_stMax" min="0" max="500"></div>
+                    <div class="num-item"><label>标题 · 最小</label><input type="number" id="c_titleMin"></div>
+                    <div class="num-item"><label>标题 · 最大</label><input type="number" id="c_titleMax"></div>
+                    <div class="num-item"><label>IH · 最小</label><input type="number" id="c_ihMin"></div>
+                    <div class="num-item"><label>IH · 最大</label><input type="number" id="c_ihMax"></div>
+                    <div class="num-item"><label>五点 · 每条最小</label><input type="number" id="c_bulletMin"></div>
+                    <div class="num-item"><label>五点 · 每条最大</label><input type="number" id="c_bulletMax"></div>
+                    <div class="num-item"><label>五点 · 合计上限</label><input type="number" id="c_bulletTotal"></div>
+                    <div class="num-item"><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
+                    <div class="num-item"><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
+                    <div class="num-item"><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
                 </div>
             </div>
             <div class="constraint-section">
                 <div class="sec-title">🚫 违禁词清单（每行一个）</div>
-                <div class="sec-desc">生成时会提醒 AI 避开；本地校验会扫描并列出命中的词。</div>
                 <textarea id="c_forbidden" class="forbidden-ta"></textarea>
             </div>
             <div class="constraint-section">
-                <div class="sec-title">📝 规则文本（会原样拼进 AI Prompt）</div>
-                <div class="sec-desc">这是 AI 生成时读到的具体指令。改这里 = 改 AI 的行为准则。<br><b>⚠️ 你在下方"自定义要求"框里写的内容，优先级高于这里的规则。</b></div>
-                <div class="rule-item"><label>标题规则 <span class="rule-hint">AI 会按此写标题</span></label><textarea id="c_ruleTitle"></textarea></div>
-                <div class="rule-item"><label>Item Highlights 规则 <span class="rule-hint">必须与标题互补</span></label><textarea id="c_ruleIH"></textarea></div>
-                <div class="rule-item"><label>五点规则 <span class="rule-hint">第 1 点专用于规格 + 包装</span></label><textarea id="c_ruleBullets"></textarea></div>
-                <div class="rule-item"><label>详细描述规则 <span class="rule-hint">自然段，场景开头</span></label><textarea id="c_ruleDesc"></textarea></div>
-                <div class="rule-item"><label>Search Terms 规则 <span class="rule-hint">严禁照抄范例</span></label><textarea id="c_ruleST"></textarea></div>
-                <div class="rule-item"><label>保真原则 <span class="rule-hint">严禁编造原文没有的信息</span></label><textarea id="c_ruleFidelity"></textarea></div>
+                <div class="sec-title">📝 规则文本</div>
+                <div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
+                <div class="rule-item"><label>Item Highlights 规则</label><textarea id="c_ruleIH"></textarea></div>
+                <div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
+                <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
+                <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
+                <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
             </div>
             <div class="constraint-section">
-                <div class="sec-title">📖 参考范例（AI 会模仿这份范例的水准）</div>
-                <div class="sec-desc">这是 AI 心中的"好文案长什么样"。改动这里会显著影响输出风格。</div>
+                <div class="sec-title">📖 参考范例</div>
                 <textarea id="c_example" class="example-ta"></textarea>
             </div>
             <div class="constraint-footer">
-                <div class="status" id="constraintStatus">已保存到浏览器 · 刷新不丢失</div>
+                <div class="status" id="constraintStatus">已保存到浏览器</div>
                 <div style="display:flex;gap:8px;">
                     <button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
                     <button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
@@ -236,19 +264,31 @@
             <div class="input-layout-left">
                 <div class="keywords-box">
                     <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
-                    <textarea id="hotKeywords" placeholder="每行一个，例如：&#10;watch box organizer&#10;10 slot watch case&#10;leather watch storage"></textarea>
-                    <div class="hint">💡 这些词会被 AI 优先埋入文案。可不填。</div>
+                    <textarea id="hotKeywords" placeholder="每行一个"></textarea>
+                    <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
                 </div>
             </div>
             <div class="input-layout-right">
-                <div class="form-group"><label for="productTitle">商品标题 (≤75 字符)</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始 5 点、Introductions、Features、Specifications、Package Includes 等全部商品信息..."></textarea></div>
-                <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选，没有可留空"></textarea></div>
-                <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选，没有可留空"></div>
+                <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
+                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
+                <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
+                <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
             </div>
         </div>
+
+        <div class="engine-select">
+            <label class="engine-check ds active" id="engineCheckDS">
+                <input type="checkbox" id="useDeepSeek" checked onchange="toggleEngineCheck('ds')">
+                <div><div class="ec-title">🔵 DeepSeek</div><div class="ec-desc">中文自然流畅 · 快</div></div>
+            </label>
+            <label class="engine-check gm active" id="engineCheckGM">
+                <input type="checkbox" id="useGemini" checked onchange="toggleEngineCheck('gm')">
+                <div><div class="ec-title">🟠 Gemini</div><div class="ec-desc">英文语感强 · 需要 Key</div></div>
+            </label>
+        </div>
+
         <div class="btn-row">
-            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 开始生成高质量 Listing</button>
+            <button id="analyzeBtn" class="btn" onclick="runDualEngines()">🚀 双引擎并行生成（DeepSeek + Gemini）</button>
             <button class="btn ghost" onclick="clearAll()">清空</button>
         </div>
     </div>
@@ -256,50 +296,69 @@
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
-                <h2>📊 生成结果</h2>
+                <h2>📊 双引擎生成结果 · 人工择优</h2>
                 <p id="targetUrlDisplay">基于本地文本独立生成</p>
             </div>
-            <div class="score-section">
-                <div class="score-card cosmo">
-                    <div class="sc-ttl">🧠 COSMO 语义评分</div>
-                    <div class="score-pair">
-                        <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
-                        <div class="score-arrow">→</div>
-                        <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
-                    </div>
-                    <div id="scoreImprove" class="score-improve"></div>
-                </div>
-                <div class="score-card a9">
-                    <div class="sc-ttl">🔍 A9 关键词评分</div>
-                    <div class="score-pair">
-                        <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
-                        <div class="score-arrow">→</div>
-                        <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
-                    </div>
-                    <div id="a9ScoreImprove" class="score-improve"></div>
-                </div>
+            <div class="stat-line">
+                <span id="aiStatus" class="ai-status hidden">生成中…</span>
             </div>
         </div>
-        <div class="stat-row">
-            <div class="stat-line">
-                <span class="line-label">状态</span>
-                <span id="aiStatus" class="ai-status hidden">生成中…</span>
-                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
-                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
-                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+        <div class="pipeline-progress" id="pipelineProgress">
+            <div class="pipeline-step" data-step="1">① 输入净化</div>
+            <div class="pipeline-step" data-step="2">② 并行调用双引擎</div>
+            <div class="pipeline-step" data-step="3">③ 各自评分</div>
+            <div class="pipeline-step" data-step="4">④ 人工择优</div>
+        </div>
+
+        <div class="dual-grid" id="dualGrid">
+            <div class="engine-panel ds" id="panelDS">
+                <div class="engine-panel-header">
+                    <div class="ep-title">🔵 DeepSeek 版本</div>
+                    <span class="ep-status" id="statusDS">待生成</span>
+                </div>
+                <div class="ep-score-bar" id="scoreBarDS">
+                    <span class="ep-score-chip cosmo" id="cosmoDS">COSMO: --</span>
+                    <span class="ep-score-chip a9" id="a9DS">A9: --</span>
+                </div>
+                <div class="ep-field"><label>标题</label><textarea id="ds_title"></textarea><div class="ep-counter" id="ds_title_c">0 / 75</div></div>
+                <div class="ep-field"><label>Item Highlights</label><textarea id="ds_ih"></textarea><div class="ep-counter" id="ds_ih_c">0 / 125</div></div>
+                <div class="ep-field"><label>第 1 点</label><textarea id="ds_b0" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 2 点</label><textarea id="ds_b1" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 3 点</label><textarea id="ds_b2" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 4 点</label><textarea id="ds_b3" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 5 点</label><textarea id="ds_b4" class="bullet"></textarea></div>
+                <div class="ep-field"><label>详细描述</label><textarea id="ds_desc" style="min-height:80px;"></textarea><div class="ep-counter" id="ds_desc_c">0 / 2000</div></div>
+                <div class="ep-field"><label>Search Terms</label><textarea id="ds_st" style="min-height:40px;"></textarea><div class="ep-counter" id="ds_st_c">0 / 250 字节</div></div>
+                <div class="ep-adopt-bar"><button class="ep-adopt-btn" id="adoptBtnDS" onclick="adoptEngine('ds')">✅ 采用 DeepSeek 版本</button></div>
             </div>
-            <div class="pipeline-progress">
-                <div class="pipeline-step" data-step="1">① 输入净化</div>
-                <div class="pipeline-step" data-step="2">② 分析信息</div>
-                <div class="pipeline-step" data-step="3">③ AI 自由生成</div>
-                <div class="pipeline-step" data-step="4">④ 本地校验</div>
-                <div class="pipeline-step" data-step="5">⑤ 输出</div>
+
+            <div class="engine-panel gm" id="panelGM">
+                <div class="engine-panel-header">
+                    <div class="ep-title">🟠 Gemini 版本</div>
+                    <span class="ep-status" id="statusGM">待生成</span>
+                </div>
+                <div class="ep-score-bar" id="scoreBarGM">
+                    <span class="ep-score-chip cosmo" id="cosmoGM">COSMO: --</span>
+                    <span class="ep-score-chip a9" id="a9GM">A9: --</span>
+                </div>
+                <div class="ep-field"><label>标题</label><textarea id="gm_title"></textarea><div class="ep-counter" id="gm_title_c">0 / 75</div></div>
+                <div class="ep-field"><label>Item Highlights</label><textarea id="gm_ih"></textarea><div class="ep-counter" id="gm_ih_c">0 / 125</div></div>
+                <div class="ep-field"><label>第 1 点</label><textarea id="gm_b0" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 2 点</label><textarea id="gm_b1" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 3 点</label><textarea id="gm_b2" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 4 点</label><textarea id="gm_b3" class="bullet"></textarea></div>
+                <div class="ep-field"><label>第 5 点</label><textarea id="gm_b4" class="bullet"></textarea></div>
+                <div class="ep-field"><label>详细描述</label><textarea id="gm_desc" style="min-height:80px;"></textarea><div class="ep-counter" id="gm_desc_c">0 / 2000</div></div>
+                <div class="ep-field"><label>Search Terms</label><textarea id="gm_st" style="min-height:40px;"></textarea><div class="ep-counter" id="gm_st_c">0 / 250 字节</div></div>
+                <div class="ep-adopt-bar"><button class="ep-adopt-btn" id="adoptBtnGM" onclick="adoptEngine('gm')">✅ 采用 Gemini 版本</button></div>
             </div>
         </div>
 
+        <h3 style="font-size:16px;margin:24px 0 12px;padding-top:16px;border-top:2px solid var(--border);">🏁 最终采用版本（可编辑）</h3>
+        <div id="adoptedBanner" class="validation-report hidden" style="margin-bottom:14px;"></div>
         <div id="validationReport" class="validation-report hidden"></div>
         <div id="expandBar" class="expand-bar hidden">
-            <div class="expand-msg" id="expandMsg">检测到 N 处字数不足，可一键补全</div>
+            <div class="expand-msg" id="expandMsg"></div>
             <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
         </div>
 
@@ -307,34 +366,34 @@
             <div class="pane pane-left">
                 <h3>📋 原始文案</h3>
                 <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
-                <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:160px;"></textarea></div>
-                <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:60px;"></textarea></div>
+                <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
+                <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
                 <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
             </div>
             <div class="pane pane-right">
-                <h3>✨ 优化后文案</h3>
+                <h3>✨ 最终版本文案</h3>
                 <div class="copy-section-header">
-                    <span>商品标题 (Title · ≤<span id="titleMaxHint">75</span> 字符)</span>
+                    <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题特殊要求(固化)">
+                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
                         <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
                     </div>
                 </div>
-                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;" placeholder="生成中…"></textarea>
+                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
                 <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
                 <div class="copy-section-header">
-                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符 · 与标题互补)</span>
+                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点特殊要求(固化)">
+                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
                         <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
                     </div>
                 </div>
-                <textarea id="optIhText" class="optimized-textarea" style="height:52px;" placeholder="生成中…"></textarea>
+                <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
                 <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 结尾不加句号)</span>
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span>)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点特殊要求(固化)">
+                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
                         <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
                     </div>
                 </div>
@@ -343,20 +402,20 @@
                 <div class="copy-section-header" style="margin-top:10px;">
                     <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述特殊要求(固化)">
+                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
                         <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
                     </div>
                 </div>
-                <textarea id="optDescText" class="optimized-textarea" style="height:220px;" placeholder="生成中…"></textarea>
+                <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
                 <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
                 <div class="copy-section-header">
-                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节 · 全小写)</span>
+                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词特殊要求(固化)">
+                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
                         <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
                     </div>
                 </div>
-                <textarea id="optStText" class="optimized-textarea" style="height:52px;" placeholder="生成中…"></textarea>
+                <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
                 <div id="stCounter" class="byte-counter">0 / 250 字节</div>
                 <div id="kwHitReport" class="validation-report hidden"></div>
             </div>
@@ -369,6 +428,12 @@
 </div>
 
 <script>
+/* ============================================================
+   版本
+   ============================================================ */
+const APP_VERSION = '928暂行优化版 · 双引擎';
+const APP_VERSION_DATE = '2024-09-28';
+
 /* ============================================================
    工具
    ============================================================ */
@@ -398,45 +463,87 @@ function getByteLength(str){
 }
 
 /* ============================================================
-   约束条件（版本升级到 v7）
+   ★ Gemini API Key 管理
+   ============================================================ */
+const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
+
+function saveGeminiKey(){
+    const key = $('geminiApiKey').value.trim();
+    if (!key){ showToast('请先输入 Key'); return; }
+    if (!key.startsWith('AIza')){ showToast('⚠️ Key 应以 AIza 开头，请检查'); return; }
+    localStorage.setItem(GEMINI_KEY_STORAGE, key);
+    $('geminiKeyStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString();
+    showToast('已保存 Gemini Key');
+}
+function clearGeminiKey(){
+    if (!confirm('确定清除已保存的 Gemini Key 吗？')) return;
+    localStorage.removeItem(GEMINI_KEY_STORAGE);
+    $('geminiApiKey').value = '';
+    $('geminiKeyStatus').textContent = '已清除';
+    showToast('已清除');
+}
+function loadGeminiKey(){
+    const saved = localStorage.getItem(GEMINI_KEY_STORAGE);
+    if (saved){
+        $('geminiApiKey').value = saved;
+        $('geminiKeyStatus').textContent = '✅ 已从浏览器加载 Key';
+    }
+}
+function getGeminiKey(){ return ($('geminiApiKey').value || localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim(); }
+
+async function testGeminiKey(){
+    const key = getGeminiKey();
+    if (!key){ showToast('请先输入 Key'); return; }
+    $('geminiKeyStatus').textContent = '⏳ 测试中…';
+    try {
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + key;
+        const r = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] })
+        });
+        const data = await r.json();
+        if (data.error){ $('geminiKeyStatus').textContent = '❌ 失败：' + (data.error.message || JSON.stringify(data.error)); return; }
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text){ $('geminiKeyStatus').textContent = '✅ 连接成功！Gemini 回复："' + text.substring(0,30) + '"'; showToast('✅ Gemini Key 可用'); }
+        else { $('geminiKeyStatus').textContent = '⚠️ 返回结构异常：' + JSON.stringify(data).substring(0,120); }
+    } catch (err){
+        $('geminiKeyStatus').textContent = '❌ 网络错误：' + err.message;
+    }
+}
+
+/* ============================================================
+   约束条件（v7）
    ============================================================ */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v7';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
-    bulletMin: 150, bulletMax: 220,
-    bulletTotal: 1000,
+    bulletMin: 150, bulletMax: 220, bulletTotal: 1000,
     descMin: 600, descMax: 2000,
     stMax: 250,
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
-    ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词（产品类型 + 关键属性）。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如"10-Slot"比"10 Compartments"更优，避免三个同义词堆叠。\n自然流畅，不要逗号堆砌。`,
-    ruleIH: `Item Highlights 必须 100-125 字符（含空格）。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段必须指向具体用途或受众，不要写"compact portable design"这类空泛词。`,
-    // ★ 五点规则：第 1 点默认格式（用户自定义要求会覆盖）
-    ruleBullets: `每条 150-220 字符（低于 150 视为内容不足，会触发补全）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 第 1 点只列【关键规格参数】和【订单包含内容】，不做任何叙事描述。\n· ⚠️ 用纯短语直接列出信息，每个信息独立，用句号分隔。\n· ⚠️ 严禁任何叙述性动词：features、comes with、is、are、has、provides、designed with、made of、measures、weighs 等。\n· ⚠️ 严禁使用 High-grade、High-Class、High-end、Premium 等主观词。\n· ✅ 正确示例：10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· 产品名要简洁，尺寸重量只写一种单位，严禁编造原文没有的规格\n· ⚠️ 如果用户在"五点特殊要求"里指定了第 1 点的字段顺序（如"Size, Color, Package Includes"），必须严格按用户指定的顺序输出。\n\n【第 2-5 点 · 利益点】\n· 第 2 点写材质保护（材质 + 保护效果）。\n· 第 3 点写尺寸空间（尺寸带来的空间表现）。\n· 第 4 点写便携运输（重量/结构带来的便携性）。\n· 第 5 点写日常使用便捷性（开合方式/日常体验）。\n· 每点以「利益点短语」开头，自然过渡到具体好处。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！`,
+    ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符。`,
+    ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
+    ruleBullets: `每条 150-220 字符。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 用纯短语直接列出信息，每个信息独立，用句号分隔。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点】\n第 2 点材质保护 · 第 3 点尺寸空间 · 第 4 点便携运输 · 第 5 点日常使用便捷性。`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
-    ruleST: `≤250 字节（不是字符，中文字符 3 字节）。\n全小写，空格分隔。\n不含品牌名、ASIN、主观词、时效词。\n⚠️ 严禁照抄参考范例中的 Search Terms！必须基于当前产品重新生成。`,
-    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格，绝不能写 12 格。\n· 原文写 Box 就写 Box，绝不能写 Case/Pad/Container。\n· 原文没写防水，绝不写 waterproof / water resistant。\n· 原文没写防尘，绝不写 dustproof / dust-proof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。\n· 严禁为了凑字数堆砌"春夏秋冬""elegant refined decorative"等无意义词。`,
-    example: `【原始信息】10 Compartments High-grade Leather Watch Collection Storage Box Black / 尺寸 9.84 x 7.87 x 3.15 英寸 / 重量 38.8 oz / PU 皮 + 珍珠绒内衬 / 10 格 / Package Includes: 1 x Watch Storage Box\n\n【好的标题】\n10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n（72字符）\n\n【好的 Item Highlights】\nPU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n（108字符）\n\n【好的五点描述】\n\n第 1 点（规格 + 包装快照 · 纯参数列表）：\n10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n第 2 点（材质保护）：\nThe soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n第 3 点（尺寸空间）：\nSlim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n第 4 点（便携运输）：\nAt just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n第 5 点（日常使用便捷性）：\nLift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【好的详细描述】\nIf you collect watches, keeping them organized and protected is a daily concern. This 10-slot watch box gives every piece its own place—no more tangled bands, scratched faces, or hunting through drawers.\n\nThe exterior is wrapped in PU leather that resists everyday wear and wipes clean easily. Inside, a pearl fleece lining cushions each watch against scratches and dust. Ten individual compartments keep your collection separated and ready to browse.\n\nAt 9.84 x 7.87 x 3.15 inches and 38.8 ounces, the box sits comfortably on a dresser or nightstand without dominating the surface. The lid opens smoothly for quick access, so you can pick your watch and go.\n\nWhether you are storing everyday wearers, weekend pieces, or a growing collection, this box keeps everything in order and within reach.\n\n【搜索词格式示范 · ⚠️ 下面是格式示范，不是照抄内容！】\nwatch organizer case jewelry tray holder mens wristwatch display storage travel accessory gift dad boyfriend husband pu leather black 10 slot`
+    ruleST: `≤250 字节。\n全小写，空格分隔。\n不含品牌名、ASIN、主观词、时效词。\n⚠️ 严禁照抄参考范例中的 Search Terms！必须基于当前产品重新生成。`,
+    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。`,
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的第 1 点】10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n【好的第 2 点】The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth, keeping the exterior looking fresh even with daily use\n\n【好的第 3 点】Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches within easy reach\n\n【好的第 4 点】At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place during transport\n\n【好的第 5 点】Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
-function saveConstraints(){
-    try { localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C)); $('constraintStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString(); }
-    catch (e){ $('constraintStatus').textContent = '⚠️ 保存失败：' + e.message; }
-}
+function saveConstraints(){ try { localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C)); $('constraintStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString(); } catch (e){} }
 function loadConstraints(){
-    try {
-        const raw = localStorage.getItem(CONSTRAINTS_KEY);
-        if (raw){ const saved = JSON.parse(raw); C = Object.assign({}, DEFAULT_CONSTRAINTS, saved); }
-    } catch (e){ C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); }
+    try { const raw = localStorage.getItem(CONSTRAINTS_KEY); if (raw){ const saved = JSON.parse(raw); C = Object.assign({}, DEFAULT_CONSTRAINTS, saved); } }
+    catch (e){ C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); }
     syncFormFromConstraints();
 }
 function syncFormFromConstraints(){
     $('c_titleMin').value = C.titleMin; $('c_titleMax').value = C.titleMax;
     $('c_ihMin').value = C.ihMin; $('c_ihMax').value = C.ihMax;
     $('c_bulletMin').value = C.bulletMin; $('c_bulletMax').value = C.bulletMax; $('c_bulletTotal').value = C.bulletTotal;
-    $('c_descMin').value = C.descMin; $('c_descMax').value = C.descMax;
-    $('c_stMax').value = C.stMax;
+    $('c_descMin').value = C.descMin; $('c_descMax').value = C.descMax; $('c_stMax').value = C.stMax;
     $('c_forbidden').value = C.forbidden;
     $('c_ruleTitle').value = C.ruleTitle; $('c_ruleIH').value = C.ruleIH; $('c_ruleBullets').value = C.ruleBullets;
     $('c_ruleDesc').value = C.ruleDesc; $('c_ruleST').value = C.ruleST; $('c_ruleFidelity').value = C.ruleFidelity;
@@ -465,69 +572,26 @@ function updateHints(){
     $('descMaxHint').textContent = C.descMax;
     $('stMaxHint').textContent = C.stMax;
 }
-function toggleConstraints(){
-    const body = $('constraintBody'); const hint = $('constraintToggle');
-    body.classList.toggle('hidden');
-    hint.textContent = body.classList.contains('hidden') ? '展开 ▼' : '收起 ▲';
-}
-function resetConstraints(){
-    if (!confirm('确定恢复所有约束到默认值吗？')) return;
-    C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
-    syncFormFromConstraints(); saveConstraints(); showToast('已恢复默认');
-}
-function exportConstraints(){
-    const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
-    URL.revokeObjectURL(url);
-}
-function importConstraintsPrompt(){
-    const input = document.createElement('input'); input.type = 'file'; input.accept = '.json';
-    input.onchange = e => {
-        const file = e.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = ev => {
-            try { const imported = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, imported); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); }
-            catch (err){ showToast('导入失败：' + err.message); }
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-}
-function initConstraintListeners(){
-    ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => {
-        const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm);
-    });
-}
+function toggleConstraints(){ const body = $('constraintBody'), hint = $('constraintToggle'); body.classList.toggle('hidden'); hint.textContent = body.classList.contains('hidden') ? '展开 ▼' : '收起 ▲'; }
+function resetConstraints(){ if (!confirm('确定恢复默认吗？')) return; C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); syncFormFromConstraints(); saveConstraints(); showToast('已恢复默认'); }
+function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(url); }
+function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
+function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
 
-/* ============================================================
-   自定义要求固化
-   ============================================================ */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
-function loadCustom(){
-    CUSTOM_IDS.forEach(id => {
-        const el = $(id);
-        const saved = localStorage.getItem('cosmo_req_' + id);
-        if (el && saved) el.value = saved;
-        if (el) el.addEventListener('input', saveCustom);
-    });
-}
+function loadCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); const s = localStorage.getItem('cosmo_req_' + id); if (el && s) el.value = s; if (el) el.addEventListener('input', saveCustom); }); }
 
-/* ============================================================
-   进度
-   ============================================================ */
-function setStep(step, state){
-    const el = document.querySelector('.pipeline-step[data-step="' + step + '"]');
-    if (!el) return;
-    el.classList.remove('active','done','error');
-    if (state) el.classList.add(state);
+function toggleEngineCheck(engine){
+    const box = $(engine === 'ds' ? 'engineCheckDS' : 'engineCheckGM');
+    const cb = $(engine === 'ds' ? 'useDeepSeek' : 'useGemini');
+    box.classList.toggle('active', cb.checked);
 }
+function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
 /* ============================================================
-   常量
+   常量（评分）
    ============================================================ */
 const L = {
     func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
@@ -578,27 +642,22 @@ function detectProhibited(text){
     });
     return [...hits];
 }
-
 function cleanInput(text){
     if (!text) return '';
     let r = String(text);
-    r = r.replace(/<[^>]+>/g, ' ');
-    r = r.replace(/Watchs/ig, 'Watches'); r = r.replace(/watchs/ig, 'watches');
-    r = r.replace(/\s+/g, ' ');
-    return r.trim();
+    r = r.replace(/<[^>]+>/g, ' '); r = r.replace(/Watchs/ig, 'Watches'); r = r.replace(/watchs/ig, 'watches');
+    r = r.replace(/\s+/g, ' '); return r.trim();
 }
 
 /* ============================================================
-   ★★★ 生成
+   构建 Prompt
    ============================================================ */
-async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
+function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
     const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
-
-    // ★ 自定义要求块 —— 优先级最高
     const hasCustom = Object.values(customReqs).some(v => v);
     const customBlock = hasCustom ?
         '\n╔════════════════════════════════════════════════════════╗\n' +
-        '║  🚨🚨🚨 用户自定义要求 · 最高优先级 🚨🚨🚨              ║\n' +
+        '║  🚨 用户自定义要求 · 最高优先级 🚨                     ║\n' +
         '║  以下要求优先于所有其他规则。如与下方【规则】冲突，一律以这里为准！ ║\n' +
         '╚════════════════════════════════════════════════════════╝\n' +
         (customReqs.title ? '· 标题：' + customReqs.title + '\n' : '') +
@@ -612,32 +671,32 @@ async function generateListing(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, cus
     if (prevErrors && prevErrors.length && prevContent){
         const wordErrors = prevErrors.filter(e => e.msg.includes('低于下限') || e.msg.includes('字符'));
         if (wordErrors.length){
-            wordFixBlock = '\n⚠️⚠️ 字数不合格 · 必须扩写（保持原意，不要改变事实，不要删除已有信息） ⚠️⚠️\n';
+            wordFixBlock = '\n⚠️⚠️ 字数不合格 · 必须扩写 ⚠️⚠️\n';
             if (prevContent.title) wordFixBlock += '【当前标题】' + prevContent.title + '\n';
             if (prevContent.itemHighlights) wordFixBlock += '【当前 IH】' + prevContent.itemHighlights + '\n';
             if (prevContent.bullets){
                 prevContent.bullets.forEach((b, i) => { if (b) wordFixBlock += '【当前第 ' + (i+1) + ' 点】' + b + '（' + b.length + ' 字符）\n'; });
             }
-            if (prevContent.description) wordFixBlock += '【当前描述】(' + prevContent.description.length + ' 字符) ' + prevContent.description.substring(0, 200) + '...\n';
+            if (prevContent.description) wordFixBlock += '【当前描述】(' + prevContent.description.length + ' 字符)\n';
             wordFixBlock += '\n【本轮必须做到】\n' + wordErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n';
-            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写\n· 如果第 1 点字数不足，通过补充更多规格细节（如更多维度、Package includes 完整表述）来扩写，不要加利益点，不要加叙事动词';
+            wordFixBlock += '\n【扩写原则】\n· 绝不改变原文事实\n· 绝不编造原文没有的信息\n· 通过添加细节描述、举例场景、补充受益点来扩写';
         }
     }
     const errBlock = (prevErrors && prevErrors.length && !wordFixBlock) ?
         '\n⚠️ 上一轮问题 · 本轮必须全部修复 ⚠️\n' + prevErrors.map(e => '· [' + e.module + '] ' + e.msg).join('\n') + '\n' : '';
 
-    const wordBlock = '【字数硬约束 · 不满足视为不合格】\n' +
+    const wordBlock = '【字数硬约束】\n' +
         '· 标题：' + C.titleMin + '-' + C.titleMax + ' 字符\n' +
         '· Item Highlights：' + C.ihMin + '-' + C.ihMax + ' 字符\n' +
         '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符（⭐ 每条必须 ≥' + C.bulletMin + ' 字符）；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
         '· 详细描述：' + C.descMin + '-' + C.descMax + ' 字符\n' +
         '· Search Terms：≤' + C.stMax + ' 字节，全小写';
 
-    const prompt = `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。
+    return `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。
 
 ${customBlock}
 ━━━━━━━━━━━━━━ 任务 ━━━━━━━━━━━━━━
-基于下方原始商品信息，一次性生成完整的高质量 Listing：标题、Item Highlights、五点描述、详细描述、Search Terms。
+基于下方原始商品信息，一次性生成完整的高质量 Listing。
 
 ━━━━━━━━━━━━━━ 原始商品信息 ━━━━━━━━━━━━━━
 标题：${titleRaw || '（未提供）'}
@@ -671,23 +730,23 @@ Item Highlights
 [/IH]
 
 [BULLET1]
-第 1 点（严格按用户自定义要求中的字段顺序，如用户指定"Size, Color, Weight,Package Includes"就必须按此顺序）
+第 1 点
 [/BULLET1]
 
 [BULLET2]
-第 2 点（材质保护）
+第 2 点
 [/BULLET2]
 
 [BULLET3]
-第 3 点（尺寸空间）
+第 3 点
 [/BULLET3]
 
 [BULLET4]
-第 4 点（便携运输）
+第 4 点
 [/BULLET4]
 
 [BULLET5]
-第 5 点（日常使用便捷性）
+第 5 点
 [/BULLET5]
 
 [DESC]
@@ -697,30 +756,68 @@ Item Highlights
 [ST]
 搜索词
 [/ST]`;
-
-    const rawText = await callDeepSeekRaw([
-        { role: 'system', content: '你是亚马逊 Listing 文案撰写专家。你的文案信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守，优先级高于本文档中所有其他规则。尤其是当用户指定了【第 1 点的字段顺序或格式】时，必须严格按用户指定的顺序输出，不能自行改变。\n\n【其他规则】第 1 点只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with/designed with/made of 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。只输出指定格式。' },
-        { role: 'user', content: prompt }
-    ]);
-    return parseStructuredOutput(rawText);
 }
 
-async function callDeepSeekRaw(messages, maxRetries = 3){
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出。\n\n【其他规则】第 1 点只做纯参数列表，绝不用叙事性动词（features/is/has/measures/weighs/comes with 等），每个信息独立用句号分隔。严禁用 High-grade、Premium 等主观词。只输出指定格式。';
+
+/* ============================================================
+   ★★★ 调用引擎（DeepSeek 走后端，Gemini 走前端直连）
+   ============================================================ */
+async function callDeepSeek(messages, maxRetries = 3){
     let lastError = null;
     for (let attempt = 1; attempt <= maxRetries; attempt++){
         try {
             const resp = await fetch('/api/deepseek', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ messages: messages, temperature: 0.7, max_tokens: 8000 })
+                body: JSON.stringify({ messages, temperature: 0.7, max_tokens: 8000 })
             });
             const result = await resp.json();
-            if (!result.success) throw new Error(result.error || 'API 返回失败');
+            if (!result.success) throw new Error(result.error || 'DeepSeek 返回失败');
             const content = result.data.choices[0].message.content || '';
-            if (!content.trim()) throw new Error('AI 返回空内容');
+            if (!content.trim()) throw new Error('DeepSeek 返回空内容');
             return content;
         } catch (err){ lastError = err; if (attempt < maxRetries) await new Promise(r => setTimeout(r, 1500)); }
     }
     throw lastError || new Error('DeepSeek 调用失败');
+}
+
+async function callGemini(messages, maxRetries = 3){
+    const apiKey = getGeminiKey();
+    if (!apiKey) throw new Error('未配置 Gemini API Key（请在页面顶部填写）');
+    let lastError = null;
+    for (let attempt = 1; attempt <= maxRetries; attempt++){
+        try {
+            const systemMsg = messages.find(m => m.role === 'system');
+            const userMsgs = messages.filter(m => m.role !== 'system');
+            const contents = userMsgs.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            }));
+            const body = {
+                contents: contents,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+            };
+            if (systemMsg && systemMsg.content){
+                body.systemInstruction = { parts: [{ text: systemMsg.content }] };
+            }
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+            const r = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await r.json();
+            if (data.error) throw new Error('Gemini: ' + (data.error.message || JSON.stringify(data.error)));
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (!text.trim()) throw new Error('Gemini 返回空内容');
+            return text;
+        } catch (err){ lastError = err; if (attempt < maxRetries) await new Promise(r => setTimeout(r, 2000)); }
+    }
+    throw lastError || new Error('Gemini 调用失败');
+}
+
+async function callEngine(engine, messages){
+    return engine === 'ds' ? await callDeepSeek(messages) : await callGemini(messages);
 }
 
 function parseStructuredOutput(text){
@@ -743,36 +840,27 @@ function validateAll(r, isRetry){
     if (!r.title || !r.title.trim()) errors.push({ module:'标题', msg:'标题为空' });
     else {
         if (r.title.length > C.titleMax) errors.push({ module:'标题', msg:'超过 ' + C.titleMax + ' 字符（' + r.title.length + '）' });
-        if (r.title.length < C.titleMin) {
-            if (isRetry) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，低于下限 ' + C.titleMin });
-            else errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，低于下限 ' + C.titleMin });
-        }
-        const lastWord = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
-        if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lastWord)) errors.push({ module:'标题', msg:'以介词 "' + lastWord + '" 结尾' });
+        if (r.title.length < C.titleMin) { if (isRetry) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符' }); else errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符' }); }
+        const lw = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
+        if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)) errors.push({ module:'标题', msg:'以介词 "' + lw + '" 结尾' });
         const pHits = detectProhibited(r.title);
         if (pHits.length) errors.push({ module:'标题', msg:'含违禁词：' + pHits.join(', ') });
     }
     if (!r.itemHighlights || !r.itemHighlights.trim()) errors.push({ module:'亮点', msg:'Item Highlights 为空' });
     else {
-        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符（' + r.itemHighlights.length + '）' });
-        if (r.itemHighlights.length < C.ihMin) {
-            if (isRetry) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，低于下限 ' + C.ihMin });
-            else errors.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，低于下限 ' + C.ihMin });
-        }
+        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符' });
+        if (r.itemHighlights.length < C.ihMin) { if (isRetry) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符' }); else errors.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符' }); }
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
     }
     const bullets = r.bullets || [];
-    if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5（' + bullets.length + '）' });
+    if (bullets.length !== 5) errors.push({ module:'五点', msg:'数量不是 5' });
     else {
         let total = 0;
         bullets.forEach((b, i) => {
             if (!b || !b.trim()) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点为空' });
             else {
-                if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符（' + b.length + '）' });
-                if (b.length < C.bulletMin) {
-                    if (isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，低于下限 ' + C.bulletMin });
-                    else errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，低于下限 ' + C.bulletMin });
-                }
+                if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点超过 ' + C.bulletMax + ' 字符' });
+                if (b.length < C.bulletMin) { if (isRetry) warnings.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); else errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); }
                 if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + (i+1) + ' 点以句号结尾' });
             }
             total += (b || '').length;
@@ -781,33 +869,29 @@ function validateAll(r, isRetry){
     }
     if (!r.description || !r.description.trim()) errors.push({ module:'描述', msg:'描述为空' });
     else {
-        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符（' + r.description.length + '）' });
-        if (r.description.length < C.descMin) {
-            if (isRetry) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，低于下限 ' + C.descMin });
-            else errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，低于下限 ' + C.descMin });
-        }
+        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符' });
+        if (r.description.length < C.descMin) { if (isRetry) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符' }); else errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符' }); }
     }
     if (r.searchTerms){
         const bytes = getByteLength(r.searchTerms);
-        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节（' + bytes + '）' });
+        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节' });
         if (r.searchTerms !== r.searchTerms.toLowerCase()) errors.push({ module:'搜索词', msg:'必须全小写' });
     }
     return { errors, warnings };
 }
 
-async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRounds = 3){
+async function generateWithSelfFix(engine, titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, maxRounds = 3){
     let lastResult = null, lastErrors = [], lastWarnings = [];
-    const history = [];
     for (let round = 1; round <= maxRounds; round++){
         let result;
         try {
-            result = await generateListing(
-                titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs,
-                round > 1 ? lastErrors : null,
-                round > 1 ? lastResult : null
-            );
+            const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
+            const rawText = await callEngine(engine, [
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: prompt }
+            ]);
+            result = parseStructuredOutput(rawText);
         } catch (err){
-            history.push({ round, error: err.message });
             if (round === maxRounds) throw err;
             continue;
         }
@@ -815,221 +899,28 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
         const v = validateAll(result, round > 1);
         lastErrors = v.errors;
         lastWarnings = v.warnings;
-        history.push({ round, errors: lastErrors.length, warnings: lastWarnings.length });
-        if (lastErrors.length === 0) return { result, passed: true, rounds: round, warnings: lastWarnings, history };
+        if (lastErrors.length === 0) return { result, passed: true, rounds: round, warnings: lastWarnings };
     }
-    return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings, history };
-}
-
-/* ============================================================
-   手动一键补全
-   ============================================================ */
-async function expandAll(){
-    const btn = $('expandBtn');
-    btn.disabled = true; btn.textContent = '⏳ 补全中…';
-    try {
-        const cur = {
-            title: $('optTitleText').value.trim(),
-            itemHighlights: $('optIhText').value.trim(),
-            bullets: [0,1,2,3,4].map(i => $('optBp' + i).value.trim()),
-            description: $('optDescText').value.trim(),
-            searchTerms: $('optStText').value.trim()
-        };
-        const shortItems = [];
-        if (cur.title && cur.title.length < C.titleMin) shortItems.push({ module:'标题', msg:'仅 ' + cur.title.length + ' 字符，低于下限 ' + C.titleMin });
-        if (cur.itemHighlights && cur.itemHighlights.length < C.ihMin) shortItems.push({ module:'亮点', msg:'仅 ' + cur.itemHighlights.length + ' 字符，低于下限 ' + C.ihMin });
-        cur.bullets.forEach((b, i) => { if (b && b.length < C.bulletMin) shortItems.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符，低于下限 ' + C.bulletMin }); });
-        if (cur.description && cur.description.length < C.descMin) shortItems.push({ module:'描述', msg:'仅 ' + cur.description.length + ' 字符，低于下限 ' + C.descMin });
-
-        if (shortItems.length === 0){ showToast('所有模块都已达标'); btn.disabled = false; btn.textContent = '✨ 一键补全字数'; return; }
-
-        const customNote = $('reqBp').value.trim() ? '\n⚠️ 用户对第 1 点的格式要求（必须保持）：' + $('reqBp').value.trim() + '\n' : '';
-
-        const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下，通过添加细节描述、举例场景、补充受益点来扩写。
-${customNote}
-【当前内容】
-标题（${cur.title.length}字符）：${cur.title}
-
-Item Highlights（${cur.itemHighlights.length}字符）：${cur.itemHighlights}
-
-五点：
-${cur.bullets.map((b, i) => '第 ' + (i+1) + ' 点（' + b.length + '字符）：' + b).join('\n')}
-
-描述（${cur.description.length}字符）：
-${cur.description}
-
-【字数要求】
-· 标题：${C.titleMin}-${C.titleMax} 字符
-· IH：${C.ihMin}-${C.ihMax} 字符
-· 五点：每条 ≥${C.bulletMin} 字符
-· 描述：≥${C.descMin} 字符
-
-【扩写原则】
-1. 保持原文事实不变，严禁编造原文没有的材质、尺寸、功能属性
-2. 绝不删除已有信息，只做"扩写"，不做"改写"
-3. 通过添加细节（例如"wipes clean"→"wipes clean easily with a damp cloth"）、举例场景、补充受益点来增加字数
-4. 只输出字数不足的部分，达标的部分原样保留
-5. 每条结尾不加句号
-6. ⚠️ 第 1 点如果字数不足，通过补充更多规格细节来扩写，不要加利益点，不要加叙事动词，且必须保持用户指定的字段顺序
-
-【输出格式】
-[TITLE]
-补全后的标题（如果标题已达标则原样输出）
-[/TITLE]
-
-[IH]
-补全后的 IH
-[/IH]
-
-[BULLET1]
-补全后的第 1 点（达标则原样，保持用户指定字段顺序）
-[/BULLET1]
-
-[BULLET2]
-第 2 点
-[/BULLET2]
-
-[BULLET3]
-第 3 点
-[/BULLET3]
-
-[BULLET4]
-第 4 点
-[/BULLET4]
-
-[BULLET5]
-第 5 点
-[/BULLET5]
-
-[DESC]
-补全后的描述
-[/DESC]
-
-[ST]
-（Search Terms 原样输出）
-[/ST]`;
-
-        const rawText = await callDeepSeekRaw([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写，绝不改变原文事实，绝不编造新信息。第 1 点保持纯参数列表风格和用户指定的字段顺序，不用任何叙事动词，不加利益点。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
-            { role: 'user', content: prompt }
-        ]);
-
-        const parsed = parseStructuredOutput(rawText);
-        if (parsed.title && parsed.title.length >= C.titleMin && cur.title.length < C.titleMin) $('optTitleText').value = parsed.title;
-        if (parsed.itemHighlights && parsed.itemHighlights.length >= C.ihMin && cur.itemHighlights.length < C.ihMin) $('optIhText').value = parsed.itemHighlights;
-        for (let i = 0; i < 5; i++){
-            if (parsed.bullets[i] && parsed.bullets[i].length >= C.bulletMin && cur.bullets[i].length < C.bulletMin){
-                $('optBp' + i).value = parsed.bullets[i];
-            }
-        }
-        if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
-
-        renderResult(
-            $('optTitleText').value, $('optIhText').value,
-            [0,1,2,3,4].map(i => $('optBp' + i).value),
-            $('optDescText').value, $('optStText').value
-        );
-        const beforeResult = scoreText($('origTitleView').value, $('origBpView').value, $('origDescView').value, $('origStView').value);
-        applyAfterScore(beforeResult, parseHotKeywords());
-        const v = validateAll({
-            title: $('optTitleText').value,
-            itemHighlights: $('optIhText').value,
-            bullets: [0,1,2,3,4].map(i => $('optBp' + i).value),
-            description: $('optDescText').value,
-            searchTerms: $('optStText').value
-        }, true);
-        renderValidationReport(v.errors, v.warnings, '补全后');
-        updateExpandBar();
-        showToast('补全完成');
-    } catch (err){
-        console.error('补全失败', err);
-        showToast('补全失败：' + err.message);
-    } finally {
-        btn.disabled = false; btn.textContent = '✨ 一键补全字数';
-    }
-}
-
-function updateExpandBar(){
-    const bar = $('expandBar');
-    const msg = $('expandMsg');
-    const t = $('optTitleText').value, ih = $('optIhText').value, d = $('optDescText').value;
-    let shortCount = 0;
-    if (t && t.length < C.titleMin) shortCount++;
-    if (ih && ih.length < C.ihMin) shortCount++;
-    for (let i = 0; i < 5; i++){
-        const b = $('optBp' + i).value;
-        if (b && b.length < C.bulletMin) shortCount++;
-    }
-    if (d && d.length < C.descMin) shortCount++;
-    if (shortCount > 0){
-        bar.classList.remove('hidden');
-        msg.textContent = '检测到 ' + shortCount + ' 处字数不足，可一键补全';
-    } else {
-        bar.classList.add('hidden');
-    }
+    return { result: lastResult, passed: false, rounds: maxRounds, errors: lastErrors, warnings: lastWarnings };
 }
 
 /* ============================================================
    后处理
    ============================================================ */
-function trimToMax(str, max){
-    if (!str) return '';
-    if (str.length <= max) return str;
-    let t = str.substring(0, max);
-    const lastSpace = t.lastIndexOf(' ');
-    if (lastSpace > max * 0.7) t = t.substring(0, lastSpace);
-    return t.trim();
-}
-function trimBytes(str, max){
-    if (!str) return '';
-    const words = str.split(/\s+/).filter(Boolean);
-    let result = '';
-    for (const w of words){
-        const c = result ? result + ' ' + w : w;
-        if (getByteLength(c) <= max) result = c;
-        else break;
-    }
-    return result.trim();
-}
-function postTitle(t){
-    if (!t) return '';
-    let r = t.trim().replace(/[,;.!]+$/, '');
-    r = trimToMax(r, C.titleMax);
-    let safety = 0;
-    while (safety < 3){
-        safety++;
-        const ws = r.split(/\s+/);
-        const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,'');
-        if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); }
-        else break;
-    }
-    return r;
-}
-function postIH(ih){
-    if (!ih) return '';
-    let r = ih.trim().replace(/[.。]/g, '').replace(/[;；]/g, ',');
-    r = r.replace(/,{2,}/g, ',').replace(/\s*,\s*/g, ', ');
-    r = r.split(',').map(s => { const t = s.trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : ''; }).filter(Boolean).join(', ');
-    return trimToMax(r, C.ihMax);
-}
+function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
+function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
+function postTitle(t){ if (!t) return ''; let r = t.trim().replace(/[,;.!]+$/, ''); r = trimToMax(r, C.titleMax); let s = 0; while (s < 3){ s++; const ws = r.split(/\s+/); const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,''); if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); } else break; } return r; }
+function postIH(ih){ if (!ih) return ''; let r = ih.trim().replace(/[.。]/g, '').replace(/[;；]/g, ','); r = r.replace(/,{2,}/g, ',').replace(/\s*,\s*/g, ', '); r = r.split(',').map(s => { const t = s.trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : ''; }).filter(Boolean).join(', '); return trimToMax(r, C.ihMax); }
 function postBullets(bullets){
     if (!Array.isArray(bullets)) return ['','','','',''];
     let arr = bullets.map(b => (b || '').trim().replace(/[.。;；,，]+$/, ''));
     while (arr.length < 5) arr.push('');
-
-    if (arr[0] && arr[0].length > C.bulletMax){
-        arr[0] = smartTrimBullet1(arr[0], C.bulletMax);
-    }
-    for (let i = 1; i < 5; i++){
-        if (arr[i] && arr[i].length > C.bulletMax){
-            arr[i] = trimToMax(arr[i], C.bulletMax);
-        }
-    }
-
+    if (arr[0] && arr[0].length > C.bulletMax) arr[0] = smartTrimBullet1(arr[0], C.bulletMax);
+    for (let i = 1; i < 5; i++){ if (arr[i] && arr[i].length > C.bulletMax) arr[i] = trimToMax(arr[i], C.bulletMax); }
     let total = arr.reduce((a,b) => a + b.length, 0);
-    let safety = 0;
-    while (total > C.bulletTotal && safety < 500){
-        safety++;
+    let s = 0;
+    while (total > C.bulletTotal && s < 500){
+        s++;
         let mi = 1, ml = 0;
         for (let i = 1; i < 5; i++){ if (arr[i].length > ml){ ml = arr[i].length; mi = i; } }
         if (ml <= 10){ mi = 0; ml = arr[0].length; }
@@ -1043,26 +934,19 @@ function postBullets(bullets){
 }
 function smartTrimBullet1(text, max){
     if (text.length <= max) return text;
-    const sentences = text.split(/(?<=[.!?])\s+/);
-    if (sentences.length > 1){
-        let result = '';
-        for (const s of sentences){
-            const candidate = result ? result + ' ' + s : s;
-            if (candidate.length <= max) result = candidate;
-            else break;
-        }
-        if (result.trim()) return result.trim();
+    const sents = text.split(/(?<=[.!?])\s+/);
+    if (sents.length > 1){
+        let r = '';
+        for (const s of sents){ const c = r ? r + ' ' + s : s; if (c.length <= max) r = c; else break; }
+        if (r.trim()) return r.trim();
     }
-    let t = text.substring(0, max);
-    const lastSpace = t.lastIndexOf(' ');
-    if (lastSpace > max * 0.7) t = t.substring(0, lastSpace);
-    return t.trim();
+    let t = text.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim();
 }
 function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
 /* ============================================================
-   打分
+   评分
    ============================================================ */
 function scoreA9(title, bp, desc, st, hotKeywords){
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
@@ -1140,7 +1024,7 @@ function scoreA9(title, bp, desc, st, hotKeywords){
             const c = (full.match(new RegExp('\\b' + esc + '\\b', 'gi')) || []).length;
             if (c > mr) mr = c;
         });
-        if (mr <= 3){ nss = 10; nsn = '核心词最大重复 ' + mr + ' 次，健康'; }
+        if (mr <= 3){ nss = 10; nsn = '核心词最大重复 ' + mr + ' 次'; }
         else if (mr <= 5){ nss = 6; nsn = '核心词重复 ' + mr + ' 次'; }
         else { nss = 2; nsn = '核心词重复 ' + mr + ' 次，堆砌风险'; }
     }
@@ -1179,9 +1063,100 @@ function scoreText(title, bp, desc, st){
     return { totalScore: total, grade, lv, green: g, yellow: y, red: r, anchorResults };
 }
 
-/* ============================================================
-   UI 渲染
-   ============================================================ */
+const engineResults = { ds: null, gm: null };
+
+function renderEnginePanel(engine, result, cosmoScore, a9Score){
+    const prefix = engine;
+    const statusEl = $(prefix === 'ds' ? 'statusDS' : 'statusGM');
+    const cosmoEl = $(prefix === 'ds' ? 'cosmoDS' : 'cosmoGM');
+    const a9El = $(prefix === 'ds' ? 'a9DS' : 'a9GM');
+    const panel = $(prefix === 'ds' ? 'panelDS' : 'panelGM');
+
+    if (!result){
+        statusEl.className = 'ep-status error';
+        statusEl.textContent = '❌ 生成失败';
+        panel.classList.add('errored');
+        return;
+    }
+
+    $(prefix + '_title').value = result.title || '';
+    $(prefix + '_ih').value = result.itemHighlights || '';
+    for (let i = 0; i < 5; i++) $(prefix + '_b' + i).value = (result.bullets || [])[i] || '';
+    $(prefix + '_desc').value = result.description || '';
+    $(prefix + '_st').value = result.searchTerms || '';
+
+    updateEPCounter(prefix);
+    ['title','ih','b0','b1','b2','b3','b4','desc','st'].forEach(f => {
+        const el = $(prefix + '_' + f);
+        if (el && !el._listenerAdded){ el.addEventListener('input', () => updateEPCounter(prefix)); el._listenerAdded = true; }
+    });
+
+    statusEl.className = 'ep-status done';
+    statusEl.textContent = '✅ 完成';
+    if (cosmoScore) cosmoEl.textContent = 'COSMO: ' + cosmoScore.totalScore + ' · ' + cosmoScore.grade;
+    if (a9Score) a9El.textContent = 'A9: ' + a9Score.totalScore + ' · ' + a9Score.grade;
+
+    engineResults[engine] = { result, cosmoScore, a9Score };
+}
+function updateEPCounter(prefix){
+    const t = $(prefix + '_title').value;
+    $(prefix + '_title_c').textContent = t.length + ' / ' + C.titleMax;
+    const ih = $(prefix + '_ih').value;
+    $(prefix + '_ih_c').textContent = ih.length + ' / ' + C.ihMax;
+    const desc = $(prefix + '_desc').value;
+    $(prefix + '_desc_c').textContent = desc.length + ' / ' + C.descMax;
+    const st = $(prefix + '_st').value;
+    $(prefix + '_st_c').textContent = getByteLength(st) + ' / ' + C.stMax + ' 字节';
+}
+
+function adoptEngine(engine){
+    const data = engineResults[engine];
+    if (!data || !data.result){ showToast('该引擎还没有可用结果'); return; }
+    const r = data.result;
+    const t = postTitle(r.title);
+    const ih = postIH(r.itemHighlights);
+    const bs = postBullets(r.bullets);
+    const d = postDesc(r.description);
+    const st = postST(r.searchTerms);
+
+    $('optTitleText').value = t; $('optIhText').value = ih;
+    for (let i = 0; i < 5; i++) $('optBp' + i).value = bs[i] || '';
+    $('optDescText').value = d; $('optStText').value = st;
+
+    updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
+    updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
+    for (let i = 0; i < 5; i++){
+        updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
+        const item = $('optBp' + i).closest('.bp-item');
+        if (item) item.classList.toggle('undersized', bs[i] && bs[i].length > 0 && bs[i].length < C.bulletMin);
+    }
+    updateBpTotal();
+    updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
+    updateCounter('optStText','stCounter',C.stMax,'字节',null);
+    updateExpandBar();
+
+    $('panelDS').classList.toggle('adopted', engine === 'ds');
+    $('panelGM').classList.toggle('adopted', engine === 'gm');
+    $('adoptBtnDS').classList.toggle('adopted', engine === 'ds');
+    $('adoptBtnGM').classList.toggle('adopted', engine === 'gm');
+    $('adoptBtnDS').textContent = engine === 'ds' ? '✅ 已采用' : '采用 DeepSeek 版本';
+    $('adoptBtnGM').textContent = engine === 'gm' ? '✅ 已采用' : '采用 Gemini 版本';
+
+    const banner = $('adoptedBanner');
+    banner.className = 'validation-report';
+    banner.innerHTML = '<div class="report-ttl">🏁 已采用 ' + (engine === 'ds' ? '🔵 DeepSeek' : '🟠 Gemini') + ' 版本 · 下方可继续手动微调</div>' +
+        '<div style="font-size:12.5px;color:#0369a1;">COSMO: ' + (data.cosmoScore?.totalScore || '--') + ' · A9: ' + (data.a9Score?.totalScore || '--') + '</div>';
+    banner.classList.remove('hidden');
+
+    const beforeResult = scoreText($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '');
+    applyAfterScore(beforeResult, parseHotKeywords());
+    const v = validateAll({ title: t, itemHighlights: ih, bullets: bs, description: d, searchTerms: st }, true);
+    renderValidationReport(v.errors, v.warnings, '已采用 ' + (engine === 'ds' ? 'DeepSeek' : 'Gemini'));
+    renderKwHitReport(parseHotKeywords());
+    showToast('已采用 ' + (engine === 'ds' ? 'DeepSeek' : 'Gemini') + ' 版本');
+    $('resultCard').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
 function updateCounter(id, cid, max, unit, min){
     const el = $(id), c = $(cid);
     if (!el || !c) return;
@@ -1191,9 +1166,7 @@ function updateCounter(id, cid, max, unit, min){
     if (len > max) cls += ' over';
     else if (min && len < min) cls += ' under';
     c.className = cls;
-    if (el.classList.contains('optimized-textarea') && min){
-        el.classList.toggle('undersized', len > 0 && len < min);
-    }
+    if (el.classList.contains('optimized-textarea') && min) el.classList.toggle('undersized', len > 0 && len < min);
 }
 function updateBpTotal(){
     let total = 0;
@@ -1237,28 +1210,10 @@ function buildBulletUI(){
         const item = document.createElement('div');
         item.className = 'bp-item';
         item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role' + (roles[i].isSpec ? ' spec' : '') + '">' + roles[i].text + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
-            '<textarea id="optBp' + i + '" placeholder="生成中…"></textarea>' +
+            '<textarea id="optBp' + i + '" placeholder="等待采用某个引擎版本..."></textarea>' +
             '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
         c.appendChild(item);
     }
-}
-function renderResult(t, ih, bs, d, st){
-    $('optTitleText').value = t;
-    $('optIhText').value = ih;
-    for (let i = 0; i < 5; i++) $('optBp' + i).value = bs[i] || '';
-    $('optDescText').value = d;
-    $('optStText').value = st;
-    updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
-    updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
-    for (let i = 0; i < 5; i++){
-        updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
-        const item = $('optBp' + i).closest('.bp-item');
-        if (item) item.classList.toggle('undersized', bs[i] && bs[i].length > 0 && bs[i].length < C.bulletMin);
-    }
-    updateBpTotal();
-    updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
-    updateCounter('optStText','stCounter',C.stMax,'字节',null);
-    updateExpandBar();
 }
 function renderA9Table(r){
     $('a9MatrixBody').innerHTML = r.dimensions.map(d => {
@@ -1270,31 +1225,13 @@ function renderA9Table(r){
         return '<tr><td><span class="cluster-tag a9">A9</span></td><td><span class="anchor-name">'+escapeHtml(d.cn)+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+d.score+' / '+d.max+' 分</span></td><td>'+escapeHtml(d.note)+'</td></tr>';
     }).join('');
 }
-function renderA9Score(a, b){
-    const bb = $('a9ScoreBefore'); bb.className = 'score-badge ' + b.lv; bb.textContent = b.totalScore + ' · ' + b.grade;
-    const ab = $('a9ScoreAfter'); ab.className = 'score-badge ' + a.lv; ab.textContent = a.totalScore + ' · ' + a.grade;
-    const imp = a.totalScore - b.totalScore;
-    const ie = $('a9ScoreImprove');
-    if (imp > 0){ ie.textContent = '⬆ A9 提升 +' + imp + ' 分'; ie.style.color = '#6d28d9'; }
-    else if (imp === 0){ ie.textContent = '→ A9 持平'; ie.style.color = '#64748b'; }
-    else { ie.textContent = '↓ A9 下降 ' + imp + ' 分'; ie.style.color = '#b91c1c'; }
-}
 function applyAfterScore(beforeResult, hotKeywords){
     const t = $('optTitleText').value || '';
     let bp = '';
     for (let i = 0; i < 5; i++) bp += ($('optBp'+i).value || '') + '\n';
     const d = $('optDescText').value || '', st = $('optStText').value || '';
-    const after = scoreText(t, bp, d, st);
-    const ab = $('scoreAfter'); ab.className = 'score-badge ' + after.lv; ab.textContent = after.totalScore + ' · ' + after.grade;
-    const imp = after.totalScore - beforeResult.totalScore;
-    const ie = $('scoreImprove');
-    if (imp > 0){ ie.textContent = '⬆ COSMO 提升 +' + imp + ' 分'; ie.style.color = '#047857'; }
-    else if (imp === 0){ ie.textContent = '→ COSMO 持平'; ie.style.color = '#64748b'; }
-    else { ie.textContent = '↓ COSMO 下降 ' + imp + ' 分'; ie.style.color = '#b91c1c'; }
-    const a9B = scoreA9($('origTitleView').value || '', $('origBpView').value || '', $('origDescView').value || '', $('origStView').value || '', hotKeywords);
     const a9A = scoreA9(t, bp, d, st, hotKeywords);
     renderA9Table(a9A);
-    renderA9Score(a9A, a9B);
 }
 function renderValidationReport(issues, warnings, rounds){
     const report = $('validationReport');
@@ -1303,16 +1240,13 @@ function renderValidationReport(issues, warnings, rounds){
     warnings.forEach(w => all.push({ ...w, severity: 'warn' }));
     if (all.length === 0){
         report.className = 'validation-report';
-        report.innerHTML = '<div class="report-ttl">✅ 全部合格 · 第 ' + rounds + ' 轮通过</div>' +
-            '<div style="font-size:12.5px;color:#166534;">字符数 ✓ &nbsp; 无违禁词 ✓ &nbsp; 无动词错误 ✓</div>';
+        report.innerHTML = '<div class="report-ttl">✅ 全部合格 · ' + rounds + '</div>';
         report.classList.remove('hidden');
         return;
     }
     report.className = 'validation-report has-errors';
     let html = '<div class="report-ttl">⚠️ 共 ' + all.length + ' 项问题（' + rounds + '）</div>';
-    all.forEach(i => {
-        html += '<div class="issue-row ' + i.severity + '"><span class="module-tag">' + escapeHtml(i.module || '未知') + '</span>' + escapeHtml(i.msg || i.message || '') + '</div>';
-    });
+    all.forEach(i => { html += '<div class="issue-row ' + i.severity + '"><span class="module-tag">' + escapeHtml(i.module || '未知') + '</span>' + escapeHtml(i.msg || i.message || '') + '</div>'; });
     report.innerHTML = html;
     report.classList.remove('hidden');
 }
@@ -1341,6 +1275,111 @@ function parseHotKeywords(){
     const raw = ($('hotKeywords').value || '').trim();
     if (!raw) return [];
     return raw.split(/[\n,;|\t]+/).map(w => w.trim().toLowerCase()).filter(w => w.length >= 2 && w.length <= 60).filter((w,i,a) => a.indexOf(w) === i);
+}
+function updateExpandBar(){
+    const bar = $('expandBar');
+    const msg = $('expandMsg');
+    const t = $('optTitleText').value, ih = $('optIhText').value, d = $('optDescText').value;
+    let shortCount = 0;
+    if (t && t.length < C.titleMin) shortCount++;
+    if (ih && ih.length < C.ihMin) shortCount++;
+    for (let i = 0; i < 5; i++){ const b = $('optBp' + i).value; if (b && b.length < C.bulletMin) shortCount++; }
+    if (d && d.length < C.descMin) shortCount++;
+    if (shortCount > 0){ bar.classList.remove('hidden'); msg.textContent = '检测到 ' + shortCount + ' 处字数不足，可一键补全'; }
+    else bar.classList.add('hidden');
+}
+
+async function expandAll(){
+    const btn = $('expandBtn');
+    btn.disabled = true; btn.textContent = '⏳ 补全中…';
+    try {
+        const cur = {
+            title: $('optTitleText').value.trim(), itemHighlights: $('optIhText').value.trim(),
+            bullets: [0,1,2,3,4].map(i => $('optBp' + i).value.trim()),
+            description: $('optDescText').value.trim(), searchTerms: $('optStText').value.trim()
+        };
+        const shortItems = [];
+        if (cur.title && cur.title.length < C.titleMin) shortItems.push({ module:'标题', msg:'仅 ' + cur.title.length + ' 字符' });
+        if (cur.itemHighlights && cur.itemHighlights.length < C.ihMin) shortItems.push({ module:'亮点', msg:'仅 ' + cur.itemHighlights.length + ' 字符' });
+        cur.bullets.forEach((b, i) => { if (b && b.length < C.bulletMin) shortItems.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); });
+        if (cur.description && cur.description.length < C.descMin) shortItems.push({ module:'描述', msg:'仅 ' + cur.description.length + ' 字符' });
+        if (shortItems.length === 0){ showToast('所有模块都已达标'); btn.disabled = false; btn.textContent = '✨ 一键补全字数'; return; }
+
+        const customNote = $('reqBp').value.trim() ? '\n⚠️ 用户对第 1 点的格式要求（必须保持）：' + $('reqBp').value.trim() + '\n' : '';
+        const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下扩写。
+${customNote}
+【当前内容】
+标题（${cur.title.length}字符）：${cur.title}
+
+Item Highlights（${cur.itemHighlights.length}字符）：${cur.itemHighlights}
+
+五点：
+${cur.bullets.map((b, i) => '第 ' + (i+1) + ' 点（' + b.length + '字符）：' + b).join('\n')}
+
+描述（${cur.description.length}字符）：
+${cur.description}
+
+【字数要求】
+· 标题：${C.titleMin}-${C.titleMax} 字符
+· IH：${C.ihMin}-${C.ihMax} 字符
+· 五点：每条 ≥${C.bulletMin} 字符
+· 描述：≥${C.descMin} 字符
+
+【扩写原则】
+1. 保持原文事实不变，严禁编造
+2. 只做"扩写"，不做"改写"
+3. 通过添加细节描述、举例场景、补充受益点来增加字数
+4. 只输出字数不足的部分
+5. 每条结尾不加句号
+6. ⚠️ 第 1 点如果字数不足，通过补充更多规格细节来扩写，不要加叙事动词
+
+【输出格式】
+[TITLE]
+[/TITLE]
+[IH]
+[/IH]
+[BULLET1]
+[/BULLET1]
+[BULLET2]
+[/BULLET2]
+[BULLET3]
+[/BULLET3]
+[BULLET4]
+[/BULLET4]
+[BULLET5]
+[/BULLET5]
+[DESC]
+[/DESC]
+[ST]
+[/ST]`;
+
+        const rawText = await callDeepSeek([
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。第 1 点保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。只输出指定格式。' },
+            { role: 'user', content: prompt }
+        ]);
+        const parsed = parseStructuredOutput(rawText);
+        if (parsed.title && parsed.title.length >= C.titleMin && cur.title.length < C.titleMin) $('optTitleText').value = parsed.title;
+        if (parsed.itemHighlights && parsed.itemHighlights.length >= C.ihMin && cur.itemHighlights.length < C.ihMin) $('optIhText').value = parsed.itemHighlights;
+        for (let i = 0; i < 5; i++){ if (parsed.bullets[i] && parsed.bullets[i].length >= C.bulletMin && cur.bullets[i].length < C.bulletMin) $('optBp' + i).value = parsed.bullets[i]; }
+        if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
+
+        updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
+        updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
+        for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
+        updateBpTotal();
+        updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
+        updateExpandBar();
+        const beforeResult = scoreText($('origTitleView').value, $('origBpView').value, $('origDescView').value, $('origStView').value);
+        applyAfterScore(beforeResult, parseHotKeywords());
+        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value }, true);
+        renderValidationReport(v.errors, v.warnings, '补全后');
+        showToast('补全完成');
+    } catch (err){
+        console.error('补全失败', err);
+        showToast('补全失败：' + err.message);
+    } finally {
+        btn.disabled = false; btn.textContent = '✨ 一键补全字数';
+    }
 }
 
 async function copyText(elementId, btn){
@@ -1379,7 +1418,6 @@ function loadSample(){
     $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
     $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
     $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
-    runAnalysis();
 }
 function clearAll(){
     ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });
@@ -1387,7 +1425,7 @@ function clearAll(){
     showToast('已清空');
 }
 
-async function runAnalysis(){
+async function runDualEngines(){
     const titleRaw = $('productTitle').value.trim();
     const bpRaw = $('bulletPoints').value.trim();
     const descRaw = $('description').value.trim();
@@ -1397,42 +1435,38 @@ async function runAnalysis(){
         title: $('reqTitle').value.trim(), ih: $('reqIh').value.trim(),
         bp: $('reqBp').value.trim(), desc: $('reqDesc').value.trim(), st: $('reqSt').value.trim()
     };
+    const useDS = $('useDeepSeek').checked;
+    const useGM = $('useGemini').checked;
 
     if (!titleRaw && !bpRaw && !descRaw){ showToast('请至少填写标题或商品信息'); return; }
+    if (!useDS && !useGM){ showToast('请至少勾选一个引擎'); return; }
+    if (useGM && !getGeminiKey()){ showToast('⚠️ 已勾选 Gemini 但未配置 API Key，请在顶部填写'); return; }
 
     resetPipeline();
     $('validationReport').classList.add('hidden');
+    $('adoptedBanner').classList.add('hidden');
     $('expandBar').classList.add('hidden');
+    $('panelDS').classList.remove('adopted', 'errored');
+    $('panelGM').classList.remove('adopted', 'errored');
+    $('adoptBtnDS').classList.remove('adopted');
+    $('adoptBtnGM').classList.remove('adopted');
+    $('adoptBtnDS').textContent = '✅ 采用 DeepSeek 版本';
+    $('adoptBtnGM').textContent = '✅ 采用 Gemini 版本';
+    engineResults.ds = null; engineResults.gm = null;
+
+    ['ds','gm'].forEach(p => {
+        $(p + '_title').value = ''; $(p + '_ih').value = '';
+        for (let i = 0; i < 5; i++) $(p + '_b' + i).value = '';
+        $(p + '_desc').value = ''; $(p + '_st').value = '';
+        updateEPCounter(p);
+    });
+    $('statusDS').className = 'ep-status'; $('statusDS').textContent = useDS ? '排队中…' : '未启用';
+    $('statusGM').className = 'ep-status'; $('statusGM').textContent = useGM ? '排队中…' : '未启用';
+    $('cosmoDS').textContent = 'COSMO: --'; $('a9DS').textContent = 'A9: --';
+    $('cosmoGM').textContent = 'COSMO: --'; $('a9GM').textContent = 'A9: --';
 
     $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw;
     $('origDescView').value = descRaw; $('origStView').value = stRaw;
-
-    const beforeResult = scoreText(titleRaw, bpRaw, descRaw, stRaw);
-    const a9Before = scoreA9(titleRaw, bpRaw, descRaw, stRaw, hotKeywords);
-
-    $('matrixTableBody').innerHTML = beforeResult.anchorResults.map(a => {
-        const chips = a.hits.slice(0,5).map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('') +
-            (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
-        const hitBlock = a.hits.length
-            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个</div>'
-            : '<div style="font-size:12px;color:#b91c1c;">未命中</div>';
-        let sc, st;
-        if (a.level === 'red'){ sc='status-red'; st='🔴 严重缺失'; }
-        else if (a.level === 'yellow'){ sc='status-yellow'; st='🟡 部分覆盖'; }
-        else { sc='status-green'; st='🟢 完美覆盖'; }
-        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td><td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td><td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7</span></td><td>' + hitBlock + '</td><td style="font-size:12px;color:#64748b;">' + (a.level === 'green' ? '✅ 已覆盖' : '💡 生成时会自然融入') + '</td></tr>';
-    }).join('');
-    renderA9Table(a9Before);
-
-    const bb = $('scoreBefore'); bb.className = 'score-badge ' + beforeResult.lv; bb.textContent = beforeResult.totalScore + ' · ' + beforeResult.grade;
-    const ab = $('scoreAfter'); ab.className = 'score-badge'; ab.textContent = '--';
-    $('scoreImprove').textContent = '';
-    renderA9Score(a9Before, a9Before);
-
-    $('statGreen').textContent = '🟢 完美覆盖 ' + beforeResult.green;
-    $('statYellow').textContent = '🟡 部分覆盖 ' + beforeResult.yellow;
-    $('statRed').textContent = '🔴 严重缺失 ' + beforeResult.red;
-    $('targetUrlDisplay').textContent = '基于本地文本独立生成';
 
     const card = $('resultCard');
     card.classList.remove('hidden');
@@ -1441,59 +1475,88 @@ async function runAnalysis(){
     card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
-    const btn = $('analyzeBtn'); const status = $('aiStatus');
-    btn.disabled = true; btn.textContent = '⏳ 生成中…';
-    status.className = 'ai-status loading'; status.classList.remove('hidden');
+    const btn = $('analyzeBtn');
+    const status = $('aiStatus');
+    btn.disabled = true;
+    btn.textContent = '⏳ 双引擎并行生成中…';
+    status.className = 'ai-status loading';
+    status.classList.remove('hidden');
 
     try {
         setStep(1, 'active'); status.textContent = '① 输入净化中…';
         const cleaned = { title: cleanInput(titleRaw), bp: cleanInput(bpRaw), desc: cleanInput(descRaw), st: cleanInput(stRaw) };
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 150));
         setStep(1, 'done');
-        setStep(2, 'active'); status.textContent = '② 分析商品信息…';
-        await new Promise(r => setTimeout(r, 100));
+
+        setStep(2, 'active'); status.textContent = '② 并行调用双引擎…';
+        $('statusDS').className = 'ep-status loading'; $('statusDS').textContent = useDS ? '生成中…' : '未启用';
+        $('statusGM').className = 'ep-status loading'; $('statusGM').textContent = useGM ? '生成中…' : '未启用';
+
+        const promises = [];
+        const engines = [];
+        if (useDS){ promises.push(generateWithSelfFix('ds', cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3)); engines.push('ds'); }
+        if (useGM){ promises.push(generateWithSelfFix('gm', cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3)); engines.push('gm'); }
+
+        const results = await Promise.allSettled(promises);
         setStep(2, 'done');
-        setStep(3, 'active');
-        const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs, 3);
+
+        setStep(3, 'active'); status.textContent = '③ 各自评分中…';
+        for (let i = 0; i < engines.length; i++){
+            const eng = engines[i];
+            const r = results[i];
+            if (r.status === 'fulfilled' && r.value && r.value.result){
+                const rawResult = r.value.result;
+                const finalResult = {
+                    title: postTitle(rawResult.title),
+                    itemHighlights: postIH(rawResult.itemHighlights),
+                    bullets: postBullets(rawResult.bullets),
+                    description: postDesc(rawResult.description),
+                    searchTerms: postST(rawResult.searchTerms)
+                };
+                let bpText = '';
+                for (let j = 0; j < 5; j++) bpText += (finalResult.bullets[j] || '') + '\n';
+                const cosmo = scoreText(finalResult.title, bpText, finalResult.description, finalResult.searchTerms);
+                const a9 = scoreA9(finalResult.title, bpText, finalResult.description, finalResult.searchTerms, hotKeywords);
+                renderEnginePanel(eng, finalResult, cosmo, a9);
+            } else {
+                console.error(eng + ' 引擎失败：', r.reason || r.value?.errors);
+                renderEnginePanel(eng, null, null, null);
+            }
+        }
         setStep(3, 'done');
-        setStep(4, 'active'); status.textContent = '④ 本地校验与后处理…';
-        const finalTitle = postTitle(genResult.result.title);
-        const finalIH = postIH(genResult.result.itemHighlights);
-        const finalBullets = postBullets(genResult.result.bullets);
-        const finalDesc = postDesc(genResult.result.description);
-        const finalST = postST(genResult.result.searchTerms);
-        renderResult(finalTitle, finalIH, finalBullets, finalDesc, finalST);
-        setStep(4, 'done');
-        setStep(5, 'active'); status.textContent = '⑤ 计算得分…';
-        applyAfterScore(beforeResult, hotKeywords);
-        renderKwHitReport(hotKeywords);
-        const v = validateAll({
-            title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST
-        }, true);
-        renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮' + (genResult.passed ? '（通过）' : ''));
-        updateExpandBar();
-        setStep(5, 'done');
-        status.className = genResult.passed ? 'ai-status done' : 'ai-status error';
-        status.textContent = genResult.passed ? '✅ 生成完成（第 ' + genResult.rounds + ' 轮通过）' : '⚠️ 生成完成，仍有问题（已 ' + genResult.rounds + ' 轮）';
+
+        setStep(4, 'active');
+        status.className = 'ai-status done';
+        status.textContent = '✅ 生成完成 · 请点击面板下方"采用"按钮选择最终版本';
+        $('dualGrid').scrollIntoView({ behavior:'smooth', block:'start' });
+
+        const successEngines = engines.filter(e => engineResults[e]);
+        if (successEngines.length === 1){
+            setTimeout(() => { adoptEngine(successEngines[0]); showToast('只有一个引擎成功，已自动采用'); }, 500);
+        }
     } catch (err){
-        console.error('生成失败', err);
+        console.error('双引擎流程失败', err);
         status.className = 'ai-status error';
         status.textContent = '⚠️ 失败：' + err.message;
         showToast('失败：' + err.message);
-        document.querySelectorAll('.pipeline-step.active').forEach(el => { el.classList.remove('active'); el.classList.add('error'); });
     } finally {
-        btn.disabled = false; btn.textContent = '🚀 开始生成高质量 Listing';
+        btn.disabled = false;
+        btn.textContent = '🚀 双引擎并行生成（DeepSeek + Gemini）';
     }
 }
 
-document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); } });
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runDualEngines(); } });
 document.addEventListener('DOMContentLoaded', () => {
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
+    loadGeminiKey();
+    if ($('versionBadge')) $('versionBadge').textContent = '📌 ' + APP_VERSION + '（冻结于 ' + APP_VERSION_DATE + '）';
 });
 if (document.readyState !== 'loading'){
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
+    loadGeminiKey();
+    if ($('versionBadge')) $('versionBadge').textContent = '📌 ' + APP_VERSION + '（冻结于 ' + APP_VERSION_DATE + '）';
 }
 </script>
 
