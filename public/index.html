@@ -188,7 +188,7 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
-       洗图工具 v4 · 亚马逊分位置策略 · 独立模块样式
+       洗图工具 v5 · 支持拖拽排序
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
 
@@ -198,9 +198,12 @@
     .wash-drop .wd-hint{font-size:12px;color:#7c3aed;line-height:1.7;}
 
     .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
-    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;}
     .wash-thumb:hover{box-shadow:0 4px 12px rgba(139,92,246,.15);}
-    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#fafafa;}
+    .wash-thumb:active{cursor:grabbing;}
+    .wash-thumb.dragging{opacity:.4;}
+    .wash-thumb.drag-over{border-color:#8b5cf6;border-width:2px;background:#f5f3ff;}
+    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#fafafa;pointer-events:none;}
     .wash-thumb .wt-name{font-size:10.5px;color:#64748b;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fafafa;}
     .wash-thumb .wt-role{position:absolute;top:4px;left:4px;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;color:#fff;}
     .wash-thumb .wt-role.main{background:#dc2626;}
@@ -210,6 +213,8 @@
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+    .wash-thumb .wt-drag-hint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:10px;color:#fff;background:rgba(139,92,246,.85);padding:2px 8px;border-radius:99px;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap;}
+    .wash-thumb:hover .wt-drag-hint{opacity:1;}
 
     .wash-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
 
@@ -235,7 +240,7 @@
     .wcompare-item .wc-col img{width:100%;border-radius:8px;border:1px solid #e2e8f0;background:#fafafa;display:block;}
 
     /* ============================================================
-       左右双栏布局（新增）
+       左右双栏布局
        ============================================================ */
     .two-col-layout{
         display:grid;
@@ -246,7 +251,7 @@
     .two-col-layout > .col{
         display:flex;
         flex-direction:column;
-        min-width:0;   /* 防止 grid 子项被内容撑破 */
+        min-width:0;
     }
     @media (max-width:1200px){
         .two-col-layout{grid-template-columns:1fr;}
@@ -263,18 +268,14 @@
         <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
-    <!-- ============================================================
-         左右双栏：左=文本优化（输入+结果），右=一键洗图
-         ============================================================ -->
+    <!-- 左右双栏 -->
     <div class="two-col-layout">
 
         <!-- ===== 左栏：文本优化 ===== -->
         <div class="col">
-            <!-- 顶部：输入区 -->
             <div class="card">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <h2 style="margin:0;">📥 输入商品信息与文案</h2>
-                    <button class="btn-sm" onclick="loadSample()">载入表盒示例数据</button>
                 </div>
                 <div class="input-layout">
                     <div class="input-layout-left">
@@ -297,7 +298,6 @@
                 </div>
             </div>
 
-            <!-- 中部：结果区 -->
             <div id="resultCard" class="card hidden">
                 <div class="results-header">
                     <div>
@@ -443,7 +443,7 @@
                     <div class="wd-hint">
                         <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000 → 旋转 0.5° → 调色噪点<br>
                         <b style="color:#2563eb;">第 2 张起 = 副图</b>：裁剪 8px → 加白边 30px → 调色噪点<br>
-                        <span style="font-size:11px;color:#7c3aed;">全程本地 Canvas 处理 · 首次抠图需加载约 80MB 模型（之后走缓存）</span>
+                        <span style="font-size:11px;color:#7c3aed;">💡 上传后可拖拽小图调整顺序，第 1 位自动变主图</span>
                     </div>
                     <input type="file" id="washInput" accept="image/*" multiple hidden>
                 </div>
@@ -470,11 +470,7 @@
 
     </div>
 
-    <!-- ============================================================
-         下方通栏：Gemini Key / 历史统计 / 约束条件
-         ============================================================ -->
-
-    <!-- Gemini Key -->
+    <!-- 下方通栏 -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
@@ -490,7 +486,6 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- 历史统计 -->
     <div class="card history-card">
         <h2>📊 历史优化统计</h2>
         <div class="history-stats">
@@ -536,7 +531,6 @@
         </div>
     </div>
 
-    <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
             <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
@@ -1707,13 +1701,6 @@ async function copyAllBullets(btn){
     } else showToast('复制失败');
 }
 
-function loadSample(){
-    $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
-    $('bulletPoints').value = 'Introductions:\nIf you have a propensity to collect watch, and you\'ve already possessed various watches, how to arrange those gadgets? To well classify those watch and keep them in order, this 10 Compartments High-grade Leather Watch Collection Storage Box is really an ideal choice. It is particularly designed into 10 compartments for recognizing your watch. High-class leather makes this box soft, comfortable and decent as well. With opening style, it is quite easy to operate. This watch box is in so compact size that won\'t take up too much space.\n\nSpecifications:\nTotal Watches: 10\nColor: Black\nDimension: (9.84 x 7.87 x 3.15)"/ (25 x 20 x 8)cm (L x W x H)\nWeight: 38.8oz / 1100g\nExterior Material: PU Leather\nInterior Material: Pearl Fleece Lining\n\nPackage Includes:\n1 x Watch Storage Box';
-    $('description').value = 'Keep your watch collection neat, protected and easy to reach with this 10 compartment leather watch storage box.';
-    $('searchTerms').value = 'watch box organizer leather watch case 10 slot watch storage';
-    $('hotKeywords').value = 'watch box organizer\n10 slot watch case\nleather watch storage\nwatch display box';
-}
 function clearAll(){
     ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     const rc = $('resultCard'); if (rc) rc.classList.add('hidden');
@@ -1829,7 +1816,8 @@ if (document.readyState !== 'loading'){
 }
 
 /* ============================================================
-   洗图工具 v4 · 亚马逊分位置策略 · 独立模块
+   洗图工具 v5 · 支持拖拽排序
+   角色跟位置走：拖到第 1 位 = 主图，第 2 位起 = 副图
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -1837,11 +1825,11 @@ const WashTool = (() => {
     let busy = false;
     let removeBgFn = null;
     let imglyLoaded = false;
+    let dragFromIdx = -1;
 
     const $id = id => document.getElementById(id);
     const uid = () => 'w' + Math.random().toString(36).slice(2, 9);
 
-    // ---------- 懒加载 @imgly/background-removal ----------
     async function ensureImgly(){
         if (imglyLoaded && removeBgFn) return removeBgFn;
         if (!imglyLoaded){
@@ -1854,15 +1842,14 @@ const WashTool = (() => {
         return removeBgFn;
     }
 
-    // ---------- 角色分配 ----------
-    function getRole(idx){
-        return idx === 0 ? 'main' : 'sub';
+    // ---------- 角色分配：位置决定角色 ----------
+    function reassignRoles(){
+        files.forEach((f, i) => { f.role = (i === 0) ? 'main' : 'sub'; });
     }
     function roleLabel(role){
         return role === 'main' ? '主图' : '副图';
     }
 
-    // ---------- 图片加载 ----------
     function loadImage(fileOrBlob){
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -1873,7 +1860,6 @@ const WashTool = (() => {
         });
     }
 
-    // ---------- 工具：加噪点 ----------
     function addNoise(canvas, amount){
         const ctx = canvas.getContext('2d');
         const w = canvas.width, h = canvas.height;
@@ -1889,7 +1875,6 @@ const WashTool = (() => {
         return canvas;
     }
 
-    // ---------- 工具：调亮度/对比度 ----------
     function applyFilters(canvas, brightness, contrast){
         const w = canvas.width, h = canvas.height;
         const out = document.createElement('canvas');
@@ -1904,7 +1889,6 @@ const WashTool = (() => {
         return out;
     }
 
-    // ---------- 主图处理 ----------
     async function processMainImage(file){
         const removeBg = await ensureImgly();
         const fgBlob = await removeBg(file, {
@@ -1943,7 +1927,6 @@ const WashTool = (() => {
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
     }
 
-    // ---------- 副图处理 ----------
     async function processSubImage(file){
         const img = await loadImage(file);
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
@@ -1983,6 +1966,9 @@ const WashTool = (() => {
     async function run(){
         if (busy) return;
         if (!files.length){ showToast('请先上传图片'); return; }
+
+        // 执行前再确保角色与位置一致
+        reassignRoles();
 
         busy = true;
         const wrap = $id('washProgressWrap');
@@ -2082,17 +2068,17 @@ const WashTool = (() => {
         if (wrap) wrap.classList.add('hidden');
         const bar = $id('washProgressBar');
         if (bar) bar.style.width = '0';
-        const cmp = $id('washCompareWrap');
+        const cmp = $('washCompareWrap');
         if (cmp) cmp.classList.add('hidden');
         showToast('已清空');
     }
 
     function addFiles(fileList){
         const arr = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
-        const startIdx = files.length;
-        arr.forEach((f, i) => {
-            files.push({ id: uid(), file: f, role: getRole(startIdx + i), status: 'wait', blob: null, name: f.name });
+        arr.forEach(f => {
+            files.push({ id: uid(), file: f, role: 'sub', status: 'wait', blob: null, name: f.name });
         });
+        reassignRoles();   // 按新顺序重新分配
         renderGrid();
     }
 
@@ -2101,15 +2087,67 @@ const WashTool = (() => {
         if (!grid) return;
         const statusMap = { wait:'待处理', doing:'处理中', done:'✅', err:'❌' };
         const statusCls = { wait:'wait', doing:'doing', done:'done', err:'err' };
-        grid.innerHTML = files.map(f => {
+        grid.innerHTML = files.map((f, idx) => {
             const src = f.blob ? URL.createObjectURL(f.blob) : URL.createObjectURL(f.file);
-            return '<div class="wash-thumb">' +
+            return '<div class="wash-thumb" draggable="true" data-idx="' + idx + '">' +
                 '<span class="wt-role ' + f.role + '">' + roleLabel(f.role) + '</span>' +
                 '<span class="wt-status ' + statusCls[f.status] + '">' + statusMap[f.status] + '</span>' +
                 '<img src="' + src + '" loading="lazy">' +
+                '<div class="wt-drag-hint">↔ 拖动换位</div>' +
                 '<div class="wt-name">' + escapeHtml(f.file.name || '') + '</div>' +
             '</div>';
         }).join('');
+        bindDragEvents();
+    }
+
+    // ---------- 拖拽事件绑定 ----------
+    function bindDragEvents(){
+        const grid = $id('washGrid');
+        if (!grid) return;
+        const thumbs = grid.querySelectorAll('.wash-thumb');
+
+        thumbs.forEach(el => {
+            el.addEventListener('dragstart', e => {
+                if (busy) { e.preventDefault(); return; }
+                dragFromIdx = Number(el.dataset.idx);
+                el.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                try { e.dataTransfer.setData('text/plain', String(dragFromIdx)); } catch(err){}
+            });
+
+            el.addEventListener('dragend', () => {
+                el.classList.remove('dragging');
+                grid.querySelectorAll('.wash-thumb').forEach(t => t.classList.remove('drag-over'));
+            });
+
+            el.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (Number(el.dataset.idx) !== dragFromIdx) el.classList.add('drag-over');
+            });
+
+            el.addEventListener('dragleave', () => {
+                el.classList.remove('drag-over');
+            });
+
+            el.addEventListener('drop', e => {
+                e.preventDefault();
+                el.classList.remove('drag-over');
+                const toIdx = Number(el.dataset.idx);
+                if (dragFromIdx < 0 || dragFromIdx === toIdx) return;
+
+                // 交换两个位置
+                const tmp = files[dragFromIdx];
+                files[dragFromIdx] = files[toIdx];
+                files[toIdx] = tmp;
+
+                // 交换后按位置重新分配角色
+                reassignRoles();
+                dragFromIdx = -1;
+                renderGrid();
+                showToast('已交换位置，角色已更新');
+            });
+        });
     }
 
     function init(){
