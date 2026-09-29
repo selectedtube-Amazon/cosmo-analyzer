@@ -188,7 +188,7 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
-       洗图工具 v6 · 主图加椭圆投影 · 支持拖拽排序
+       洗图工具 v7 · 反射倒影
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
 
@@ -441,7 +441,7 @@
                 <div class="wash-drop" id="washDrop">
                     <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
                     <div class="wd-hint">
-                        <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000（占比 85%）→ 加椭圆投影 → 旋转 0.5° → 调色噪点<br>
+                        <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000（占比 85%）→ 加反射倒影 → 旋转 0.5° → 调色噪点<br>
                         <b style="color:#2563eb;">第 2 张起 = 副图</b>：裁剪 8px → 加白边 30px → 调色噪点<br>
                         <span style="font-size:11px;color:#7c3aed;">💡 上传后可拖拽小图调整顺序，第 1 位自动变主图</span>
                     </div>
@@ -1816,8 +1816,8 @@ if (document.readyState !== 'loading'){
 }
 
 /* ============================================================
-   洗图工具 v6 · 主图加椭圆投影 · 支持拖拽排序
-   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 加椭圆投影 → 旋转 0.5° → 调色噪点 → 重编码
+   洗图工具 v7 · 反射倒影 · 支持拖拽排序
+   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 反射倒影（8%透明，40%高度，垂直渐隐）→ 旋转 0.5° → 调色噪点 → 重编码
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -1888,7 +1888,7 @@ const WashTool = (() => {
         return out;
     }
 
-    // ---------- 主图：AI 抠图 → 白底 → 椭圆投影 → 旋转 → 调色噪点 ----------
+    // ---------- 主图：AI 抠图 → 白底 → 反射倒影 → 旋转 → 调色噪点 ----------
     async function processMainImage(file){
         const removeBg = await ensureImgly();
 
@@ -1906,56 +1906,86 @@ const WashTool = (() => {
         // 2. 加载透明前景
         const fgImg = await loadImage(fgBlob);
 
-        // 3. 白底画布 2000×2000，产品居中占 85%（目标 1700px）
+        // 3. 尺寸与位置计算
         const SIZE = 2000;
-        const TARGET = 1700;
+        const TARGET = 1700;              // 85% 占比
         const canvas = document.createElement('canvas');
         canvas.width = SIZE;
         canvas.height = SIZE;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, SIZE, SIZE);
 
         const scale = Math.min(TARGET / fgImg.width, TARGET / fgImg.height);
         const w = fgImg.width * scale;
         const h = fgImg.height * scale;
 
-        // 4. 先画椭圆投影（在产品下方，产品会盖在阴影上方）
-        const shadowCx = SIZE / 2;
-        const shadowCy = SIZE / 2 + h / 2 + 20;    // 产品底部往下 20px
-        const shadowRx = w * 0.55;                  // 横向半径，比产品稍宽
-        const shadowRy = h * 0.06;                  // 纵向半径，压扁成椭圆
+        // 产品画在画布上方 45% 位置（留出下方空间放倒影）
+        const productCx = SIZE / 2;
+        const productCy = SIZE / 2 - h * 0.05;   // 略微上移，给倒影留空间
 
-        const grad = ctx.createRadialGradient(shadowCx, shadowCy, 0, shadowCx, shadowCy, shadowRx);
-        grad.addColorStop(0,    'rgba(0,0,0,0.14)');
-        grad.addColorStop(0.55, 'rgba(0,0,0,0.06)');
-        grad.addColorStop(1,    'rgba(0,0,0,0)');
+        const angle = 0.5 * Math.PI / 180;        // 旋转 0.5°
 
+        // 4. 白底
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, SIZE, SIZE);
+
+        // 5. 先画倒影：垂直翻转的产品 + 8% 透明度 + 垂直渐隐
+        //    倒影从产品底部开始，只显示产品高度的 40%
+        const reflectH = h * 0.40;
+        const reflectTop = productCy + h / 2;      // 倒影顶部 = 产品底部
+        const reflectCy = reflectTop + reflectH / 2;
+
+        // 用离屏 canvas 画完整的"旋转后产品"，然后用遮罩裁出倒影部分
+        const off = document.createElement('canvas');
+        off.width = w + 20;
+        off.height = h + 20;
+        const offCtx = off.getContext('2d');
+        offCtx.save();
+        offCtx.translate(off.width / 2, off.height / 2);
+        offCtx.rotate(angle);
+        offCtx.drawImage(fgImg, -w / 2, -h / 2, w, h);
+        offCtx.restore();
+
+        // 画倒影：把离屏 canvas 垂直翻转，只取上半部分 40%
         ctx.save();
-        ctx.translate(shadowCx, shadowCy);
-        ctx.scale(1, shadowRy / shadowRx);          // 压扁成椭圆
-        ctx.translate(-shadowCx, -shadowCy);
-        ctx.fillStyle = grad;
+        ctx.globalAlpha = 0.08;                    // 8% 透明度
+
+        // 裁剪区域：只显示倒影的 40% 高度
         ctx.beginPath();
-        ctx.arc(shadowCx, shadowCy, shadowRx, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.rect(productCx - off.width / 2, reflectTop, off.width, reflectH);
+        ctx.clip();
+
+        // 垂直翻转绘制
+        ctx.translate(productCx, reflectTop + reflectH);
+        ctx.scale(1, -1);
+        ctx.drawImage(off, -off.width / 2, 0);
+
         ctx.restore();
 
-        // 5. 画产品（旋转 0.5°），产品盖在阴影上方
-        const angle = 0.5 * Math.PI / 180;
+        // 6. 倒影渐隐遮罩：从顶部（8%不透明）到底部（0%）
+        //    用白底 + 渐变色覆盖方式实现
         ctx.save();
-        ctx.translate(SIZE / 2, SIZE / 2);
+        const grad = ctx.createLinearGradient(0, reflectTop, 0, reflectTop + reflectH);
+        grad.addColorStop(0,   'rgba(255,255,255,0)');   // 顶部：不动（保留倒影）
+        grad.addColorStop(0.7, 'rgba(255,255,255,0.7)'); // 中下：遮掉 70%
+        grad.addColorStop(1,   'rgba(255,255,255,1)');   // 底部：完全遮掉
+        ctx.fillStyle = grad;
+        ctx.fillRect(productCx - off.width / 2 - 10, reflectTop, off.width + 20, reflectH);
+        ctx.restore();
+
+        // 7. 画产品本体（旋转 0.5°）
+        ctx.save();
+        ctx.translate(productCx, productCy);
         ctx.rotate(angle);
         ctx.drawImage(fgImg, -w / 2, -h / 2, w, h);
         ctx.restore();
 
-        // 6. 调色
+        // 8. 调色
         let out = applyFilters(canvas, 1.04, 1.03);
 
-        // 7. 加噪点
+        // 9. 加噪点
         out = addNoise(out, 6);
 
-        // 8. 重编码
+        // 10. 重编码
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
     }
 
