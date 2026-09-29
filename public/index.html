@@ -8,7 +8,7 @@
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:24px 16px;}
-    .container{max-width:1560px;margin:0 auto;}
+    .container{max-width:1900px;margin:0 auto;}
     header{text-align:center;margin-bottom:26px;}
     header h1{margin:0 0 8px;font-size:26px;}
     header p{color:var(--muted);margin:0;font-size:14px;}
@@ -191,14 +191,13 @@
        洗图工具 v4 · 亚马逊分位置策略 · 独立模块样式
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
-    .wash-card h2{margin:0 0 14px;font-size:16px;color:#6d28d9;}
 
     .wash-drop{border:2px dashed #c4b5fd;border-radius:12px;padding:28px;text-align:center;background:#fff;cursor:pointer;transition:.2s;}
     .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
     .wash-drop .wd-ttl{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:6px;}
     .wash-drop .wd-hint{font-size:12px;color:#7c3aed;line-height:1.7;}
 
-    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px;}
+    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
     .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;}
     .wash-thumb:hover{box-shadow:0 4px 12px rgba(139,92,246,.15);}
     .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#fafafa;}
@@ -211,6 +210,12 @@
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+
+    .wash-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
+
+    .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
+    .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
+    .wash-progress-text{font-size:12px;color:#6d28d9;font-weight:600;text-align:center;margin-top:6px;}
 
     .wash-compare-wrap{margin-top:20px;padding-top:18px;border-top:2px dashed #ddd6fe;}
     .wash-compare-wrap .wc-title{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:14px;}
@@ -229,12 +234,23 @@
     .wcompare-item .wc-col.opt .wc-label{background:#dcfce7;color:#166534;}
     .wcompare-item .wc-col img{width:100%;border-radius:8px;border:1px solid #e2e8f0;background:#fafafa;display:block;}
 
-    /* 工具栏：紧贴小图下方 */
-    .wash-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
-
-    .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
-    .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
-    .wash-progress-text{font-size:12px;color:#6d28d9;font-weight:600;text-align:center;margin-top:6px;}
+    /* ============================================================
+       左右双栏布局（新增）
+       ============================================================ */
+    .two-col-layout{
+        display:grid;
+        grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
+        gap:22px;
+        align-items:start;
+    }
+    .two-col-layout > .col{
+        display:flex;
+        flex-direction:column;
+        min-width:0;   /* 防止 grid 子项被内容撑破 */
+    }
+    @media (max-width:1200px){
+        .two-col-layout{grid-template-columns:1fr;}
+    }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -247,169 +263,218 @@
         <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
-    <!-- 顶部：输入区 -->
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2 style="margin:0;">📥 输入商品信息与文案</h2>
-            <button class="btn-sm" onclick="loadSample()">载入表盒示例数据</button>
-        </div>
-        <div class="input-layout">
-            <div class="input-layout-left">
-                <div class="keywords-box">
-                    <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
-                    <textarea id="hotKeywords" placeholder="每行一个"></textarea>
-                    <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
+    <!-- ============================================================
+         左右双栏：左=文本优化（输入+结果），右=一键洗图
+         ============================================================ -->
+    <div class="two-col-layout">
+
+        <!-- ===== 左栏：文本优化 ===== -->
+        <div class="col">
+            <!-- 顶部：输入区 -->
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h2 style="margin:0;">📥 输入商品信息与文案</h2>
+                    <button class="btn-sm" onclick="loadSample()">载入表盒示例数据</button>
+                </div>
+                <div class="input-layout">
+                    <div class="input-layout-left">
+                        <div class="keywords-box">
+                            <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
+                            <textarea id="hotKeywords" placeholder="每行一个"></textarea>
+                            <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
+                        </div>
+                    </div>
+                    <div class="input-layout-right">
+                        <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
+                        <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
+                        <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
+                        <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
+                    <button class="btn ghost" onclick="clearAll()">清空</button>
                 </div>
             </div>
-            <div class="input-layout-right">
-                <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
-                <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
-                <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
+
+            <!-- 中部：结果区 -->
+            <div id="resultCard" class="card hidden">
+                <div class="results-header">
+                    <div>
+                        <h2>📊 Gemini 生成结果 · 双算法评分</h2>
+                        <p id="targetUrlDisplay">基于本地文本独立生成</p>
+                    </div>
+                    <div class="stat-line">
+                        <span id="aiStatus" class="ai-status hidden">生成中…</span>
+                    </div>
+                </div>
+
+                <div class="pipeline-progress" id="pipelineProgress">
+                    <div class="pipeline-step" data-step="1">① 输入净化</div>
+                    <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
+                    <div class="pipeline-step" data-step="3">③ 完整性校验</div>
+                    <div class="pipeline-step" data-step="4">④ 输出</div>
+                </div>
+
+                <div class="score-section">
+                    <div class="score-card cosmo">
+                        <div class="sc-ttl">🧠 COSMO 语义评分</div>
+                        <div class="score-pair">
+                            <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
+                            <div class="score-arrow">→</div>
+                            <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
+                        </div>
+                        <div id="scoreImprove" class="score-improve"></div>
+                    </div>
+                    <div class="score-card a9">
+                        <div class="sc-ttl">🔍 A9 关键词评分</div>
+                        <div class="score-pair">
+                            <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
+                            <div class="score-arrow">→</div>
+                            <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
+                        </div>
+                        <div id="a9ScoreImprove" class="score-improve"></div>
+                    </div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-line">
+                        <span class="line-label">COSMO</span>
+                        <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+                        <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+                        <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+                    </div>
+                </div>
+
+                <div id="validationReport" class="validation-report hidden"></div>
+                <div id="expandBar" class="expand-bar hidden">
+                    <div class="expand-msg" id="expandMsg"></div>
+                    <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="pane pane-left">
+                        <h3>📋 原始文案</h3>
+                        <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
+                        <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
+                        <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
+                        <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
+                    </div>
+                    <div class="pane pane-right">
+                        <h3>✨ Gemini 优化文案</h3>
+                        <div class="copy-section-header">
+                            <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
+                            <div class="header-actions">
+                                <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
+                                <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
+                            </div>
+                        </div>
+                        <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
+                        <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
+
+                        <div class="copy-section-header">
+                            <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
+                            <div class="header-actions">
+                                <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
+                                <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
+                            </div>
+                        </div>
+                        <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
+                        <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
+
+                        <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
+                            <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
+                            <div class="header-actions">
+                                <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
+                                <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
+                            </div>
+                        </div>
+                        <div id="bulletPointsContainer"></div>
+                        <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
+
+                        <div class="copy-section-header" style="margin-top:10px;">
+                            <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
+                            <div class="header-actions">
+                                <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
+                                <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
+                            </div>
+                        </div>
+                        <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
+                        <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
+
+                        <div class="copy-section-header">
+                            <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
+                            <div class="header-actions">
+                                <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
+                                <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
+                            </div>
+                        </div>
+                        <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
+                        <div id="stCounter" class="byte-counter">0 / 250 字节</div>
+                        <div id="kwHitReport" class="validation-report hidden"></div>
+                    </div>
+                </div>
+
+                <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
+                        <tbody id="a9MatrixBody"></tbody>
+                    </table>
+                </div>
+
+                <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
+                        <tbody id="matrixTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <div class="btn-row">
-            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
-            <button class="btn ghost" onclick="clearAll()">清空</button>
+
+        <!-- ===== 右栏：一键洗图 ===== -->
+        <div class="col">
+            <div class="card wash-card">
+                <h2>🧼 一键洗图 · 亚马逊专用策略</h2>
+
+                <div class="wash-drop" id="washDrop">
+                    <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
+                    <div class="wd-hint">
+                        <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000 → 旋转 0.5° → 调色噪点<br>
+                        <b style="color:#2563eb;">第 2 张起 = 副图</b>：裁剪 8px → 加白边 30px → 调色噪点<br>
+                        <span style="font-size:11px;color:#7c3aed;">全程本地 Canvas 处理 · 首次抠图需加载约 80MB 模型（之后走缓存）</span>
+                    </div>
+                    <input type="file" id="washInput" accept="image/*" multiple hidden>
+                </div>
+
+                <div class="wash-grid" id="washGrid"></div>
+
+                <div class="wash-toolbar">
+                    <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
+                    <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
+                    <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
+                </div>
+
+                <div class="wash-progress hidden" id="washProgressWrap">
+                    <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
+                    <div class="wash-progress-text" id="washProgressText">准备中…</div>
+                </div>
+
+                <div class="wash-compare-wrap hidden" id="washCompareWrap">
+                    <div class="wc-title">📊 优化前后对比</div>
+                    <div class="wash-compare-grid" id="washCompareGrid"></div>
+                </div>
+            </div>
         </div>
+
     </div>
 
-    <!-- 中部：结果区 -->
-    <div id="resultCard" class="card hidden">
-        <div class="results-header">
-            <div>
-                <h2>📊 Gemini 生成结果 · 双算法评分</h2>
-                <p id="targetUrlDisplay">基于本地文本独立生成</p>
-            </div>
-            <div class="stat-line">
-                <span id="aiStatus" class="ai-status hidden">生成中…</span>
-            </div>
-        </div>
+    <!-- ============================================================
+         下方通栏：Gemini Key / 历史统计 / 约束条件
+         ============================================================ -->
 
-        <div class="pipeline-progress" id="pipelineProgress">
-            <div class="pipeline-step" data-step="1">① 输入净化</div>
-            <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
-            <div class="pipeline-step" data-step="3">③ 完整性校验</div>
-            <div class="pipeline-step" data-step="4">④ 输出</div>
-        </div>
-
-        <div class="score-section">
-            <div class="score-card cosmo">
-                <div class="sc-ttl">🧠 COSMO 语义评分</div>
-                <div class="score-pair">
-                    <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
-                    <div class="score-arrow">→</div>
-                    <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
-                </div>
-                <div id="scoreImprove" class="score-improve"></div>
-            </div>
-            <div class="score-card a9">
-                <div class="sc-ttl">🔍 A9 关键词评分</div>
-                <div class="score-pair">
-                    <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
-                    <div class="score-arrow">→</div>
-                    <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
-                </div>
-                <div id="a9ScoreImprove" class="score-improve"></div>
-            </div>
-        </div>
-
-        <div class="stat-row">
-            <div class="stat-line">
-                <span class="line-label">COSMO</span>
-                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
-                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
-                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
-            </div>
-        </div>
-
-        <div id="validationReport" class="validation-report hidden"></div>
-        <div id="expandBar" class="expand-bar hidden">
-            <div class="expand-msg" id="expandMsg"></div>
-            <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
-        </div>
-
-        <div class="compare-grid">
-            <div class="pane pane-left">
-                <h3>📋 原始文案</h3>
-                <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
-                <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
-                <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
-                <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
-            </div>
-            <div class="pane pane-right">
-                <h3>✨ Gemini 优化文案</h3>
-                <div class="copy-section-header">
-                    <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
-                    <div class="header-actions">
-                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
-                        <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
-                    </div>
-                </div>
-                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
-                <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
-
-                <div class="copy-section-header">
-                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
-                    <div class="header-actions">
-                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
-                        <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
-                    </div>
-                </div>
-                <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
-                <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
-
-                <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
-                    <div class="header-actions">
-                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
-                        <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
-                    </div>
-                </div>
-                <div id="bulletPointsContainer"></div>
-                <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
-
-                <div class="copy-section-header" style="margin-top:10px;">
-                    <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
-                    <div class="header-actions">
-                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
-                        <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
-                    </div>
-                </div>
-                <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
-                <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
-
-                <div class="copy-section-header">
-                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
-                    <div class="header-actions">
-                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
-                        <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
-                    </div>
-                </div>
-                <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
-                <div id="stCounter" class="byte-counter">0 / 250 字节</div>
-                <div id="kwHitReport" class="validation-report hidden"></div>
-            </div>
-        </div>
-
-        <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
-                <tbody id="a9MatrixBody"></tbody>
-            </table>
-        </div>
-
-        <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
-        <div class="table-wrap">
-            <table>
-                <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
-                <tbody id="matrixTableBody"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ========== 底部：Gemini Key ========== -->
+    <!-- Gemini Key -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
@@ -425,7 +490,7 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- ========== 底部：历史统计 ========== -->
+    <!-- 历史统计 -->
     <div class="card history-card">
         <h2>📊 历史优化统计</h2>
         <div class="history-stats">
@@ -471,44 +536,7 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         洗图工具 v4 · 亚马逊分位置策略
-         工具栏已上移到小图下方
-         ============================================================ -->
-    <div class="card wash-card">
-        <h2>🧼 一键洗图 · 亚马逊专用策略</h2>
-
-        <div class="wash-drop" id="washDrop">
-            <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
-            <div class="wd-hint">
-                <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000 → 旋转 0.5° → 调色噪点<br>
-                <b style="color:#2563eb;">第 2 张起 = 副图</b>：裁剪 8px → 加白边 30px → 调色噪点<br>
-                <span style="font-size:11px;color:#7c3aed;">全程本地 Canvas 处理 · 首次抠图需加载约 80MB 模型（之后走缓存）</span>
-            </div>
-            <input type="file" id="washInput" accept="image/*" multiple hidden>
-        </div>
-
-        <div class="wash-grid" id="washGrid"></div>
-
-        <!-- 工具栏：紧贴小图下方 -->
-        <div class="wash-toolbar">
-            <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
-            <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
-            <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
-        </div>
-
-        <div class="wash-progress hidden" id="washProgressWrap">
-            <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
-            <div class="wash-progress-text" id="washProgressText">准备中…</div>
-        </div>
-
-        <div class="wash-compare-wrap hidden" id="washCompareWrap">
-            <div class="wc-title">📊 优化前后对比</div>
-            <div class="wash-compare-grid" id="washCompareGrid"></div>
-        </div>
-    </div>
-
-    <!-- ========== 底部：约束条件 ========== -->
+    <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
             <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
@@ -1802,9 +1830,6 @@ if (document.readyState !== 'loading'){
 
 /* ============================================================
    洗图工具 v4 · 亚马逊分位置策略 · 独立模块
-   第 1 张主图：AI 抠图 → 白底 2000×2000 → 旋转 0.5° → 调色噪点
-   第 2 张起副图：裁剪 8px → 加白边 30px → 调色噪点
-   工具栏已上移到小图下方
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -1879,11 +1904,9 @@ const WashTool = (() => {
         return out;
     }
 
-    // ---------- 主图处理：AI 抠图 → 白底 → 旋转 0.5° → 调色噪点 → 重编码 ----------
+    // ---------- 主图处理 ----------
     async function processMainImage(file){
         const removeBg = await ensureImgly();
-
-        // 1. 本地 AI 抠图
         const fgBlob = await removeBg(file, {
             progress: (key, current, total) => {
                 if (key.startsWith('fetch')){
@@ -1893,11 +1916,8 @@ const WashTool = (() => {
                 }
             }
         });
-
-        // 2. 加载透明前景
         const fgImg = await loadImage(fgBlob);
 
-        // 3. 合成到 2000×2000 纯白画布，产品居中占 85%
         const SIZE = 2000;
         const TARGET = 1700;
         const canvas = document.createElement('canvas');
@@ -1911,7 +1931,6 @@ const WashTool = (() => {
         const w = fgImg.width * scale;
         const h = fgImg.height * scale;
 
-        // 4. 旋转 0.5°（在白底画布上原地旋转，白底填充无黑角）
         const angle = 0.5 * Math.PI / 180;
         ctx.save();
         ctx.translate(SIZE / 2, SIZE / 2);
@@ -1919,24 +1938,18 @@ const WashTool = (() => {
         ctx.drawImage(fgImg, -w / 2, -h / 2, w, h);
         ctx.restore();
 
-        // 5. 调色
         let out = applyFilters(canvas, 1.04, 1.03);
-
-        // 6. 加噪点
         out = addNoise(out, 6);
-
-        // 7. 重编码
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
     }
 
-    // ---------- 副图处理：裁剪 8px → 加白边 30px → 调色噪点 → 重编码 ----------
+    // ---------- 副图处理 ----------
     async function processSubImage(file){
         const img = await loadImage(file);
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
         const crop = 8;
         const border = 30;
 
-        // 1. 裁剪 8px
         const cw = Math.max(1, w0 - crop * 2);
         const ch = Math.max(1, h0 - crop * 2);
         const cropped = document.createElement('canvas');
@@ -1944,7 +1957,6 @@ const WashTool = (() => {
         cropped.height = ch;
         cropped.getContext('2d').drawImage(img, crop, crop, cw, ch, 0, 0, cw, ch);
 
-        // 2. 加白边 30px
         const bw = cw + border * 2;
         const bh = ch + border * 2;
         const bordered = document.createElement('canvas');
@@ -1955,17 +1967,11 @@ const WashTool = (() => {
         bctx.fillRect(0, 0, bw, bh);
         bctx.drawImage(cropped, border, border);
 
-        // 3. 调色
         let out = applyFilters(bordered, 1.06, 1.05);
-
-        // 4. 加噪点
         out = addNoise(out, 12);
-
-        // 5. 重编码
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.85));
     }
 
-    // ---------- 分发处理 ----------
     async function washOne(item){
         if (item.role === 'main'){
             return await processMainImage(item.file);
@@ -1974,7 +1980,6 @@ const WashTool = (() => {
         }
     }
 
-    // ---------- 批量执行 ----------
     async function run(){
         if (busy) return;
         if (!files.length){ showToast('请先上传图片'); return; }
@@ -2019,7 +2024,6 @@ const WashTool = (() => {
         showToast('洗图完成，共 ' + done + ' 张');
     }
 
-    // ---------- 对比视图 ----------
     function renderCompare(){
         const wrap = $id('washCompareWrap');
         const grid = $id('washCompareGrid');
@@ -2043,7 +2047,6 @@ const WashTool = (() => {
         }).join('');
     }
 
-    // ---------- 打包下载 ----------
     async function downloadZip(){
         const ready = files.filter(f => f.status === 'done' && f.blob);
         if (!ready.length){ showToast('没有可下载的成品'); return; }
@@ -2071,7 +2074,6 @@ const WashTool = (() => {
         showToast('已打包 ' + ready.length + ' 张');
     }
 
-    // ---------- 清空 ----------
     function clear(){
         if (busy) return;
         files = [];
@@ -2080,12 +2082,11 @@ const WashTool = (() => {
         if (wrap) wrap.classList.add('hidden');
         const bar = $id('washProgressBar');
         if (bar) bar.style.width = '0';
-        const cmp = $('washCompareWrap');
+        const cmp = $id('washCompareWrap');
         if (cmp) cmp.classList.add('hidden');
         showToast('已清空');
     }
 
-    // ---------- 上传处理 ----------
     function addFiles(fileList){
         const arr = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
         const startIdx = files.length;
@@ -2111,7 +2112,6 @@ const WashTool = (() => {
         }).join('');
     }
 
-    // ---------- 初始化 ----------
     function init(){
         const drop = $id('washDrop');
         const input = $id('washInput');
