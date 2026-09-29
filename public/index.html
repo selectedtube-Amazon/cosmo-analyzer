@@ -186,14 +186,45 @@
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
     #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
     #toast.show{opacity:1;transform:translate(-50%,0);}
+
+    /* ============================================================
+       洗图工具 · 独立模块样式（追加）
+       ============================================================ */
+    .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
+    .wash-card h2{margin:0 0 14px;font-size:16px;color:#6d28d9;}
+    .wash-drop{border:2px dashed #c4b5fd;border-radius:12px;padding:32px;text-align:center;background:#fff;cursor:pointer;transition:.2s;}
+    .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
+    .wash-drop .wd-ttl{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:6px;}
+    .wash-drop .wd-hint{font-size:12px;color:#7c3aed;}
+    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;}
+    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;}
+    .wash-thumb .wt-name{font-size:10.5px;color:#64748b;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wash-thumb .wt-status{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 6px;border-radius:99px;background:#fff;font-weight:700;}
+    .wash-thumb .wt-status.wait{color:#94a3b8;}
+    .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
+    .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
+    .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+    .wash-skill-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
+    .wash-skill-bar label{font-size:12.5px;font-weight:700;color:#6d28d9;}
+    .wash-skill-bar select{padding:7px 10px;border:1px solid #c4b5fd;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#4c1d95;font-weight:600;}
+    .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
+    .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
+    .wash-progress-text{font-size:12px;color:#6d28d9;font-weight:600;text-align:center;margin-top:6px;}
+    .wash-skill-editor{margin-top:14px;padding:14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;font-size:12.5px;}
+    .wash-skill-editor .wse-row{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed #ede9fe;flex-wrap:wrap;}
+    .wash-skill-editor .wse-row:last-child{border-bottom:none;}
+    .wash-skill-editor .wse-name{flex:1;font-family:monospace;color:#5b21b6;font-weight:600;min-width:100px;}
+    .wash-skill-editor input[type="number"]{width:70px;padding:4px 8px;font-size:12px;border:1px solid #c4b5fd;border-radius:6px;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 多模型容错 · 完整性校验 · 历史统计</p>
+        <p>Gemini 多模型容错 · 完整性校验 · 历史统计 · 一键洗图</p>
         <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
@@ -418,6 +449,37 @@
                     <tbody id="historyListBody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         洗图工具 · 独立卡片（追加）
+         ============================================================ -->
+    <div class="card wash-card">
+        <h2>🧼 一键洗图 · SKILL 批量处理</h2>
+
+        <div class="wash-drop" id="washDrop">
+            <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
+            <div class="wd-hint">支持批量 · 全程本地处理 · 不上传服务器 · 零成本</div>
+            <input type="file" id="washInput" accept="image/*" multiple hidden>
+        </div>
+
+        <div class="wash-grid" id="washGrid"></div>
+
+        <div class="wash-skill-bar">
+            <label>🎯 当前 SKILL：</label>
+            <select id="washSkillSelect"></select>
+            <button class="btn-sm" onclick="WashTool.toggleEditor()">⚙️ 编辑参数</button>
+            <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
+            <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
+            <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
+        </div>
+
+        <div id="washSkillEditor" class="wash-skill-editor hidden"></div>
+
+        <div class="wash-progress hidden" id="washProgressWrap">
+            <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
+            <div class="wash-progress-text" id="washProgressText">准备中…</div>
         </div>
     </div>
 
@@ -1047,7 +1109,6 @@ function validateAll(r){
         const firstLine = b.split(':')[0] || '';
         const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
         if (!hasAllCaps) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点未以全大写小标题开头' });
-        // ★ 第 1 点额外检查：是否有方括号字段标记
         if (idx === 1 && !/\[[A-Z\s]+\]/.test(b)) warnings.push({ module:'五点', msg:'第 1 点未使用 [SIZE] [COLOR] 等方括号字段标记' });
         const trunc = hasTruncation(b, '第 ' + idx + ' 点');
         if (trunc) errors.push({ module:'五点', msg: trunc });
@@ -1713,6 +1774,343 @@ if (document.readyState !== 'loading'){
     renderHistoryCard();
     if ($('versionBadge')) $('versionBadge').textContent = '📌 ' + APP_VERSION + '（冻结于 ' + APP_VERSION_DATE + '）';
 }
+
+/* ============================================================
+   洗图工具 · SKILL 驱动 · 独立模块（追加）
+   不修改任何现有代码，不与现有函数产生任何命名冲突
+   ============================================================ */
+const WashTool = (() => {
+    const SKILL_KEY = 'cosmo_wash_skills_v1';
+    const CONCURRENCY = 4;
+
+    // ---------- 预设 SKILL ----------
+    const DEFAULT_SKILLS = {
+        standard: {
+            name: '标准洗图',
+            steps: [
+                { type: 'crop',      pixels: 1 },
+                { type: 'border',    size: 4, color: '#FFFFFF' },
+                { type: 'brightness', value: 1.02 },
+                { type: 'contrast',  value: 1.01 },
+                { type: 'noise',     amount: 2 },
+                { type: 'encode',    format: 'image/jpeg', quality: 0.93 }
+            ]
+        },
+        light: {
+            name: '轻度洗图',
+            steps: [
+                { type: 'border',    size: 2, color: '#FFFFFF' },
+                { type: 'brightness', value: 1.01 },
+                { type: 'encode',    format: 'image/jpeg', quality: 0.95 }
+            ]
+        },
+        strong: {
+            name: '强度洗图',
+            steps: [
+                { type: 'crop',      pixels: 2 },
+                { type: 'border',    size: 8, color: '#FFFFFF' },
+                { type: 'brightness', value: 1.04 },
+                { type: 'contrast',  value: 1.02 },
+                { type: 'noise',     amount: 4 },
+                { type: 'encode',    format: 'image/jpeg', quality: 0.90 }
+            ]
+        }
+    };
+
+    // ---------- 状态 ----------
+    let skills = {};
+    let files = [];
+    let currentSkillKey = 'standard';
+    let busy = false;
+
+    const $id = id => document.getElementById(id);
+    const uid = () => 'w' + Math.random().toString(36).slice(2, 9);
+
+    // ---------- SKILL 存取 ----------
+    function loadSkills(){
+        try {
+            const raw = localStorage.getItem(SKILL_KEY);
+            if (raw){ skills = JSON.parse(raw); return; }
+        } catch(e){}
+        skills = JSON.parse(JSON.stringify(DEFAULT_SKILLS));
+    }
+    function saveSkills(){
+        try { localStorage.setItem(SKILL_KEY, JSON.stringify(skills)); } catch(e){}
+    }
+    function renderSkillSelect(){
+        const sel = $id('washSkillSelect');
+        if (!sel) return;
+        sel.innerHTML = Object.keys(skills).map(k =>
+            '<option value="' + k + '"' + (k === currentSkillKey ? ' selected' : '') + '>' + skills[k].name + '</option>'
+        ).join('');
+        sel.onchange = e => { currentSkillKey = e.target.value; renderEditor(); };
+    }
+    function renderEditor(){
+        const box = $id('washSkillEditor');
+        if (!box || box.classList.contains('hidden')) return;
+        const skill = skills[currentSkillKey];
+        let html = '<div style="font-weight:700;color:#6d28d9;margin-bottom:8px;">⚙️ ' + skill.name + ' · ' + skill.steps.length + ' 个步骤</div>';
+        skill.steps.forEach((s, i) => {
+            html += '<div class="wse-row"><span class="wse-name">' + (i+1) + '. ' + s.type + '</span>';
+            Object.keys(s).forEach(k => {
+                if (k === 'type' || k === 'color' || k === 'format') return;
+                html += '<label style="font-size:11.5px;color:#7c3aed;">' + k + '</label>' +
+                        '<input type="number" step="0.01" value="' + s[k] + '" onchange="WashTool.updateParam(' + i + ',\'' + k + '\',this.value)">';
+            });
+            html += '</div>';
+        });
+        html += '<div style="margin-top:10px;font-size:11.5px;color:#94a3b8;">修改后自动保存到浏览器</div>';
+        box.innerHTML = html;
+    }
+
+    // ---------- 图片加载 ----------
+    function loadImage(file){
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('图片加载失败')); };
+            img.src = url;
+        });
+    }
+
+    // ---------- 单个步骤执行 ----------
+    function applyStep(srcCanvas, step){
+        const w = srcCanvas.width, h = srcCanvas.height;
+
+        if (step.type === 'crop'){
+            const p = step.pixels || 1;
+            const out = document.createElement('canvas');
+            out.width = w - p * 2;
+            out.height = h - p * 2;
+            out.getContext('2d').drawImage(srcCanvas, p, p, out.width, out.height, 0, 0, out.width, out.height);
+            return out;
+        }
+
+        if (step.type === 'border'){
+            const b = step.size || 4;
+            const out = document.createElement('canvas');
+            out.width = w + b * 2;
+            out.height = h + b * 2;
+            const ctx = out.getContext('2d');
+            ctx.fillStyle = step.color || '#FFFFFF';
+            ctx.fillRect(0, 0, out.width, out.height);
+            ctx.drawImage(srcCanvas, b, b);
+            return out;
+        }
+
+        if (step.type === 'brightness' || step.type === 'contrast'){
+            const out = document.createElement('canvas');
+            out.width = w; out.height = h;
+            const ctx = out.getContext('2d');
+            const filters = [];
+            if (step.type === 'brightness') filters.push('brightness(' + step.value + ')');
+            if (step.type === 'contrast')   filters.push('contrast(' + step.value + ')');
+            ctx.filter = filters.join(' ');
+            ctx.drawImage(srcCanvas, 0, 0);
+            ctx.filter = 'none';
+            return out;
+        }
+
+        if (step.type === 'noise'){
+            const out = document.createElement('canvas');
+            out.width = w; out.height = h;
+            const ctx = out.getContext('2d');
+            ctx.drawImage(srcCanvas, 0, 0);
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const d = imgData.data;
+            const amt = step.amount || 2;
+            for (let i = 0; i < d.length; i += 16){
+                const n = (Math.random() - 0.5) * amt * 2;
+                d[i]   = Math.max(0, Math.min(255, d[i]   + n));
+                d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+                d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+            }
+            ctx.putImageData(imgData, 0, 0);
+            return out;
+        }
+
+        return srcCanvas;
+    }
+
+    // ---------- 处理单张 ----------
+    async function washOne(file, skill){
+        const img = await loadImage(file);
+        let canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+
+        let outBlob = null;
+        for (const step of skill.steps){
+            if (step.type === 'encode'){
+                outBlob = await new Promise(res => {
+                    canvas.toBlob(b => res(b), step.format || 'image/jpeg', step.quality || 0.93);
+                });
+            } else {
+                canvas = applyStep(canvas, step);
+            }
+        }
+        if (!outBlob){
+            outBlob = await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.93));
+        }
+        return outBlob;
+    }
+
+    // ---------- 批量执行 ----------
+    async function run(){
+        if (busy) return;
+        if (!files.length){ showToast('请先上传图片'); return; }
+        const skill = skills[currentSkillKey];
+        if (!skill){ showToast('SKILL 不存在'); return; }
+
+        busy = true;
+        const wrap = $id('washProgressWrap');
+        const bar = $id('washProgressBar');
+        const txt = $id('washProgressText');
+        wrap.classList.remove('hidden');
+
+        let done = 0;
+        const total = files.length;
+
+        const queue = files.slice();
+        async function worker(){
+            while (queue.length){
+                const item = queue.shift();
+                if (!item) break;
+                item.status = 'doing';
+                renderGrid();
+                try {
+                    const blob = await washOne(item.file, skill);
+                    item.blob = blob;
+                    item.name = item.file.name.replace(/\.[^.]+$/, '') + '_washed.jpg';
+                    item.status = 'done';
+                } catch (err){
+                    console.warn('洗图失败', item.file.name, err);
+                    item.status = 'err';
+                }
+                done++;
+                bar.style.width = (done / total * 100) + '%';
+                txt.textContent = '处理中 ' + done + ' / ' + total;
+                renderGrid();
+            }
+        }
+
+        await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
+        txt.textContent = '✅ 完成 ' + done + ' / ' + total;
+        busy = false;
+        showToast('洗图完成，共 ' + done + ' 张');
+    }
+
+    // ---------- 打包下载 ----------
+    async function downloadZip(){
+        const ready = files.filter(f => f.status === 'done' && f.blob);
+        if (!ready.length){ showToast('没有可下载的成品'); return; }
+
+        if (typeof JSZip === 'undefined'){
+            ready.forEach(f => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(f.blob);
+                a.download = f.name;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+            });
+            showToast('已触发 ' + ready.length + ' 个下载');
+            return;
+        }
+
+        const zip = new JSZip();
+        ready.forEach(f => zip.file(f.name, f.blob));
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'washed_' + new Date().toISOString().slice(0,10) + '.zip';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('已打包 ' + ready.length + ' 张');
+    }
+
+    // ---------- 清空 ----------
+    function clear(){
+        if (busy) return;
+        files = [];
+        renderGrid();
+        const wrap = $id('washProgressWrap');
+        if (wrap) wrap.classList.add('hidden');
+        const bar = $id('washProgressBar');
+        if (bar) bar.style.width = '0';
+        showToast('已清空');
+    }
+
+    // ---------- 上传处理 ----------
+    function addFiles(fileList){
+        const arr = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+        arr.forEach(f => {
+            files.push({ id: uid(), file: f, status: 'wait', blob: null, name: f.name });
+        });
+        renderGrid();
+    }
+
+    function renderGrid(){
+        const grid = $id('washGrid');
+        if (!grid) return;
+        const statusMap = { wait:'待处理', doing:'处理中', done:'✅', err:'❌' };
+        const statusCls = { wait:'wait', doing:'doing', done:'done', err:'err' };
+        grid.innerHTML = files.map(f => {
+            const src = f.blob ? URL.createObjectURL(f.blob) : URL.createObjectURL(f.file);
+            return '<div class="wash-thumb">' +
+                '<span class="wt-status ' + statusCls[f.status] + '">' + statusMap[f.status] + '</span>' +
+                '<img src="' + src + '" loading="lazy">' +
+                '<div class="wt-name">' + (f.file.name || '') + '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    // ---------- 参数更新 ----------
+    function updateParam(stepIdx, key, val){
+        const skill = skills[currentSkillKey];
+        if (!skill) return;
+        const num = Number(val);
+        if (!isNaN(num)) skill.steps[stepIdx][key] = num;
+        saveSkills();
+    }
+
+    function toggleEditor(){
+        const box = $id('washSkillEditor');
+        if (!box) return;
+        box.classList.toggle('hidden');
+        if (!box.classList.contains('hidden')) renderEditor();
+    }
+
+    // ---------- 初始化 ----------
+    function init(){
+        loadSkills();
+        renderSkillSelect();
+
+        const drop = $id('washDrop');
+        const input = $id('washInput');
+        if (!drop || !input) return;
+
+        drop.addEventListener('click', () => input.click());
+        input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
+
+        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+        drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+        drop.addEventListener('drop', e => {
+            e.preventDefault();
+            drop.classList.remove('dragover');
+            if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+        });
+    }
+
+    if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    return { run, clear, downloadZip, toggleEditor, updateParam };
+})();
 </script>
 
 </body>
