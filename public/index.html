@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 928版 · 历史统计</title>
+<title>亚马逊 Listing 智能优化系统</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:24px 16px;}
-    .container{max-width:1900px;margin:0 auto;}
-    header{text-align:center;margin-bottom:26px;}
-    header h1{margin:0 0 8px;font-size:26px;}
-    header p{color:var(--muted);margin:0;font-size:14px;}
-    .version-badge{display:inline-block;margin-top:8px;padding:4px 14px;background:linear-gradient(135deg,#fff7ed 0%,#fed7aa 100%);color:#9a3412;border:1px solid #fdba74;border-radius:99px;font-size:12px;font-weight:700;}
-    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:16px;}
+    .container{max-width:1560px;margin:0 auto;}
+    header{text-align:center;margin-bottom:14px;}
+    header h1{margin:0;font-size:20px;color:#334155;}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:18px;border:1px solid rgba(226,232,240,.8);}
     .card h2{margin:0 0 16px;font-size:17px;}
     .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
     label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
@@ -188,74 +186,39 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
-       洗图工具 v7 · 反射倒影
+       洗图工具 v8 · 压缩版（单行紧凑布局）
        ============================================================ */
-    .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
+    .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
+    .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
 
-    .wash-drop{border:2px dashed #c4b5fd;border-radius:12px;padding:28px;text-align:center;background:#fff;cursor:pointer;transition:.2s;}
+    .wash-row{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;}
+
+    .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:10px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;}
     .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
-    .wash-drop .wd-ttl{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:6px;}
-    .wash-drop .wd-hint{font-size:12px;color:#7c3aed;line-height:1.7;}
+    .wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px;}
+    .wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5;}
 
-    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
-    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;}
-    .wash-thumb:hover{box-shadow:0 4px 12px rgba(139,92,246,.15);}
+    .wash-grid{display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-width:60%;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:6px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:60px;height:60px;flex-shrink:0;}
+    .wash-thumb:hover{box-shadow:0 3px 10px rgba(139,92,246,.2);}
     .wash-thumb:active{cursor:grabbing;}
     .wash-thumb.dragging{opacity:.4;}
     .wash-thumb.drag-over{border-color:#8b5cf6;border-width:2px;background:#f5f3ff;}
-    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#fafafa;pointer-events:none;}
-    .wash-thumb .wt-name{font-size:10.5px;color:#64748b;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fafafa;}
-    .wash-thumb .wt-role{position:absolute;top:4px;left:4px;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;color:#fff;}
+    .wash-thumb img{width:100%;height:100%;display:block;object-fit:cover;background:#fafafa;pointer-events:none;}
+    .wash-thumb .wt-role{position:absolute;top:1px;left:1px;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700;color:#fff;line-height:1.2;}
     .wash-thumb .wt-role.main{background:#dc2626;}
     .wash-thumb .wt-role.sub{background:#2563eb;}
-    .wash-thumb .wt-status{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 6px;border-radius:99px;background:#fff;font-weight:700;}
+    .wash-thumb .wt-status{position:absolute;top:1px;right:1px;font-size:8px;padding:1px 3px;border-radius:3px;background:#fff;font-weight:700;line-height:1.2;}
     .wash-thumb .wt-status.wait{color:#94a3b8;}
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
-    .wash-thumb .wt-drag-hint{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:10px;color:#fff;background:rgba(139,92,246,.85);padding:2px 8px;border-radius:99px;opacity:0;transition:.2s;pointer-events:none;white-space:nowrap;}
-    .wash-thumb:hover .wt-drag-hint{opacity:1;}
 
-    .wash-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
+    .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
 
-    .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
+    .wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden;}
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
-    .wash-progress-text{font-size:12px;color:#6d28d9;font-weight:600;text-align:center;margin-top:6px;}
-
-    .wash-compare-wrap{margin-top:20px;padding-top:18px;border-top:2px dashed #ddd6fe;}
-    .wash-compare-wrap .wc-title{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:14px;}
-    .wash-compare-grid{display:flex;flex-direction:column;gap:14px;}
-    .wcompare-item{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px;}
-    .wcompare-item .wc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
-    .wcompare-item .wc-role-tag{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:700;color:#fff;}
-    .wcompare-item .wc-role-tag.main{background:#dc2626;}
-    .wcompare-item .wc-role-tag.sub{background:#2563eb;}
-    .wcompare-item .wc-name{font-size:11.5px;color:#64748b;font-family:monospace;margin-left:8px;}
-    .wcompare-item .wc-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    @media (max-width:640px){.wcompare-item .wc-row{grid-template-columns:1fr;}}
-    .wcompare-item .wc-col{text-align:center;}
-    .wcompare-item .wc-col .wc-label{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;}
-    .wcompare-item .wc-col.orig .wc-label{background:#f1f5f9;color:#475569;}
-    .wcompare-item .wc-col.opt .wc-label{background:#dcfce7;color:#166534;}
-    .wcompare-item .wc-col img{width:100%;border-radius:8px;border:1px solid #e2e8f0;background:#fafafa;display:block;}
-
-    /* ============================================================
-       左右双栏布局
-       ============================================================ */
-    .two-col-layout{
-        display:grid;
-        grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
-        gap:22px;
-        align-items:start;
-    }
-    .two-col-layout > .col{
-        display:flex;
-        flex-direction:column;
-        min-width:0;
-    }
-    @media (max-width:1200px){
-        .two-col-layout{grid-template-columns:1fr;}
-    }
+    .wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -264,213 +227,198 @@
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 多模型容错 · 完整性校验 · 历史统计 · 亚马逊洗图</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
-    <!-- 左右双栏 -->
-    <div class="two-col-layout">
+    <!-- ============================================================
+         洗图工具 · 紧凑横条（在最上面）
+         ============================================================ -->
+    <div class="card wash-card">
+        <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
 
-        <!-- ===== 左栏：文本优化 ===== -->
-        <div class="col">
-            <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                    <h2 style="margin:0;">📥 输入商品信息与文案</h2>
-                </div>
-                <div class="input-layout">
-                    <div class="input-layout-left">
-                        <div class="keywords-box">
-                            <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
-                            <textarea id="hotKeywords" placeholder="每行一个"></textarea>
-                            <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
-                        </div>
-                    </div>
-                    <div class="input-layout-right">
-                        <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-                        <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
-                        <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
-                        <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
-                    </div>
-                </div>
-                <div class="btn-row">
-                    <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
-                    <button class="btn ghost" onclick="clearAll()">清空</button>
-                </div>
+        <div class="wash-row">
+            <div class="wash-drop" id="washDrop">
+                <div class="wd-ttl">📁 拖拽图片或点击选择</div>
+                <div class="wd-hint">第 1 张 = 主图（AI 抠图白底）· 第 2 张起 = 副图（裁剪+白边）</div>
+                <input type="file" id="washInput" accept="image/*" multiple hidden>
             </div>
 
-            <div id="resultCard" class="card hidden">
-                <div class="results-header">
-                    <div>
-                        <h2>📊 Gemini 生成结果 · 双算法评分</h2>
-                        <p id="targetUrlDisplay">基于本地文本独立生成</p>
-                    </div>
-                    <div class="stat-line">
-                        <span id="aiStatus" class="ai-status hidden">生成中…</span>
-                    </div>
-                </div>
+            <div class="wash-grid" id="washGrid"></div>
 
-                <div class="pipeline-progress" id="pipelineProgress">
-                    <div class="pipeline-step" data-step="1">① 输入净化</div>
-                    <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
-                    <div class="pipeline-step" data-step="3">③ 完整性校验</div>
-                    <div class="pipeline-step" data-step="4">④ 输出</div>
-                </div>
-
-                <div class="score-section">
-                    <div class="score-card cosmo">
-                        <div class="sc-ttl">🧠 COSMO 语义评分</div>
-                        <div class="score-pair">
-                            <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
-                            <div class="score-arrow">→</div>
-                            <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
-                        </div>
-                        <div id="scoreImprove" class="score-improve"></div>
-                    </div>
-                    <div class="score-card a9">
-                        <div class="sc-ttl">🔍 A9 关键词评分</div>
-                        <div class="score-pair">
-                            <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
-                            <div class="score-arrow">→</div>
-                            <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
-                        </div>
-                        <div id="a9ScoreImprove" class="score-improve"></div>
-                    </div>
-                </div>
-
-                <div class="stat-row">
-                    <div class="stat-line">
-                        <span class="line-label">COSMO</span>
-                        <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
-                        <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
-                        <span class="stat r" id="statRed">🔴 严重缺失 0</span>
-                    </div>
-                </div>
-
-                <div id="validationReport" class="validation-report hidden"></div>
-                <div id="expandBar" class="expand-bar hidden">
-                    <div class="expand-msg" id="expandMsg"></div>
-                    <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
-                </div>
-
-                <div class="compare-grid">
-                    <div class="pane pane-left">
-                        <h3>📋 原始文案</h3>
-                        <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
-                        <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
-                        <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
-                        <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
-                    </div>
-                    <div class="pane pane-right">
-                        <h3>✨ Gemini 优化文案</h3>
-                        <div class="copy-section-header">
-                            <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
-                            <div class="header-actions">
-                                <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
-                                <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
-                            </div>
-                        </div>
-                        <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
-                        <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
-
-                        <div class="copy-section-header">
-                            <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
-                            <div class="header-actions">
-                                <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
-                                <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
-                            </div>
-                        </div>
-                        <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
-                        <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
-
-                        <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                            <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
-                            <div class="header-actions">
-                                <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
-                                <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
-                            </div>
-                        </div>
-                        <div id="bulletPointsContainer"></div>
-                        <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
-
-                        <div class="copy-section-header" style="margin-top:10px;">
-                            <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
-                            <div class="header-actions">
-                                <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
-                                <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
-                            </div>
-                        </div>
-                        <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
-                        <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
-
-                        <div class="copy-section-header">
-                            <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
-                            <div class="header-actions">
-                                <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
-                                <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
-                            </div>
-                        </div>
-                        <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
-                        <div id="stCounter" class="byte-counter">0 / 250 字节</div>
-                        <div id="kwHitReport" class="validation-report hidden"></div>
-                    </div>
-                </div>
-
-                <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
-                        <tbody id="a9MatrixBody"></tbody>
-                    </table>
-                </div>
-
-                <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
-                        <tbody id="matrixTableBody"></tbody>
-                    </table>
-                </div>
+            <div class="wash-toolbar">
+                <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
+                <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
+                <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
             </div>
         </div>
 
-        <!-- ===== 右栏：一键洗图 ===== -->
-        <div class="col">
-            <div class="card wash-card">
-                <h2>🧼 一键洗图 · 亚马逊专用策略</h2>
-
-                <div class="wash-drop" id="washDrop">
-                    <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
-                    <div class="wd-hint">
-                        <b style="color:#dc2626;">第 1 张 = 主图</b>：AI 抠图 → 白底 2000×2000（占比 85%）→ 加反射倒影 → 旋转 0.5° → 调色噪点<br>
-                        <b style="color:#2563eb;">第 2 张起 = 副图</b>：裁剪 8px → 加白边 30px → 调色噪点<br>
-                        <span style="font-size:11px;color:#7c3aed;">💡 上传后可拖拽小图调整顺序，第 1 位自动变主图</span>
-                    </div>
-                    <input type="file" id="washInput" accept="image/*" multiple hidden>
-                </div>
-
-                <div class="wash-grid" id="washGrid"></div>
-
-                <div class="wash-toolbar">
-                    <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
-                    <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
-                    <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
-                </div>
-
-                <div class="wash-progress hidden" id="washProgressWrap">
-                    <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
-                    <div class="wash-progress-text" id="washProgressText">准备中…</div>
-                </div>
-
-                <div class="wash-compare-wrap hidden" id="washCompareWrap">
-                    <div class="wc-title">📊 优化前后对比</div>
-                    <div class="wash-compare-grid" id="washCompareGrid"></div>
-                </div>
-            </div>
+        <div class="wash-progress hidden" id="washProgressWrap">
+            <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
+            <div class="wash-progress-text" id="washProgressText">准备中…</div>
         </div>
-
     </div>
 
-    <!-- 下方通栏 -->
+    <!-- 顶部：输入区 -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;">📥 输入商品信息与文案</h2>
+        </div>
+        <div class="input-layout">
+            <div class="input-layout-left">
+                <div class="keywords-box">
+                    <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
+                    <textarea id="hotKeywords" placeholder="每行一个"></textarea>
+                    <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
+                </div>
+            </div>
+            <div class="input-layout-right">
+                <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
+                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
+                <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
+                <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
+            <button class="btn ghost" onclick="clearAll()">清空</button>
+        </div>
+    </div>
+
+    <!-- 中部：结果区 -->
+    <div id="resultCard" class="card hidden">
+        <div class="results-header">
+            <div>
+                <h2>📊 Gemini 生成结果 · 双算法评分</h2>
+                <p id="targetUrlDisplay">基于本地文本独立生成</p>
+            </div>
+            <div class="stat-line">
+                <span id="aiStatus" class="ai-status hidden">生成中…</span>
+            </div>
+        </div>
+
+        <div class="pipeline-progress" id="pipelineProgress">
+            <div class="pipeline-step" data-step="1">① 输入净化</div>
+            <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
+            <div class="pipeline-step" data-step="3">③ 完整性校验</div>
+            <div class="pipeline-step" data-step="4">④ 输出</div>
+        </div>
+
+        <div class="score-section">
+            <div class="score-card cosmo">
+                <div class="sc-ttl">🧠 COSMO 语义评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="scoreImprove" class="score-improve"></div>
+            </div>
+            <div class="score-card a9">
+                <div class="sc-ttl">🔍 A9 关键词评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="a9ScoreImprove" class="score-improve"></div>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-line">
+                <span class="line-label">COSMO</span>
+                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+            </div>
+        </div>
+
+        <div id="validationReport" class="validation-report hidden"></div>
+        <div id="expandBar" class="expand-bar hidden">
+            <div class="expand-msg" id="expandMsg"></div>
+            <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
+        </div>
+
+        <div class="compare-grid">
+            <div class="pane pane-left">
+                <h3>📋 原始文案</h3>
+                <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
+                <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
+                <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
+                <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
+            </div>
+            <div class="pane pane-right">
+                <h3>✨ Gemini 优化文案</h3>
+                <div class="copy-section-header">
+                    <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
+                <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
+
+                <div class="copy-section-header">
+                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
+                <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
+
+                <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
+                        <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
+                    </div>
+                </div>
+                <div id="bulletPointsContainer"></div>
+                <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
+
+                <div class="copy-section-header" style="margin-top:10px;">
+                    <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
+                <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
+
+                <div class="copy-section-header">
+                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
+                <div id="stCounter" class="byte-counter">0 / 250 字节</div>
+                <div id="kwHitReport" class="validation-report hidden"></div>
+            </div>
+        </div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
+                <tbody id="a9MatrixBody"></tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
+                <tbody id="matrixTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ========== 底部：Gemini Key ========== -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
@@ -486,6 +434,7 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
+    <!-- ========== 底部：历史统计 ========== -->
     <div class="card history-card">
         <h2>📊 历史优化统计</h2>
         <div class="history-stats">
@@ -531,6 +480,7 @@
         </div>
     </div>
 
+    <!-- ========== 底部：约束条件 ========== -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
             <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
@@ -1805,19 +1755,18 @@ document.addEventListener('DOMContentLoaded', () => {
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
     renderHistoryCard();
-    if ($('versionBadge')) $('versionBadge').textContent = '📌 ' + APP_VERSION + '（冻结于 ' + APP_VERSION_DATE + '）';
 });
 if (document.readyState !== 'loading'){
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
     renderHistoryCard();
-    if ($('versionBadge')) $('versionBadge').textContent = '📌 ' + APP_VERSION + '（冻结于 ' + APP_VERSION_DATE + '）';
 }
 
 /* ============================================================
-   洗图工具 v7 · 反射倒影 · 支持拖拽排序
-   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 反射倒影（8%透明，40%高度，垂直渐隐）→ 旋转 0.5° → 调色噪点 → 重编码
+   洗图工具 v8 · 无阴影无倒影 · 紧凑横条
+   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点 → 重编码
+   副图流程：裁剪 8px → 加白边 30px → 调色噪点 → 重编码
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -1846,7 +1795,7 @@ const WashTool = (() => {
         files.forEach((f, i) => { f.role = (i === 0) ? 'main' : 'sub'; });
     }
     function roleLabel(role){
-        return role === 'main' ? '主图' : '副图';
+        return role === 'main' ? '主' : '副';
     }
 
     function loadImage(fileOrBlob){
@@ -1888,11 +1837,10 @@ const WashTool = (() => {
         return out;
     }
 
-    // ---------- 主图：AI 抠图 → 白底 → 反射倒影 → 旋转 → 调色噪点 ----------
+    // 主图：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点
     async function processMainImage(file){
         const removeBg = await ensureImgly();
 
-        // 1. 本地 AI 抠图
         const fgBlob = await removeBg(file, {
             progress: (key, current, total) => {
                 if (key.startsWith('fetch')){
@@ -1902,94 +1850,34 @@ const WashTool = (() => {
                 }
             }
         });
-
-        // 2. 加载透明前景
         const fgImg = await loadImage(fgBlob);
 
-        // 3. 尺寸与位置计算
         const SIZE = 2000;
-        const TARGET = 1700;              // 85% 占比
+        const TARGET = 1700;
         const canvas = document.createElement('canvas');
         canvas.width = SIZE;
         canvas.height = SIZE;
         const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, SIZE, SIZE);
 
         const scale = Math.min(TARGET / fgImg.width, TARGET / fgImg.height);
         const w = fgImg.width * scale;
         const h = fgImg.height * scale;
 
-        // 产品画在画布上方 45% 位置（留出下方空间放倒影）
-        const productCx = SIZE / 2;
-        const productCy = SIZE / 2 - h * 0.05;   // 略微上移，给倒影留空间
-
-        const angle = 0.5 * Math.PI / 180;        // 旋转 0.5°
-
-        // 4. 白底
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, SIZE, SIZE);
-
-        // 5. 先画倒影：垂直翻转的产品 + 8% 透明度 + 垂直渐隐
-        //    倒影从产品底部开始，只显示产品高度的 40%
-        const reflectH = h * 0.40;
-        const reflectTop = productCy + h / 2;      // 倒影顶部 = 产品底部
-        const reflectCy = reflectTop + reflectH / 2;
-
-        // 用离屏 canvas 画完整的"旋转后产品"，然后用遮罩裁出倒影部分
-        const off = document.createElement('canvas');
-        off.width = w + 20;
-        off.height = h + 20;
-        const offCtx = off.getContext('2d');
-        offCtx.save();
-        offCtx.translate(off.width / 2, off.height / 2);
-        offCtx.rotate(angle);
-        offCtx.drawImage(fgImg, -w / 2, -h / 2, w, h);
-        offCtx.restore();
-
-        // 画倒影：把离屏 canvas 垂直翻转，只取上半部分 40%
+        const angle = 0.5 * Math.PI / 180;
         ctx.save();
-        ctx.globalAlpha = 0.08;                    // 8% 透明度
-
-        // 裁剪区域：只显示倒影的 40% 高度
-        ctx.beginPath();
-        ctx.rect(productCx - off.width / 2, reflectTop, off.width, reflectH);
-        ctx.clip();
-
-        // 垂直翻转绘制
-        ctx.translate(productCx, reflectTop + reflectH);
-        ctx.scale(1, -1);
-        ctx.drawImage(off, -off.width / 2, 0);
-
-        ctx.restore();
-
-        // 6. 倒影渐隐遮罩：从顶部（8%不透明）到底部（0%）
-        //    用白底 + 渐变色覆盖方式实现
-        ctx.save();
-        const grad = ctx.createLinearGradient(0, reflectTop, 0, reflectTop + reflectH);
-        grad.addColorStop(0,   'rgba(255,255,255,0)');   // 顶部：不动（保留倒影）
-        grad.addColorStop(0.7, 'rgba(255,255,255,0.7)'); // 中下：遮掉 70%
-        grad.addColorStop(1,   'rgba(255,255,255,1)');   // 底部：完全遮掉
-        ctx.fillStyle = grad;
-        ctx.fillRect(productCx - off.width / 2 - 10, reflectTop, off.width + 20, reflectH);
-        ctx.restore();
-
-        // 7. 画产品本体（旋转 0.5°）
-        ctx.save();
-        ctx.translate(productCx, productCy);
+        ctx.translate(SIZE / 2, SIZE / 2);
         ctx.rotate(angle);
         ctx.drawImage(fgImg, -w / 2, -h / 2, w, h);
         ctx.restore();
 
-        // 8. 调色
         let out = applyFilters(canvas, 1.04, 1.03);
-
-        // 9. 加噪点
         out = addNoise(out, 6);
-
-        // 10. 重编码
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
     }
 
-    // ---------- 副图：裁剪 8px → 加白边 30px → 调色噪点 → 重编码 ----------
+    // 副图：裁剪 8px → 加白边 30px → 调色噪点
     async function processSubImage(file){
         const img = await loadImage(file);
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
@@ -2068,31 +1956,7 @@ const WashTool = (() => {
         await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
         txt.textContent = '✅ 完成 ' + done + ' / ' + total;
         busy = false;
-        renderCompare();
         showToast('洗图完成，共 ' + done + ' 张');
-    }
-
-    function renderCompare(){
-        const wrap = $id('washCompareWrap');
-        const grid = $id('washCompareGrid');
-        if (!wrap || !grid) return;
-        const ready = files.filter(f => f.status === 'done' && f.blob);
-        if (!ready.length){ wrap.classList.add('hidden'); return; }
-        wrap.classList.remove('hidden');
-        grid.innerHTML = ready.map((f, idx) => {
-            const origUrl = URL.createObjectURL(f.file);
-            const optUrl = URL.createObjectURL(f.blob);
-            return '<div class="wcompare-item">' +
-                '<div class="wc-head">' +
-                    '<span><span class="wc-role-tag ' + f.role + '">' + roleLabel(f.role) + '</span>' +
-                    '<span class="wc-name">#' + (idx+1) + ' · ' + escapeHtml(f.name) + '</span></span>' +
-                '</div>' +
-                '<div class="wc-row">' +
-                    '<div class="wc-col orig"><div class="wc-label">原图</div><img src="' + origUrl + '" loading="lazy"></div>' +
-                    '<div class="wc-col opt"><div class="wc-label">优化后</div><img src="' + optUrl + '" loading="lazy"></div>' +
-                '</div>' +
-            '</div>';
-        }).join('');
     }
 
     async function downloadZip(){
@@ -2130,8 +1994,6 @@ const WashTool = (() => {
         if (wrap) wrap.classList.add('hidden');
         const bar = $id('washProgressBar');
         if (bar) bar.style.width = '0';
-        const cmp = $('washCompareWrap');
-        if (cmp) cmp.classList.add('hidden');
         showToast('已清空');
     }
 
@@ -2147,16 +2009,14 @@ const WashTool = (() => {
     function renderGrid(){
         const grid = $id('washGrid');
         if (!grid) return;
-        const statusMap = { wait:'待处理', doing:'处理中', done:'✅', err:'❌' };
+        const statusMap = { wait:'·', doing:'⏳', done:'✓', err:'✗' };
         const statusCls = { wait:'wait', doing:'doing', done:'done', err:'err' };
         grid.innerHTML = files.map((f, idx) => {
             const src = f.blob ? URL.createObjectURL(f.blob) : URL.createObjectURL(f.file);
-            return '<div class="wash-thumb" draggable="true" data-idx="' + idx + '">' +
+            return '<div class="wash-thumb" draggable="true" data-idx="' + idx + '" title="' + escapeHtml(f.file.name || '') + '">' +
                 '<span class="wt-role ' + f.role + '">' + roleLabel(f.role) + '</span>' +
                 '<span class="wt-status ' + statusCls[f.status] + '">' + statusMap[f.status] + '</span>' +
                 '<img src="' + src + '" loading="lazy">' +
-                '<div class="wt-drag-hint">↔ 拖动换位</div>' +
-                '<div class="wt-name">' + escapeHtml(f.file.name || '') + '</div>' +
             '</div>';
         }).join('');
         bindDragEvents();
