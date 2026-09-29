@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 928版 · 完整性校验 · 历史统计</title>
+<title>亚马逊 Listing 智能优化系统 · 928版 · 历史统计</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
@@ -152,7 +152,7 @@
     .copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
     .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;flex:1;}
     .copy-section-header .header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;}
-    .custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:180px;background:#fff;color:#166534;}
+    .custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:200px;background:#fff;color:#166534;}
     .custom-req-input::placeholder{color:#86efac;font-style:italic;}
     .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap;}
     .copy-btn:hover{background:#059669;}
@@ -197,116 +197,7 @@
         <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
-    <div class="card apikey-card">
-        <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
-        <div class="key-hint">
-            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
-            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
-            <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
-            <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
-            <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
-        </div>
-        <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
-    </div>
-
-    <!-- ★ 历史统计卡片 -->
-    <div class="card history-card">
-        <h2>📊 历史优化统计</h2>
-        <div class="history-stats">
-            <div class="history-stat-item">
-                <div class="hsi-label">已优化总数</div>
-                <div class="hsi-value" id="statTotal">0</div>
-            </div>
-            <div class="history-stat-item today">
-                <div class="hsi-label">今日</div>
-                <div class="hsi-value" id="statToday">0</div>
-            </div>
-            <div class="history-stat-item week">
-                <div class="hsi-label">近 7 天</div>
-                <div class="hsi-value" id="statWeek">0</div>
-            </div>
-            <div class="history-stat-item month">
-                <div class="hsi-label">本月</div>
-                <div class="hsi-value" id="statMonth">0</div>
-            </div>
-        </div>
-        <div class="history-list-wrap">
-            <div class="history-list-header">
-                <span class="hlh-ttl">📋 历史记录</span>
-                <div class="history-actions">
-                    <button class="btn-sm gray" onclick="toggleHistoryList()" id="historyToggleBtn">展开全部 ▼</button>
-                    <button class="btn-sm green" onclick="exportHistoryCSV()">导出 CSV</button>
-                    <button class="btn-sm red" onclick="clearHistory()">清空历史</button>
-                </div>
-            </div>
-            <div class="table-wrap" style="margin-bottom:0;max-height:420px;overflow-y:auto;">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th style="width:16%;">时间</th>
-                            <th style="width:33%;">原标题</th>
-                            <th style="width:33%;">优化后标题</th>
-                            <th style="width:18%;">模型</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyListBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card constraint-card">
-        <div class="constraint-header" onclick="toggleConstraints()">
-            <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
-            <span class="toggle-hint" id="constraintToggle">展开 ▼</span>
-        </div>
-        <div class="constraint-body hidden" id="constraintBody">
-            <div class="constraint-section">
-                <div class="sec-title">📏 字数硬约束</div>
-                <div class="num-grid">
-                    <div class="num-item"><label>标题 · 最小</label><input type="number" id="c_titleMin"></div>
-                    <div class="num-item"><label>标题 · 最大</label><input type="number" id="c_titleMax"></div>
-                    <div class="num-item"><label>IH · 最小</label><input type="number" id="c_ihMin"></div>
-                    <div class="num-item"><label>IH · 最大</label><input type="number" id="c_ihMax"></div>
-                    <div class="num-item"><label>五点 · 每条最小</label><input type="number" id="c_bulletMin"></div>
-                    <div class="num-item"><label>五点 · 每条最大</label><input type="number" id="c_bulletMax"></div>
-                    <div class="num-item"><label>五点 · 合计上限</label><input type="number" id="c_bulletTotal"></div>
-                    <div class="num-item"><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
-                    <div class="num-item"><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
-                    <div class="num-item"><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
-                </div>
-            </div>
-            <div class="constraint-section">
-                <div class="sec-title">🚫 违禁词清单（每行一个）</div>
-                <textarea id="c_forbidden" class="forbidden-ta"></textarea>
-            </div>
-            <div class="constraint-section">
-                <div class="sec-title">📝 规则文本</div>
-                <div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
-                <div class="rule-item"><label>Item Highlights 规则</label><textarea id="c_ruleIH"></textarea></div>
-                <div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
-                <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
-                <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
-                <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
-            </div>
-            <div class="constraint-section">
-                <div class="sec-title">📖 参考范例</div>
-                <textarea id="c_example" class="example-ta"></textarea>
-            </div>
-            <div class="constraint-footer">
-                <div class="status" id="constraintStatus">已保存到浏览器</div>
-                <div style="display:flex;gap:8px;">
-                    <button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
-                    <button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
-                    <button class="btn-sm red" onclick="resetConstraints()">恢复默认</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- 顶部：输入区 -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h2 style="margin:0;">📥 输入商品信息与文案</h2>
@@ -333,6 +224,7 @@
         </div>
     </div>
 
+    <!-- 中部：结果区 -->
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
@@ -466,6 +358,118 @@
             </table>
         </div>
     </div>
+
+    <!-- ========== 底部：Gemini Key ========== -->
+    <div class="card apikey-card">
+        <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
+        <div class="key-hint">
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
+            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
+            <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
+            <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
+            <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
+        </div>
+        <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
+    </div>
+
+    <!-- ========== 底部：历史统计 ========== -->
+    <div class="card history-card">
+        <h2>📊 历史优化统计</h2>
+        <div class="history-stats">
+            <div class="history-stat-item">
+                <div class="hsi-label">已优化总数</div>
+                <div class="hsi-value" id="statTotal">0</div>
+            </div>
+            <div class="history-stat-item today">
+                <div class="hsi-label">今日</div>
+                <div class="hsi-value" id="statToday">0</div>
+            </div>
+            <div class="history-stat-item week">
+                <div class="hsi-label">近 7 天</div>
+                <div class="hsi-value" id="statWeek">0</div>
+            </div>
+            <div class="history-stat-item month">
+                <div class="hsi-label">本月</div>
+                <div class="hsi-value" id="statMonth">0</div>
+            </div>
+        </div>
+        <div class="history-list-wrap">
+            <div class="history-list-header">
+                <span class="hlh-ttl">📋 历史记录</span>
+                <div class="history-actions">
+                    <button class="btn-sm gray" onclick="toggleHistoryList()" id="historyToggleBtn">展开全部 ▼</button>
+                    <button class="btn-sm green" onclick="exportHistoryCSV()">导出 CSV</button>
+                    <button class="btn-sm red" onclick="clearHistory()">清空历史</button>
+                </div>
+            </div>
+            <div class="table-wrap" style="margin-bottom:0;max-height:420px;overflow-y:auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th style="width:16%;">时间</th>
+                            <th style="width:33%;">原标题</th>
+                            <th style="width:33%;">优化后标题</th>
+                            <th style="width:18%;">模型</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyListBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 底部：约束条件 ========== -->
+    <div class="card constraint-card">
+        <div class="constraint-header" onclick="toggleConstraints()">
+            <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
+            <span class="toggle-hint" id="constraintToggle">展开 ▼</span>
+        </div>
+        <div class="constraint-body hidden" id="constraintBody">
+            <div class="constraint-section">
+                <div class="sec-title">📏 字数硬约束</div>
+                <div class="num-grid">
+                    <div class="num-item"><label>标题 · 最小</label><input type="number" id="c_titleMin"></div>
+                    <div class="num-item"><label>标题 · 最大</label><input type="number" id="c_titleMax"></div>
+                    <div class="num-item"><label>IH · 最小</label><input type="number" id="c_ihMin"></div>
+                    <div class="num-item"><label>IH · 最大</label><input type="number" id="c_ihMax"></div>
+                    <div class="num-item"><label>五点 · 每条最小</label><input type="number" id="c_bulletMin"></div>
+                    <div class="num-item"><label>五点 · 每条最大</label><input type="number" id="c_bulletMax"></div>
+                    <div class="num-item"><label>五点 · 合计上限</label><input type="number" id="c_bulletTotal"></div>
+                    <div class="num-item"><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
+                    <div class="num-item"><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
+                    <div class="num-item"><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
+                </div>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">🚫 违禁词清单（每行一个）</div>
+                <textarea id="c_forbidden" class="forbidden-ta"></textarea>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">📝 规则文本</div>
+                <div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
+                <div class="rule-item"><label>Item Highlights 规则</label><textarea id="c_ruleIH"></textarea></div>
+                <div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
+                <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
+                <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
+                <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">📖 参考范例</div>
+                <textarea id="c_example" class="example-ta"></textarea>
+            </div>
+            <div class="constraint-footer">
+                <div class="status" id="constraintStatus">已保存到浏览器</div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
+                    <button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
+                    <button class="btn-sm red" onclick="resetConstraints()">恢复默认</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -515,7 +519,7 @@ function formatDateTime(ts){
 }
 
 /* ============================================================
-   ★ 历史统计模块
+   历史统计模块
    ============================================================ */
 function loadHistory(){
     try {
@@ -592,7 +596,6 @@ function exportHistoryCSV(){
         const dateStr = d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
         rows.push([dateStr, x.ot || '', x.nt || '', x.m || '']);
     });
-    // BOM 头保证 Excel 正确识别中文
     const csv = '\ufeff' + rows.map(r => r.map(f => '"' + String(f).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -663,9 +666,9 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v15）
+   约束条件（v16）—— 第 1 点字段改为 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 形式
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v15';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
@@ -675,11 +678,11 @@ const DEFAULT_CONSTRAINTS = {
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如 "10-Slot" 比 "10 Compartments" 更优。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
-    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照】\n· 大写标题建议：COMPLETE SET 或 FULL SPECS 或 PRODUCT SPECS\n· 标题后只列【关键规格参数】和【订单包含内容】。\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！\n⚠️⚠️ 必须完整输出 BULLET1 到 BULLET5 全部 5 点，一个都不能少！`,
+    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照 · 重要】\n· 大写标题建议：PRODUCT SPECS 或 FULL SPECS 或 COMPLETE SET\n· 标题后必须用【[字段名] 值】的形式罗列规格，每个字段独立，用分号或句号分隔。\n· 必须使用的字段标记（按顺序）：[SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]\n· ⚠️ 字段标记必须用方括号大写，例如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 正确示例：PRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n· ❌ 错误示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz.（这里没用方括号标记，不合格）\n· ⚠️ 如果原文缺少某个字段（比如没有重量），就不要输出该字段标记，不要编造。\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出（用方括号形式）。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！\n⚠️⚠️ 必须完整输出 BULLET1 到 BULLET5 全部 5 点，一个都不能少！`,
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
     ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）\n⚠️⚠️ 必须完整输出 [/ST] 结束标签，不能中途截断！`,
-    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量。\n· 原文没有 Package Includes，就不要虚构包装清单。`,
-    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头】\n\n第 1 点：\nCOMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz. PU leather exterior with pearl fleece lining. Package includes 1 x Watch Storage Box\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces`
+    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量，也不要输出 [WEIGHT] 标记。\n· 原文没有 Package Includes，就不要虚构包装清单，也不要输出 [PACKAGE INCLUDES] 标记。`,
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头，第 1 点用 [字段] 标记】\n\n第 1 点：\nPRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -823,7 +826,7 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         (customReqs.bp ? '· 五点描述：' + customReqs.bp + '\n' : '') +
         (customReqs.desc ? '· 详细描述：' + customReqs.desc + '\n' : '') +
         (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '') +
-        '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成！\n' : '';
+        '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成（用方括号形式 [FIELD]）！\n' : '';
 
     let prevErrorBlock = '';
     if (prevErrors && prevErrors.length && prevContent){
@@ -873,7 +876,7 @@ ${C.example}
 ━━━━━━━━━━━━━━ 规则 ━━━━━━━━━━━━━━
 【标题规则】${C.ruleTitle}
 【IH 规则】${C.ruleIH}
-【五点规则 · 每条必须用全大写小标题开头】${C.ruleBullets}
+【五点规则 · 每条必须用全大写小标题开头 · 第 1 点必须用方括号字段标记】${C.ruleBullets}
 【描述规则】${C.ruleDesc}
 【ST 规则】${C.ruleST}
 【保真原则】${C.ruleFidelity}
@@ -894,7 +897,7 @@ Item Highlights
 [/IH]
 
 [BULLET1]
-大写标题: 内容
+大写标题: [字段1] 值1; [字段2] 值2; ...
 [/BULLET1]
 
 [BULLET2]
@@ -922,7 +925,7 @@ Item Highlights
 [/ST]`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式（如用户指定 Size,Color,Weight,Package Includes），必须严格按指定顺序输出。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。大写标题建议 2-5 个单词，不能带标点，直接跟冒号。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。任何板块缺失、内容为空、或者中途截断都视为失败。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出，且用方括号形式标记字段（如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]）。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。\n\n【第 1 点格式 · 必须遵守】大写标题后必须用【[字段名] 值】的形式罗列规格，字段名用方括号大写。必须使用的字段：SIZE、COLOR、WEIGHT、PACKAGE INCLUDES、MATERIAL（原文有的才写）。用分号分隔。禁止用 "Size: xxx" 这种冒号形式。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
 async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
@@ -1044,6 +1047,8 @@ function validateAll(r){
         const firstLine = b.split(':')[0] || '';
         const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
         if (!hasAllCaps) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点未以全大写小标题开头' });
+        // ★ 第 1 点额外检查：是否有方括号字段标记
+        if (idx === 1 && !/\[[A-Z\s]+\]/.test(b)) warnings.push({ module:'五点', msg:'第 1 点未使用 [SIZE] [COLOR] 等方括号字段标记' });
         const trunc = hasTruncation(b, '第 ' + idx + ' 点');
         if (trunc) errors.push({ module:'五点', msg: trunc });
         bulletTotal += b.length;
@@ -1481,6 +1486,7 @@ async function expandAll(){
         const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下扩写。
 ${customNote}
 ⚠️ 五点每条必须保持大写小标题格式（BENEFIT TITLE: description）
+⚠️ 第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记
 ⚠️⚠️ 必须完整输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少！
 
 【当前内容】
@@ -1506,7 +1512,7 @@ ${cur.description}
 3. 通过添加细节描述、举例场景、补充受益点来增加字数
 4. 只输出字数不足的部分
 5. 每条结尾不加句号
-6. ⚠️ 五点每条必须保留大写小标题格式
+6. ⚠️ 五点每条必须保留大写小标题格式，第 1 点必须用方括号字段标记
 7. ⚠️ 所有板块都要完整输出，禁止截断
 
 【输出格式】
@@ -1530,7 +1536,7 @@ ${cur.description}
 [/ST]`;
 
         const { text: rawText } = await callGeminiWithFallback([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点大写标题后保持纯参数列表风格。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部 9 个标记，一个都不能少。只输出指定格式。' },
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部 9 个标记，一个都不能少。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
         const parsed = parseStructuredOutput(rawText);
@@ -1612,7 +1618,7 @@ async function runAnalysis(){
     };
 
     if (!titleRaw && !bpRaw && !descRaw){ showToast('请至少填写标题或商品信息'); return; }
-    if (!getGeminiKey()){ showToast('⚠️ 未配置 Gemini API Key，请在顶部填写'); return; }
+    if (!getGeminiKey()){ showToast('⚠️ 未配置 Gemini API Key，请在页面底部填写'); return; }
 
     resetPipeline();
     $('validationReport').classList.add('hidden');
@@ -1677,7 +1683,6 @@ async function runAnalysis(){
         if (v.errors.length === 0){
             status.className = 'ai-status done';
             status.textContent = '✅ 生成完整（' + genResult.rounds + ' 轮 · ' + genResult.model + '）';
-            // ★ 记录历史（仅当校验通过）
             recordHistory(cleaned.title, finalTitle, genResult.model);
         } else {
             status.className = 'ai-status error';
