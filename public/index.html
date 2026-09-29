@@ -229,7 +229,8 @@
     .wcompare-item .wc-col.opt .wc-label{background:#dcfce7;color:#166534;}
     .wcompare-item .wc-col img{width:100%;border-radius:8px;border:1px solid #e2e8f0;background:#fafafa;display:block;}
 
-    .wash-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
+    /* 工具栏：紧贴小图下方 */
+    .wash-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
 
     .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
@@ -472,6 +473,7 @@
 
     <!-- ============================================================
          洗图工具 v4 · 亚马逊分位置策略
+         工具栏已上移到小图下方
          ============================================================ -->
     <div class="card wash-card">
         <h2>🧼 一键洗图 · 亚马逊专用策略</h2>
@@ -488,12 +490,8 @@
 
         <div class="wash-grid" id="washGrid"></div>
 
-        <div class="wash-compare-wrap hidden" id="washCompareWrap">
-            <div class="wc-title">📊 优化前后对比</div>
-            <div class="wash-compare-grid" id="washCompareGrid"></div>
-        </div>
-
-        <div class="wash-bar">
+        <!-- 工具栏：紧贴小图下方 -->
+        <div class="wash-toolbar">
             <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
             <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
             <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
@@ -502,6 +500,11 @@
         <div class="wash-progress hidden" id="washProgressWrap">
             <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
             <div class="wash-progress-text" id="washProgressText">准备中…</div>
+        </div>
+
+        <div class="wash-compare-wrap hidden" id="washCompareWrap">
+            <div class="wc-title">📊 优化前后对比</div>
+            <div class="wash-compare-grid" id="washCompareGrid"></div>
         </div>
     </div>
 
@@ -1801,6 +1804,7 @@ if (document.readyState !== 'loading'){
    洗图工具 v4 · 亚马逊分位置策略 · 独立模块
    第 1 张主图：AI 抠图 → 白底 2000×2000 → 旋转 0.5° → 调色噪点
    第 2 张起副图：裁剪 8px → 加白边 30px → 调色噪点
+   工具栏已上移到小图下方
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -2076,7 +2080,7 @@ const WashTool = (() => {
         if (wrap) wrap.classList.add('hidden');
         const bar = $id('washProgressBar');
         if (bar) bar.style.width = '0';
-        const cmp = $id('washCompareWrap');
+        const cmp = $('washCompareWrap');
         if (cmp) cmp.classList.add('hidden');
         showToast('已清空');
     }
