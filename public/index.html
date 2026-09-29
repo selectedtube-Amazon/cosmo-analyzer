@@ -186,35 +186,35 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
-       洗图工具 v8 · 压缩版（单行紧凑布局）
+       洗图工具 v8.1 · 缩略图 100×100
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
     .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
 
-    .wash-row{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;}
+    .wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
 
-    .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:10px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;}
+    .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:14px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;align-self:stretch;}
     .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
     .wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px;}
     .wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5;}
 
-    .wash-grid{display:flex;gap:6px;flex-wrap:wrap;align-items:center;max-width:60%;}
-    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:6px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:60px;height:60px;flex-shrink:0;}
+    .wash-grid{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;max-width:60%;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:100px;height:100px;flex-shrink:0;}
     .wash-thumb:hover{box-shadow:0 3px 10px rgba(139,92,246,.2);}
     .wash-thumb:active{cursor:grabbing;}
     .wash-thumb.dragging{opacity:.4;}
     .wash-thumb.drag-over{border-color:#8b5cf6;border-width:2px;background:#f5f3ff;}
     .wash-thumb img{width:100%;height:100%;display:block;object-fit:cover;background:#fafafa;pointer-events:none;}
-    .wash-thumb .wt-role{position:absolute;top:1px;left:1px;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700;color:#fff;line-height:1.2;}
+    .wash-thumb .wt-role{position:absolute;top:3px;left:3px;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;color:#fff;line-height:1.2;}
     .wash-thumb .wt-role.main{background:#dc2626;}
     .wash-thumb .wt-role.sub{background:#2563eb;}
-    .wash-thumb .wt-status{position:absolute;top:1px;right:1px;font-size:8px;padding:1px 3px;border-radius:3px;background:#fff;font-weight:700;line-height:1.2;}
+    .wash-thumb .wt-status{position:absolute;top:3px;right:3px;font-size:10px;padding:2px 5px;border-radius:4px;background:#fff;font-weight:700;line-height:1.2;}
     .wash-thumb .wt-status.wait{color:#94a3b8;}
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
 
-    .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+    .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;flex-shrink:0;}
 
     .wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden;}
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
@@ -1764,7 +1764,7 @@ if (document.readyState !== 'loading'){
 }
 
 /* ============================================================
-   洗图工具 v8 · 无阴影无倒影 · 紧凑横条
+   洗图工具 v8.1 · 缩略图 100×100
    主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点 → 重编码
    副图流程：裁剪 8px → 加白边 30px → 调色噪点 → 重编码
    ============================================================ */
@@ -1837,7 +1837,6 @@ const WashTool = (() => {
         return out;
     }
 
-    // 主图：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点
     async function processMainImage(file){
         const removeBg = await ensureImgly();
 
@@ -1877,7 +1876,6 @@ const WashTool = (() => {
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
     }
 
-    // 副图：裁剪 8px → 加白边 30px → 调色噪点
     async function processSubImage(file){
         const img = await loadImage(file);
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
@@ -1992,7 +1990,7 @@ const WashTool = (() => {
         renderGrid();
         const wrap = $id('washProgressWrap');
         if (wrap) wrap.classList.add('hidden');
-        const bar = $id('washProgressBar');
+        const bar = $('washProgressBar');
         if (bar) bar.style.width = '0';
         showToast('已清空');
     }
