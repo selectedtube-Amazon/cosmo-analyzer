@@ -188,29 +188,69 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
-       洗图工具 · 独立模块样式（追加）
+       洗图工具 v2 · 独立模块样式（重写）
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;}
     .wash-card h2{margin:0 0 14px;font-size:16px;color:#6d28d9;}
-    .wash-drop{border:2px dashed #c4b5fd;border-radius:12px;padding:32px;text-align:center;background:#fff;cursor:pointer;transition:.2s;}
+
+    /* 上传区 */
+    .wash-drop{border:2px dashed #c4b5fd;border-radius:12px;padding:28px;text-align:center;background:#fff;cursor:pointer;transition:.2s;}
     .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
     .wash-drop .wd-ttl{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:6px;}
-    .wash-drop .wd-hint{font-size:12px;color:#7c3aed;}
-    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px;}
-    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;}
-    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;}
-    .wash-thumb .wt-name{font-size:10.5px;color:#64748b;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .wash-drop .wd-hint{font-size:12px;color:#7c3aed;line-height:1.7;}
+
+    /* 上传预览网格（带角色标签） */
+    .wash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;}
+    .wash-thumb:hover{box-shadow:0 4px 12px rgba(139,92,246,.15);}
+    .wash-thumb img{width:100%;display:block;aspect-ratio:1;object-fit:cover;background:#fafafa;}
+    .wash-thumb .wt-name{font-size:10.5px;color:#64748b;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#fafafa;}
+    .wash-thumb .wt-role{position:absolute;top:4px;left:4px;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700;color:#fff;}
+    .wash-thumb .wt-role.main{background:#dc2626;}
+    .wash-thumb .wt-role.size{background:#2563eb;}
+    .wash-thumb .wt-role.extra{background:#64748b;}
     .wash-thumb .wt-status{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 6px;border-radius:99px;background:#fff;font-weight:700;}
     .wash-thumb .wt-status.wait{color:#94a3b8;}
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+
+    /* AI 补全条 */
+    .wash-fill-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px;padding:12px 14px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;}
+    .wash-fill-bar .wfb-msg{font-size:12.5px;color:#92400e;font-weight:600;flex:1;min-width:200px;}
+    .wash-fill-bar .wfb-input{flex:2;min-width:200px;padding:7px 10px;font-size:12.5px;border:1px solid #fde68a;border-radius:8px;background:#fff;font-family:inherit;}
+    .wash-fill-bar .wfb-input:focus{outline:none;border-color:#f59e0b;}
+
+    /* 对比视图（区块 3） */
+    .wash-compare-wrap{margin-top:20px;padding-top:18px;border-top:2px dashed #ddd6fe;}
+    .wash-compare-wrap .wc-title{font-size:14px;font-weight:700;color:#6d28d9;margin-bottom:14px;}
+    .wash-compare-grid{display:flex;flex-direction:column;gap:14px;}
+    .wcompare-item{background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px;}
+    .wcompare-item .wc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+    .wcompare-item .wc-role-tag{font-size:11px;padding:3px 9px;border-radius:99px;font-weight:700;color:#fff;}
+    .wcompare-item .wc-role-tag.main{background:#dc2626;}
+    .wcompare-item .wc-role-tag.size{background:#2563eb;}
+    .wcompare-item .wc-role-tag.extra{background:#64748b;}
+    .wcompare-item .wc-name{font-size:11.5px;color:#64748b;font-family:monospace;margin-left:8px;}
+    .wcompare-item .wc-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media (max-width:640px){.wcompare-item .wc-row{grid-template-columns:1fr;}}
+    .wcompare-item .wc-col{text-align:center;}
+    .wcompare-item .wc-col .wc-label{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:6px;}
+    .wcompare-item .wc-col.orig .wc-label{background:#f1f5f9;color:#475569;}
+    .wcompare-item .wc-col.opt .wc-label{background:#dcfce7;color:#166534;}
+    .wcompare-item .wc-col img{width:100%;border-radius:8px;border:1px solid #e2e8f0;background:#fafafa;display:block;}
+
+    /* SKILL 工具栏 */
     .wash-skill-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0;padding:12px 14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;}
     .wash-skill-bar label{font-size:12.5px;font-weight:700;color:#6d28d9;}
     .wash-skill-bar select{padding:7px 10px;border:1px solid #c4b5fd;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#4c1d95;font-weight:600;}
+
+    /* 进度条 */
     .wash-progress{margin:12px 0;height:8px;background:#ede9fe;border-radius:99px;overflow:hidden;}
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
     .wash-progress-text{font-size:12px;color:#6d28d9;font-weight:600;text-align:center;margin-top:6px;}
+
+    /* SKILL 编辑器 */
     .wash-skill-editor{margin-top:14px;padding:14px;background:#fff;border:1px solid #ddd6fe;border-radius:10px;font-size:12.5px;}
     .wash-skill-editor .wse-row{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed #ede9fe;flex-wrap:wrap;}
     .wash-skill-editor .wse-row:last-child{border-bottom:none;}
@@ -218,6 +258,17 @@
     .wash-skill-editor input[type="number"]{width:70px;padding:4px 8px;font-size:12px;border:1px solid #c4b5fd;border-radius:6px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module">
+  try {
+    const mod = await import('https://esm.sh/@imgly/background-removal@1.5.5');
+    window.__imglyRemoveBg = mod.removeBackground;
+    window.dispatchEvent(new Event('imgly-ready'));
+    console.log('[imgly] background-removal 模块已加载');
+  } catch (err){
+    console.warn('[imgly] 模块加载失败，抠图功能不可用', err);
+    window.dispatchEvent(new Event('imgly-failed'));
+  }
+</script>
 </head>
 <body>
 
@@ -453,19 +504,40 @@
     </div>
 
     <!-- ============================================================
-         洗图工具 · 独立卡片（追加）
+         洗图工具 v2 · 智能角色识别（重写）
          ============================================================ -->
     <div class="card wash-card">
-        <h2>🧼 一键洗图 · SKILL 批量处理</h2>
+        <h2>🧼 一键洗图 · 智能角色识别</h2>
 
+        <!-- 区块 1：上传 -->
         <div class="wash-drop" id="washDrop">
             <div class="wd-ttl">📁 拖拽图片到这里，或点击选择</div>
-            <div class="wd-hint">支持批量 · 全程本地处理 · 不上传服务器 · 零成本</div>
+            <div class="wd-hint">
+                建议上传 6 张以上 · 全程本地处理 · 零成本<br>
+                <b style="color:#dc2626;">第 1 张 = 主图</b>（AI 抠图 → 白底 2000×2000）&nbsp;·&nbsp;
+                <b style="color:#2563eb;">第 2 张 = 尺寸/颜色图</b>（版式调整）&nbsp;·&nbsp;
+                <b style="color:#64748b;">第 3 张起 = 应用/特点/放大图</b>
+            </div>
             <input type="file" id="washInput" accept="image/*" multiple hidden>
         </div>
 
+        <!-- 区块 2：上传预览 -->
         <div class="wash-grid" id="washGrid"></div>
 
+        <!-- AI 补全条（不足 6 张时显示） -->
+        <div class="wash-fill-bar hidden" id="washFillBar">
+            <div class="wfb-msg" id="washFillMsg"></div>
+            <input type="text" id="washFillPrompt" class="wfb-input" placeholder="产品关键词，如 black folding chair（用于 AI 生成补充图）">
+            <button class="btn-sm orange" onclick="WashTool.fillWithAI()">✨ AI 补全</button>
+        </div>
+
+        <!-- 区块 3：对比视图（原图 vs 优化后） -->
+        <div class="wash-compare-wrap hidden" id="washCompareWrap">
+            <div class="wc-title">📊 优化前后对比</div>
+            <div class="wash-compare-grid" id="washCompareGrid"></div>
+        </div>
+
+        <!-- SKILL 工具栏 -->
         <div class="wash-skill-bar">
             <label>🎯 当前 SKILL：</label>
             <select id="washSkillSelect"></select>
@@ -728,7 +800,7 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v16）—— 第 1 点字段改为 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 形式
+   约束条件（v16）
    ============================================================ */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
 const DEFAULT_CONSTRAINTS = {
@@ -1776,14 +1848,21 @@ if (document.readyState !== 'loading'){
 }
 
 /* ============================================================
-   洗图工具 · SKILL 驱动 · 独立模块（追加）
-   不修改任何现有代码，不与现有函数产生任何命名冲突
+   洗图工具 v2 · 智能角色识别 · 独立模块（重写）
+   不修改任何现有代码，不与现有函数产生命名冲突
+   逻辑：
+     · 第 1 张 = 主图 → 本地 AI 抠图 → 白底合成 2000×2000
+     · 第 2 张 = 尺寸/颜色图 → 版式调整（加白边 + 通用洗图）
+     · 第 3 张起 = 应用/特点/放大图 → 通用洗图
+     · 不足 6 张 → 提示 AI 补全（Pollinations 免费生图）
+     · 对比视图：洗图卡片内第 3 个区块
    ============================================================ */
 const WashTool = (() => {
     const SKILL_KEY = 'cosmo_wash_skills_v1';
-    const CONCURRENCY = 4;
+    const CONCURRENCY = 3;
+    const MIN_COUNT = 6;
 
-    // ---------- 预设 SKILL ----------
+    // ---------- 预设 SKILL（用于第 2 张及以后的通用洗图） ----------
     const DEFAULT_SKILLS = {
         standard: {
             name: '标准洗图',
@@ -1819,12 +1898,32 @@ const WashTool = (() => {
 
     // ---------- 状态 ----------
     let skills = {};
-    let files = [];
+    let files = [];   // { id, file, role, status, blob, name }
     let currentSkillKey = 'standard';
     let busy = false;
+    let removeBgFn = null;
 
     const $id = id => document.getElementById(id);
     const uid = () => 'w' + Math.random().toString(36).slice(2, 9);
+
+    // ---------- 抠图模块加载 ----------
+    if (window.__imglyRemoveBg){
+        removeBgFn = window.__imglyRemoveBg;
+    } else {
+        window.addEventListener('imgly-ready', () => { removeBgFn = window.__imglyRemoveBg; });
+    }
+
+    // ---------- 角色分配 ----------
+    function getRole(idx){
+        if (idx === 0) return 'main';
+        if (idx === 1) return 'size';
+        return 'extra';
+    }
+    function roleLabel(role){
+        if (role === 'main') return '主图（白底）';
+        if (role === 'size') return '尺寸/颜色图';
+        return '应用/特点图';
+    }
 
     // ---------- SKILL 存取 ----------
     function loadSkills(){
@@ -1849,7 +1948,7 @@ const WashTool = (() => {
         const box = $id('washSkillEditor');
         if (!box || box.classList.contains('hidden')) return;
         const skill = skills[currentSkillKey];
-        let html = '<div style="font-weight:700;color:#6d28d9;margin-bottom:8px;">⚙️ ' + skill.name + ' · ' + skill.steps.length + ' 个步骤</div>';
+        let html = '<div style="font-weight:700;color:#6d28d9;margin-bottom:8px;">⚙️ ' + skill.name + ' · ' + skill.steps.length + ' 个步骤（应用于第 2 张及以后）</div>';
         skill.steps.forEach((s, i) => {
             html += '<div class="wse-row"><span class="wse-name">' + (i+1) + '. ' + s.type + '</span>';
             Object.keys(s).forEach(k => {
@@ -1873,8 +1972,17 @@ const WashTool = (() => {
             img.src = url;
         });
     }
+    function loadImageFromBlob(blob){
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const url = URL.createObjectURL(blob);
+            img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('图片加载失败')); };
+            img.src = url;
+        });
+    }
 
-    // ---------- 单个步骤执行 ----------
+    // ---------- 步骤执行 ----------
     function applyStep(srcCanvas, step){
         const w = srcCanvas.width, h = srcCanvas.height;
 
@@ -1886,7 +1994,6 @@ const WashTool = (() => {
             out.getContext('2d').drawImage(srcCanvas, p, p, out.width, out.height, 0, 0, out.width, out.height);
             return out;
         }
-
         if (step.type === 'border'){
             const b = step.size || 4;
             const out = document.createElement('canvas');
@@ -1898,7 +2005,6 @@ const WashTool = (() => {
             ctx.drawImage(srcCanvas, b, b);
             return out;
         }
-
         if (step.type === 'brightness' || step.type === 'contrast'){
             const out = document.createElement('canvas');
             out.width = w; out.height = h;
@@ -1911,7 +2017,6 @@ const WashTool = (() => {
             ctx.filter = 'none';
             return out;
         }
-
         if (step.type === 'noise'){
             const out = document.createElement('canvas');
             out.width = w; out.height = h;
@@ -1929,12 +2034,11 @@ const WashTool = (() => {
             ctx.putImageData(imgData, 0, 0);
             return out;
         }
-
         return srcCanvas;
     }
 
-    // ---------- 处理单张 ----------
-    async function washOne(file, skill){
+    // ---------- 通用洗图（第 2 张起） ----------
+    async function washGeneric(file, skill){
         const img = await loadImage(file);
         let canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
@@ -1955,6 +2059,67 @@ const WashTool = (() => {
             outBlob = await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.93));
         }
         return outBlob;
+    }
+
+    // ---------- 第 2 张：版式调整（白底加厚 + 通用洗图） ----------
+    async function processSizeImage(file, skill){
+        // 用一套「加宽白边」的变体步骤，让版式明显变化
+        const sizeSkill = {
+            steps: [
+                { type: 'border', size: 24, color: '#FFFFFF' },
+                ...skill.steps
+            ]
+        };
+        return await washGeneric(file, sizeSkill);
+    }
+
+    // ---------- 第 1 张：主图（本地 AI 抠图 → 白底 2000×2000） ----------
+    async function processMainImage(file){
+        if (!removeBgFn){
+            // 抠图模块没加载，兜底：只加白边
+            console.warn('[洗图] 抠图模块未就绪，主图降级处理');
+            return await washGeneric(file, skills[currentSkillKey]);
+        }
+        // 1. 本地 AI 抠图 → 透明 PNG
+        const fgBlob = await removeBgFn(file, {
+            progress: (key, current, total) => {
+                if (key.startsWith('fetch')) {
+                    const pct = total > 0 ? Math.round(current / total * 100) : 0;
+                    const txt = $id('washProgressText');
+                    if (txt) txt.textContent = '📦 加载 AI 模型 ' + pct + '%（首次约 80MB，之后走缓存）';
+                }
+            }
+        });
+        // 2. 加载透明前景图
+        const fgImg = await loadImageFromBlob(fgBlob);
+        // 3. 合成到 2000×2000 纯白画布，产品占比约 85%
+        const SIZE = 2000;
+        const TARGET = 1700; // 2000 × 85%
+        const canvas = document.createElement('canvas');
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, SIZE, SIZE);
+        const scale = Math.min(TARGET / fgImg.width, TARGET / fgImg.height);
+        const w = fgImg.width * scale;
+        const h = fgImg.height * scale;
+        const x = (SIZE - w) / 2;
+        const y = (SIZE - h) / 2;
+        ctx.drawImage(fgImg, x, y, w, h);
+        // 4. 导出 JPEG
+        return await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.93));
+    }
+
+    // ---------- 处理单张（角色分发） ----------
+    async function washOne(item, skill){
+        if (item.role === 'main'){
+            return await processMainImage(item.file);
+        } else if (item.role === 'size'){
+            return await processSizeImage(item.file, skill);
+        } else {
+            return await washGeneric(item.file, skill);
+        }
     }
 
     // ---------- 批量执行 ----------
@@ -1981,9 +2146,10 @@ const WashTool = (() => {
                 item.status = 'doing';
                 renderGrid();
                 try {
-                    const blob = await washOne(item.file, skill);
+                    const blob = await washOne(item, skill);
                     item.blob = blob;
-                    item.name = item.file.name.replace(/\.[^.]+$/, '') + '_washed.jpg';
+                    const suffix = item.role === 'main' ? '_main_white' : (item.role === 'size' ? '_size' : '_washed');
+                    item.name = item.file.name.replace(/\.[^.]+$/, '') + suffix + '.jpg';
                     item.status = 'done';
                 } catch (err){
                     console.warn('洗图失败', item.file.name, err);
@@ -1999,7 +2165,33 @@ const WashTool = (() => {
         await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
         txt.textContent = '✅ 完成 ' + done + ' / ' + total;
         busy = false;
+        renderCompare();
         showToast('洗图完成，共 ' + done + ' 张');
+    }
+
+    // ---------- 对比视图渲染 ----------
+    function renderCompare(){
+        const wrap = $id('washCompareWrap');
+        const grid = $id('washCompareGrid');
+        if (!wrap || !grid) return;
+        const ready = files.filter(f => f.status === 'done' && f.blob);
+        if (!ready.length){ wrap.classList.add('hidden'); return; }
+        wrap.classList.remove('hidden');
+        grid.innerHTML = ready.map((f, idx) => {
+            const origUrl = URL.createObjectURL(f.file);
+            const optUrl = URL.createObjectURL(f.blob);
+            const roleCls = f.role;
+            return '<div class="wcompare-item">' +
+                '<div class="wc-head">' +
+                    '<span><span class="wc-role-tag ' + roleCls + '">' + roleLabel(f.role) + '</span>' +
+                    '<span class="wc-name">#' + (idx+1) + ' · ' + escapeHtml(f.name) + '</span></span>' +
+                '</div>' +
+                '<div class="wc-row">' +
+                    '<div class="wc-col orig"><div class="wc-label">原图</div><img src="' + origUrl + '" loading="lazy"></div>' +
+                    '<div class="wc-col opt"><div class="wc-label">优化后</div><img src="' + optUrl + '" loading="lazy"></div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
     }
 
     // ---------- 打包下载 ----------
@@ -2039,16 +2231,21 @@ const WashTool = (() => {
         if (wrap) wrap.classList.add('hidden');
         const bar = $id('washProgressBar');
         if (bar) bar.style.width = '0';
+        const cmp = $id('washCompareWrap');
+        if (cmp) cmp.classList.add('hidden');
+        updateFillBar();
         showToast('已清空');
     }
 
     // ---------- 上传处理 ----------
     function addFiles(fileList){
         const arr = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
-        arr.forEach(f => {
-            files.push({ id: uid(), file: f, status: 'wait', blob: null, name: f.name });
+        const startIdx = files.length;
+        arr.forEach((f, i) => {
+            files.push({ id: uid(), file: f, role: getRole(startIdx + i), status: 'wait', blob: null, name: f.name });
         });
         renderGrid();
+        updateFillBar();
     }
 
     function renderGrid(){
@@ -2059,11 +2256,67 @@ const WashTool = (() => {
         grid.innerHTML = files.map(f => {
             const src = f.blob ? URL.createObjectURL(f.blob) : URL.createObjectURL(f.file);
             return '<div class="wash-thumb">' +
+                '<span class="wt-role ' + f.role + '">' + roleLabel(f.role) + '</span>' +
                 '<span class="wt-status ' + statusCls[f.status] + '">' + statusMap[f.status] + '</span>' +
                 '<img src="' + src + '" loading="lazy">' +
-                '<div class="wt-name">' + (f.file.name || '') + '</div>' +
+                '<div class="wt-name">' + escapeHtml(f.file.name || '') + '</div>' +
             '</div>';
         }).join('');
+    }
+
+    // ---------- 不足 6 张提示 ----------
+    function updateFillBar(){
+        const bar = $id('washFillBar');
+        const msg = $id('washFillMsg');
+        if (!bar || !msg) return;
+        if (files.length === 0){ bar.classList.add('hidden'); return; }
+        if (files.length >= MIN_COUNT){ bar.classList.add('hidden'); return; }
+        const need = MIN_COUNT - files.length;
+        msg.textContent = '当前 ' + files.length + ' 张，还差 ' + need + ' 张达到 ' + MIN_COUNT + ' 张（可用 AI 生成补全）';
+        bar.classList.remove('hidden');
+    }
+
+    // ---------- AI 补全（Pollinations 免费生图） ----------
+    async function fillWithAI(){
+        const promptInput = $id('washFillPrompt');
+        let prompt = (promptInput.value || '').trim();
+        if (!prompt){
+            // 兜底从商品标题取
+            const titleVal = ($id('productTitle')?.value || '').trim();
+            prompt = titleVal || 'product photography';
+        }
+        const need = MIN_COUNT - files.length;
+        if (need <= 0){ showToast('已经有 ' + MIN_COUNT + ' 张了'); return; }
+
+        const btn = event?.target;
+        if (btn){ btn.disabled = true; btn.textContent = '⏳ 生成中…'; }
+
+        let ok = 0;
+        for (let i = 0; i < need; i++){
+            const seed = Math.floor(Math.random() * 1000000);
+            const fullPrompt = prompt + ', product photography, clean studio lighting, high detail';
+            const url = 'https://image.pollinations.ai/prompt/' +
+                        encodeURIComponent(fullPrompt) +
+                        '?width=1024&height=1024&nologo=true&model=flux&seed=' + seed;
+            try {
+                const r = await fetch(url);
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const blob = await r.blob();
+                const fileName = 'ai_gen_' + (i+1) + '.jpg';
+                const fakeFile = new File([blob], fileName, { type: 'image/jpeg' });
+                files.push({
+                    id: uid(), file: fakeFile, role: getRole(files.length),
+                    status: 'wait', blob: null, name: fileName
+                });
+                ok++;
+                renderGrid();
+            } catch (err){
+                console.warn('AI 生成第 ' + (i+1) + ' 张失败', err);
+            }
+        }
+        updateFillBar();
+        if (btn){ btn.disabled = false; btn.textContent = '✨ AI 补全'; }
+        showToast(ok > 0 ? '已生成 ' + ok + ' 张补充图' : 'AI 生成失败，请检查网络');
     }
 
     // ---------- 参数更新 ----------
@@ -2109,7 +2362,7 @@ const WashTool = (() => {
         init();
     }
 
-    return { run, clear, downloadZip, toggleEditor, updateParam };
+    return { run, clear, downloadZip, toggleEditor, updateParam, fillWithAI };
 })();
 </script>
 
