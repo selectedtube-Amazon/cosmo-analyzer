@@ -32,6 +32,7 @@
     .btn-sm.red{background:#dc2626;} .btn-sm.red:hover{background:#b91c1c;}
     .btn-sm.green{background:#059669;} .btn-sm.green:hover{background:#047857;}
     .btn-sm.orange{background:#ea580c;} .btn-sm.orange:hover{background:#c2410c;}
+    .btn-sm.blue{background:#2563eb;} .btn-sm.blue:hover{background:#1d4ed8;}
     .btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
     button.btn{background:var(--gemini);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
     button.btn:hover{background:#c2410c;}
@@ -164,19 +165,14 @@
     #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
-    /* ============================================================
-       洗图工具 v8.1 · 缩略图 100×100
-       ============================================================ */
+    /* 洗图工具 */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
     .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
-
     .wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
-
     .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:14px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;align-self:stretch;}
     .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
     .wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px;}
     .wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5;}
-
     .wash-grid{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;max-width:60%;}
     .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:100px;height:100px;flex-shrink:0;}
     .wash-thumb:hover{box-shadow:0 3px 10px rgba(139,92,246,.2);}
@@ -192,14 +188,26 @@
     .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
     .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
     .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
-
     .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;flex-shrink:0;}
-
     .wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden;}
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
     .wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px;}
+
+    /* Excel 导出区 */
+    .export-box{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;border-radius:12px;padding:16px 18px;margin-top:8px;}
+    .export-box .eb-title{font-size:15px;font-weight:700;color:#065f46;margin:0 0 4px;}
+    .export-box .eb-sub{font-size:12px;color:#047857;margin-bottom:14px;}
+    .export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 14px;margin-bottom:12px;}
+    .ef-item{display:flex;flex-direction:column;gap:4px;}
+    .ef-item label{font-size:11.5px;font-weight:700;color:#065f46;}
+    .ef-item input,.ef-item select{padding:7px 10px;font-size:13px;border:1px solid #a7f3d0;border-radius:7px;background:#fff;font-family:inherit;color:#0f172a;}
+    .ef-item input:focus,.ef-item select:focus{outline:none;border-color:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.12);}
+    .ef-full{grid-column:1/-1;}
+    .export-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;align-items:center;}
+    .export-actions .queue-info{font-size:12px;font-weight:700;color:#065f46;margin-left:auto;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -208,35 +216,29 @@
         <h1>亚马逊 Listing 智能优化系统</h1>
     </header>
 
-    <!-- ============================================================
-         洗图工具 · 紧凑横条（在最上面）
-         ============================================================ -->
+    <!-- 洗图工具 -->
     <div class="card wash-card">
         <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
-
         <div class="wash-row">
             <div class="wash-drop" id="washDrop">
                 <div class="wd-ttl">📁 拖拽图片或点击选择</div>
                 <div class="wd-hint">第 1 张 = 主图（AI 抠图白底）· 第 2 张起 = 副图（裁剪+白边）</div>
                 <input type="file" id="washInput" accept="image/*" multiple hidden>
             </div>
-
             <div class="wash-grid" id="washGrid"></div>
-
             <div class="wash-toolbar">
                 <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
                 <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
                 <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
             </div>
         </div>
-
         <div class="wash-progress hidden" id="washProgressWrap">
             <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
             <div class="wash-progress-text" id="washProgressText">准备中…</div>
         </div>
     </div>
 
-    <!-- 顶部：输入区 -->
+    <!-- 输入区 -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h2 style="margin:0;">📥 输入商品信息与文案</h2>
@@ -262,7 +264,7 @@
         </div>
     </div>
 
-    <!-- 中部：结果区 -->
+    <!-- 结果区 -->
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
@@ -395,9 +397,77 @@
                 <tbody id="matrixTableBody"></tbody>
             </table>
         </div>
+
+        <!-- ==================== Excel 导出区 ==================== -->
+        <div class="export-box">
+            <div class="eb-title">📤 导出 Excel · 可直接上传后台</div>
+            <div class="eb-sub">表头与「zizhu_product_template.xlsx」完全一致 · 生成 Sheet1 + _enums 两个工作表</div>
+
+            <div class="export-grid">
+                <div class="ef-item"><label>SPU</label><input type="text" id="exp_spu" placeholder="SPU001"></div>
+                <div class="ef-item"><label>SKU</label><input type="text" id="exp_sku" placeholder="sku001"></div>
+                <div class="ef-item"><label>品牌 brand</label><input type="text" id="exp_brand" placeholder="XX"></div>
+                <div class="ef-item"><label>语言 language</label>
+                    <select id="exp_language">
+                        <option value="en">en</option><option value="de">de</option>
+                        <option value="fr">fr</option><option value="it">it</option>
+                        <option value="es">es</option><option value="pt">pt</option>
+                        <option value="nl">nl</option><option value="sv">sv</option>
+                        <option value="pl">pl</option><option value="tr">tr</option>
+                        <option value="ar">ar</option><option value="ja">ja</option>
+                        <option value="ko">ko</option><option value="ru">ru</option>
+                        <option value="he">he</option><option value="uk">uk</option>
+                    </select>
+                </div>
+                <div class="ef-item"><label>价格 price</label><input type="number" id="exp_price" placeholder="19.99" step="0.01"></div>
+                <div class="ef-item"><label>货币 currency</label>
+                    <select id="exp_currency">
+                        <option value="USD">USD</option><option value="CAD">CAD</option>
+                        <option value="RUB">RUB</option><option value="CNY">CNY</option>
+                        <option value="GBP">GBP</option><option value="EUR">EUR</option>
+                        <option value="AUD">AUD</option><option value="JPY">JPY</option>
+                        <option value="MXN">MXN</option><option value="BRL">BRL</option>
+                        <option value="PLN">PLN</option><option value="SGD">SGD</option>
+                    </select>
+                </div>
+                <div class="ef-item"><label>库存 stock</label><input type="number" id="exp_stock" placeholder="10"></div>
+                <div class="ef-item"><label>重量 product_weight</label><input type="number" id="exp_weight" placeholder="可选" step="0.01"></div>
+                <div class="ef-item"><label>重量单位</label>
+                    <select id="exp_weight_unit">
+                        <option value="g">g</option><option value="mg">mg</option>
+                        <option value="kg">kg</option><option value="ton">ton</option>
+                        <option value="oz">oz</option><option value="lb">lb</option>
+                    </select>
+                </div>
+                <div class="ef-item"><label>长度 length</label><input type="number" id="exp_length" placeholder="可选" step="0.01"></div>
+                <div class="ef-item"><label>宽度 width</label><input type="number" id="exp_width" placeholder="可选" step="0.01"></div>
+                <div class="ef-item"><label>高度 height</label><input type="number" id="exp_height" placeholder="可选" step="0.01"></div>
+                <div class="ef-item"><label>长度单位</label>
+                    <select id="exp_length_unit">
+                        <option value="cm">cm</option><option value="mm">mm</option>
+                        <option value="m">m</option><option value="km">km</option>
+                        <option value="inch">inch</option><option value="foot">foot</option>
+                        <option value="yard">yard</option><option value="mile">mile</option>
+                    </select>
+                </div>
+                <div class="ef-item ef-full">
+                    <label>图片 URL image_url（每行一个，可选）</label>
+                    <textarea id="exp_image_url" placeholder="https://...&#10;https://..." style="height:60px;"></textarea>
+                </div>
+            </div>
+
+            <div class="export-actions">
+                <button class="btn-sm green" onclick="exportCurrentExcel()">📊 导出当前 Listing</button>
+                <button class="btn-sm orange" onclick="addToQueue()">➕ 加入批量队列</button>
+                <button class="btn-sm blue" onclick="exportQueueExcel()">📦 导出批量队列</button>
+                <button class="btn-sm gray" onclick="clearQueue()">清空队列</button>
+                <span class="queue-info">队列：<span id="queueCount">0</span> 条</span>
+            </div>
+        </div>
+        <!-- ==================== /Excel 导出区 ==================== -->
     </div>
 
-    <!-- ========== 底部：Gemini Key ========== -->
+    <!-- Gemini Key -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
@@ -413,7 +483,7 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- ========== 底部：约束条件 ========== -->
+    <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
             <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
@@ -468,13 +538,7 @@
 const APP_VERSION = '928版 · 无历史统计';
 const APP_VERSION_DATE = '2024-09-28';
 
-const GEMINI_MODELS = [
-    'gemini-3.8-flash',
-    'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-2.5-pro'
-];
-
+const GEMINI_MODELS = ['gemini-3.8-flash','gemini-3.5-flash','gemini-3.5-flash-lite','gemini-2.5-pro'];
 const MAX_RETRIES = 2;
 
 const $ = id => document.getElementById(id);
@@ -501,9 +565,7 @@ function getByteLength(str){
     return len;
 }
 
-/* ============================================================
-   Gemini API Key 管理
-   ============================================================ */
+/* ============ Gemini Key ============ */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
 function saveGeminiKey(){
     const key = $('geminiApiKey').value.trim();
@@ -549,9 +611,7 @@ async function testGeminiKey(){
     else { $('geminiKeyStatus').textContent = '❌ 所有模型都不可用，请检查 Key 或网络'; }
 }
 
-/* ============================================================
-   约束条件（v16）
-   ============================================================ */
+/* ============ 约束条件 ============ */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
@@ -615,17 +675,9 @@ function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)]
 function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
 function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
 
-/* ============================================================
-   自定义要求
-   ============================================================ */
+/* ============ 自定义要求 ============ */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
-const CUSTOM_DEFAULTS = {
-    reqTitle: '',
-    reqIh: '',
-    reqBp: '',
-    reqDesc: '',
-    reqSt: ''
-};
+const CUSTOM_DEFAULTS = { reqTitle:'', reqIh:'', reqBp:'', reqDesc:'', reqSt:'' };
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
 function loadCustom(){
     CUSTOM_IDS.forEach(id => {
@@ -814,33 +866,26 @@ const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度
 async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
     if (!apiKey) throw new Error('未配置 Gemini API Key');
-
     let lastError = null;
     for (const model of GEMINI_MODELS){
         console.log('[多模型] 尝试: ' + model);
         try {
             const systemMsg = messages.find(m => m.role === 'system');
             const userMsgs = messages.filter(m => m.role !== 'system');
-            const contents = userMsgs.map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-            }));
+            const contents = userMsgs.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
             const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 16000 } };
             if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
             const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
             const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
             const data = await r.json();
-
             if (data.error){
                 const errMsg = data.error.message || JSON.stringify(data.error);
                 console.warn('[多模型] ' + model + ' 失败: ' + errMsg);
                 lastError = new Error(model + ': ' + errMsg);
                 continue;
             }
-
             const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
             if (!text.trim()){ lastError = new Error(model + ': 返回空内容'); continue; }
-
             console.log('[多模型] ' + model + ' 成功，返回长度: ' + text.length);
             return { text, model };
         } catch (err){
@@ -866,13 +911,6 @@ function parseStructuredOutput(text){
         description: extract('DESC'),
         searchTerms: extract('ST')
     };
-    console.log('[解析] 各板块长度：', {
-        title: result.title.length,
-        ih: result.itemHighlights.length,
-        bullets: result.bullets.map(b => b.length),
-        desc: result.description.length,
-        st: result.searchTerms.length
-    });
     return result;
 }
 
@@ -889,7 +927,6 @@ function hasTruncation(text, moduleName){
 
 function validateAll(r){
     const errors = [], warnings = [];
-
     if (!r.title || !r.title.trim()){
         errors.push({ module:'标题', msg:'❌ 标题为空（AI 未返回）' });
     } else {
@@ -903,7 +940,6 @@ function validateAll(r){
         const trunc = hasTruncation(r.title, '标题');
         if (trunc) errors.push({ module:'标题', msg: trunc });
     }
-
     if (!r.itemHighlights || !r.itemHighlights.trim()){
         errors.push({ module:'亮点', msg:'❌ Item Highlights 为空（AI 未返回）' });
     } else {
@@ -912,7 +948,6 @@ function validateAll(r){
         else if (r.itemHighlights.length < C.ihMin) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，偏短' });
         if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
     }
-
     const bullets = r.bullets || [];
     if (bullets.length !== 5){
         errors.push({ module:'五点', msg:'❌ 五点数量不是 5（实际 ' + bullets.length + '）' });
@@ -937,7 +972,6 @@ function validateAll(r){
         bulletTotal += b.length;
     });
     if (bulletTotal > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + bulletTotal + ' 超过 ' + C.bulletTotal });
-
     if (!r.description || !r.description.trim()){
         errors.push({ module:'描述', msg:'❌ 详细描述为空（AI 未返回）' });
     } else {
@@ -947,7 +981,6 @@ function validateAll(r){
         const trunc = hasTruncation(r.description, '描述');
         if (trunc) errors.push({ module:'描述', msg: trunc });
     }
-
     if (!r.searchTerms || !r.searchTerms.trim()){
         errors.push({ module:'搜索词', msg:'❌ Search Terms 为空（AI 未返回）' });
     } else {
@@ -958,7 +991,6 @@ function validateAll(r){
         const trunc = hasTruncation(r.searchTerms, '搜索词');
         if (trunc) errors.push({ module:'搜索词', msg: trunc });
     }
-
     return { errors, warnings };
 }
 
@@ -966,7 +998,6 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
     let lastResult = null;
     let lastErrors = [];
     let lastModel = '';
-
     for (let round = 1; round <= MAX_RETRIES; round++){
         const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
         let rawText, model;
@@ -984,25 +1015,15 @@ async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords,
             await new Promise(r => setTimeout(r, 2000));
             continue;
         }
-
         const result = parseStructuredOutput(rawText);
         const v = validateAll(result);
         lastResult = result;
         lastErrors = v.errors;
-
-        console.log('[生成] 第 ' + round + ' 轮完成，errors=' + v.errors.length + '，warnings=' + v.warnings.length);
-
         if (v.errors.length === 0){
             return { result, passed: true, rounds: round, warnings: v.warnings, model };
         }
-        console.warn('[生成] 第 ' + round + ' 轮存在问题：', v.errors.map(e => e.module + ': ' + e.msg).join(' | '));
-
-        if (round < MAX_RETRIES){
-            console.log('[生成] 等待 1 秒后重试，把错误清单交给 AI 补齐...');
-            await new Promise(r => setTimeout(r, 1000));
-        }
+        if (round < MAX_RETRIES){ await new Promise(r => setTimeout(r, 1000)); }
     }
-
     return { result: lastResult, passed: false, rounds: MAX_RETRIES, errors: lastErrors, warnings: [], model: lastModel };
 }
 
@@ -1578,17 +1599,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
+    loadExportConfig(); initExportInputs();
 });
 if (document.readyState !== 'loading'){
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
+    loadExportConfig(); initExportInputs();
 }
 
 /* ============================================================
-   洗图工具 v8.1 · 缩略图 100×100
-   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点 → 重编码
-   副图流程：裁剪 8px → 加白边 30px → 调色噪点 → 重编码
+   洗图工具 v8.1
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
@@ -1613,12 +1634,8 @@ const WashTool = (() => {
         return removeBgFn;
     }
 
-    function reassignRoles(){
-        files.forEach((f, i) => { f.role = (i === 0) ? 'main' : 'sub'; });
-    }
-    function roleLabel(role){
-        return role === 'main' ? '主' : '副';
-    }
+    function reassignRoles(){ files.forEach((f, i) => { f.role = (i === 0) ? 'main' : 'sub'; }); }
+    function roleLabel(role){ return role === 'main' ? '主' : '副'; }
 
     function loadImage(fileOrBlob){
         return new Promise((resolve, reject) => {
@@ -1661,7 +1678,6 @@ const WashTool = (() => {
 
     async function processMainImage(file){
         const removeBg = await ensureImgly();
-
         const fgBlob = await removeBg(file, {
             progress: (key, current, total) => {
                 if (key.startsWith('fetch')){
@@ -1672,27 +1688,22 @@ const WashTool = (() => {
             }
         });
         const fgImg = await loadImage(fgBlob);
-
         const SIZE = 2000;
         const TARGET = 1700;
         const canvas = document.createElement('canvas');
-        canvas.width = SIZE;
-        canvas.height = SIZE;
+        canvas.width = SIZE; canvas.height = SIZE;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, SIZE, SIZE);
-
         const scale = Math.min(TARGET / fgImg.width, TARGET / fgImg.height);
         const w = fgImg.width * scale;
         const h = fgImg.height * scale;
-
         const angle = 0.5 * Math.PI / 180;
         ctx.save();
         ctx.translate(SIZE / 2, SIZE / 2);
         ctx.rotate(angle);
         ctx.drawImage(fgImg, -w / 2, -h / 2, w, h);
         ctx.restore();
-
         let out = applyFilters(canvas, 1.04, 1.03);
         out = addNoise(out, 6);
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
@@ -1703,52 +1714,37 @@ const WashTool = (() => {
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
         const crop = 8;
         const border = 30;
-
         const cw = Math.max(1, w0 - crop * 2);
         const ch = Math.max(1, h0 - crop * 2);
         const cropped = document.createElement('canvas');
-        cropped.width = cw;
-        cropped.height = ch;
+        cropped.width = cw; cropped.height = ch;
         cropped.getContext('2d').drawImage(img, crop, crop, cw, ch, 0, 0, cw, ch);
-
         const bw = cw + border * 2;
         const bh = ch + border * 2;
         const bordered = document.createElement('canvas');
-        bordered.width = bw;
-        bordered.height = bh;
+        bordered.width = bw; bordered.height = bh;
         const bctx = bordered.getContext('2d');
         bctx.fillStyle = '#FFFFFF';
         bctx.fillRect(0, 0, bw, bh);
         bctx.drawImage(cropped, border, border);
-
         let out = applyFilters(bordered, 1.06, 1.05);
         out = addNoise(out, 12);
         return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.85));
     }
 
-    async function washOne(item){
-        if (item.role === 'main'){
-            return await processMainImage(item.file);
-        } else {
-            return await processSubImage(item.file);
-        }
-    }
+    async function washOne(item){ return item.role === 'main' ? await processMainImage(item.file) : await processSubImage(item.file); }
 
     async function run(){
         if (busy) return;
         if (!files.length){ showToast('请先上传图片'); return; }
-
         reassignRoles();
-
         busy = true;
         const wrap = $id('washProgressWrap');
         const bar = $id('washProgressBar');
         const txt = $id('washProgressText');
         wrap.classList.remove('hidden');
-
         let done = 0;
         const total = files.length;
-
         const queue = files.slice();
         async function worker(){
             while (queue.length){
@@ -1772,7 +1768,6 @@ const WashTool = (() => {
                 renderGrid();
             }
         }
-
         await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
         txt.textContent = '✅ 完成 ' + done + ' / ' + total;
         busy = false;
@@ -1782,7 +1777,6 @@ const WashTool = (() => {
     async function downloadZip(){
         const ready = files.filter(f => f.status === 'done' && f.blob);
         if (!ready.length){ showToast('没有可下载的成品'); return; }
-
         if (typeof JSZip === 'undefined'){
             ready.forEach(f => {
                 const a = document.createElement('a');
@@ -1794,7 +1788,6 @@ const WashTool = (() => {
             showToast('已触发 ' + ready.length + ' 个下载');
             return;
         }
-
         const zip = new JSZip();
         ready.forEach(f => zip.file(f.name, f.blob));
         const blob = await zip.generateAsync({ type: 'blob' });
@@ -1846,7 +1839,6 @@ const WashTool = (() => {
         const grid = $id('washGrid');
         if (!grid) return;
         const thumbs = grid.querySelectorAll('.wash-thumb');
-
         thumbs.forEach(el => {
             el.addEventListener('dragstart', e => {
                 if (busy) { e.preventDefault(); return; }
@@ -1855,32 +1847,24 @@ const WashTool = (() => {
                 e.dataTransfer.effectAllowed = 'move';
                 try { e.dataTransfer.setData('text/plain', String(dragFromIdx)); } catch(err){}
             });
-
             el.addEventListener('dragend', () => {
                 el.classList.remove('dragging');
                 grid.querySelectorAll('.wash-thumb').forEach(t => t.classList.remove('drag-over'));
             });
-
             el.addEventListener('dragover', e => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 if (Number(el.dataset.idx) !== dragFromIdx) el.classList.add('drag-over');
             });
-
-            el.addEventListener('dragleave', () => {
-                el.classList.remove('drag-over');
-            });
-
+            el.addEventListener('dragleave', () => { el.classList.remove('drag-over'); });
             el.addEventListener('drop', e => {
                 e.preventDefault();
                 el.classList.remove('drag-over');
                 const toIdx = Number(el.dataset.idx);
                 if (dragFromIdx < 0 || dragFromIdx === toIdx) return;
-
                 const tmp = files[dragFromIdx];
                 files[dragFromIdx] = files[toIdx];
                 files[toIdx] = tmp;
-
                 reassignRoles();
                 dragFromIdx = -1;
                 renderGrid();
@@ -1893,10 +1877,8 @@ const WashTool = (() => {
         const drop = $id('washDrop');
         const input = $id('washInput');
         if (!drop || !input) return;
-
         drop.addEventListener('click', () => input.click());
         input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
-
         drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
         drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
         drop.addEventListener('drop', e => {
@@ -1914,6 +1896,222 @@ const WashTool = (() => {
 
     return { run, clear, downloadZip };
 })();
+
+/* ============================================================
+   Excel 导出（表头严格按 zizhu_product_template.xlsx）
+   ============================================================ */
+const EXPORT_CONFIG_KEY = 'cosmo_export_config_v1';
+
+const EXPORT_FIELDS = [
+    'spu','title','language','brand','product_description','sku','image_url',
+    'price','currency','product_weight','product_weight_unit',
+    'product_length','product_width','product_height','product_length_unit',
+    'package_weight','package_weight_unit',
+    'package_length','package_width','package_height','package_length_unit',
+    'stock','other_1','other_2','other_...',
+    'product_highlights','amazon_bullet_points','amazon_seo','amazon_title','amazon_description'
+];
+
+const EXPORT_HEADER_NOTES = {
+    product_highlights: '通用商品亮点，每行一点，最多5点，每点最多500字符',
+    amazon_bullet_points: 'Amazon专用（可选）：指定五点描述，每行一点，最多5点，每点最多500字符',
+    amazon_seo: 'Amazon专用（可选）：指定搜索关键词，建议用空格分隔，最多250字符',
+    amazon_title: 'Amazon专用（可选）：指定标题，最多200字符',
+    amazon_description: 'Amazon专用（可选）：指定商品描述，最多2000字符'
+};
+
+const ENUMS_DATA = [
+    ['language','currency','product_weight_unit','package_weight_unit','product_length_unit','package_length_unit'],
+    ['en','USD','mg','mg','mm','mm'],
+    ['de','RUB','g','g','cm','cm'],
+    ['fr','CNY','kg','kg','m','m'],
+    ['it','GBP','ton','ton','km','km'],
+    ['es','EUR','oz','oz','inch','inch'],
+    ['pt','AUD','lb','lb','foot','foot'],
+    ['nl','CAD','','','yard','yard'],
+    ['sv','JPY','','','mile','mile'],
+    ['pl','MXN','','','',''],
+    ['tr','BRL','','','',''],
+    ['ar','PLN','','','',''],
+    ['ja','SGD','','','',''],
+    ['ko','','','','',''],
+    ['ru','','','','',''],
+    ['he','','','','',''],
+    ['uk','','','','','']
+];
+
+const EXPORT_INPUT_KEYS = ['spu','sku','brand','language','price','currency','stock','weight','weight_unit','length','width','height','length_unit','image_url'];
+let EXPORT_QUEUE = [];
+
+function loadExportConfig(){
+    try {
+        const raw = localStorage.getItem(EXPORT_CONFIG_KEY);
+        if (raw){
+            const c = JSON.parse(raw);
+            EXPORT_INPUT_KEYS.forEach(k => {
+                const el = $('exp_' + k);
+                if (el && c[k] !== undefined && c[k] !== null) el.value = c[k];
+            });
+        }
+    } catch(e){}
+    try {
+        const q = localStorage.getItem(EXPORT_CONFIG_KEY + '_queue');
+        if (q) EXPORT_QUEUE = JSON.parse(q);
+    } catch(e){ EXPORT_QUEUE = []; }
+    renderQueueCount();
+}
+function saveExportConfig(){
+    const c = {};
+    EXPORT_INPUT_KEYS.forEach(k => {
+        const el = $('exp_' + k);
+        if (el) c[k] = el.value;
+    });
+    try { localStorage.setItem(EXPORT_CONFIG_KEY, JSON.stringify(c)); } catch(e){}
+}
+function initExportInputs(){
+    EXPORT_INPUT_KEYS.forEach(k => {
+        const el = $('exp_' + k);
+        if (el) el.addEventListener('input', saveExportConfig);
+    });
+}
+
+function getExportValue(k){
+    const el = $('exp_' + k);
+    return el ? el.value : '';
+}
+
+function snapshotCurrent(){
+    return {
+        title: $('optTitleText').value.trim(),
+        ih: $('optIhText').value.trim(),
+        bullets: [0,1,2,3,4].map(i => $('optBp' + i).value.trim()),
+        desc: $('optDescText').value.trim(),
+        seo: $('optStText').value.trim(),
+        config: {
+            spu: getExportValue('spu'),
+            sku: getExportValue('sku'),
+            brand: getExportValue('brand'),
+            language: getExportValue('language'),
+            price: getExportValue('price'),
+            currency: getExportValue('currency'),
+            stock: getExportValue('stock'),
+            weight: getExportValue('weight'),
+            weight_unit: getExportValue('weight_unit'),
+            length: getExportValue('length'),
+            width: getExportValue('width'),
+            height: getExportValue('height'),
+            length_unit: getExportValue('length_unit'),
+            image_url: getExportValue('image_url')
+        }
+    };
+}
+
+function buildDataRow(snapshot){
+    const cfg = snapshot.config || {};
+    const bullets = snapshot.bullets || ['','','','',''];
+    const bulletsText = bullets.filter(b => b && b.trim()).join('\n');
+
+    const row = {};
+    row['spu'] = cfg.spu || '';
+    row['title'] = snapshot.title || '';
+    row['language'] = cfg.language || 'en';
+    row['brand'] = cfg.brand || '';
+    row['product_description'] = snapshot.desc || '';
+    row['sku'] = cfg.sku || '';
+    row['image_url'] = cfg.image_url || '';
+    row['price'] = cfg.price || '';
+    row['currency'] = cfg.currency || 'USD';
+    row['product_weight'] = cfg.weight || '';
+    row['product_weight_unit'] = cfg.weight_unit || 'g';
+    row['product_length'] = cfg.length || '';
+    row['product_width'] = cfg.width || '';
+    row['product_height'] = cfg.height || '';
+    row['product_length_unit'] = cfg.length_unit || 'cm';
+    row['package_weight'] = '';
+    row['package_weight_unit'] = '';
+    row['package_length'] = '';
+    row['package_width'] = '';
+    row['package_height'] = '';
+    row['package_length_unit'] = '';
+    row['stock'] = cfg.stock || '';
+    row['other_1'] = '';
+    row['other_2'] = '';
+    row['other_...'] = '';
+    row['product_highlights'] = bulletsText;
+    row['amazon_bullet_points'] = bulletsText;
+    row['amazon_seo'] = snapshot.seo || '';
+    row['amazon_title'] = snapshot.title || '';
+    row['amazon_description'] = snapshot.desc || '';
+    return row;
+}
+
+function buildWorkbook(snapshots){
+    const wb = XLSX.utils.book_new();
+
+    const header = EXPORT_FIELDS.slice();
+    const notes = EXPORT_FIELDS.map(f => EXPORT_HEADER_NOTES[f] || '');
+    const rows = [header, notes];
+    snapshots.forEach(sn => {
+        const r = buildDataRow(sn);
+        rows.push(EXPORT_FIELDS.map(f => (r[f] !== undefined && r[f] !== null) ? r[f] : ''));
+    });
+
+    const ws1 = XLSX.utils.aoa_to_sheet(rows);
+    ws1['!cols'] = EXPORT_FIELDS.map(f => {
+        if (['title','product_description','amazon_title','amazon_description','product_highlights','amazon_bullet_points','amazon_seo','image_url'].includes(f)) return { wch: 55 };
+        if (f === 'spu' || f === 'sku') return { wch: 15 };
+        return { wch: 14 };
+    });
+    XLSX.utils.book_append_sheet(wb, ws1, 'Sheet1');
+
+    const ws2 = XLSX.utils.aoa_to_sheet(ENUMS_DATA);
+    XLSX.utils.book_append_sheet(wb, ws2, '_enums');
+
+    return wb;
+}
+
+function exportCurrentExcel(){
+    if (typeof XLSX === 'undefined'){ showToast('❌ xlsx 库未加载，请检查网络'); return; }
+    const snap = snapshotCurrent();
+    if (!snap.title && !snap.desc && !snap.bullets.some(b => b)){ showToast('请先生成 Listing 内容'); return; }
+    const wb = buildWorkbook([snap]);
+    const fname = 'listing_' + (snap.config.sku || Date.now()) + '.xlsx';
+    XLSX.writeFile(wb, fname);
+    showToast('已导出：' + fname);
+}
+
+function addToQueue(){
+    const snap = snapshotCurrent();
+    if (!snap.title && !snap.desc && !snap.bullets.some(b => b)){ showToast('请先生成 Listing 内容'); return; }
+    EXPORT_QUEUE.push(snap);
+    persistQueue();
+    renderQueueCount();
+    showToast('已加入队列，当前共 ' + EXPORT_QUEUE.length + ' 条');
+}
+
+function persistQueue(){
+    try { localStorage.setItem(EXPORT_CONFIG_KEY + '_queue', JSON.stringify(EXPORT_QUEUE)); } catch(e){}
+}
+function renderQueueCount(){
+    const el = $('queueCount');
+    if (el) el.textContent = EXPORT_QUEUE.length;
+}
+function clearQueue(){
+    if (!EXPORT_QUEUE.length){ showToast('队列已空'); return; }
+    if (!confirm('确定清空批量队列（' + EXPORT_QUEUE.length + ' 条）吗？')) return;
+    EXPORT_QUEUE = [];
+    persistQueue();
+    renderQueueCount();
+    showToast('已清空队列');
+}
+function exportQueueExcel(){
+    if (typeof XLSX === 'undefined'){ showToast('❌ xlsx 库未加载，请检查网络'); return; }
+    if (!EXPORT_QUEUE.length){ showToast('队列为空，请先点「加入批量队列」'); return; }
+    const wb = buildWorkbook(EXPORT_QUEUE);
+    const fname = 'listing_batch_' + new Date().toISOString().slice(0,10) + '_' + EXPORT_QUEUE.length + '条.xlsx';
+    XLSX.writeFile(wb, fname);
+    showToast('已导出 ' + EXPORT_QUEUE.length + ' 条：' + fname);
+}
 </script>
 
 </body>
