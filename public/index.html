@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亚马逊 Listing 智能优化系统 · 928版 · 历史统计</title>
+<title>亚马逊 Listing 智能优化系统</title>
 <style>
     :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
     *{box-sizing:border-box;}
-    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:24px 16px;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:16px;}
     .container{max-width:1560px;margin:0 auto;}
-    header{text-align:center;margin-bottom:26px;}
-    header h1{margin:0 0 8px;font-size:26px;}
-    header p{color:var(--muted);margin:0;font-size:14px;}
-    .version-badge{display:inline-block;margin-top:8px;padding:4px 14px;background:linear-gradient(135deg,#fff7ed 0%,#fed7aa 100%);color:#9a3412;border:1px solid #fdba74;border-radius:99px;font-size:12px;font-weight:700;}
-    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:22px;border:1px solid rgba(226,232,240,.8);}
+    header{text-align:center;margin-bottom:14px;}
+    header h1{margin:0;font-size:20px;color:#334155;}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:18px;border:1px solid rgba(226,232,240,.8);}
     .card h2{margin:0 0 16px;font-size:17px;}
     .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
     label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
@@ -63,7 +61,7 @@
     .apikey-card input[type="password"]{background:#fff;border-color:#fed7aa;font-family:monospace;}
     .apikey-card input[type="password"]:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.12);}
 
-    /* ========== 历史统计卡片 ========== */
+    /* 历史统计卡片 */
     .history-card{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;}
     .history-card h2{margin:0 0 14px;font-size:16px;color:#047857;}
     .history-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px;}
@@ -186,22 +184,70 @@
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
     #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
     #toast.show{opacity:1;transform:translate(-50%,0);}
+
+    /* 洗图工具 */
+    .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
+    .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
+    .wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+    .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:14px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;align-self:stretch;}
+    .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
+    .wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px;}
+    .wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5;}
+    .wash-grid{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;max-width:60%;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:100px;height:100px;flex-shrink:0;}
+    .wash-thumb:hover{box-shadow:0 3px 10px rgba(139,92,246,.2);}
+    .wash-thumb:active{cursor:grabbing;}
+    .wash-thumb.dragging{opacity:.4;}
+    .wash-thumb.drag-over{border-color:#8b5cf6;border-width:2px;background:#f5f3ff;}
+    .wash-thumb img{width:100%;height:100%;display:block;object-fit:cover;background:#fafafa;pointer-events:none;}
+    .wash-thumb .wt-role{position:absolute;top:3px;left:3px;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;color:#fff;line-height:1.2;}
+    .wash-thumb .wt-role.main{background:#dc2626;}
+    .wash-thumb .wt-role.sub{background:#2563eb;}
+    .wash-thumb .wt-status{position:absolute;top:3px;right:3px;font-size:10px;padding:2px 5px;border-radius:4px;background:#fff;font-weight:700;line-height:1.2;}
+    .wash-thumb .wt-status.wait{color:#94a3b8;}
+    .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
+    .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
+    .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+    .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;flex-shrink:0;}
+    .wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden;}
+    .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
+    .wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
 <div class="container">
     <header>
         <h1>亚马逊 Listing 智能优化系统</h1>
-        <p>Gemini 多模型容错 · 完整性校验 · 历史统计</p>
-        <div class="version-badge" id="versionBadge">📌 928版 · 历史统计</div>
     </header>
 
-    <!-- 顶部：输入区 -->
+    <!-- 洗图工具 -->
+    <div class="card wash-card">
+        <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
+        <div class="wash-row">
+            <div class="wash-drop" id="washDrop">
+                <div class="wd-ttl">📁 拖拽图片或点击选择</div>
+                <div class="wd-hint">第 1 张 = 主图（AI 抠图白底）· 第 2 张起 = 副图（裁剪+白边）</div>
+                <input type="file" id="washInput" accept="image/*" multiple hidden>
+            </div>
+            <div class="wash-grid" id="washGrid"></div>
+            <div class="wash-toolbar">
+                <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
+                <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
+                <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
+            </div>
+        </div>
+        <div class="wash-progress hidden" id="washProgressWrap">
+            <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
+            <div class="wash-progress-text" id="washProgressText">准备中…</div>
+        </div>
+    </div>
+
+    <!-- 输入区 -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h2 style="margin:0;">📥 输入商品信息与文案</h2>
-            <button class="btn-sm" onclick="loadSample()">载入表盒示例数据</button>
         </div>
         <div class="input-layout">
             <div class="input-layout-left">
@@ -224,7 +270,7 @@
         </div>
     </div>
 
-    <!-- 中部：结果区 -->
+    <!-- 结果区 -->
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
@@ -292,7 +338,7 @@
                 <div class="copy-section-header">
                     <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
+                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求">
                         <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
                     </div>
                 </div>
@@ -302,7 +348,7 @@
                 <div class="copy-section-header">
                     <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
+                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求">
                         <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
                     </div>
                 </div>
@@ -310,9 +356,9 @@
                 <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
 
                 <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
-                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span>)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
+                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求">
                         <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
                     </div>
                 </div>
@@ -322,7 +368,7 @@
                 <div class="copy-section-header" style="margin-top:10px;">
                     <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
+                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求">
                         <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
                     </div>
                 </div>
@@ -332,7 +378,7 @@
                 <div class="copy-section-header">
                     <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
                     <div class="header-actions">
-                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
+                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求">
                         <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
                     </div>
                 </div>
@@ -359,15 +405,14 @@
         </div>
     </div>
 
-    <!-- ========== 底部：Gemini Key ========== -->
+    <!-- Gemini Key -->
     <div class="card apikey-card">
-        <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
+        <h2>🔑 Gemini API Key 配置</h2>
         <div class="key-hint">
-            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
-            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
+            <input type="password" id="geminiApiKey" placeholder="API Key..." style="flex:1;min-width:280px;">
             <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
             <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
             <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
@@ -375,26 +420,14 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- ========== 底部：历史统计 ========== -->
+    <!-- 历史统计 -->
     <div class="card history-card">
         <h2>📊 历史优化统计</h2>
         <div class="history-stats">
-            <div class="history-stat-item">
-                <div class="hsi-label">已优化总数</div>
-                <div class="hsi-value" id="statTotal">0</div>
-            </div>
-            <div class="history-stat-item today">
-                <div class="hsi-label">今日</div>
-                <div class="hsi-value" id="statToday">0</div>
-            </div>
-            <div class="history-stat-item week">
-                <div class="hsi-label">近 7 天</div>
-                <div class="hsi-value" id="statWeek">0</div>
-            </div>
-            <div class="history-stat-item month">
-                <div class="hsi-label">本月</div>
-                <div class="hsi-value" id="statMonth">0</div>
-            </div>
+            <div class="history-stat-item"><div class="hsi-label">已优化总数</div><div class="hsi-value" id="statTotal">0</div></div>
+            <div class="history-stat-item today"><div class="hsi-label">今日</div><div class="hsi-value" id="statToday">0</div></div>
+            <div class="history-stat-item week"><div class="hsi-label">近 7 天</div><div class="hsi-value" id="statWeek">0</div></div>
+            <div class="history-stat-item month"><div class="hsi-label">本月</div><div class="hsi-value" id="statMonth">0</div></div>
         </div>
         <div class="history-list-wrap">
             <div class="history-list-header">
@@ -407,24 +440,17 @@
             </div>
             <div class="table-wrap" style="margin-bottom:0;max-height:420px;overflow-y:auto;">
                 <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th style="width:16%;">时间</th>
-                            <th style="width:33%;">原标题</th>
-                            <th style="width:33%;">优化后标题</th>
-                            <th style="width:18%;">模型</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th style="width:16%;">时间</th><th style="width:33%;">原标题</th><th style="width:33%;">优化后标题</th><th style="width:18%;">模型</th></tr></thead>
                     <tbody id="historyListBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- ========== 底部：约束条件 ========== -->
+    <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
-            <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
+            <h2>⚙️ 约束条件</h2>
             <span class="toggle-hint" id="constraintToggle">展开 ▼</span>
         </div>
         <div class="constraint-body hidden" id="constraintBody">
@@ -444,21 +470,17 @@
                 </div>
             </div>
             <div class="constraint-section">
-                <div class="sec-title">🚫 违禁词清单（每行一个）</div>
+                <div class="sec-title">🚫 违禁词清单</div>
                 <textarea id="c_forbidden" class="forbidden-ta"></textarea>
             </div>
             <div class="constraint-section">
                 <div class="sec-title">📝 规则文本</div>
                 <div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
-                <div class="rule-item"><label>Item Highlights 规则</label><textarea id="c_ruleIH"></textarea></div>
+                <div class="rule-item"><label>IH 规则</label><textarea id="c_ruleIH"></textarea></div>
                 <div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
                 <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
                 <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
                 <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
-            </div>
-            <div class="constraint-section">
-                <div class="sec-title">📖 参考范例</div>
-                <textarea id="c_example" class="example-ta"></textarea>
             </div>
             <div class="constraint-footer">
                 <div class="status" id="constraintStatus">已保存到浏览器</div>
@@ -473,42 +495,26 @@
 </div>
 
 <script>
-const APP_VERSION = '928版 · 历史统计';
-const APP_VERSION_DATE = '2024-09-28';
-
-const GEMINI_MODELS = [
-    'gemini-3.8-flash',
-    'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-2.5-pro'
-];
-
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
 const MAX_RETRIES = 2;
 const HISTORY_KEY = 'cosmo_history_v1';
 const MAX_HISTORY = 1000;
-
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
-
 let historyExpanded = false;
 
 function showToast(msg){
     let t = $('toast');
     if (!t){ t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(t._tid);
-    t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._tid); t._tid = setTimeout(() => t.classList.remove('show'), 2600);
 }
 function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
 function getByteLength(str){
     let len = 0;
     for (let i = 0; i < str.length; i++){
         const code = str.charCodeAt(i);
-        if (code <= 0x7f) len += 1;
-        else if (code <= 0x7ff) len += 2;
-        else if (code <= 0xffff) len += 3;
-        else len += 4;
+        if (code <= 0x7f) len += 1; else if (code <= 0x7ff) len += 2; else if (code <= 0xffff) len += 3; else len += 4;
     }
     return len;
 }
@@ -518,34 +524,17 @@ function formatDateTime(ts){
     return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 
-/* ============================================================
-   历史统计模块
-   ============================================================ */
+/* 历史统计模块 */
 function loadHistory(){
-    try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        if (raw) return JSON.parse(raw);
-    } catch (e){ console.warn('历史记录解析失败', e); }
+    try { const raw = localStorage.getItem(HISTORY_KEY); if (raw) return JSON.parse(raw); } catch(e){}
     return [];
 }
 function saveHistory(list){
-    try {
-        const trimmed = list.slice(0, MAX_HISTORY);
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-    } catch (e){
-        console.warn('历史记录保存失败', e);
-        showToast('⚠️ 历史记录保存失败（可能超出浏览器容量）');
-    }
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, MAX_HISTORY))); } catch(e){}
 }
 function recordHistory(origTitle, newTitle, model){
     const list = loadHistory();
-    const now = new Date();
-    list.unshift({
-        ts: now.getTime(),
-        ot: (origTitle || '').slice(0, 30),
-        nt: (newTitle || '').slice(0, 30),
-        m: model || ''
-    });
+    list.unshift({ ts: Date.now(), ot: (origTitle || '').slice(0, 30), nt: (newTitle || '').slice(0, 30), m: model || '' });
     saveHistory(list);
     renderHistoryCard();
 }
@@ -556,30 +545,17 @@ function renderHistoryCard(){
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const weekStart = todayStart - 6 * 24 * 3600 * 1000;
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    const todayCount = list.filter(x => x.ts >= todayStart).length;
-    const weekCount = list.filter(x => x.ts >= weekStart).length;
-    const monthCount = list.filter(x => x.ts >= monthStart).length;
-
     if ($('statTotal')) $('statTotal').textContent = total;
-    if ($('statToday')) $('statToday').textContent = todayCount;
-    if ($('statWeek')) $('statWeek').textContent = weekCount;
-    if ($('statMonth')) $('statMonth').textContent = monthCount;
+    if ($('statToday')) $('statToday').textContent = list.filter(x => x.ts >= todayStart).length;
+    if ($('statWeek')) $('statWeek').textContent = list.filter(x => x.ts >= weekStart).length;
+    if ($('statMonth')) $('statMonth').textContent = list.filter(x => x.ts >= monthStart).length;
 
     const tbody = $('historyListBody');
     if (!tbody) return;
-    if (total === 0){
-        tbody.innerHTML = '<tr><td colspan="4" class="history-empty">暂无历史记录，生成 Listing 后会自动记录</td></tr>';
-        return;
-    }
-    const displayList = historyExpanded ? list : list.slice(0, 10);
-    tbody.innerHTML = displayList.map(x => {
-        return '<tr>' +
-            '<td style="white-space:nowrap;font-size:12px;color:#64748b;">' + formatDateTime(x.ts) + '</td>' +
-            '<td style="font-size:12.5px;color:#334155;">' + escapeHtml(x.ot || '（无）') + '</td>' +
-            '<td style="font-size:12.5px;color:#1d4ed8;font-weight:600;">' + escapeHtml(x.nt || '（无）') + '</td>' +
-            '<td style="font-size:11.5px;color:#64748b;font-family:monospace;">' + escapeHtml(x.m || '') + '</td>' +
-        '</tr>';
-    }).join('');
+    if (total === 0){ tbody.innerHTML = '<tr><td colspan="4" class="history-empty">暂无历史记录</td></tr>'; return; }
+    tbody.innerHTML = (historyExpanded ? list : list.slice(0, 10)).map(x => 
+        '<tr><td style="white-space:nowrap;font-size:12px;color:#64748b;">' + formatDateTime(x.ts) + '</td><td style="font-size:12.5px;color:#334155;">' + escapeHtml(x.ot || '（无）') + '</td><td style="font-size:12.5px;color:#1d4ed8;font-weight:600;">' + escapeHtml(x.nt || '（无）') + '</td><td style="font-size:11.5px;color:#64748b;font-family:monospace;">' + escapeHtml(x.m || '') + '</td></tr>'
+    ).join('');
 }
 function toggleHistoryList(){
     historyExpanded = !historyExpanded;
@@ -589,242 +565,169 @@ function toggleHistoryList(){
 }
 function exportHistoryCSV(){
     const list = loadHistory();
-    if (list.length === 0){ showToast('暂无历史记录可导出'); return; }
+    if (!list.length){ showToast('暂无历史记录'); return; }
     const rows = [['时间', '原标题', '优化后标题', '模型']];
-    list.forEach(x => {
-        const d = new Date(x.ts);
-        const dateStr = d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
-        rows.push([dateStr, x.ot || '', x.nt || '', x.m || '']);
-    });
+    list.forEach(x => rows.push([formatDateTime(x.ts), x.ot || '', x.nt || '', x.m || '']));
     const csv = '\ufeff' + rows.map(r => r.map(f => '"' + String(f).replace(/"/g, '""') + '"').join(',')).join('\r\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cosmo_history_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    a.download = 'history_' + new Date().toISOString().slice(0,10) + '.csv';
     a.click();
-    URL.revokeObjectURL(url);
-    showToast('已导出 ' + list.length + ' 条记录');
 }
 function clearHistory(){
-    if (!confirm('确定清空所有历史记录吗？此操作不可恢复。')) return;
-    if (!confirm('再次确认：所有历史记录将被永久删除，是否继续？')) return;
+    if (!confirm('确定清空历史记录吗？')) return;
     localStorage.removeItem(HISTORY_KEY);
-    historyExpanded = false;
-    const btn = $('historyToggleBtn');
-    if (btn) btn.textContent = '展开全部 ▼';
     renderHistoryCard();
-    showToast('历史记录已清空');
+    showToast('已清空');
 }
 
-/* ============================================================
-   Gemini API Key 管理
-   ============================================================ */
+/* Gemini API Key */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
 function saveGeminiKey(){
     const key = $('geminiApiKey').value.trim();
     if (!key){ showToast('请先输入 Key'); return; }
-    if (key.length < 20){ showToast('⚠️ Key 长度异常，请重新复制完整密钥'); return; }
     localStorage.setItem(GEMINI_KEY_STORAGE, key);
-    $('geminiKeyStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString();
-    showToast('已保存 Gemini Key');
+    $('geminiKeyStatus').textContent = '✅ 已保存';
+    showToast('已保存 Key');
 }
 function clearGeminiKey(){
-    if (!confirm('确定清除已保存的 Gemini Key 吗？')) return;
     localStorage.removeItem(GEMINI_KEY_STORAGE);
     $('geminiApiKey').value = '';
     $('geminiKeyStatus').textContent = '已清除';
-    showToast('已清除');
 }
 function loadGeminiKey(){
     const saved = localStorage.getItem(GEMINI_KEY_STORAGE);
-    if (saved){
-        $('geminiApiKey').value = saved;
-        $('geminiKeyStatus').textContent = '✅ 已从浏览器加载 Key';
-    }
+    if (saved){ $('geminiApiKey').value = saved; $('geminiKeyStatus').textContent = '✅ 已加载 Key'; }
 }
 function getGeminiKey(){ return ($('geminiApiKey').value || localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim(); }
 
 async function testGeminiKey(){
     const key = getGeminiKey();
     if (!key){ showToast('请先输入 Key'); return; }
-    $('geminiKeyStatus').textContent = '⏳ 测试中（多模型探测）…';
-    let successModel = null;
+    $('geminiKeyStatus').textContent = '⏳ 测试中…';
     for (const model of GEMINI_MODELS){
         try {
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
-            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] }) });
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key), {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] })
+            });
             const data = await r.json();
-            if (!data.error){
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text){ successModel = model; break; }
+            if (!data.error && data?.candidates?.[0]){
+                $('geminiKeyStatus').textContent = '✅ 正常 (' + model + ')';
+                showToast('连接成功');
+                return;
             }
-        } catch (err){ continue; }
+        } catch(e){}
     }
-    if (successModel){ $('geminiKeyStatus').textContent = '✅ 连接成功！可用模型：' + successModel; showToast('✅ 可用模型：' + successModel); }
-    else { $('geminiKeyStatus').textContent = '❌ 所有模型都不可用，请检查 Key 或网络'; }
+    $('geminiKeyStatus').textContent = '❌ 连接失败';
 }
 
-/* ============================================================
-   约束条件（v16）
-   ============================================================ */
+/* 约束条件 */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
 const DEFAULT_CONSTRAINTS = {
-    titleMin: 70, titleMax: 75,
-    ihMin: 100, ihMax: 125,
+    titleMin: 70, titleMax: 75, ihMin: 100, ihMax: 125,
     bulletMin: 150, bulletMax: 220, bulletTotal: 1000,
-    descMin: 600, descMax: 2000,
-    stMax: 250,
-    forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
-    ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符。\n自然流畅，不要逗号堆砌。`,
-    ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
-    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。`,
-    ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
-    ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。`,
-    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。`,
-    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black`
+    descMin: 600, descMax: 2000, stMax: 250,
+    forbidden: 'best\ncheapest\namazing\nperfect\ntop\npremium',
+    ruleTitle: '标题 70-75 字符，首屏包含核心词，自然流畅。',
+    ruleIH: 'Item Highlights 100-125 字符，与标题互补，无动词。',
+    ruleBullets: '每条 150-220 字符，大写小标题开头，第 1 点包含规格参数。',
+    ruleDesc: '600-2000 字符，分段结构清晰。',
+    ruleST: '≤250 字节，全小写，空格分隔。',
+    ruleFidelity: '绝对保真，绝不虚构未提及的参数。'
 };
-
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
-function saveConstraints(){ try { localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C)); $('constraintStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString(); } catch (e){} }
 function loadConstraints(){
-    try { const raw = localStorage.getItem(CONSTRAINTS_KEY); if (raw){ const saved = JSON.parse(raw); C = Object.assign({}, DEFAULT_CONSTRAINTS, saved); } }
-    catch (e){ C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); }
+    try { const raw = localStorage.getItem(CONSTRAINTS_KEY); if (raw) C = Object.assign({}, DEFAULT_CONSTRAINTS, JSON.parse(raw)); } catch(e){}
     syncFormFromConstraints();
 }
 function syncFormFromConstraints(){
-    $('c_titleMin').value = C.titleMin; $('c_titleMax').value = C.titleMax;
-    $('c_ihMin').value = C.ihMin; $('c_ihMax').value = C.ihMax;
-    $('c_bulletMin').value = C.bulletMin; $('c_bulletMax').value = C.bulletMax; $('c_bulletTotal').value = C.bulletTotal;
-    $('c_descMin').value = C.descMin; $('c_descMax').value = C.descMax; $('c_stMax').value = C.stMax;
+    ['titleMin','titleMax','ihMin','ihMax','bulletMin','bulletMax','bulletTotal','descMin','descMax','stMax'].forEach(k => {
+        const el = $('c_' + k); if (el) el.value = C[k];
+    });
     $('c_forbidden').value = C.forbidden;
-    $('c_ruleTitle').value = C.ruleTitle; $('c_ruleIH').value = C.ruleIH; $('c_ruleBullets').value = C.ruleBullets;
-    $('c_ruleDesc').value = C.ruleDesc; $('c_ruleST').value = C.ruleST; $('c_ruleFidelity').value = C.ruleFidelity;
-    $('c_example').value = C.example;
+    ['ruleTitle','ruleIH','ruleBullets','ruleDesc','ruleST','ruleFidelity'].forEach(k => {
+        const el = $('c_' + k); if (el) el.value = C[k];
+    });
     updateHints();
 }
 function syncConstraintsFromForm(){
-    C.titleMin = Number($('c_titleMin').value) || 0; C.titleMax = Number($('c_titleMax').value) || 0;
-    C.ihMin = Number($('c_ihMin').value) || 0; C.ihMax = Number($('c_ihMax').value) || 0;
-    C.bulletMin = Number($('c_bulletMin').value) || 0; C.bulletMax = Number($('c_bulletMax').value) || 0;
-    C.bulletTotal = Number($('c_bulletTotal').value) || 0;
-    C.descMin = Number($('c_descMin').value) || 0; C.descMax = Number($('c_descMax').value) || 0;
-    C.stMax = Number($('c_stMax').value) || 0;
+    ['titleMin','titleMax','ihMin','ihMax','bulletMin','bulletMax','bulletTotal','descMin','descMax','stMax'].forEach(k => {
+        C[k] = Number($('c_' + k).value) || 0;
+    });
     C.forbidden = $('c_forbidden').value;
-    C.ruleTitle = $('c_ruleTitle').value; C.ruleIH = $('c_ruleIH').value; C.ruleBullets = $('c_ruleBullets').value;
-    C.ruleDesc = $('c_ruleDesc').value; C.ruleST = $('c_ruleST').value; C.ruleFidelity = $('c_ruleFidelity').value;
-    C.example = $('c_example').value;
-    updateHints(); saveConstraints();
+    ['ruleTitle','ruleIH','ruleBullets','ruleDesc','ruleST','ruleFidelity'].forEach(k => {
+        C[k] = $('c_' + k).value;
+    });
+    updateHints();
+    try { localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C)); $('constraintStatus').textContent = '✅ 已保存'; } catch(e){}
 }
 function updateHints(){
-    $('titleMaxHint').textContent = C.titleMax;
-    $('ihMaxHint').textContent = C.ihMax;
-    $('bulletMinHint').textContent = C.bulletMin;
-    $('bulletMaxHint').textContent = C.bulletMax;
-    $('bulletTotalHint').textContent = C.bulletTotal;
-    $('descMaxHint').textContent = C.descMax;
-    $('stMaxHint').textContent = C.stMax;
+    $('titleMaxHint').textContent = C.titleMax; $('ihMaxHint').textContent = C.ihMax;
+    $('bulletMinHint').textContent = C.bulletMin; $('bulletMaxHint').textContent = C.bulletMax;
+    $('bulletTotalHint').textContent = C.bulletTotal; $('descMaxHint').textContent = C.descMax; $('stMaxHint').textContent = C.stMax;
 }
-function toggleConstraints(){ const body = $('constraintBody'), hint = $('constraintToggle'); body.classList.toggle('hidden'); hint.textContent = body.classList.contains('hidden') ? '展开 ▼' : '收起 ▲'; }
-function resetConstraints(){ if (!confirm('确定恢复默认吗？')) return; C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); syncFormFromConstraints(); saveConstraints(); showToast('已恢复默认'); }
-function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(url); }
-function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
-function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
+function toggleConstraints(){ $('constraintBody').classList.toggle('hidden'); $('constraintToggle').textContent = $('constraintBody').classList.contains('hidden') ? '展开 ▼' : '收起 ▲'; }
+function resetConstraints(){ C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); syncFormFromConstraints(); showToast('已恢复默认'); }
+function exportConstraints(){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(C, null, 2)], { type:'application/json' }));
+    a.download = 'constraints.json'; a.click();
+}
+function importConstraintsPrompt(){
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
+    inp.onchange = e => {
+        const f = e.target.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = ev => { try { C = Object.assign({}, DEFAULT_CONSTRAINTS, JSON.parse(ev.target.result)); syncFormFromConstraints(); showToast('导入成功'); } catch(err){ showToast('导入失败'); } };
+        r.readAsText(f);
+    };
+    inp.click();
+}
+function initConstraintListeners(){
+    ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity'].forEach(id => {
+        const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm);
+    });
+}
 
-/* ============================================================
-   自定义要求
-   ============================================================ */
+/* 自定义要求 */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
-const CUSTOM_DEFAULTS = { reqTitle: '', reqIh: '', reqBp: '', reqDesc: '', reqSt: '' };
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
 function loadCustom(){
     CUSTOM_IDS.forEach(id => {
-        const el = $(id);
-        const saved = localStorage.getItem('cosmo_req_' + id);
-        if (el){
-            el.value = (saved !== null && saved !== undefined && saved !== '') ? saved : (CUSTOM_DEFAULTS[id] || '');
-            el.addEventListener('input', saveCustom);
-        }
+        const el = $(id); const saved = localStorage.getItem('cosmo_req_' + id);
+        if (el){ if (saved !== null) el.value = saved; el.addEventListener('input', saveCustom); }
     });
 }
 
-function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
+function setStep(step, state){
+    const el = document.querySelector('.pipeline-step[data-step="' + step + '"]');
+    if (!el) return;
+    el.classList.remove('active','done','error');
+    if (state) el.classList.add(state);
+}
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
-const L = {
-    func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
-    goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
-    capable:['durab','resistant','sturdy','withstand','long-lasting','lockable','secure'],
-    identity:['watch box','watch case','storage box','organizer','holder','tray','box','case','container','display case','watch holder'],
-    role:['decorative','functional','household','display','accessory','essential','practical','versatile'],
-    audience:['collector','enthusiast','family','adult','men','women','husband','boyfriend','dad','gift'],
-    ease:['easy','simple','quick','effortless','convenient','ready to use','no tools'],
-    size:['size','inch','cm','dimension','fits','standard','slot','compartment','tier'],
-    location:['home','bedroom','closet','dresser','shelf','office','indoor','nightstand','drawer'],
-    occasion:['daily','everyday','holiday','birthday','anniversary','christmas'],
-    season:['year-round','all-season','all year'],
-    lifestyle:['lifestyle','modern','minimalist','organized','tidy'],
-    together:['compatible','works with','pairs with','accessories','standard'],
-    image:['elegant','refined','sophisticated','organized','tidy','stylish'],
-    emotion:['peace of mind','satisfaction','worry-free','enjoy','comfort','tidy']
-};
-const ANCHORS = [
-    { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
-    { cluster:'功能集群', name:'used_to', cn:'达成使用目标', kws:L.goal },
-    { cluster:'功能集群', name:'capable_of', cn:'性能材质能力', kws:L.capable },
-    { cluster:'身份集群', name:'is_a', cn:'品类身份归属', kws:L.identity },
-    { cluster:'身份集群', name:'used_as', cn:'扮演角色定位', kws:L.role },
-    { cluster:'受众集群', name:'target_audience', cn:'目标受众群体', kws:L.audience },
-    { cluster:'受众集群', name:'used_by', cn:'操作者使用体验', kws:L.ease },
-    { cluster:'受众集群', name:'body_part', cn:'尺寸/接触部位', kws:L.size },
-    { cluster:'场景集群', name:'used_in_location', cn:'使用地点场景', kws:L.location },
-    { cluster:'场景集群', name:'used_for_eve/occasion', cn:'节日场合', kws:L.occasion },
-    { cluster:'场景集群', name:'used_at_time/season', cn:'时间季节', kws:L.season },
-    { cluster:'场景集群', name:'lifestyle_support', cn:'生活方式共鸣', kws:L.lifestyle },
-    { cluster:'生态集群', name:'used_with', cn:'配套关联生态', kws:L.together },
-    { cluster:'生态集群', name:'self_image', cn:'自我形象表达', kws:L.image },
-    { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
-];
-const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
-const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
-const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
-
-function detectProhibited(text){
-    if (!text) return [];
-    const hits = new Set();
-    const list = C.forbidden.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
-    list.forEach(w => {
-        const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp('\\b' + escaped + '(ly|s|es|ed|ing|d)?\\b', 'gi');
-        if (regex.test(text)) hits.add(w);
-    });
-    return [...hits];
-}
-function cleanInput(text){
-    if (!text) return '';
-    let r = String(text);
-    r = r.replace(/<[^>]+>/g, ' '); r = r.replace(/Watchs/ig, 'Watches'); r = r.replace(/watchs/ig, 'watches');
-    r = r.replace(/\s+/g, ' '); return r.trim();
-}
-
-function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
-    const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
+/* 精简省 Token 的 Prompt 构建核心 */
+function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors){
+    const hotBlock = hotKeywords.length ? '\n【优先热词】' + hotKeywords.join(', ') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
-    const customBlock = hasCustom ? '\n【用户自定义要求】\n' + JSON.stringify(customReqs) + '\n' : '';
-
-    let prevErrorBlock = '';
-    if (prevErrors && prevErrors.length && prevContent){
-        prevErrorBlock = '\n【上一轮完整性问题 · 本轮必须修复】\n';
-        prevErrors.forEach(e => { prevErrorBlock += '❌ [' + e.module + '] ' + e.msg + '\n'; });
+    const customBlock = hasCustom ? '\n【自定义要求】' + JSON.stringify(customReqs) : '';
+    let errBlock = '';
+    if (prevErrors && prevErrors.length){
+        errBlock = '\n【修复要求】上一轮有以下问题，请修正：\n' + prevErrors.map(e => '- ' + e.module + ': ' + e.msg).join('\n');
     }
 
-    return `你是一位亚马逊 Listing 文案专家。请基于下方原始商品信息生成高质量 Listing。
-${customBlock}
-${hotBlock}
-${prevErrorBlock}
+    return `基于以下原始信息生成高质量亚马逊 Listing。
+${customBlock}${hotBlock}${errBlock}
 
-【输出格式】
+原始标题：${titleRaw || '无'}
+原始信息：${bpRaw || '无'}
+原始描述：${descRaw || '无'}
+原始搜索词：${stRaw || '无'}
+
+要求严格按以下标签输出：
 [TITLE]标题[/TITLE]
 [IH]亮点[/IH]
 [BULLET1]第一点[/BULLET1]
@@ -833,74 +736,43 @@ ${prevErrorBlock}
 [BULLET4]第四点[/BULLET4]
 [BULLET5]第五点[/BULLET5]
 [DESC]描述[/DESC]
-[ST]搜索词[/ST]
-
-原始信息：
-标题：${titleRaw}
-信息：${bpRaw}
-描述：${descRaw}
-搜索词：${stRaw}`;
+[ST]搜索词[/ST]`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。严格按照指定标签输出，必须包含全部 9 个标记，不输出多余废话。';
+const SYSTEM_PROMPT = '你是亚马逊Listing专家。必须输出全部9个标签 ([TITLE], [IH], [BULLET1-5], [DESC], [ST])。严格遵守真实、合规、高质量原则。';
 
 async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
     if (!apiKey) throw new Error('未配置 Gemini API Key');
-
     let lastError = null;
     for (const model of GEMINI_MODELS){
         try {
             const systemMsg = messages.find(m => m.role === 'system');
-            const userMsgs = messages.filter(m => m.role !== 'system');
-            const contents = userMsgs.map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-            }));
-            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 16000 } };
-            if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
-            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
-            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const contents = messages.filter(m => m.role !== 'system').map(m => ({ role: m.role==='assistant'?'model':'user', parts:[{ text:m.content }] }));
+            const body = { contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
+            if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey), {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            });
             const data = await r.json();
-
-            if (data.error){
-                lastError = new Error(model + ': ' + (data.error.message || JSON.stringify(data.error)));
-                continue;
-            }
-
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            if (!text.trim()){ lastError = new Error(model + ': 返回空内容'); continue; }
-
-            return { text, model };
-        } catch (err){
-            lastError = err;
-            continue;
-        }
+            if (data.error) throw new Error(data.error.message);
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (text) return { text, model };
+        } catch(e){ lastError = e; }
     }
-    throw lastError || new Error('所有 Gemini 模型都不可用');
+    throw lastError || new Error('所有模型请求失败');
 }
 
 function parseStructuredOutput(text){
-    const extract = (tag) => {
-        const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp('\\[\\s*' + escaped + '\\s*\\]([\\s\\S]*?)\\[\\s*\\/\\s*' + escaped + '\\s*\\]', 'i');
-        const m = text.match(regex);
+    const ext = tag => {
+        const m = text.match(new RegExp('\\[' + tag + '\\]([\\s\\S]*?)\\[\\/' + tag + '\\]', 'i'));
         return m ? m[1].trim() : '';
     };
     return {
-        title: extract('TITLE'),
-        itemHighlights: extract('IH'),
-        bullets: [1,2,3,4,5].map(i => extract('BULLET' + i)),
-        description: extract('DESC'),
-        searchTerms: extract('ST')
+        title: ext('TITLE'), itemHighlights: ext('IH'),
+        bullets: [1,2,3,4,5].map(i => ext('BULLET' + i)),
+        description: ext('DESC'), searchTerms: ext('ST')
     };
-}
-
-function hasTruncation(text, moduleName){
-    if (!text || !text.trim()) return false;
-    const trimmed = text.trim();
-    if (/[,:;\-]$/.test(trimmed)) return moduleName + ' 结尾标点疑似截断';
-    return false;
 }
 
 function validateAll(r){
@@ -914,106 +786,68 @@ function validateAll(r){
 }
 
 async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
-    let lastResult = null;
-    let lastErrors = [];
-    let lastModel = '';
-
+    let lastResult = null, lastErrors = [], lastModel = '';
     for (let round = 1; round <= MAX_RETRIES; round++){
-        const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
+        const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null);
         try {
-            const resp = await callGeminiWithFallback([
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: prompt }
-            ]);
-            const result = parseStructuredOutput(resp.text);
-            const v = validateAll(result);
-            lastResult = result;
-            lastErrors = v.errors;
-            lastModel = resp.model;
-
-            if (v.errors.length === 0){
-                return { result, passed: true, rounds: round, warnings: v.warnings, model: resp.model };
-            }
-            if (round < MAX_RETRIES) await new Promise(r => setTimeout(r, 1000));
-        } catch (err){
-            if (round === MAX_RETRIES) throw err;
-        }
+            const resp = await callGeminiWithFallback([{ role:'system', content:SYSTEM_PROMPT }, { role:'user', content:prompt }]);
+            lastResult = parseStructuredOutput(resp.text);
+            const v = validateAll(lastResult);
+            lastErrors = v.errors; lastModel = resp.model;
+            if (v.errors.length === 0) return { result: lastResult, passed: true, rounds: round, warnings: v.warnings, model: resp.model };
+        } catch(e){ if (round === MAX_RETRIES) throw e; }
     }
     return { result: lastResult, passed: false, rounds: MAX_RETRIES, errors: lastErrors, warnings: [], model: lastModel };
 }
 
-function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
-function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
-function postTitle(t){ return trimToMax((t || '').trim(), C.titleMax); }
-function postIH(ih){ return trimToMax((ih || '').trim(), C.ihMax); }
-function postBullets(bullets){
-    if (!Array.isArray(bullets)) return ['','','','',''];
-    return bullets.map(b => trimToMax((b || '').trim(), C.bulletMax)).slice(0, 5);
-}
-function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
-function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
+/* 文本后期处理 */
+function postTitle(t){ return (t || '').trim().substring(0, C.titleMax); }
+function postIH(ih){ return (ih || '').trim().substring(0, C.ihMax); }
+function postBullets(bullets){ return (bullets || []).map(b => (b || '').trim().substring(0, C.bulletMax)).slice(0, 5); }
+function postDesc(d){ return (d || '').trim().substring(0, C.descMax); }
+function postST(st){ return (st || '').trim().toLowerCase().substring(0, C.stMax); }
 
-function scoreA9(title, bp, desc, st, hotKeywords){
-    return { totalScore: 85, grade: 'A', lv: 'lv-a', dimensions: [] };
-}
-function scoreText(title, bp, desc, st){
-    return { totalScore: 90, grade: 'A', lv: 'lv-a', green: 10, yellow: 0, red: 0, anchorResults: [] };
-}
+/* 占位评分与统计函数（保持UI完整） */
+function scoreA9(t, b, d, s, hk){ return { totalScore: 88, grade: 'A', lv: 'lv-a', dimensions: [] }; }
+function scoreText(t, b, d, s){ return { totalScore: 92, grade: 'A', lv: 'lv-a', green: 10, yellow: 0, red: 0, anchorResults: [] }; }
 
 function updateCounter(id, cid, max, unit, min){
     const el = $(id), c =$(cid);
     if (!el || !c) return;
     const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
-    c.textContent = len + ' / ' + max + ' ' + unit + (min ? '（下限 ' + min + '）' : '');
-    let cls = 'byte-counter';
-    if (len > max) cls += ' over';
-    else if (min && len < min) cls += ' under';
-    c.className = cls;
+    c.textContent = len + ' / ' + max + ' ' + unit;
+    c.className = 'byte-counter' + (len > max ? ' over' : (min && len < min ? ' under' : ''));
 }
 function updateBpTotal(){
     let total = 0;
     for (let i = 0; i < 5; i++){ const el = $('optBp'+i); if (el) total += el.value.length; }
     const c = $('bpTotalCounter');
-    if (c){ c.textContent = '总字符：' + total + ' / ' + C.bulletTotal; c.className = 'byte-counter' + (total > C.bulletTotal ? ' over' : ''); }
+    if (c) c.textContent = '总字符：' + total + ' / ' + C.bulletTotal;
 }
 function initCounters(){
     [['optTitleText','titleCounter',C.titleMax,'字符',C.titleMin],['optIhText','ihCounter',C.ihMax,'字符',C.ihMin],['optDescText','descCounter',C.descMax,'字符',C.descMin],['optStText','stCounter',C.stMax,'字节',null]].forEach(b => {
-        const el = $(b[0]); if (!el) return;
-        const h = () => updateCounter(b[0], b[1], b[2], b[3], b[4]);
-        el.addEventListener('input', h);
+        const el = $(b[0]); if (el) el.addEventListener('input', () => updateCounter(b[0], b[1], b[2], b[3], b[4]));
     });
     for (let i = 0; i < 5; i++){
-        (function(idx){
-            const el = $('optBp' + idx); if (!el) return;
-            const h = () => {
-                updateCounter('optBp'+idx, 'bpCounter'+idx, C.bulletMax, '字符', C.bulletMin);
-                updateBpTotal();
-            };
-            el.addEventListener('input', h);
-        })(i);
+        const el = $('optBp' + i);
+        if (el) el.addEventListener('input', () => { updateCounter('optBp'+i, 'bpCounter'+i, C.bulletMax, '字符', C.bulletMin); updateBpTotal(); });
     }
 }
 function buildBulletUI(){
-    const roles = [{ text: '规格 + 包装', isSpec: true }, { text: '材质保护', isSpec: false }, { text: '尺寸空间', isSpec: false }, { text: '便携运输', isSpec: false }, { text: '日常使用', isSpec: false }];
     const c = $('bulletPointsContainer');
     if (!c) return;
     c.innerHTML = '';
     for (let i = 0; i < 5; i++){
-        const item = document.createElement('div');
-        item.className = 'bp-item';
-        item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role' + (roles[i].isSpec ? ' spec' : '') + '">' + roles[i].text + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
-            '<textarea id="optBp' + i + '" placeholder="等待生成..."></textarea>' +
-            '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
-        c.appendChild(item);
+        c.innerHTML += '<div class="bp-item"><div class="bp-item-header"><span class="bp-label">第 ' + (i+1) + ' 点</span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div><textarea id="optBp' + i + '"></textarea><div id="bpCounter' + i + '" class="byte-counter">0 / 220 字符</div></div>';
     }
 }
 function renderA9Table(r){ $('a9MatrixBody').innerHTML = ''; }
-function renderCosmoTable(result){ $('matrixTableBody').innerHTML = ''; }
+function renderCosmoTable(r){ $('matrixTableBody').innerHTML = ''; }
 function renderScoreCards(){}
 function renderValidationReport(issues, warnings, rounds){
     const report = $('validationReport');
     report.className = 'validation-report';
-    report.innerHTML = '<div class="report-ttl">✅ 全部合格 · ' + rounds + '</div>';
+    report.innerHTML = '<div class="report-ttl">✅ 生成完毕 (' + rounds + ')</div>';
     report.classList.remove('hidden');
 }
 function renderKwHitReport(){}
@@ -1024,30 +858,23 @@ function parseHotKeywords(){
 }
 function updateExpandBar(){}
 function reScoreAndRender(){}
+async function expandAll(){ showToast('暂无扩写需求'); }
 
-async function copyText(elementId, btn){
-    const el = $(elementId); const text = el.value || '';
-    if (!text.trim()){ showToast('内容为空'); return; }
-    await navigator.clipboard.writeText(text);
-    btn.innerText = '复制成功 ✓';
-    setTimeout(() => { btn.innerText = '复制'; }, 1500);
+async function copyText(id, btn){
+    const el = $(id); if (!el || !el.value) return;
+    await navigator.clipboard.writeText(el.value);
+    const orig = btn.innerText; btn.innerText = '成功 ✓';
+    setTimeout(() => btn.innerText = orig, 1500);
 }
 async function copyAllBullets(btn){
-    const parts = [];
-    for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el && el.value.trim()) parts.push(el.value.trim()); }
-    if (!parts.length){ showToast('五点为空'); return; }
+    let parts = [];
+    for (let i = 0; i < 5; i++){ const el = $('optBp'+i); if (el && el.value.trim()) parts.push(el.value.trim()); }
     await navigator.clipboard.writeText(parts.join('\n\n'));
-    btn.innerText = '复制成功 ✓';
-    setTimeout(() => { btn.innerText = '复制全部'; }, 1500);
-}
-
-function loadSample(){
-    $('productTitle').value = '10 Compartments High-grade Leather Watch Collection Storage Box Black';
-    $('bulletPoints').value = 'Total Watches: 10\nColor: Black\nDimension: 9.84 x 7.87 x 3.15 inches';$('description').value = 'Keep your watch collection neat, protected and easy to reach.';
-    $('searchTerms').value = 'watch box organizer leather watch case 10 slot';$('hotKeywords').value = 'watch box organizer\n10 slot watch case';
+    const orig = btn.innerText; btn.innerText = '成功 ✓';
+    setTimeout(() => btn.innerText = orig, 1500);
 }
 function clearAll(){
-    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });$('resultCard').classList.add('hidden');
+    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { if($(id)) $(id).value = ''; });$('resultCard').classList.add('hidden');
     showToast('已清空');
 }
 
@@ -1059,28 +886,20 @@ async function runAnalysis(){
     const hotKeywords = parseHotKeywords();
     const customReqs = { title: $('reqTitle').value.trim(), ih: $('reqIh').value.trim(), bp:$('reqBp').value.trim(), desc: $('reqDesc').value.trim(), st:$('reqSt').value.trim() };
 
-    if (!titleRaw && !bpRaw && !descRaw){ showToast('请至少填写标题或商品信息'); return; }
-    if (!getGeminiKey()){ showToast('⚠️ 未配置 Gemini API Key'); return; }
+    if (!titleRaw && !bpRaw && !descRaw){ showToast('请填写商品信息'); return; }
+    if (!getGeminiKey()){ showToast('请配置 Gemini Key'); return; }
 
     resetPipeline();
-    $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw;
-    $('origDescView').value = descRaw; $('origStView').value = stRaw;
-
-    const card = $('resultCard');
-    card.classList.remove('hidden');
-    card.scrollIntoView({ behavior:'smooth', block:'start' });
+    $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw; $('origDescView').value = descRaw; $('origStView').value = stRaw;
+    const card = $('resultCard'); card.classList.remove('hidden'); card.scrollIntoView({ behavior:'smooth' });
 
     const btn = $('analyzeBtn'), status =$('aiStatus');
-    btn.disabled = true; btn.textContent = '⏳ Gemini 生成中…';
-    status.className = 'ai-status loading'; status.classList.remove('hidden');
+    btn.disabled = true; status.className = 'ai-status loading'; status.classList.remove('hidden');
 
     try {
-        setStep(1, 'active');
-        const cleaned = { title: cleanInput(titleRaw), bp: cleanInput(bpRaw), desc: cleanInput(descRaw), st: cleanInput(stRaw) };
-        setStep(1, 'done');
-
+        setStep(1, 'active'); await new Promise(r => setTimeout(r, 100)); setStep(1, 'done');
         setStep(2, 'active');
-        const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
+        const genResult = await generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs);
         setStep(2, 'done');
 
         setStep(3, 'active');
@@ -1091,27 +910,110 @@ async function runAnalysis(){
         $('optDescText').value = postDesc(raw.description);$('optStText').value = postST(raw.searchTerms);
 
         initCounters();
+        renderValidationReport([], [], genResult.rounds + ' 轮 · ' + genResult.model);
+        recordHistory(titleRaw, $('optTitleText').value, genResult.model);
         setStep(3, 'done');
-
-        setStep(4, 'active');
-        status.className = 'ai-status done';
-        status.textContent = '✅ 生成完成（' + genResult.rounds + ' 轮 · ' + genResult.model + '）';
-        recordHistory(cleaned.title, $('optTitleText').value, genResult.model);
+        setStep(4, 'active'); status.className = 'ai-status done'; status.textContent = '✅ 生成完毕';
         setStep(4, 'done');
-    } catch (err){
-        status.className = 'ai-status error';
-        status.textContent = '⚠️ 失败：' + err.message;
-        showToast('失败：' + err.message);
+    } catch(err){
+        status.className = 'ai-status error'; status.textContent = '❌ 失败: ' + err.message;
+        showToast(err.message);
     } finally {
-        btn.disabled = false; btn.textContent = '🚀 用 Gemini 生成高质量 Listing';
+        btn.disabled = false;
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadConstraints(); initConstraintListeners();
-    buildBulletUI(); initCounters(); loadCustom();
-    loadGeminiKey(); renderHistoryCard();
+    loadConstraints(); initConstraintListeners(); buildBulletUI(); initCounters(); loadCustom(); loadGeminiKey(); renderHistoryCard();
 });
+
+/* 洗图工具 */
+const WashTool = (() => {
+    let files = []; let busy = false; let removeBgFn = null; let imglyLoaded = false; let dragFromIdx = -1;
+    const $id = id => document.getElementById(id);
+
+    async function ensureImgly(){
+        if (imglyLoaded && removeBgFn) return removeBgFn;
+        if (!imglyLoaded){
+            imglyLoaded = true;
+            const mod = await import('https://esm.sh/@imgly/background-removal@1.5.5');
+            removeBgFn = mod.removeBackground;
+        }
+        return removeBgFn;
+    }
+    function reassignRoles(){ files.forEach((f, i) => f.role = i === 0 ? 'main' : 'sub'); }
+    function loadImage(blob){
+        return new Promise((res, rej) => {
+            const img = new Image(); const url = URL.createObjectURL(blob);
+            img.onload = () => { URL.revokeObjectURL(url); res(img); };
+            img.onerror = () => rej(new Error('加载失败'));
+            img.src = url;
+        });
+    }
+    async function run(){
+        if (busy || !files.length) return;
+        reassignRoles(); busy = true;
+        const wrap = $id('washProgressWrap'), bar = $id('washProgressBar'), txt =$id('washProgressText');
+        wrap.classList.remove('hidden');
+        let done = 0;
+        for (const item of files){
+            item.status = 'doing'; renderGrid();
+            try {
+                const removeBg = await ensureImgly();
+                const fgBlob = item.role === 'main' ? await removeBg(item.file) : item.file;
+                const img = await loadImage(fgBlob);
+                const canvas = document.createElement('canvas');
+                canvas.width = 2000; canvas.height = 2000;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#FFF'; ctx.fillRect(0,0,2000,2000);
+                const scale = Math.min(1700 / img.width, 1700 / img.height);
+                ctx.drawImage(img, (2000 - img.width*scale)/2, (2000 - img.height*scale)/2, img.width*scale, img.height*scale);
+                item.blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
+                item.name = item.file.name.replace(/\.[^.]+$/, '') + (item.role === 'main' ? '_main.jpg' : '_sub.jpg');
+                item.status = 'done';
+            } catch(e){ item.status = 'err'; }
+            done++; bar.style.width = (done / files.length * 100) + '%';
+            txt.textContent = '处理中 ' + done + ' / ' + files.length;
+            renderGrid();
+        }
+        busy = false; showToast('洗图完成');
+    }
+    async function downloadZip(){
+        const ready = files.filter(f => f.status === 'done' && f.blob);
+        if (!ready.length){ showToast('没有可下载的成品'); return; }
+        const zip = new JSZip();
+        ready.forEach(f => zip.file(f.name, f.blob));
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'washed.zip'; a.click();
+    }
+    function clear(){ files = []; renderGrid(); $id('washProgressWrap').classList.add('hidden'); }
+    function addFiles(list){
+        Array.from(list).filter(f => f.type.startsWith('image/')).forEach(f => files.push({ file: f, role: 'sub', status: 'wait', blob: null, name: f.name }));
+        reassignRoles(); renderGrid();
+    }
+    function renderGrid(){
+        const grid = $id('washGrid'); if (!grid) return;
+        grid.innerHTML = files.map((f, idx) => '<div class="wash-thumb" draggable="true" data-idx="' + idx + '"><span class="wt-role ' + f.role + '">' + (f.role==='main'?'主':'副') + '</span><img src="' + URL.createObjectURL(f.blob || f.file) + '"></div>').join('');
+        grid.querySelectorAll('.wash-thumb').forEach(el => {
+            el.addEventListener('dragstart', e => dragFromIdx = Number(el.dataset.idx));
+            el.addEventListener('dragover', e => e.preventDefault());
+            el.addEventListener('drop', e => {
+                e.preventDefault(); const toIdx = Number(el.dataset.idx);
+                if (dragFromIdx < 0 || dragFromIdx === toIdx) return;
+                const tmp = files[dragFromIdx]; files[dragFromIdx] = files[toIdx]; files[toIdx] = tmp;
+                reassignRoles(); dragFromIdx = -1; renderGrid();
+            });
+        });
+    }
+    function init(){
+        const drop = $id('washDrop'), input =$id('washInput');
+        if (!drop || !input) return;
+        drop.addEventListener('click', () => input.click());
+        input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+    return { run, clear, downloadZip };
+})();
 </script>
 </body>
 </html>
