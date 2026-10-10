@@ -464,7 +464,7 @@
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
             · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
-            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
+            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，1 轮后仍缺失会明确报警
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
@@ -529,13 +529,13 @@
 const APP_VERSION = '928版 · 无历史统计';
 const APP_VERSION_DATE = '2024-09-28';
 
+// ================= 省钱配置 =================
 const GEMINI_MODELS = [
-    'gemini-3.8-flash',
-    'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-3.1-pro-preview'
+    'gemini-1.5-flash',
+    'gemini-2.0-flash'
 ];
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 1; // 取消二次重试，省钱
+// ===========================================
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -866,7 +866,8 @@ async function callGeminiWithFallback(messages){
             const systemMsg = messages.find(m => m.role === 'system');
             const userMsgs = messages.filter(m => m.role !== 'system');
             const contents = userMsgs.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
-            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 16000 } };
+            // 省钱：maxOutputTokens 从 16000 降到 8000
+            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
             if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
             const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
             const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
