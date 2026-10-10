@@ -2,886 +2,1919 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>亚马逊 Listing 智能优化系统</title>
 <style>
-:root{--primary:#2563eb;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
-*{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:16px}
-.container{max-width:1560px;margin:0 auto}
-header{text-align:center;margin-bottom:14px}
-header h1{margin:0;font-size:20px;color:#334155}
-.card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:18px;border:1px solid rgba(226,232,240,.8)}
-.card h2{margin:0 0 16px;font-size:17px}
-.form-group{margin-bottom:15px;display:flex;flex-direction:column}
-label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155}
-input[type="text"],input[type="number"],input[type="password"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff}
-input:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-textarea{resize:vertical;height:90px}
-.input-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px}
-@media(max-width:900px){.input-layout{grid-template-columns:1fr}}
-.keywords-box{background:#fffbeb;padding:16px;border-radius:10px;border:1px dashed #f59e0b;display:flex;flex-direction:column;flex-grow:1}
-.keywords-box .hint{font-size:12px;color:#92400e;margin-top:6px}
-.keywords-box label{color:#92400e;margin-bottom:8px}
-.keywords-box textarea{background:#fffbeb;border-color:#fde68a;flex-grow:1;min-height:200px;resize:none}
-.btn-sm{background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;font-family:inherit}
-.btn-sm:hover{background:#334155}
-.btn-sm.gray{background:#64748b}.btn-sm.gray:hover{background:#475569}
-.btn-sm.red{background:#dc2626}.btn-sm.red:hover{background:#b91c1c}
-.btn-sm.green{background:#059669}.btn-sm.green:hover{background:#047857}
-.btn-sm.orange{background:#ea580c}.btn-sm.orange:hover{background:#c2410c}
-.btn-sm.blue{background:#2563eb}.btn-sm.blue:hover{background:#1d4ed8}
-.btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
-button.btn{background:#ea580c;color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit}
-button.btn:hover{background:#c2410c}
-button.btn:disabled{background:#94a3b8;cursor:not-allowed}
-button.btn.ghost{flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px}
-.constraint-card{background:linear-gradient(135deg,#f0f9ff 0%,#f0fdf4 100%);border:1px solid #bae6fd}
-.constraint-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
-.constraint-header h2{margin:0;font-size:16px;color:#0369a1}
-.constraint-header .toggle-hint{font-size:12px;color:#0369a1;font-weight:600}
-.constraint-body{margin-top:18px;padding-top:16px;border-top:1px dashed #bae6fd}
-.constraint-section{margin-bottom:22px}
-.sec-title{font-size:13px;font-weight:700;color:#075985;margin-bottom:10px}
-.num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.num-grid label{font-size:12px;color:#334155}
-.num-grid input[type="number"]{padding:8px 10px;font-size:13px}
-.rule-item{margin-bottom:14px}
-.rule-item label{font-size:12.5px;color:#075985;font-weight:700}
-.rule-item textarea{font-size:12.5px;line-height:1.6;background:#fff;border-color:#bae6fd;min-height:80px;font-family:ui-monospace,Menlo,Consolas,monospace}
-.forbidden-ta,.example-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#fff;border-color:#bae6fd}
-.forbidden-ta{min-height:120px}
-.example-ta{min-height:280px;line-height:1.65;font-size:12px}
-.constraint-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:14px;border-top:1px dashed #bae6fd;flex-wrap:wrap;gap:10px}
-.constraint-footer .status{font-size:12px;color:#0369a1;font-weight:600}
-.apikey-card{background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa}
-.apikey-card h2{margin:0 0 10px;font-size:16px;color:#9a3412}
-.key-hint{font-size:12px;color:#c2410c;margin-bottom:12px;line-height:1.5}
-.apikey-card input[type="password"]{background:#fff;border-color:#fed7aa;font-family:monospace}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px}
-@media(max-width:1100px){.compare-grid{grid-template-columns:1fr}}
-.pane{border-radius:12px;padding:18px;border:1px solid}
-.pane-left{background:#f8fafc;border-color:#e2e8f0}
-.pane-right{background:#fffbf5;border-color:#fed7aa}
-.pane h3{margin:0 0 14px;font-size:15px;padding-bottom:9px;border-bottom:2px solid}
-.pane-left h3{color:#334155;border-color:#cbd5e1}
-.pane-right h3{color:#c2410c;border-color:#fdba74}
-.results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap}
-.results-header h2{margin:0 0 6px;font-size:19px}
-#targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px}
-.score-section{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px}
-.score-card.cosmo{background:#eff6ff;border-color:#bfdbfe}
-.score-card.a9{background:#f5f3ff;border-color:#c4b5fd}
-.sc-ttl{font-size:11.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.score-card.cosmo .sc-ttl{color:#1d4ed8}
-.score-card.a9 .sc-ttl{color:#6d28d9}
-.score-pair{display:flex;gap:12px;align-items:center}
-.score-item{text-align:center}
-.score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600}
-.score-badge{display:inline-block;font-size:20px;font-weight:800;padding:5px 12px;border-radius:9px;background:#fff;color:var(--primary);white-space:nowrap;border:1px solid #e2e8f0}
-.score-card.cosmo .score-badge{color:#1d4ed8;border-color:#bfdbfe}
-.score-card.a9 .score-badge{color:#6d28d9;border-color:#c4b5fd}
-.score-badge.lv-a{background:#ecfdf5;color:#047857;border-color:#a7f3d0!important}
-.score-badge.lv-b{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe!important}
-.score-badge.lv-c{background:#fffbeb;color:#b45309;border-color:#fde68a!important}
-.score-badge.lv-d{background:#fef2f2;color:#b91c1c;border-color:#fecaca!important}
-.score-arrow{font-size:18px;color:#94a3b8;font-weight:700}
-.score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px}
-.stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px}
-.stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid}
-.stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
-.stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a}
-.stat.r{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
-.ai-status{font-size:12.5px;padding:5px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600}
-.ai-status.loading{background:#fef3c7;color:#b45309}
-.ai-status.done{background:#ecfdf5;color:#047857}
-.ai-status.error{background:#fef2f2;color:#b91c1c}
-.pipeline-progress{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.pipeline-step{padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:600;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0}
-.pipeline-step.active{background:#fef3c7;color:#b45309;border-color:#fde68a}
-.pipeline-step.done{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:20px}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px}
-th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
-th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569}
-.cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap}
-.cluster-tag.a9{background:#f5f3ff;color:#6d28d9}
-.anchor-name{font-family:monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block}
-.anchor-cn{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
-.status-green{color:var(--success);font-weight:700;white-space:nowrap}
-.status-yellow{color:var(--warning);font-weight:700;white-space:nowrap}
-.status-red{color:var(--danger);font-weight:700;white-space:nowrap}
-.score-mini{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px}
-.kw-chip{display:inline-block;font-size:11px;font-family:monospace;padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid}
-.kw-chip.hit{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
-.kw-chip.miss{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0}
-.copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px}
-.copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;flex:1}
-.header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end}
-.custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:200px;background:#fff;color:#166534}
-.copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap}
-.optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;line-height:1.6;color:#0f172a;margin-bottom:15px;resize:vertical;font-family:inherit}
-.byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right}
-.byte-counter.over{color:var(--danger);font-weight:700}
-.bp-item{border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;background:#f0fdf4}
-.bp-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px}
-.bp-label{font-weight:700;font-size:12.5px;color:#15803d}
-.bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px}
-.bp-role.spec{background:#dbeafe;color:#1e40af}
-.bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;line-height:1.6;color:#0f172a;resize:vertical;min-height:70px;font-family:inherit}
-.validation-report{margin-top:20px;padding:16px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9}
-.validation-report.has-errors{background:#fffbeb;border-color:#fde68a;border-left-color:#f59e0b}
-.report-ttl{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:10px}
-.validation-report.has-errors .report-ttl{color:#b45309}
-.issue-row{font-size:12.5px;color:#334155;padding:6px 0;border-bottom:1px dashed #e2e8f0}
-.issue-row:last-child{border-bottom:none}
-.module-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;background:#dbeafe;color:#1e40af;margin-right:6px}
-.issue-row.error .module-tag{background:#fee2e2;color:#991b1b}
-.issue-row.warn .module-tag{background:#fef3c7;color:#92400e}
-.expand-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin-bottom:14px;flex-wrap:wrap;gap:10px}
-.expand-msg{font-size:12.5px;color:#92400e;font-weight:600}
-.hidden{display:none}
-#toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
-#toast.show{opacity:1;transform:translate(-50%,0)}
-.wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px}
-.wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px}
-.wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
-.wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:14px 16px;text-align:center;background:#fff;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-self:stretch}
-.wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px}
-.wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5}
-.wash-grid{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;max-width:60%}
-.wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;width:100px;height:100px;flex-shrink:0}
-.wash-thumb img{width:100%;height:100%;display:block;object-fit:cover;background:#fafafa;pointer-events:none}
-.wt-role{position:absolute;top:3px;left:3px;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;color:#fff;line-height:1.2}
-.wt-role.main{background:#dc2626}
-.wt-role.sub{background:#2563eb}
-.wt-status{position:absolute;top:3px;right:3px;font-size:10px;padding:2px 5px;border-radius:4px;background:#fff;font-weight:700;line-height:1.2}
-.wt-status.wait{color:#94a3b8}
-.wt-status.doing{color:#b45309;background:#fef3c7}
-.wt-status.done{color:#047857;background:#ecfdf5}
-.wt-status.err{color:#b91c1c;background:#fef2f2}
-.wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;flex-shrink:0}
-.wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden}
-.wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s}
-.wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px}
-.export-box{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;border-radius:12px;padding:16px 18px;margin-top:8px}
-.eb-title{font-size:15px;font-weight:700;color:#065f46;margin:0 0 4px}
-.eb-sub{font-size:12px;color:#047857;margin-bottom:14px}
-.export-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px 14px;margin-bottom:12px}
-.ef-item{display:flex;flex-direction:column;gap:4px}
-.ef-item label{font-size:11.5px;font-weight:700;color:#065f46}
-.ef-item input,.ef-item select{padding:7px 10px;font-size:13px;border:1px solid #a7f3d0;border-radius:7px;background:#fff;font-family:inherit;color:#0f172a}
-.ef-full{grid-column:1/-1}
-.export-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;align-items:center}
-.queue-info{font-size:12px;font-weight:700;color:#065f46;margin-left:auto}
+    :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--a9:#8b5cf6;--gemini:#ea580c;--bg:#f1f5f9;--card:#fff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;}
+    *{box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.55;margin:0;padding:16px;}
+    .container{max-width:1560px;margin:0 auto;}
+    header{text-align:center;margin-bottom:14px;}
+    header h1{margin:0;font-size:20px;color:#334155;}
+    .card{background:var(--card);border-radius:14px;box-shadow:0 4px 6px -1px rgba(15,23,42,.08);padding:24px;margin-bottom:18px;border:1px solid rgba(226,232,240,.8);}
+    .card h2{margin:0 0 16px;font-size:17px;}
+    .form-group{margin-bottom:15px;display:flex;flex-direction:column;}
+    label{display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#334155;}
+    input[type="text"],input[type="number"],input[type="password"],textarea{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#fff;}
+    input[type="text"]:focus,input[type="number"]:focus,input[type="password"]:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+    textarea{resize:vertical;height:90px;}
+    .input-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;}
+    .input-layout-left{display:flex;flex-direction:column;height:100%;}
+    .input-layout-right{display:flex;flex-direction:column;}
+    @media (max-width:900px){.input-layout{grid-template-columns:1fr;}}
+    .keywords-box{background:#fffbeb;padding:16px;border-radius:10px;border:1px dashed #f59e0b;display:flex;flex-direction:column;flex-grow:1;}
+    .keywords-box .hint{font-size:12px;color:#92400e;margin-top:6px;}
+    .keywords-box label{color:#92400e;margin-bottom:8px;}
+    .keywords-box textarea{background:#fffbeb;border-color:#fde68a;flex-grow:1;min-height:200px;resize:none;}
+    .btn-sm{background:#0f172a;color:#fff;border:none;padding:0 18px;height:32px;font-size:12px;font-weight:600;border-radius:9px;cursor:pointer;font-family:inherit;}
+    .btn-sm:hover{background:#334155;}
+    .btn-sm.gray{background:#64748b;} .btn-sm.gray:hover{background:#475569;}
+    .btn-sm.red{background:#dc2626;} .btn-sm.red:hover{background:#b91c1c;}
+    .btn-sm.green{background:#059669;} .btn-sm.green:hover{background:#047857;}
+    .btn-sm.orange{background:#ea580c;} .btn-sm.orange:hover{background:#c2410c;}
+    .btn-row{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
+    button.btn{background:var(--gemini);color:#fff;border:none;padding:13px 24px;font-size:15px;font-weight:600;border-radius:9px;cursor:pointer;flex:1;font-family:inherit;}
+    button.btn:hover{background:#c2410c;}
+    button.btn:disabled{background:#94a3b8;cursor:not-allowed;}
+    button.btn.ghost{flex:0 0 auto;background:#fff;color:#475569;border:1px solid #cbd5e1;padding:13px 20px;}
+    button.btn.ghost:hover{background:#f1f5f9;}
+    .constraint-card{background:linear-gradient(135deg,#f0f9ff 0%,#f0fdf4 100%);border:1px solid #bae6fd;}
+    .constraint-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;}
+    .constraint-header h2{margin:0;font-size:16px;color:#0369a1;}
+    .constraint-header .toggle-hint{font-size:12px;color:#0369a1;font-weight:600;}
+    .constraint-body{margin-top:18px;padding-top:16px;border-top:1px dashed #bae6fd;}
+    .constraint-section{margin-bottom:22px;}
+    .constraint-section .sec-title{font-size:13px;font-weight:700;color:#075985;margin-bottom:10px;}
+    .num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;}
+    .num-grid .num-item label{font-size:12px;color:#334155;}
+    .num-grid .num-item input[type="number"]{padding:8px 10px;font-size:13px;}
+    .rule-item{margin-bottom:14px;}
+    .rule-item label{font-size:12.5px;color:#075985;font-weight:700;}
+    .rule-item textarea{font-size:12.5px;line-height:1.6;background:#fff;border-color:#bae6fd;min-height:80px;font-family:ui-monospace,Menlo,Consolas,monospace;}
+    .forbidden-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#fff;border-color:#bae6fd;min-height:120px;}
+    .example-ta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#fff;border-color:#bae6fd;min-height:280px;line-height:1.65;}
+    .constraint-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:14px;border-top:1px dashed #bae6fd;flex-wrap:wrap;gap:10px;}
+    .constraint-footer .status{font-size:12px;color:#0369a1;font-weight:600;}
+    .apikey-card{background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;}
+    .apikey-card h2{margin:0 0 10px;font-size:16px;color:#9a3412;}
+    .apikey-card .key-hint{font-size:12px;color:#c2410c;margin-bottom:12px;line-height:1.5;}
+    .apikey-card input[type="password"]{background:#fff;border-color:#fed7aa;font-family:monospace;}
+    .apikey-card input[type="password"]:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.12);}
+
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
+    @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
+    .pane{border-radius:12px;padding:18px;border:1px solid;}
+    .pane-left{background:#f8fafc;border-color:#e2e8f0;}
+    .pane-right{background:#fffbf5;border-color:#fed7aa;}
+    .pane h3{margin:0 0 14px;font-size:15px;padding-bottom:9px;border-bottom:2px solid;}
+    .pane-left h3{color:#334155;border-color:#cbd5e1;}
+    .pane-right h3{color:#c2410c;border-color:#fdba74;}
+    .results-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:2px solid var(--border);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;}
+    .results-header h2{margin:0 0 6px;font-size:19px;}
+    #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;}
+    .score-section{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
+    .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
+    .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;}
+    .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .score-card.cosmo .sc-ttl{color:#1d4ed8;}
+    .score-card.a9 .sc-ttl{color:#6d28d9;}
+    .score-pair{display:flex;gap:12px;align-items:center;}
+    .score-item{text-align:center;}
+    .score-item .score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
+    .score-badge{display:inline-block;font-size:20px;font-weight:800;padding:5px 12px;border-radius:9px;background:#fff;color:var(--primary);white-space:nowrap;border:1px solid #e2e8f0;}
+    .score-card.cosmo .score-badge{color:#1d4ed8;border-color:#bfdbfe;}
+    .score-card.a9 .score-badge{color:#6d28d9;border-color:#c4b5fd;}
+    .score-badge.lv-a{background:#ecfdf5;color:#047857;border-color:#a7f3d0 !important;}
+    .score-badge.lv-b{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe !important;}
+    .score-badge.lv-c{background:#fffbeb;color:#b45309;border-color:#fde68a !important;}
+    .score-badge.lv-d{background:#fef2f2;color:#b91c1c;border-color:#fecaca !important;}
+    .score-arrow{font-size:18px;color:#94a3b8;font-weight:700;}
+    .score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px;}
+    .score-card.cosmo .score-improve{color:#047857;}
+    .score-card.a9 .score-improve{color:#6d28d9;}
+    .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+    .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;}
+    .stat{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:99px;border:1px solid;}
+    .stat.g{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .stat.y{background:#fffbeb;color:#b45309;border-color:#fde68a;}
+    .stat.r{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .ai-status{font-size:12.5px;padding:5px 12px;border-radius:99px;background:#eff6ff;color:#1d4ed8;font-weight:600;}
+    .ai-status.loading{background:#fef3c7;color:#b45309;animation:pulse 1.4s infinite;}
+    .ai-status.done{background:#ecfdf5;color:#047857;}
+    .ai-status.error{background:#fef2f2;color:#b91c1c;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+    .pipeline-progress{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+    .pipeline-step{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:600;background:#f1f5f9;color:#94a3b8;border:1px solid #e2e8f0;transition:all .3s;}
+    .pipeline-step.active{background:#fef3c7;color:#b45309;border-color:#fde68a;animation:pulse 1.4s infinite;}
+    .pipeline-step.done{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .pipeline-step.error{background:#fef2f2;color:#b91c1c;border-color:#fecaca;}
+    .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;margin-bottom:20px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;min-width:880px;}
+    th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+    th{background:#f8fafc;font-weight:700;font-size:12.5px;color:#475569;}
+    tbody tr:hover{background:#fafbfc;}
+    .cluster-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eef2ff;color:#4338ca;white-space:nowrap;}
+    .cluster-tag.a9{background:#f5f3ff;color:#6d28d9;}
+    .anchor-name{font-family:monospace;font-size:12.5px;color:#0f172a;font-weight:600;display:block;}
+    .anchor-cn{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-weight:400;}
+    .status-green{color:var(--success);font-weight:700;white-space:nowrap;}
+    .status-yellow{color:var(--warning);font-weight:700;white-space:nowrap;}
+    .status-red{color:var(--danger);font-weight:700;white-space:nowrap;}
+    .score-mini{display:block;font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px;}
+    .kw-chip{display:inline-block;font-size:11px;font-family:monospace;padding:2px 7px;border-radius:5px;margin:2px 4px 2px 0;border:1px solid;}
+    .kw-chip.hit{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+    .kw-chip.miss{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;}
+    .copy-section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
+    .copy-section-header span{font-weight:700;font-size:12.5px;color:#15803d;flex:1;}
+    .copy-section-header .header-actions{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;}
+    .custom-req-input{border:1px solid #a7f3d0;border-radius:6px;padding:4px 8px;font-size:11.5px;width:200px;background:#fff;color:#166534;}
+    .custom-req-input::placeholder{color:#86efac;font-style:italic;}
+    .copy-btn{background:var(--success);color:#fff;border:none;padding:5px 13px;font-size:11.5px;font-weight:700;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+    .copy-btn:hover{background:#059669;}
+    .optimized-textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:9px;padding:11px;font-size:13px;line-height:1.6;color:#0f172a;margin-bottom:15px;resize:vertical;font-family:inherit;}
+    .optimized-textarea:focus{outline:none;border-color:var(--success);}
+    .optimized-textarea.undersized{border-color:#fde68a;background:#fffbeb;}
+    .byte-counter{font-size:11.5px;color:var(--muted);margin-top:-10px;margin-bottom:12px;text-align:right;}
+    .byte-counter.over{color:var(--danger);font-weight:700;}
+    .byte-counter.under{color:var(--warning);font-weight:700;}
+    .bp-item{border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-bottom:16px;background:#f0fdf4;}
+    .bp-item.undersized{border-color:#fde68a;background:#fffbeb;}
+    .bp-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #d1fae5;flex-wrap:wrap;gap:8px;}
+    .bp-item-header .bp-label{font-weight:700;font-size:12.5px;color:#15803d;}
+    .bp-item-header .bp-role{font-size:11px;color:#166534;font-weight:600;background:#dcfce7;padding:2px 8px;border-radius:4px;margin-left:8px;}
+    .bp-item-header .bp-role.spec{background:#dbeafe;color:#1e40af;}
+    .bp-item textarea{width:100%;background:#fff;border:1px solid #bbf7d0;border-radius:8px;padding:10px;font-size:13px;line-height:1.6;color:#0f172a;resize:vertical;min-height:70px;font-family:inherit;}
+    .bp-item textarea:focus{outline:none;border-color:var(--success);}
+    .validation-report{margin-top:20px;padding:16px 18px;border-radius:10px;background:#f0f9ff;border:1px solid #bae6fd;border-left:4px solid #0ea5e9;}
+    .validation-report.has-errors{background:#fffbeb;border-color:#fde68a;border-left-color:#f59e0b;}
+    .validation-report .report-ttl{font-size:13px;font-weight:700;color:#0369a1;margin-bottom:10px;}
+    .validation-report.has-errors .report-ttl{color:#b45309;}
+    .validation-report .issue-row{font-size:12.5px;color:#334155;padding:6px 0;border-bottom:1px dashed #e2e8f0;}
+    .validation-report .issue-row:last-child{border-bottom:none;}
+    .validation-report .issue-row .module-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;background:#dbeafe;color:#1e40af;margin-right:6px;}
+    .validation-report .issue-row.error .module-tag{background:#fee2e2;color:#991b1b;}
+    .validation-report .issue-row.warn .module-tag{background:#fef3c7;color:#92400e;}
+    .expand-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+    .expand-bar .expand-msg{font-size:12.5px;color:#92400e;font-weight:600;}
+    .hidden{display:none;}
+    .fade-in{animation:fadeIn .45s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+    #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
+    #toast.show{opacity:1;transform:translate(-50%,0);}
+
+    /* ============================================================
+       洗图工具 v8.1 · 缩略图 100×100
+       ============================================================ */
+    .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
+    .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
+
+    .wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+
+    .wash-drop{flex:1;min-width:280px;border:2px dashed #c4b5fd;border-radius:10px;padding:14px 16px;text-align:center;background:#fff;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:center;align-self:stretch;}
+    .wash-drop:hover,.wash-drop.dragover{background:#f5f3ff;border-color:#8b5cf6;}
+    .wash-drop .wd-ttl{font-size:13px;font-weight:700;color:#6d28d9;margin-bottom:2px;}
+    .wash-drop .wd-hint{font-size:11px;color:#7c3aed;line-height:1.5;}
+
+    .wash-grid{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;max-width:60%;}
+    .wash-thumb{position:relative;border:1px solid #ddd6fe;border-radius:8px;overflow:hidden;background:#fff;transition:.2s;cursor:grab;width:100px;height:100px;flex-shrink:0;}
+    .wash-thumb:hover{box-shadow:0 3px 10px rgba(139,92,246,.2);}
+    .wash-thumb:active{cursor:grabbing;}
+    .wash-thumb.dragging{opacity:.4;}
+    .wash-thumb.drag-over{border-color:#8b5cf6;border-width:2px;background:#f5f3ff;}
+    .wash-thumb img{width:100%;height:100%;display:block;object-fit:cover;background:#fafafa;pointer-events:none;}
+    .wash-thumb .wt-role{position:absolute;top:3px;left:3px;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700;color:#fff;line-height:1.2;}
+    .wash-thumb .wt-role.main{background:#dc2626;}
+    .wash-thumb .wt-role.sub{background:#2563eb;}
+    .wash-thumb .wt-status{position:absolute;top:3px;right:3px;font-size:10px;padding:2px 5px;border-radius:4px;background:#fff;font-weight:700;line-height:1.2;}
+    .wash-thumb .wt-status.wait{color:#94a3b8;}
+    .wash-thumb .wt-status.doing{color:#b45309;background:#fef3c7;}
+    .wash-thumb .wt-status.done{color:#047857;background:#ecfdf5;}
+    .wash-thumb .wt-status.err{color:#b91c1c;background:#fef2f2;}
+
+    .wash-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;flex-shrink:0;}
+
+    .wash-progress{margin:10px 0 0;height:6px;background:#ede9fe;border-radius:99px;overflow:hidden;}
+    .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
+    .wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+
 <div class="container">
-<header><h1>亚马逊 Listing 智能优化系统</h1></header>
+    <header>
+        <h1>亚马逊 Listing 智能优化系统</h1>
+    </header>
 
-<div class="card wash-card">
-<div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
-<div class="wash-row">
-<div class="wash-drop" id="washDrop">
-<div class="wd-ttl">📁 拖拽图片或点击选择</div>
-<div class="wd-hint">第 1 张 = 主图（AI 抠图白底）· 第 2 张起 = 副图（裁剪+白边）</div>
-<input type="file" id="washInput" accept="image/*" multiple hidden>
-</div>
-<div class="wash-grid" id="washGrid"></div>
-<div class="wash-toolbar">
-<button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
-<button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
-<button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
-</div>
-</div>
-<div class="wash-progress hidden" id="washProgressWrap">
-<div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
-<div class="wash-progress-text" id="washProgressText">准备中…</div>
-</div>
-</div>
+    <!-- ============================================================
+         洗图工具 · 紧凑横条（在最上面）
+         ============================================================ -->
+    <div class="card wash-card">
+        <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
 
-<div class="card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2 style="margin:0;">📥 输入商品信息与文案</h2></div>
-<div class="input-layout">
-<div>
-<div class="keywords-box">
-<label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
-<textarea id="hotKeywords" placeholder="每行一个"></textarea>
-<div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
-</div>
-</div>
-<div>
-<div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
-<div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
-<div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
-<div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
-</div>
-</div>
-<div class="btn-row">
-<button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
-<button class="btn ghost" onclick="clearAll()">清空</button>
-</div>
-</div>
+        <div class="wash-row">
+            <div class="wash-drop" id="washDrop">
+                <div class="wd-ttl">📁 拖拽图片或点击选择</div>
+                <div class="wd-hint">第 1 张 = 主图（AI 抠图白底）· 第 2 张起 = 副图（裁剪+白边）</div>
+                <input type="file" id="washInput" accept="image/*" multiple hidden>
+            </div>
 
-<div id="resultCard" class="card hidden">
-<div class="results-header">
-<div><h2>📊 Gemini 生成结果 · 双算法评分</h2><p id="targetUrlDisplay">基于本地文本独立生成</p></div>
-<div class="stat-line"><span id="aiStatus" class="ai-status hidden">生成中…</span></div>
-</div>
-<div class="pipeline-progress" id="pipelineProgress">
-<div class="pipeline-step" data-step="1">① 输入净化</div>
-<div class="pipeline-step" data-step="2">② 调用 Gemini</div>
-<div class="pipeline-step" data-step="3">③ 完整性校验</div>
-<div class="pipeline-step" data-step="4">④ 输出</div>
-</div>
-<div class="score-section">
-<div class="score-card cosmo">
-<div class="sc-ttl">🧠 COSMO 语义评分</div>
-<div class="score-pair">
-<div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
-<div class="score-arrow">→</div>
-<div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
-</div>
-<div id="scoreImprove" class="score-improve"></div>
-</div>
-<div class="score-card a9">
-<div class="sc-ttl">🔍 A9 关键词评分</div>
-<div class="score-pair">
-<div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
-<div class="score-arrow">→</div>
-<div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
-</div>
-<div id="a9ScoreImprove" class="score-improve"></div>
-</div>
-</div>
-<div class="stat-row"><div class="stat-line">
-<span class="line-label">COSMO</span>
-<span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
-<span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
-<span class="stat r" id="statRed">🔴 严重缺失 0</span>
-</div></div>
-<div id="validationReport" class="validation-report hidden"></div>
-<div id="expandBar" class="expand-bar hidden">
-<div class="expand-msg" id="expandMsg"></div>
-<button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
-</div>
-<div class="compare-grid">
-<div class="pane pane-left">
-<h3>📋 原始文案</h3>
-<div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
-<div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
-<div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
-<div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
-</div>
-<div class="pane pane-right">
-<h3>✨ Gemini 优化文案</h3>
-<div class="copy-section-header"><span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span><div class="header-actions"><input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)"><button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button></div></div>
-<textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
-<div id="titleCounter" class="byte-counter">0 / 75 字符</div>
-<div class="copy-section-header"><span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span><div class="header-actions"><input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)"><button class="copy-btn" onclick="copyText('optIhText', this)">复制</button></div></div>
-<textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
-<div id="ihCounter" class="byte-counter">0 / 125 字符</div>
-<div class="copy-section-header" style="border-bottom:2px solid #86efac;"><span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span>)</span><div class="header-actions"><input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)"><button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button></div></div>
-<div id="bulletPointsContainer"></div>
-<div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
-<div class="copy-section-header" style="margin-top:10px;"><span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span><div class="header-actions"><input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)"><button class="copy-btn" onclick="copyText('optDescText', this)">复制</button></div></div>
-<textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
-<div id="descCounter" class="byte-counter">0 / 2000 字符</div>
-<div class="copy-section-header"><span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span><div class="header-actions"><input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)"><button class="copy-btn" onclick="copyText('optStText', this)">复制</button></div></div>
-<textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
-<div id="stCounter" class="byte-counter">0 / 250 字节</div>
-<div id="kwHitReport" class="validation-report hidden"></div>
-</div>
-</div>
-<h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
-<div class="table-wrap"><table><thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead><tbody id="a9MatrixBody"></tbody></table></div>
-<h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
-<div class="table-wrap"><table><thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead><tbody id="matrixTableBody"></tbody></table></div>
+            <div class="wash-grid" id="washGrid"></div>
 
-<div class="export-box">
-<div class="eb-title">📤 导出 Excel · 可直接上传后台</div>
-<div class="eb-sub">表头与「zizhu_product_template.xlsx」完全一致</div>
-<div class="export-grid">
-<div class="ef-item"><label>SPU</label><input type="text" id="exp_spu" placeholder="SPU001"></div>
-<div class="ef-item"><label>SKU</label><input type="text" id="exp_sku" placeholder="sku001"></div>
-<div class="ef-item"><label>品牌</label><input type="text" id="exp_brand" placeholder="XX"></div>
-<div class="ef-item"><label>语言</label><select id="exp_language"><option value="en">en</option><option value="de">de</option><option value="fr">fr</option><option value="it">it</option><option value="es">es</option><option value="pt">pt</option><option value="nl">nl</option><option value="sv">sv</option><option value="pl">pl</option><option value="tr">tr</option><option value="ar">ar</option><option value="ja">ja</option><option value="ko">ko</option><option value="ru">ru</option><option value="he">he</option><option value="uk">uk</option></select></div>
-<div class="ef-item"><label>价格</label><input type="number" id="exp_price" placeholder="19.99" step="0.01"></div>
-<div class="ef-item"><label>货币</label><select id="exp_currency"><option value="USD">USD</option><option value="CAD">CAD</option><option value="RUB">RUB</option><option value="CNY">CNY</option><option value="GBP">GBP</option><option value="EUR">EUR</option><option value="AUD">AUD</option><option value="JPY">JPY</option><option value="MXN">MXN</option><option value="BRL">BRL</option><option value="PLN">PLN</option><option value="SGD">SGD</option></select></div>
-<div class="ef-item"><label>库存</label><input type="number" id="exp_stock" placeholder="10"></div>
-<div class="ef-item"><label>重量</label><input type="number" id="exp_weight" placeholder="可选" step="0.01"></div>
-<div class="ef-item"><label>重量单位</label><select id="exp_weight_unit"><option value="g">g</option><option value="mg">mg</option><option value="kg">kg</option><option value="ton">ton</option><option value="oz">oz</option><option value="lb">lb</option></select></div>
-<div class="ef-item"><label>长度</label><input type="number" id="exp_length" placeholder="可选" step="0.01"></div>
-<div class="ef-item"><label>宽度</label><input type="number" id="exp_width" placeholder="可选" step="0.01"></div>
-<div class="ef-item"><label>高度</label><input type="number" id="exp_height" placeholder="可选" step="0.01"></div>
-<div class="ef-item"><label>长度单位</label><select id="exp_length_unit"><option value="cm">cm</option><option value="mm">mm</option><option value="m">m</option><option value="km">km</option><option value="inch">inch</option><option value="foot">foot</option><option value="yard">yard</option><option value="mile">mile</option></select></div>
-<div class="ef-item ef-full"><label>图片 URL（每行一个，可选）</label><textarea id="exp_image_url" placeholder="https://..." style="height:60px;"></textarea></div>
-</div>
-<div class="export-actions">
-<button class="btn-sm green" onclick="exportCurrentExcel()">📊 导出当前 Listing</button>
-<button class="btn-sm orange" onclick="addToQueue()">➕ 加入批量队列</button>
-<button class="btn-sm blue" onclick="exportQueueExcel()">📦 导出批量队列</button>
-<button class="btn-sm gray" onclick="clearQueue()">清空队列</button>
-<span class="queue-info">队列：<span id="queueCount">0</span> 条</span>
-</div>
-</div>
-</div>
+            <div class="wash-toolbar">
+                <button class="btn-sm green" onclick="WashTool.run()">🚀 一键洗图</button>
+                <button class="btn-sm orange" onclick="WashTool.downloadZip()">📦 打包下载</button>
+                <button class="btn-sm gray" onclick="WashTool.clear()">清空</button>
+            </div>
+        </div>
 
-<div class="card apikey-card">
-<h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
-<div class="key-hint">· 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥</div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-<input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
-<button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存</button>
-<button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
-<button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
-</div>
-<div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;white-space:pre-wrap;"></div>
-</div>
+        <div class="wash-progress hidden" id="washProgressWrap">
+            <div class="wash-progress"><div class="wp-bar" id="washProgressBar"></div></div>
+            <div class="wash-progress-text" id="washProgressText">准备中…</div>
+        </div>
+    </div>
 
-<div class="card constraint-card">
-<div class="constraint-header" onclick="toggleConstraints()">
-<h2>⚙️ 约束条件</h2>
-<span class="toggle-hint" id="constraintToggle">展开 ▼</span>
-</div>
-<div class="constraint-body hidden" id="constraintBody">
-<div class="constraint-section">
-<div class="sec-title">📏 字数硬约束</div>
-<div class="num-grid">
-<div><label>标题 · 最小</label><input type="number" id="c_titleMin"></div>
-<div><label>标题 · 最大</label><input type="number" id="c_titleMax"></div>
-<div><label>IH · 最小</label><input type="number" id="c_ihMin"></div>
-<div><label>IH · 最大</label><input type="number" id="c_ihMax"></div>
-<div><label>五点 · 每条最小</label><input type="number" id="c_bulletMin"></div>
-<div><label>五点 · 每条最大</label><input type="number" id="c_bulletMax"></div>
-<div><label>五点 · 合计上限</label><input type="number" id="c_bulletTotal"></div>
-<div><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
-<div><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
-<div><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
-</div>
-</div>
-<div class="constraint-section">
-<div class="sec-title">🚫 违禁词清单（每行一个）</div>
-<textarea id="c_forbidden" class="forbidden-ta"></textarea>
-</div>
-<div class="constraint-section">
-<div class="sec-title">📝 规则文本</div>
-<div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
-<div class="rule-item"><label>IH 规则</label><textarea id="c_ruleIH"></textarea></div>
-<div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
-<div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
-<div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
-<div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
-</div>
-<div class="constraint-section">
-<div class="sec-title">📖 参考范例</div>
-<textarea id="c_example" class="example-ta"></textarea>
-</div>
-<div class="constraint-footer">
-<div class="status" id="constraintStatus">已保存到浏览器</div>
-<div style="display:flex;gap:8px;">
-<button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
-<button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
-<button class="btn-sm red" onclick="resetConstraints()">恢复默认</button>
-</div>
-</div>
-</div>
-</div>
+    <!-- 顶部：输入区 -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;">📥 输入商品信息与文案</h2>
+        </div>
+        <div class="input-layout">
+            <div class="input-layout-left">
+                <div class="keywords-box">
+                    <label for="hotKeywords">🎯 品类热词 / 长尾词库</label>
+                    <textarea id="hotKeywords" placeholder="每行一个"></textarea>
+                    <div class="hint">💡 这些词会被 AI 优先埋入文案。</div>
+                </div>
+            </div>
+            <div class="input-layout-right">
+                <div class="form-group"><label for="productTitle">商品标题</label><input type="text" id="productTitle" placeholder="请输入商品标题..."></div>
+                <div class="form-group"><label for="bulletPoints">原始 5 点描述 / 商品信息</label><textarea id="bulletPoints" placeholder="粘贴原始全部商品信息..."></textarea></div>
+                <div class="form-group"><label for="description">详细描述 (可选)</label><textarea id="description" placeholder="可选"></textarea></div>
+                <div class="form-group"><label for="searchTerms">原始后台搜索词 (可选)</label><input type="text" id="searchTerms" placeholder="可选"></div>
+            </div>
+        </div>
+        <div class="btn-row">
+            <button id="analyzeBtn" class="btn" onclick="runAnalysis()">🚀 用 Gemini 生成高质量 Listing</button>
+            <button class="btn ghost" onclick="clearAll()">清空</button>
+        </div>
+    </div>
+
+    <!-- 中部：结果区 -->
+    <div id="resultCard" class="card hidden">
+        <div class="results-header">
+            <div>
+                <h2>📊 Gemini 生成结果 · 双算法评分</h2>
+                <p id="targetUrlDisplay">基于本地文本独立生成</p>
+            </div>
+            <div class="stat-line">
+                <span id="aiStatus" class="ai-status hidden">生成中…</span>
+            </div>
+        </div>
+
+        <div class="pipeline-progress" id="pipelineProgress">
+            <div class="pipeline-step" data-step="1">① 输入净化</div>
+            <div class="pipeline-step" data-step="2">② 调用 Gemini</div>
+            <div class="pipeline-step" data-step="3">③ 完整性校验</div>
+            <div class="pipeline-step" data-step="4">④ 输出</div>
+        </div>
+
+        <div class="score-section">
+            <div class="score-card cosmo">
+                <div class="sc-ttl">🧠 COSMO 语义评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="scoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="scoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="scoreImprove" class="score-improve"></div>
+            </div>
+            <div class="score-card a9">
+                <div class="sc-ttl">🔍 A9 关键词评分</div>
+                <div class="score-pair">
+                    <div class="score-item"><div class="score-label">优化前</div><div id="a9ScoreBefore" class="score-badge">--</div></div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-item"><div class="score-label">优化后</div><div id="a9ScoreAfter" class="score-badge">--</div></div>
+                </div>
+                <div id="a9ScoreImprove" class="score-improve"></div>
+            </div>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-line">
+                <span class="line-label">COSMO</span>
+                <span class="stat g" id="statGreen">🟢 完美覆盖 0</span>
+                <span class="stat y" id="statYellow">🟡 部分覆盖 0</span>
+                <span class="stat r" id="statRed">🔴 严重缺失 0</span>
+            </div>
+        </div>
+
+        <div id="validationReport" class="validation-report hidden"></div>
+        <div id="expandBar" class="expand-bar hidden">
+            <div class="expand-msg" id="expandMsg"></div>
+            <button class="btn-sm green" id="expandBtn" onclick="expandAll()">✨ 一键补全字数</button>
+        </div>
+
+        <div class="compare-grid">
+            <div class="pane pane-left">
+                <h3>📋 原始文案</h3>
+                <div class="form-group"><label>原始标题</label><input type="text" id="origTitleView" readonly style="background:#fff;"></div>
+                <div class="form-group"><label>原始 5 点 / 信息</label><textarea id="origBpView" readonly style="background:#fff;height:130px;"></textarea></div>
+                <div class="form-group"><label>原始描述</label><textarea id="origDescView" readonly style="background:#fff;height:50px;"></textarea></div>
+                <div class="form-group"><label>原始 ST</label><input type="text" id="origStView" readonly style="background:#fff;"></div>
+            </div>
+            <div class="pane pane-right">
+                <h3>✨ Gemini 优化文案</h3>
+                <div class="copy-section-header">
+                    <span>商品标题 (≤<span id="titleMaxHint">75</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqTitle" class="custom-req-input" placeholder="标题要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optTitleText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optTitleText" class="optimized-textarea" style="height:58px;"></textarea>
+                <div id="titleCounter" class="byte-counter">0 / 75 字符</div>
+
+                <div class="copy-section-header">
+                    <span>Item Highlights (≤<span id="ihMaxHint">125</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqIh" class="custom-req-input" placeholder="亮点要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optIhText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optIhText" class="optimized-textarea" style="height:52px;"></textarea>
+                <div id="ihCounter" class="byte-counter">0 / 125 字符</div>
+
+                <div class="copy-section-header" style="border-bottom:2px solid #86efac;">
+                    <span>5 点描述 (每条 <span id="bulletMinHint">150</span>-<span id="bulletMaxHint">220</span> · 总 ≤<span id="bulletTotalHint">1000</span> · 每条含大写标题)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqBp" class="custom-req-input" placeholder="五点要求(固化)">
+                        <button class="copy-btn" onclick="copyAllBullets(this)">复制全部</button>
+                    </div>
+                </div>
+                <div id="bulletPointsContainer"></div>
+                <div id="bpTotalCounter" class="byte-counter" style="font-size:12px;font-weight:700;">总字符：0 / 1000</div>
+
+                <div class="copy-section-header" style="margin-top:10px;">
+                    <span>详细描述 (≤<span id="descMaxHint">2000</span> 字符)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqDesc" class="custom-req-input" placeholder="描述要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optDescText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optDescText" class="optimized-textarea" style="height:200px;"></textarea>
+                <div id="descCounter" class="byte-counter">0 / 2000 字符</div>
+
+                <div class="copy-section-header">
+                    <span>Search Terms (≤<span id="stMaxHint">250</span> 字节)</span>
+                    <div class="header-actions">
+                        <input type="text" id="reqSt" class="custom-req-input" placeholder="搜索词要求(固化)">
+                        <button class="copy-btn" onclick="copyText('optStText', this)">复制</button>
+                    </div>
+                </div>
+                <textarea id="optStText" class="optimized-textarea" style="height:52px;"></textarea>
+                <div id="stCounter" class="byte-counter">0 / 250 字节</div>
+                <div id="kwHitReport" class="validation-report hidden"></div>
+            </div>
+        </div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">类型</th><th style="width:18%;">维度</th><th style="width:12%;">得分</th><th style="width:61%;">说明</th></tr></thead>
+                <tbody id="a9MatrixBody"></tbody>
+            </table>
+        </div>
+
+        <h3 style="font-size:16px;margin:0 0 12px;">🧠 COSMO 15 锚点语义诊断</h3>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th style="width:9%;">集群</th><th style="width:15%;">锚点</th><th style="width:9%;">状态</th><th style="width:27%;">命中简析</th><th style="width:40%;">💡 优化建议</th></tr></thead>
+                <tbody id="matrixTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ========== 底部：Gemini Key ========== -->
+    <div class="card apikey-card">
+        <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
+        <div class="key-hint">
+            · 去 <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#c2410c;font-weight:700;">aistudio.google.com/apikey</a> 复制密钥<br>
+            · <b>完整性校验已启用</b>：任何板块缺失都会自动重试，2 轮后仍缺失会明确报警
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <input type="password" id="geminiApiKey" placeholder="AQ.Ab8RN6... 或 AIzaSy..." style="flex:1;min-width:280px;">
+            <button class="btn-sm orange" onclick="saveGeminiKey()">💾 保存 Key</button>
+            <button class="btn-sm gray" onclick="testGeminiKey()">🔍 测试连接</button>
+            <button class="btn-sm red" onclick="clearGeminiKey()">🗑 清除</button>
+        </div>
+        <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
+    </div>
+
+    <!-- ========== 底部：约束条件 ========== -->
+    <div class="card constraint-card">
+        <div class="constraint-header" onclick="toggleConstraints()">
+            <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
+            <span class="toggle-hint" id="constraintToggle">展开 ▼</span>
+        </div>
+        <div class="constraint-body hidden" id="constraintBody">
+            <div class="constraint-section">
+                <div class="sec-title">📏 字数硬约束</div>
+                <div class="num-grid">
+                    <div class="num-item"><label>标题 · 最小</label><input type="number" id="c_titleMin"></div>
+                    <div class="num-item"><label>标题 · 最大</label><input type="number" id="c_titleMax"></div>
+                    <div class="num-item"><label>IH · 最小</label><input type="number" id="c_ihMin"></div>
+                    <div class="num-item"><label>IH · 最大</label><input type="number" id="c_ihMax"></div>
+                    <div class="num-item"><label>五点 · 每条最小</label><input type="number" id="c_bulletMin"></div>
+                    <div class="num-item"><label>五点 · 每条最大</label><input type="number" id="c_bulletMax"></div>
+                    <div class="num-item"><label>五点 · 合计上限</label><input type="number" id="c_bulletTotal"></div>
+                    <div class="num-item"><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
+                    <div class="num-item"><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
+                    <div class="num-item"><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
+                </div>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">🚫 违禁词清单（每行一个）</div>
+                <textarea id="c_forbidden" class="forbidden-ta"></textarea>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">📝 规则文本</div>
+                <div class="rule-item"><label>标题规则</label><textarea id="c_ruleTitle"></textarea></div>
+                <div class="rule-item"><label>Item Highlights 规则</label><textarea id="c_ruleIH"></textarea></div>
+                <div class="rule-item"><label>五点规则</label><textarea id="c_ruleBullets"></textarea></div>
+                <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
+                <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
+                <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
+            </div>
+            <div class="constraint-section">
+                <div class="sec-title">📖 参考范例</div>
+                <textarea id="c_example" class="example-ta"></textarea>
+            </div>
+            <div class="constraint-footer">
+                <div class="status" id="constraintStatus">已保存到浏览器</div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-sm gray" onclick="exportConstraints()">导出 JSON</button>
+                    <button class="btn-sm gray" onclick="importConstraintsPrompt()">导入 JSON</button>
+                    <button class="btn-sm red" onclick="resetConstraints()">恢复默认</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-var GEMINI_MODELS=['gemini-3.1-pro-preview','gemini-2.5-flash','gemini-2.0-flash'];
-var MAX_RETRIES=2;
-var $=function(id){return document.getElementById(id)};
-var uniq=function(arr){return Array.from(new Set(arr.filter(Boolean)))};
+const APP_VERSION = '928版 · 无历史统计';
+const APP_VERSION_DATE = '2024-09-28';
 
-function showToast(msg){var t=$('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(function(){t.classList.remove('show')},2600)}
-function escapeHtml(str){return String(str).replace(/[&<>"']/g,function(s){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]})}
-function getByteLength(str){var len=0;for(var i=0;i<str.length;i++){var code=str.charCodeAt(i);if(code<=0x7f)len+=1;else if(code<=0x7ff)len+=2;else if(code<=0xffff)len+=3;else len+=4}return len}
+const GEMINI_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-pro'
+];
 
-var GEMINI_KEY_STORAGE='cosmo_gemini_api_key';
-function saveGeminiKey(){var key=$('geminiApiKey').value.trim();if(!key){showToast('请先输入 Key');return}if(key.length<20){showToast('⚠️ Key 长度异常');return}localStorage.setItem(GEMINI_KEY_STORAGE,key);$('geminiKeyStatus').textContent='✅ 已保存 · '+new Date().toLocaleTimeString();showToast('已保存')}
-function clearGeminiKey(){if(!confirm('确定清除吗？'))return;localStorage.removeItem(GEMINI_KEY_STORAGE);$('geminiApiKey').value='';$('geminiKeyStatus').textContent='已清除';showToast('已清除')}
-function loadGeminiKey(){var saved=localStorage.getItem(GEMINI_KEY_STORAGE);if(saved){$('geminiApiKey').value=saved;$('geminiKeyStatus').textContent='✅ 已加载 Key'}}
-function getGeminiKey(){return ($('geminiApiKey').value||localStorage.getItem(GEMINI_KEY_STORAGE)||'').trim()}
+const MAX_RETRIES = 2;
+
+const $ = id => document.getElementById(id);
+const uniq = arr => [...new Set(arr.filter(Boolean))];
+
+function showToast(msg){
+    let t = $('toast');
+    if (!t){ t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+}
+function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+function getByteLength(str){
+    let len = 0;
+    for (let i = 0; i < str.length; i++){
+        const code = str.charCodeAt(i);
+        if (code <= 0x7f) len += 1;
+        else if (code <= 0x7ff) len += 2;
+        else if (code <= 0xffff) len += 3;
+        else len += 4;
+    }
+    return len;
+}
+
+/* ============================================================
+   Gemini API Key 管理
+   ============================================================ */
+const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
+function saveGeminiKey(){
+    const key = $('geminiApiKey').value.trim();
+    if (!key){ showToast('请先输入 Key'); return; }
+    if (key.length < 20){ showToast('⚠️ Key 长度异常，请重新复制完整密钥'); return; }
+    localStorage.setItem(GEMINI_KEY_STORAGE, key);
+    $('geminiKeyStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString();
+    showToast('已保存 Gemini Key');
+}
+function clearGeminiKey(){
+    if (!confirm('确定清除已保存的 Gemini Key 吗？')) return;
+    localStorage.removeItem(GEMINI_KEY_STORAGE);
+    $('geminiApiKey').value = '';
+    $('geminiKeyStatus').textContent = '已清除';
+    showToast('已清除');
+}
+function loadGeminiKey(){
+    const saved = localStorage.getItem(GEMINI_KEY_STORAGE);
+    if (saved){
+        $('geminiApiKey').value = saved;
+        $('geminiKeyStatus').textContent = '✅ 已从浏览器加载 Key';
+    }
+}
+function getGeminiKey(){ return ($('geminiApiKey').value || localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim(); }
 
 async function testGeminiKey(){
-var key=getGeminiKey();if(!key){showToast('请先输入 Key');return}
-$('geminiKeyStatus').textContent='⏳ 测试中…';
-var successModel=null,errorMsgs=[];
-for(var i=0;i<GEMINI_MODELS.length;i++){
-var model=GEMINI_MODELS[i];
-try{
-var url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(key);
-var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:'hi'}]}]})});
-var data=await r.json();
-if(data.error){errorMsgs.push(model+': '+(data.error.message||JSON.stringify(data.error)));continue}
-var text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text;
-if(text){successModel=model;break}else errorMsgs.push(model+': 返回空')
-}catch(err){errorMsgs.push(model+': 网络失败 - '+err.message)}
-}
-if(successModel){$('geminiKeyStatus').textContent='✅ 连接成功！可用模型：'+successModel;showToast('✅ 可用：'+successModel)}
-else{$('geminiKeyStatus').innerHTML='❌ 测试失败。原因：<br>'+errorMsgs.map(function(e){return escapeHtml(e)}).join('<br>')}
+    const key = getGeminiKey();
+    if (!key){ showToast('请先输入 Key'); return; }
+    $('geminiKeyStatus').textContent = '⏳ 测试中（多模型探测）…';
+    let successModel = null;
+    for (const model of GEMINI_MODELS){
+        try {
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key);
+            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] }) });
+            const data = await r.json();
+            if (!data.error){
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text){ successModel = model; break; }
+            }
+        } catch (err){ continue; }
+    }
+    if (successModel){ $('geminiKeyStatus').textContent = '✅ 连接成功！可用模型：' + successModel; showToast('✅ 可用模型：' + successModel); }
+    else { $('geminiKeyStatus').textContent = '❌ 所有模型都不可用，请检查 Key 或网络'; }
 }
 
-var CONSTRAINTS_KEY='cosmo_constraints_v16';
-var DEFAULT_CONSTRAINTS={
-titleMin:70,titleMax:75,ihMin:100,ihMax:125,bulletMin:150,bulletMax:220,bulletTotal:1000,descMin:600,descMax:2000,stMax:250,
-forbidden:'best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end',
-ruleTitle:'标题必须 70-75 字符。首屏前 70 字符必须包含核心搜索词。不以标点或介词结尾。不含促销、主观夸大词。自然流畅。',
-ruleIH:'Item Highlights 必须 100-125 字符。与标题互补。只输出名词/形容词短语，禁止完整句子。',
-ruleBullets:'每条必须以【全大写小标题 + 冒号】开头。格式：BENEFIT TITLE: description。\n每条 150-220 字符。5 条合计 ≤1000。每条结尾不加句号。\n第 1 点用方括号字段：[SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]。\n必须完整输出 BULLET1 到 BULLET5 全部 5 点！',
-ruleDesc:'必须 600-900 字符。分 3-4 个自然段。以场景痛点开头。展开材质保护、规格尺寸、使用体验。最后回到适用场景收束。',
-ruleST:'≤250 字节。全小写，空格分隔。尽量填满 230-250 字节。必须完整输出 [/ST] 结束标签。',
-ruleFidelity:'绝对保真：严禁编造原始信息中没有的内容。原文写 10 格就写 10 格。原文没有重量信息就不输出 [WEIGHT]。',
-example:'【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【第 1 点】\nPRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box\n\n【第 2 点】\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust\n\n【第 3 点】\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; saves counter space while holding up to 10 watches\n\n【第 4 点】\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase\n\n【第 5 点】\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with'
+/* ============================================================
+   约束条件（v16）
+   ============================================================ */
+const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
+const DEFAULT_CONSTRAINTS = {
+    titleMin: 70, titleMax: 75,
+    ihMin: 100, ihMax: 125,
+    bulletMin: 150, bulletMax: 220, bulletTotal: 1000,
+    descMin: 600, descMax: 2000,
+    stMax: 250,
+    forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
+    ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如 "10-Slot" 比 "10 Compartments" 更优。\n自然流畅，不要逗号堆砌。`,
+    ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
+    ruleBullets: `⭐ 每一条都必须以【全大写小标题 + 冒号】开头，让买家一眼看清重点。\n格式：BENEFIT TITLE: benefit description\n大写标题建议 2-5 个单词，用英文大写，不带标点，直接跟冒号。\n\n每条 150-220 字符（含大写标题）。\n5 条合计 ≤1000 字符。\n每条结尾不加句号。\n\n【第 1 点 · 规格与包装快照 · 重要】\n· 大写标题建议：PRODUCT SPECS 或 FULL SPECS 或 COMPLETE SET\n· 标题后必须用【[字段名] 值】的形式罗列规格，每个字段独立，用分号或句号分隔。\n· 必须使用的字段标记（按顺序）：[SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]\n· ⚠️ 字段标记必须用方括号大写，例如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]\n· ⚠️ 严禁任何叙述性动词（features/is/has/measures/weighs/comes with 等）。\n· ✅ 正确示例：PRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n· ❌ 错误示例：COMPLETE SET: 10 Compartments, Black. Size 9.84 x 7.87 x 3.15 inches. Weight 38.8 oz.（这里没用方括号标记，不合格）\n· ⚠️ 如果原文缺少某个字段（比如没有重量），就不要输出该字段标记，不要编造。\n· ⚠️ 如果用户在"五点特殊要求"里指定了字段顺序，必须严格按用户指定的顺序输出（用方括号形式）。\n\n【第 2-5 点 · 利益点】\n· 第 2 点大写标题建议：SCRATCH-FREE LINING 或 PROTECTIVE INTERIOR\n· 第 3 点大写标题建议：COMPACT DESIGN 或 SPACE-SAVING SIZE\n· 第 4 点大写标题建议：PORTABLE & LIGHTWEIGHT\n· 第 5 点大写标题建议：QUICK ACCESS 或 EASY-OPEN LID\n· 大写标题后接自然语言的好处描述。\n\n⚠️ 每条务必写满 150 字符以上，低于 150 字符视为不合格！\n⚠️⚠️ 必须完整输出 BULLET1 到 BULLET5 全部 5 点，一个都不能少！`,
+    ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
+    ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）\n⚠️⚠️ 必须完整输出 [/ST] 结束标签，不能中途截断！`,
+    ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量，也不要输出 [WEIGHT] 标记。\n· 原文没有 Package Includes，就不要虚构包装清单，也不要输出 [PACKAGE INCLUDES] 标记。`,
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头，第 1 点用 [字段] 标记】\n\n第 1 点：\nPRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces`
 };
-var C=JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
+let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
-function saveConstraints(){try{localStorage.setItem(CONSTRAINTS_KEY,JSON.stringify(C));$('constraintStatus').textContent='✅ 已保存 · '+new Date().toLocaleTimeString()}catch(e){}}
-function loadConstraints(){try{var raw=localStorage.getItem(CONSTRAINTS_KEY);if(raw){C=Object.assign({},DEFAULT_CONSTRAINTS,JSON.parse(raw))}}catch(e){C=JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS))}syncFormFromConstraints()}
+function saveConstraints(){ try { localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(C)); $('constraintStatus').textContent = '✅ 已保存 · ' + new Date().toLocaleTimeString(); } catch (e){} }
+function loadConstraints(){
+    try { const raw = localStorage.getItem(CONSTRAINTS_KEY); if (raw){ const saved = JSON.parse(raw); C = Object.assign({}, DEFAULT_CONSTRAINTS, saved); } }
+    catch (e){ C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); }
+    syncFormFromConstraints();
+}
 function syncFormFromConstraints(){
-$('c_titleMin').value=C.titleMin;$('c_titleMax').value=C.titleMax;$('c_ihMin').value=C.ihMin;$('c_ihMax').value=C.ihMax;
-$('c_bulletMin').value=C.bulletMin;$('c_bulletMax').value=C.bulletMax;$('c_bulletTotal').value=C.bulletTotal;
-$('c_descMin').value=C.descMin;$('c_descMax').value=C.descMax;$('c_stMax').value=C.stMax;
-$('c_forbidden').value=C.forbidden;$('c_ruleTitle').value=C.ruleTitle;$('c_ruleIH').value=C.ruleIH;$('c_ruleBullets').value=C.ruleBullets;
-$('c_ruleDesc').value=C.ruleDesc;$('c_ruleST').value=C.ruleST;$('c_ruleFidelity').value=C.ruleFidelity;$('c_example').value=C.example;
-updateHints()}
+    $('c_titleMin').value = C.titleMin; $('c_titleMax').value = C.titleMax;
+    $('c_ihMin').value = C.ihMin; $('c_ihMax').value = C.ihMax;
+    $('c_bulletMin').value = C.bulletMin; $('c_bulletMax').value = C.bulletMax; $('c_bulletTotal').value = C.bulletTotal;
+    $('c_descMin').value = C.descMin; $('c_descMax').value = C.descMax; $('c_stMax').value = C.stMax;
+    $('c_forbidden').value = C.forbidden;
+    $('c_ruleTitle').value = C.ruleTitle; $('c_ruleIH').value = C.ruleIH; $('c_ruleBullets').value = C.ruleBullets;
+    $('c_ruleDesc').value = C.ruleDesc; $('c_ruleST').value = C.ruleST; $('c_ruleFidelity').value = C.ruleFidelity;
+    $('c_example').value = C.example;
+    updateHints();
+}
 function syncConstraintsFromForm(){
-C.titleMin=Number($('c_titleMin').value)||0;C.titleMax=Number($('c_titleMax').value)||0;
-C.ihMin=Number($('c_ihMin').value)||0;C.ihMax=Number($('c_ihMax').value)||0;
-C.bulletMin=Number($('c_bulletMin').value)||0;C.bulletMax=Number($('c_bulletMax').value)||0;
-C.bulletTotal=Number($('c_bulletTotal').value)||0;C.descMin=Number($('c_descMin').value)||0;C.descMax=Number($('c_descMax').value)||0;C.stMax=Number($('c_stMax').value)||0;
-C.forbidden=$('c_forbidden').value;C.ruleTitle=$('c_ruleTitle').value;C.ruleIH=$('c_ruleIH').value;C.ruleBullets=$('c_ruleBullets').value;
-C.ruleDesc=$('c_ruleDesc').value;C.ruleST=$('c_ruleST').value;C.ruleFidelity=$('c_ruleFidelity').value;C.example=$('c_example').value;
-updateHints();saveConstraints()}
-function updateHints(){$('titleMaxHint').textContent=C.titleMax;$('ihMaxHint').textContent=C.ihMax;$('bulletMinHint').textContent=C.bulletMin;$('bulletMaxHint').textContent=C.bulletMax;$('bulletTotalHint').textContent=C.bulletTotal;$('descMaxHint').textContent=C.descMax;$('stMaxHint').textContent=C.stMax}
-function toggleConstraints(){var body=$('constraintBody'),hint=$('constraintToggle');body.classList.toggle('hidden');hint.textContent=body.classList.contains('hidden')?'展开 ▼':'收起 ▲'}
-function resetConstraints(){if(!confirm('确定恢复默认吗？'))return;C=JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));syncFormFromConstraints();saveConstraints();showToast('已恢复默认')}
-function exportConstraints(){var blob=new Blob([JSON.stringify(C,null,2)],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='cosmo_constraints_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(url)}
-function importConstraintsPrompt(){var input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var im=JSON.parse(ev.target.result);C=Object.assign({},DEFAULT_CONSTRAINTS,im);syncFormFromConstraints();saveConstraints();showToast('导入成功')}catch(err){showToast('导入失败：'+err.message)}};r.readAsText(f)};input.click()}
-function initConstraintListeners(){['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(function(id){var el=$(id);if(el)el.addEventListener('input',syncConstraintsFromForm)})}
-
-var CUSTOM_IDS=['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
-function saveCustom(){CUSTOM_IDS.forEach(function(id){var el=$(id);if(el)localStorage.setItem('cosmo_req_'+id,el.value)})}
-function loadCustom(){CUSTOM_IDS.forEach(function(id){var el=$(id);var saved=localStorage.getItem('cosmo_req_'+id);if(el){el.value=saved||'';el.addEventListener('input',saveCustom)}})}
-
-function setStep(step,state){var el=document.querySelector('.pipeline-step[data-step="'+step+'"]');if(!el)return;el.classList.remove('active','done','error');if(state)el.classList.add(state)}
-function resetPipeline(){document.querySelectorAll('.pipeline-step').forEach(function(el){el.classList.remove('active','done','error')})}
-
-var L={func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],capable:['durab','resistant','sturdy','withstand','long-lasting','lockable','secure'],identity:['watch box','watch case','storage box','organizer','holder','tray','box','case','container','display case','watch holder'],role:['decorative','functional','household','display','accessory','essential','practical','versatile'],audience:['collector','enthusiast','family','adult','men','women','husband','boyfriend','dad','gift'],ease:['easy','simple','quick','effortless','convenient','ready to use','no tools'],size:['size','inch','cm','dimension','fits','standard','slot','compartment','tier'],location:['home','bedroom','closet','dresser','shelf','office','indoor','nightstand','drawer'],occasion:['daily','everyday','holiday','birthday','anniversary','christmas'],season:['year-round','all-season','all year'],lifestyle:['lifestyle','modern','minimalist','organized','tidy'],together:['compatible','works with','pairs with','accessories','standard'],image:['elegant','refined','sophisticated','organized','tidy','stylish'],emotion:['peace of mind','satisfaction','worry-free','enjoy','comfort','tidy']};
-var ANCHORS=[{cluster:'功能集群',name:'used_for_func',cn:'核心功能用途',kws:L.func},{cluster:'功能集群',name:'used_to',cn:'达成使用目标',kws:L.goal},{cluster:'功能集群',name:'capable_of',cn:'性能材质能力',kws:L.capable},{cluster:'身份集群',name:'is_a',cn:'品类身份归属',kws:L.identity},{cluster:'身份集群',name:'used_as',cn:'扮演角色定位',kws:L.role},{cluster:'受众集群',name:'target_audience',cn:'目标受众群体',kws:L.audience},{cluster:'受众集群',name:'used_by',cn:'操作者使用体验',kws:L.ease},{cluster:'受众集群',name:'body_part',cn:'尺寸/接触部位',kws:L.size},{cluster:'场景集群',name:'used_in_location',cn:'使用地点场景',kws:L.location},{cluster:'场景集群',name:'used_for_eve/occasion',cn:'节日场合',kws:L.occasion},{cluster:'场景集群',name:'used_at_time/season',cn:'时间季节',kws:L.season},{cluster:'场景集群',name:'lifestyle_support',cn:'生活方式共鸣',kws:L.lifestyle},{cluster:'生态集群',name:'used_with',cn:'配套关联生态',kws:L.together},{cluster:'生态集群',name:'self_image',cn:'自我形象表达',kws:L.image},{cluster:'生态集群',name:'emotional_outcome',cn:'情感结果反馈',kws:L.emotion}];
-var A9_SCENE_WORDS=['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
-var A9_ATTR_WORDS=['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
-var A9_STOP_WORDS=new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
-
-function detectProhibited(text){if(!text)return[];var hits=new Set();var list=C.forbidden.split('\n').map(function(w){return w.trim().toLowerCase()}).filter(Boolean);list.forEach(function(w){var escaped=w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');var regex=new RegExp('\\b'+escaped+'(ly|s|es|ed|ing|d)?\\b','gi');if(regex.test(text))hits.add(w)});return Array.from(hits)}
-function cleanInput(text){if(!text)return'';var r=String(text);r=r.replace(/<[^>]+>/g,' ');r=r.replace(/Watchs/ig,'Watches');r=r.replace(/watchs/ig,'watches');r=r.replace(/\s+/g,' ');return r.trim()}
-
-function buildPrompt(titleRaw,bpRaw,descRaw,stRaw,hotKeywords,customReqs,prevErrors,prevContent){
-var hotBlock=hotKeywords.length?'\n【用户热词】\n'+hotKeywords.join('\n'):'';
-var hasCustom=Object.values(customReqs).some(function(v){return v});
-var customBlock=hasCustom?'\n【用户自定义要求 · 最高优先级】\n'+(customReqs.title?'· 标题：'+customReqs.title+'\n':'')+(customReqs.ih?'· IH：'+customReqs.ih+'\n':'')+(customReqs.bp?'· 五点：'+customReqs.bp+'\n':'')+(customReqs.desc?'· 描述：'+customReqs.desc+'\n':'')+(customReqs.st?'· ST：'+customReqs.st+'\n':''):'';
-var prevErrorBlock='';
-if(prevErrors&&prevErrors.length&&prevContent){
-prevErrorBlock='\n【上一轮完整性问题 · 必须修复】\n';
-prevErrors.forEach(function(e){prevErrorBlock+='❌ ['+e.module+'] '+e.msg+'\n'});
-prevErrorBlock+='\n【上一轮生成的内容】\n';
-if(prevContent.title)prevErrorBlock+='【标题】'+prevContent.title+'\n';
-if(prevContent.itemHighlights)prevErrorBlock+='【IH】'+prevContent.itemHighlights+'\n';
-if(prevContent.bullets)prevContent.bullets.forEach(function(b,i){prevErrorBlock+='【BULLET'+(i+1)+'】'+(b?b:'❌ 缺失！')+'\n'});
-if(prevContent.description)prevErrorBlock+='【DESC】'+prevContent.description.substring(0,300)+'\n';
-if(prevContent.searchTerms)prevErrorBlock+='【ST】'+prevContent.searchTerms+'\n';
+    C.titleMin = Number($('c_titleMin').value) || 0; C.titleMax = Number($('c_titleMax').value) || 0;
+    C.ihMin = Number($('c_ihMin').value) || 0; C.ihMax = Number($('c_ihMax').value) || 0;
+    C.bulletMin = Number($('c_bulletMin').value) || 0; C.bulletMax = Number($('c_bulletMax').value) || 0;
+    C.bulletTotal = Number($('c_bulletTotal').value) || 0;
+    C.descMin = Number($('c_descMin').value) || 0; C.descMax = Number($('c_descMax').value) || 0;
+    C.stMax = Number($('c_stMax').value) || 0;
+    C.forbidden = $('c_forbidden').value;
+    C.ruleTitle = $('c_ruleTitle').value; C.ruleIH = $('c_ruleIH').value; C.ruleBullets = $('c_ruleBullets').value;
+    C.ruleDesc = $('c_ruleDesc').value; C.ruleST = $('c_ruleST').value; C.ruleFidelity = $('c_ruleFidelity').value;
+    C.example = $('c_example').value;
+    updateHints(); saveConstraints();
 }
-var wordBlock='【字数硬约束】\n· 标题：'+C.titleMin+'-'+C.titleMax+'\n· IH：'+C.ihMin+'-'+C.ihMax+'\n· 五点：每条 '+C.bulletMin+'-'+C.bulletMax+'；合计 ≤'+C.bulletTotal+'\n· 描述：'+C.descMin+'-'+C.descMax+'\n· ST：≤'+C.stMax+' 字节';
-return '你是亚马逊 Top Reviewer 级别资深 Listing 文案撰写者。\n'+customBlock+'\n【原始商品信息】\n标题：'+(titleRaw||'（未提供）')+'\n五点/信息：'+(bpRaw||'（未提供）')+'\n描述：'+(descRaw||'（未提供）')+'\n搜索词：'+(stRaw||'（未提供）')+'\n'+hotBlock+'\n'+prevErrorBlock+'\n【参考范例】\n'+C.example+'\n\n'+wordBlock+'\n\n【规则】\n标题：'+C.ruleTitle+'\nIH：'+C.ruleIH+'\n五点：'+C.ruleBullets+'\n描述：'+C.ruleDesc+'\nST：'+C.ruleST+'\n保真：'+C.ruleFidelity+'\n\n⚠️ 必须输出全部 9 个标记：TITLE、IH、BULLET1-5、DESC、ST\n\n【输出格式】\n[TITLE]\n标题\n[/TITLE]\n\n[IH]\nItem Highlights\n[/IH]\n\n[BULLET1]\n大写标题: [字段1] 值1; [字段2] 值2\n[/BULLET1]\n\n[BULLET2]\n大写标题: 内容\n[/BULLET2]\n\n[BULLET3]\n大写标题: 内容\n[/BULLET3]\n\n[BULLET4]\n大写标题: 内容\n[/BULLET4]\n\n[BULLET5]\n大写标题: 内容\n[/BULLET5]\n\n[DESC]\n详细描述\n[/DESC]\n\n[ST]\n搜索词\n[/ST]'
+function updateHints(){
+    $('titleMaxHint').textContent = C.titleMax;
+    $('ihMaxHint').textContent = C.ihMax;
+    $('bulletMinHint').textContent = C.bulletMin;
+    $('bulletMaxHint').textContent = C.bulletMax;
+    $('bulletTotalHint').textContent = C.bulletTotal;
+    $('descMaxHint').textContent = C.descMax;
+    $('stMaxHint').textContent = C.stMax;
+}
+function toggleConstraints(){ const body = $('constraintBody'), hint = $('constraintToggle'); body.classList.toggle('hidden'); hint.textContent = body.classList.contains('hidden') ? '展开 ▼' : '收起 ▲'; }
+function resetConstraints(){ if (!confirm('确定恢复默认吗？')) return; C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); syncFormFromConstraints(); saveConstraints(); showToast('已恢复默认'); }
+function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(url); }
+function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
+function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
+
+/* ============================================================
+   自定义要求
+   ============================================================ */
+const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
+const CUSTOM_DEFAULTS = {
+    reqTitle: '',
+    reqIh: '',
+    reqBp: '',
+    reqDesc: '',
+    reqSt: ''
+};
+function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
+function loadCustom(){
+    CUSTOM_IDS.forEach(id => {
+        const el = $(id);
+        const saved = localStorage.getItem('cosmo_req_' + id);
+        if (el){
+            el.value = (saved !== null && saved !== undefined && saved !== '') ? saved : (CUSTOM_DEFAULTS[id] || '');
+            el.addEventListener('input', saveCustom);
+        }
+    });
 }
 
-var SYSTEM_PROMPT='你是亚马逊 Listing 文案撰写专家。用户自定义要求必须严格遵守。五点必须以【全大写小标题 + 冒号】开头。第 1 点用【[字段名] 值】形式。必须输出全部 9 个标记。只输出指定格式，不要解释。';
+function setStep(step, state){ const el = document.querySelector('.pipeline-step[data-step="' + step + '"]'); if (!el) return; el.classList.remove('active','done','error'); if (state) el.classList.add(state); }
+function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
+
+const L = {
+    func:['sanitiz','clean','absorb','protect','organiz','storage','wipe','display','showcase','arrange','classify','store'],
+    goal:['prevent','reduce','avoid','ensure','help','keep','maintain','achiev','no more','without','so you'],
+    capable:['durab','resistant','sturdy','withstand','long-lasting','lockable','secure'],
+    identity:['watch box','watch case','storage box','organizer','holder','tray','box','case','container','display case','watch holder'],
+    role:['decorative','functional','household','display','accessory','essential','practical','versatile'],
+    audience:['collector','enthusiast','family','adult','men','women','husband','boyfriend','dad','gift'],
+    ease:['easy','simple','quick','effortless','convenient','ready to use','no tools'],
+    size:['size','inch','cm','dimension','fits','standard','slot','compartment','tier'],
+    location:['home','bedroom','closet','dresser','shelf','office','indoor','nightstand','drawer'],
+    occasion:['daily','everyday','holiday','birthday','anniversary','christmas'],
+    season:['year-round','all-season','all year'],
+    lifestyle:['lifestyle','modern','minimalist','organized','tidy'],
+    together:['compatible','works with','pairs with','accessories','standard'],
+    image:['elegant','refined','sophisticated','organized','tidy','stylish'],
+    emotion:['peace of mind','satisfaction','worry-free','enjoy','comfort','tidy']
+};
+const ANCHORS = [
+    { cluster:'功能集群', name:'used_for_func', cn:'核心功能用途', kws:L.func },
+    { cluster:'功能集群', name:'used_to', cn:'达成使用目标', kws:L.goal },
+    { cluster:'功能集群', name:'capable_of', cn:'性能材质能力', kws:L.capable },
+    { cluster:'身份集群', name:'is_a', cn:'品类身份归属', kws:L.identity },
+    { cluster:'身份集群', name:'used_as', cn:'扮演角色定位', kws:L.role },
+    { cluster:'受众集群', name:'target_audience', cn:'目标受众群体', kws:L.audience },
+    { cluster:'受众集群', name:'used_by', cn:'操作者使用体验', kws:L.ease },
+    { cluster:'受众集群', name:'body_part', cn:'尺寸/接触部位', kws:L.size },
+    { cluster:'场景集群', name:'used_in_location', cn:'使用地点场景', kws:L.location },
+    { cluster:'场景集群', name:'used_for_eve/occasion', cn:'节日场合', kws:L.occasion },
+    { cluster:'场景集群', name:'used_at_time/season', cn:'时间季节', kws:L.season },
+    { cluster:'场景集群', name:'lifestyle_support', cn:'生活方式共鸣', kws:L.lifestyle },
+    { cluster:'生态集群', name:'used_with', cn:'配套关联生态', kws:L.together },
+    { cluster:'生态集群', name:'self_image', cn:'自我形象表达', kws:L.image },
+    { cluster:'生态集群', name:'emotional_outcome', cn:'情感结果反馈', kws:L.emotion }
+];
+const A9_SCENE_WORDS = ['indoor','outdoor','entryway','bedroom','closet','dresser','shelf','office','home','store','shop','living room','display','counter'];
+const A9_ATTR_WORDS = ['lockable','pu leather','glass window','slot','black','sturdy','dust-proof','scratch-resistant','durable','organizer'];
+const A9_STOP_WORDS = new Set(['a','an','the','and','or','for','of','to','in','on','at','with','by','from','this','that','is','are','it','as','be','your','you','all','any','has','have','can','will','not','no','but','so','if','do','does','was','were','been','being','its','their','they','them','these','those','than','then','also','more','most','very','just','only','out','up','down','off','over','under','into','onto','about','after','before','during','through','between','across','without','within','along','around','because','while','where','when','who','what','how','why','which']);
+
+function detectProhibited(text){
+    if (!text) return [];
+    const hits = new Set();
+    const list = C.forbidden.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
+    list.forEach(w => {
+        const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\b' + escaped + '(ly|s|es|ed|ing|d)?\\b', 'gi');
+        if (regex.test(text)) hits.add(w);
+    });
+    return [...hits];
+}
+function cleanInput(text){
+    if (!text) return '';
+    let r = String(text);
+    r = r.replace(/<[^>]+>/g, ' '); r = r.replace(/Watchs/ig, 'Watches'); r = r.replace(/watchs/ig, 'watches');
+    r = r.replace(/\s+/g, ' '); return r.trim();
+}
+
+function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors, prevContent){
+    const hotBlock = hotKeywords.length ? '\n【用户热词（优先自然埋入）】\n' + hotKeywords.join('\n') : '';
+    const hasCustom = Object.values(customReqs).some(v => v);
+    const customBlock = hasCustom ?
+        '\n╔════════════════════════════════════════════════════════╗\n' +
+        '║  🚨 用户自定义要求 · 最高优先级 🚨                     ║\n' +
+        '║  以下要求优先于所有其他规则。如与下方【规则】冲突，一律以这里为准！ ║\n' +
+        '╚════════════════════════════════════════════════════════╝\n' +
+        (customReqs.title ? '· 标题：' + customReqs.title + '\n' : '') +
+        (customReqs.ih ? '· Item Highlights：' + customReqs.ih + '\n' : '') +
+        (customReqs.bp ? '· 五点描述：' + customReqs.bp + '\n' : '') +
+        (customReqs.desc ? '· 详细描述：' + customReqs.desc + '\n' : '') +
+        (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '') +
+        '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成（用方括号形式 [FIELD]）！\n' : '';
+
+    let prevErrorBlock = '';
+    if (prevErrors && prevErrors.length && prevContent){
+        prevErrorBlock = '\n╔════════════════════════════════════════════════════════╗\n' +
+            '║  ⚠️⚠️ 上一轮完整性问题 · 本轮必须全部修复 ⚠️⚠️       ║\n' +
+            '╚════════════════════════════════════════════════════════╝\n';
+        prevErrors.forEach(e => { prevErrorBlock += '❌ [' + e.module + '] ' + e.msg + '\n'; });
+        prevErrorBlock += '\n【上一轮你生成的内容（供参考，缺失部分必须补齐）】\n';
+        if (prevContent.title) prevErrorBlock += '【标题】' + prevContent.title + '\n';
+        if (prevContent.itemHighlights) prevErrorBlock += '【IH】' + prevContent.itemHighlights + '\n';
+        if (prevContent.bullets){
+            prevContent.bullets.forEach((b, i) => {
+                prevErrorBlock += '【BULLET' + (i+1) + '】' + (b ? b : '❌ 缺失！必须生成') + '\n';
+            });
+        }
+        if (prevContent.description) prevErrorBlock += '【DESC】' + prevContent.description.substring(0, 300) + '\n';
+        if (prevContent.searchTerms) prevErrorBlock += '【ST】' + prevContent.searchTerms + '\n';
+        prevErrorBlock += '\n⚠️ 重点补齐上面标有 ❌ 缺失的部分。所有板块都要完整。\n';
+    }
+
+    const wordBlock = '【字数硬约束】\n' +
+        '· 标题：' + C.titleMin + '-' + C.titleMax + ' 字符\n' +
+        '· Item Highlights：' + C.ihMin + '-' + C.ihMax + ' 字符\n' +
+        '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符（⭐ 每条必须 ≥' + C.bulletMin + ' 字符）；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
+        '· 详细描述：' + C.descMin + '-' + C.descMax + ' 字符\n' +
+        '· Search Terms：≤' + C.stMax + ' 字节，全小写，尽量填满 230-250 字节';
+
+    return `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。
+
+${customBlock}
+━━━━━━━━━━━━━━ 任务 ━━━━━━━━━━━━━━
+基于下方原始商品信息，一次性生成完整的高质量 Listing。
+
+━━━━━━━━━━━━━━ 原始商品信息 ━━━━━━━━━━━━━━
+标题：${titleRaw || '（未提供）'}
+五点/信息：${bpRaw || '（未提供）'}
+描述：${descRaw || '（未提供）'}
+搜索词：${stRaw || '（未提供）'}
+${hotBlock}
+${prevErrorBlock}
+
+━━━━━━━━━━━━━━ 参考范例 ━━━━━━━━━━━━━━
+${C.example}
+
+━━━━━━━━━━━━━━ ${wordBlock} ━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━ 规则 ━━━━━━━━━━━━━━
+【标题规则】${C.ruleTitle}
+【IH 规则】${C.ruleIH}
+【五点规则 · 每条必须用全大写小标题开头 · 第 1 点必须用方括号字段标记】${C.ruleBullets}
+【描述规则】${C.ruleDesc}
+【ST 规则】${C.ruleST}
+【保真原则】${C.ruleFidelity}
+
+━━━━━━━━━━━━━━ ⚠️ 完整性红线 ⚠️ ━━━━━━━━━━━━━━
+必须输出全部 8 个标记：TITLE、IH、BULLET1、BULLET2、BULLET3、BULLET4、BULLET5、DESC、ST
+任何一个标记缺失或内容为空都算失败！禁止输出半截内容！
+
+━━━━━━━━━━━━━━ 输出格式 ━━━━━━━━━━━━━━
+严格按以下标记输出，不要加任何其他解释：
+
+[TITLE]
+标题
+[/TITLE]
+
+[IH]
+Item Highlights
+[/IH]
+
+[BULLET1]
+大写标题: [字段1] 值1; [字段2] 值2; ...
+[/BULLET1]
+
+[BULLET2]
+大写标题: 内容
+[/BULLET2]
+
+[BULLET3]
+大写标题: 内容
+[/BULLET3]
+
+[BULLET4]
+大写标题: 内容
+[/BULLET4]
+
+[BULLET5]
+大写标题: 内容
+[/BULLET5]
+
+[DESC]
+详细描述
+[/DESC]
+
+[ST]
+搜索词
+[/ST]`;
+}
+
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出，且用方括号形式标记字段（如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]）。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。\n\n【第 1 点格式 · 必须遵守】大写标题后必须用【[字段名] 值】的形式罗列规格，字段名用方括号大写。必须使用的字段：SIZE、COLOR、WEIGHT、PACKAGE INCLUDES、MATERIAL（原文有的才写）。用分号分隔。禁止用 "Size: xxx" 这种冒号形式。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
 async function callGeminiWithFallback(messages){
-var apiKey=getGeminiKey();if(!apiKey)throw new Error('未配置 Gemini API Key');
-var lastError=null;
-for(var i=0;i<GEMINI_MODELS.length;i++){
-var model=GEMINI_MODELS[i];
-try{
-var systemMsg=messages.find(function(m){return m.role==='system'});
-var userMsgs=messages.filter(function(m){return m.role!=='system'});
-var contents=userMsgs.map(function(m){return {role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}});
-var body={contents:contents,generationConfig:{temperature:0.7,maxOutputTokens:16000}};
-if(systemMsg&&systemMsg.content)body.systemInstruction={parts:[{text:systemMsg.content}]};
-var url='https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+encodeURIComponent(apiKey);
-var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-var data=await r.json();
-if(data.error){lastError=new Error(model+': '+(data.error.message||JSON.stringify(data.error)));continue}
-var text=data&&data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]&&data.candidates[0].content.parts[0].text||'';
-if(!text.trim()){lastError=new Error(model+': 返回空内容');continue}
-return {text:text,model:model}
-}catch(err){lastError=err;continue}
-}
-throw lastError||new Error('所有 Gemini 模型都不可用')
+    const apiKey = getGeminiKey();
+    if (!apiKey) throw new Error('未配置 Gemini API Key');
+
+    let lastError = null;
+    for (const model of GEMINI_MODELS){
+        console.log('[多模型] 尝试: ' + model);
+        try {
+            const systemMsg = messages.find(m => m.role === 'system');
+            const userMsgs = messages.filter(m => m.role !== 'system');
+            const contents = userMsgs.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            }));
+            const body = { contents: contents, generationConfig: { temperature: 0.7, maxOutputTokens: 16000 } };
+            if (systemMsg && systemMsg.content) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
+            const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey);
+            const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            const data = await r.json();
+
+            if (data.error){
+                const errMsg = data.error.message || JSON.stringify(data.error);
+                console.warn('[多模型] ' + model + ' 失败: ' + errMsg);
+                lastError = new Error(model + ': ' + errMsg);
+                continue;
+            }
+
+            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            if (!text.trim()){ lastError = new Error(model + ': 返回空内容'); continue; }
+
+            console.log('[多模型] ' + model + ' 成功，返回长度: ' + text.length);
+            return { text, model };
+        } catch (err){
+            console.warn('[多模型] ' + model + ' 网络异常: ' + err.message);
+            lastError = err;
+            continue;
+        }
+    }
+    throw lastError || new Error('所有 Gemini 模型都不可用，请稍后重试');
 }
 
 function parseStructuredOutput(text){
-var extract=function(tag){var escaped=tag.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');var regex=new RegExp('\\[\\s*'+escaped+'\\s*\\]([\\s\\S]*?)\\[\\s*\\/\\s*'+escaped+'\\s*\\]','i');var m=text.match(regex);return m?m[1].trim():''};
-return {title:extract('TITLE'),itemHighlights:extract('IH'),bullets:[1,2,3,4,5].map(function(i){return extract('BULLET'+i)}),description:extract('DESC'),searchTerms:extract('ST')}
+    const extract = (tag) => {
+        const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp('\\[\\s*' + escaped + '\\s*\\]([\\s\\S]*?)\\[\\s*\\/\\s*' + escaped + '\\s*\\]', 'i');
+        const m = text.match(regex);
+        return m ? m[1].trim() : '';
+    };
+    const result = {
+        title: extract('TITLE'),
+        itemHighlights: extract('IH'),
+        bullets: [1,2,3,4,5].map(i => extract('BULLET' + i)),
+        description: extract('DESC'),
+        searchTerms: extract('ST')
+    };
+    console.log('[解析] 各板块长度：', {
+        title: result.title.length,
+        ih: result.itemHighlights.length,
+        bullets: result.bullets.map(b => b.length),
+        desc: result.description.length,
+        st: result.searchTerms.length
+    });
+    return result;
+}
+
+function hasTruncation(text, moduleName){
+    if (!text || !text.trim()) return false;
+    const trimmed = text.trim();
+    if (/[,:;\-]$/.test(trimmed)) return moduleName + ' 结尾是逗号/冒号/破折号，疑似被截断';
+    if (/\b(and|or|with|for|the|a|an|in|on|at|to|of|by|but|so|as|is|are|was|were)$/i.test(trimmed)) return moduleName + ' 结尾是介词/连词，疑似被截断';
+    const openCount = (trimmed.match(/[（(]/g) || []).length;
+    const closeCount = (trimmed.match(/[）)]/g) || []).length;
+    if (openCount !== closeCount) return moduleName + ' 括号未闭合，疑似被截断';
+    return false;
 }
 
 function validateAll(r){
-var errors=[],warnings=[];
-if(!r.title||!r.title.trim()){errors.push({module:'标题',msg:'❌ 标题为空'})}
-else{
-if(r.title.length>C.titleMax)errors.push({module:'标题',msg:'超过 '+C.titleMax+' 字符'});
-if(r.title.length<30)errors.push({module:'标题',msg:'仅 '+r.title.length+' 字符'});
-else if(r.title.length<C.titleMin)warnings.push({module:'标题',msg:'仅 '+r.title.length+' 字符，偏短'});
-var lw=r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
-if(['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw))errors.push({module:'标题',msg:'以介词 "'+lw+'" 结尾'});
-var pHits=detectProhibited(r.title);
-if(pHits.length)errors.push({module:'标题',msg:'含违禁词：'+pHits.join(', ')});
-}
-if(!r.itemHighlights||!r.itemHighlights.trim()){errors.push({module:'亮点',msg:'❌ IH 为空'})}
-else{
-if(r.itemHighlights.length>C.ihMax)errors.push({module:'亮点',msg:'超过 '+C.ihMax+' 字符'});
-if(r.itemHighlights.length<50)errors.push({module:'亮点',msg:'仅 '+r.itemHighlights.length+' 字符'});
-else if(r.itemHighlights.length<C.ihMin)warnings.push({module:'亮点',msg:'仅 '+r.itemHighlights.length+' 字符，偏短'});
-}
-var bullets=r.bullets||[];
-if(bullets.length!==5)errors.push({module:'五点',msg:'❌ 数量不是 5'});
-var bulletTotal=0;
-bullets.forEach(function(b,i){
-var idx=i+1;
-if(!b||!b.trim()){errors.push({module:'五点',msg:'❌ 第 '+idx+' 点为空'});return}
-if(b.length>C.bulletMax)errors.push({module:'五点',msg:'第 '+idx+' 点超过 '+C.bulletMax});
-if(b.length<30)errors.push({module:'五点',msg:'第 '+idx+' 点仅 '+b.length+' 字符'});
-else if(b.length<C.bulletMin)warnings.push({module:'五点',msg:'第 '+idx+' 点仅 '+b.length+' 字符，偏短'});
-bulletTotal+=b.length;
-});
-if(bulletTotal>C.bulletTotal)errors.push({module:'五点',msg:'总字符 '+bulletTotal+' 超过 '+C.bulletTotal});
-if(!r.description||!r.description.trim()){errors.push({module:'描述',msg:'❌ 描述为空'})}
-else if(r.description.length<200)errors.push({module:'描述',msg:'仅 '+r.description.length+' 字符'});
-if(!r.searchTerms||!r.searchTerms.trim()){errors.push({module:'搜索词',msg:'❌ 搜索词为空'})}
-else if(getByteLength(r.searchTerms)>C.stMax)errors.push({module:'搜索词',msg:'超过 '+C.stMax+' 字节'});
-return {errors:errors,warnings:warnings}
+    const errors = [], warnings = [];
+
+    if (!r.title || !r.title.trim()){
+        errors.push({ module:'标题', msg:'❌ 标题为空（AI 未返回）' });
+    } else {
+        if (r.title.length > C.titleMax) errors.push({ module:'标题', msg:'超过 ' + C.titleMax + ' 字符（' + r.title.length + '）' });
+        if (r.title.length < 30) errors.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，明显不完整' });
+        else if (r.title.length < C.titleMin) warnings.push({ module:'标题', msg:'仅 ' + r.title.length + ' 字符，偏短' });
+        const lw = r.title.trim().split(/\s+/).pop().toLowerCase().replace(/[^a-z]/g,'');
+        if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)) errors.push({ module:'标题', msg:'以介词 "' + lw + '" 结尾' });
+        const pHits = detectProhibited(r.title);
+        if (pHits.length) errors.push({ module:'标题', msg:'含违禁词：' + pHits.join(', ') });
+        const trunc = hasTruncation(r.title, '标题');
+        if (trunc) errors.push({ module:'标题', msg: trunc });
+    }
+
+    if (!r.itemHighlights || !r.itemHighlights.trim()){
+        errors.push({ module:'亮点', msg:'❌ Item Highlights 为空（AI 未返回）' });
+    } else {
+        if (r.itemHighlights.length > C.ihMax) errors.push({ module:'亮点', msg:'超过 ' + C.ihMax + ' 字符（' + r.itemHighlights.length + '）' });
+        if (r.itemHighlights.length < 50) errors.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，明显不完整' });
+        else if (r.itemHighlights.length < C.ihMin) warnings.push({ module:'亮点', msg:'仅 ' + r.itemHighlights.length + ' 字符，偏短' });
+        if (/\b(is|are|was|were|has|have|features|provides|ensures|helps|includes)\b/i.test(r.itemHighlights)) errors.push({ module:'亮点', msg:'含动词' });
+    }
+
+    const bullets = r.bullets || [];
+    if (bullets.length !== 5){
+        errors.push({ module:'五点', msg:'❌ 五点数量不是 5（实际 ' + bullets.length + '）' });
+    }
+    let bulletTotal = 0;
+    bullets.forEach((b, i) => {
+        const idx = i + 1;
+        if (!b || !b.trim()){
+            errors.push({ module:'五点', msg:'❌ 第 ' + idx + ' 点为空（AI 未返回此条内容）' });
+            return;
+        }
+        if (b.length > C.bulletMax) errors.push({ module:'五点', msg:'第 ' + idx + ' 点超过 ' + C.bulletMax + ' 字符（' + b.length + '）' });
+        if (b.length < 30) errors.push({ module:'五点', msg:'第 ' + idx + ' 点仅 ' + b.length + ' 字符，明显不完整' });
+        else if (b.length < C.bulletMin) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点仅 ' + b.length + ' 字符，偏短' });
+        if (/[.。]$/.test(b.trim())) errors.push({ module:'五点', msg:'第 ' + idx + ' 点以句号结尾' });
+        const firstLine = b.split(':')[0] || '';
+        const hasAllCaps = /^[A-Z][A-Z\s&\-]{2,40}$/.test(firstLine.trim());
+        if (!hasAllCaps) warnings.push({ module:'五点', msg:'第 ' + idx + ' 点未以全大写小标题开头' });
+        if (idx === 1 && !/\[[A-Z\s]+\]/.test(b)) warnings.push({ module:'五点', msg:'第 1 点未使用 [SIZE] [COLOR] 等方括号字段标记' });
+        const trunc = hasTruncation(b, '第 ' + idx + ' 点');
+        if (trunc) errors.push({ module:'五点', msg: trunc });
+        bulletTotal += b.length;
+    });
+    if (bulletTotal > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + bulletTotal + ' 超过 ' + C.bulletTotal });
+
+    if (!r.description || !r.description.trim()){
+        errors.push({ module:'描述', msg:'❌ 详细描述为空（AI 未返回）' });
+    } else {
+        if (r.description.length > C.descMax) errors.push({ module:'描述', msg:'超过 ' + C.descMax + ' 字符（' + r.description.length + '）' });
+        if (r.description.length < 200) errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，明显不完整' });
+        else if (r.description.length < C.descMin) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，偏短' });
+        const trunc = hasTruncation(r.description, '描述');
+        if (trunc) errors.push({ module:'描述', msg: trunc });
+    }
+
+    if (!r.searchTerms || !r.searchTerms.trim()){
+        errors.push({ module:'搜索词', msg:'❌ Search Terms 为空（AI 未返回）' });
+    } else {
+        const bytes = getByteLength(r.searchTerms);
+        if (bytes > C.stMax) errors.push({ module:'搜索词', msg:'超过 ' + C.stMax + ' 字节（' + bytes + '）' });
+        if (r.searchTerms !== r.searchTerms.toLowerCase()) errors.push({ module:'搜索词', msg:'必须全小写' });
+        if (bytes < 50) warnings.push({ module:'搜索词', msg:'仅 ' + bytes + ' 字节，偏短' });
+        const trunc = hasTruncation(r.searchTerms, '搜索词');
+        if (trunc) errors.push({ module:'搜索词', msg: trunc });
+    }
+
+    return { errors, warnings };
 }
 
-async function generateWithSelfFix(titleRaw,bpRaw,descRaw,stRaw,hotKeywords,customReqs){
-var lastResult=null,lastErrors=[],lastModel='';
-for(var round=1;round<=MAX_RETRIES;round++){
-var prompt=buildPrompt(titleRaw,bpRaw,descRaw,stRaw,hotKeywords,customReqs,round>1?lastErrors:null,round>1?lastResult:null);
-var rawText,model;
-try{
-var resp=await callGeminiWithFallback([{role:'system',content:SYSTEM_PROMPT},{role:'user',content:prompt}]);
-rawText=resp.text;model=resp.model;lastModel=model;
-}catch(err){
-if(round===MAX_RETRIES)throw err;
-await new Promise(function(r){setTimeout(r,2000)});
-continue;
-}
-var result=parseStructuredOutput(rawText);
-var v=validateAll(result);
-lastResult=result;lastErrors=v.errors;
-if(v.errors.length===0)return {result:result,passed:true,rounds:round,warnings:v.warnings,model:model};
-if(round<MAX_RETRIES)await new Promise(function(r){setTimeout(r,1000)});
-}
-return {result:lastResult,passed:false,rounds:MAX_RETRIES,errors:lastErrors,warnings:[],model:lastModel}
+async function generateWithSelfFix(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs){
+    let lastResult = null;
+    let lastErrors = [];
+    let lastModel = '';
+
+    for (let round = 1; round <= MAX_RETRIES; round++){
+        const prompt = buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, round > 1 ? lastErrors : null, round > 1 ? lastResult : null);
+        let rawText, model;
+        try {
+            const resp = await callGeminiWithFallback([
+                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'user', content: prompt }
+            ]);
+            rawText = resp.text;
+            model = resp.model;
+            lastModel = model;
+        } catch (err){
+            if (round === MAX_RETRIES) throw err;
+            console.warn('[生成] 第 ' + round + ' 轮失败: ' + err.message + '，重试中...');
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
+        }
+
+        const result = parseStructuredOutput(rawText);
+        const v = validateAll(result);
+        lastResult = result;
+        lastErrors = v.errors;
+
+        console.log('[生成] 第 ' + round + ' 轮完成，errors=' + v.errors.length + '，warnings=' + v.warnings.length);
+
+        if (v.errors.length === 0){
+            return { result, passed: true, rounds: round, warnings: v.warnings, model };
+        }
+        console.warn('[生成] 第 ' + round + ' 轮存在问题：', v.errors.map(e => e.module + ': ' + e.msg).join(' | '));
+
+        if (round < MAX_RETRIES){
+            console.log('[生成] 等待 1 秒后重试，把错误清单交给 AI 补齐...');
+            await new Promise(r => setTimeout(r, 1000));
+        }
+    }
+
+    return { result: lastResult, passed: false, rounds: MAX_RETRIES, errors: lastErrors, warnings: [], model: lastModel };
 }
 
-function trimToMax(str,max){if(!str)return'';if(str.length<=max)return str;var t=str.substring(0,max);var ls=t.lastIndexOf(' ');if(ls>max*0.7)t=t.substring(0,ls);return t.trim()}
-function trimBytes(str,max){if(!str)return'';var ws=str.split(/\s+/).filter(Boolean);var result='';for(var i=0;i<ws.length;i++){var c=result?result+' '+ws[i]:ws[i];if(getByteLength(c)<=max)result=c;else break}return result.trim()}
-function postTitle(t){if(!t)return'';return trimToMax(t.trim().replace(/[,;.!]+$/,''),C.titleMax)}
-function postIH(ih){if(!ih)return'';var r=ih.trim().replace(/[.。]/g,'').replace(/[;；]/g,',');r=r.split(',').map(function(s){var t=s.trim();return t?t.charAt(0).toUpperCase()+t.slice(1):''}).filter(Boolean).join(', ');return trimToMax(r,C.ihMax)}
+function trimToMax(str, max){ if (!str) return ''; if (str.length <= max) return str; let t = str.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim(); }
+function trimBytes(str, max){ if (!str) return ''; const ws = str.split(/\s+/).filter(Boolean); let result = ''; for (const w of ws){ const c = result ? result + ' ' + w : w; if (getByteLength(c) <= max) result = c; else break; } return result.trim(); }
+function postTitle(t){ if (!t) return ''; let r = t.trim().replace(/[,;.!]+$/, ''); r = trimToMax(r, C.titleMax); let s = 0; while (s < 3){ s++; const ws = r.split(/\s+/); const lw = (ws[ws.length-1] || '').toLowerCase().replace(/[^a-z]/g,''); if (['for','with','in','on','by','to','of','and','or','the','a','an'].includes(lw)){ ws.pop(); r = ws.join(' ').trim(); } else break; } return r; }
+function postIH(ih){ if (!ih) return ''; let r = ih.trim().replace(/[.。]/g, '').replace(/[;；]/g, ','); r = r.replace(/,{2,}/g, ',').replace(/\s*,\s*/g, ', '); r = r.split(',').map(s => { const t = s.trim(); return t ? t.charAt(0).toUpperCase() + t.slice(1) : ''; }).filter(Boolean).join(', '); return trimToMax(r, C.ihMax); }
 function postBullets(bullets){
-if(!Array.isArray(bullets))return['','','','',''];
-var arr=bullets.map(function(b){return (b||'').trim().replace(/[.。;；,，]+$/,'')});
-while(arr.length<5)arr.push('');
-for(var i=0;i<5;i++){if(arr[i]&&arr[i].length>C.bulletMax)arr[i]=trimToMax(arr[i],C.bulletMax)}
-return arr.slice(0,5)
+    if (!Array.isArray(bullets)) return ['','','','',''];
+    let arr = bullets.map(b => (b || '').trim().replace(/[.。;；,，]+$/, ''));
+    while (arr.length < 5) arr.push('');
+    if (arr[0] && arr[0].length > C.bulletMax) arr[0] = smartTrimBullet1(arr[0], C.bulletMax);
+    for (let i = 1; i < 5; i++){ if (arr[i] && arr[i].length > C.bulletMax) arr[i] = trimToMax(arr[i], C.bulletMax); }
+    let total = arr.reduce((a,b) => a + b.length, 0);
+    let s = 0;
+    while (total > C.bulletTotal && s < 500){
+        s++;
+        let mi = 1, ml = 0;
+        for (let i = 1; i < 5; i++){ if (arr[i].length > ml){ ml = arr[i].length; mi = i; } }
+        if (ml <= 10){ mi = 0; ml = arr[0].length; }
+        if (ml <= 10) break;
+        const ws = arr[mi].split(/\s+/);
+        if (ws.length > 1){ ws.pop(); arr[mi] = ws.join(' '); }
+        else arr[mi] = arr[mi].substring(0, Math.max(0, arr[mi].length - 8)).trim();
+        total = arr.reduce((a,b) => a + b.length, 0);
+    }
+    return arr.slice(0, 5);
 }
-function postDesc(d){return trimToMax((d||'').trim(),C.descMax)}
-function postST(st){return trimBytes((st||'').trim().toLowerCase(),C.stMax)}
+function smartTrimBullet1(text, max){
+    if (text.length <= max) return text;
+    const sents = text.split(/(?<=[.!?])\s+/);
+    if (sents.length > 1){
+        let r = '';
+        for (const s of sents){ const c = r ? r + ' ' + s : s; if (c.length <= max) r = c; else break; }
+        if (r.trim()) return r.trim();
+    }
+    let t = text.substring(0, max); const ls = t.lastIndexOf(' '); if (ls > max * 0.7) t = t.substring(0, ls); return t.trim();
+}
+function postDesc(d){ return trimToMax((d || '').trim(), C.descMax); }
+function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
-function scoreA9(title,bp,desc,st,hotKeywords){
-var t=(title||'').toLowerCase(),b=(bp||'').toLowerCase(),d=(desc||'').toLowerCase(),s=(st||'').toLowerCase();
-var full=t+' '+b+' '+d+' '+s;
-var coreKeywords=(hotKeywords||[]).map(function(k){return k.toLowerCase()});
-function words(str){return str.split(/\s+/).map(function(w){return w.replace(/[^a-z0-9-]/g,'')}).filter(function(w){return w.length>2&&!A9_STOP_WORDS.has(w)})}
-var results=[];
-var tcs=0,tcn='';
-if(coreKeywords.length){var found=coreKeywords.filter(function(kw){return t.includes(kw)});if(found.length>=3)tcs=10;else if(found.length===2)tcs=8;else if(found.length===1)tcs=5;else tcs=2;tcn=found.length?'命中热词：'+found.slice(0,5).join(' / '):'标题未命中热词'}
-else{var wt=words(t);tcs=wt.length>=4?8:(wt.length>=2?6:3);tcn='未提供热词库'}
-results.push({key:'title_core',cn:'标题核心词',score:tcs,max:10,note:tcn});
-var first80=t.substring(0,80);
-var tfs=0,tfn='';
-if(coreKeywords.length){var f=coreKeywords.filter(function(kw){return first80.includes(kw)});if(f.length>=2)tfs=10;else if(f.length===1)tfs=7;else tfs=3;tfn=f.length?'首屏命中：'+f.join(' / '):'前 80 字符未命中'}
-else{tfs=t.length>=30?6:4;tfn='未提供热词库'}
-results.push({key:'title_front',cn:'标题首屏权重',score:tfs,max:10,note:tfn});
-var tl=(title||'').length;var tls,tln;
-if(tl===0){tls=0;tln='标题为空'}else if(tl<30){tls=4;tln='标题仅 '+tl+' 字符'}else if(tl<60){tls=7;tln='标题 '+tl+' 字符'}else if(tl<=C.titleMax){tls=10;tln='标题 '+tl+' 字符，符合规范'}else if(tl<=100){tls=6;tln='标题 '+tl+' 字符，超规范'}else{tls=3;tln='标题 '+tl+' 字符，严重超长'}
-results.push({key:'title_length',cn:'标题长度规范',score:tls,max:10,note:tln});
-var bpp=b.split(/\n\s*\n|\n/).filter(function(p){return p.trim().length>0});
-var bds=0,bdn='';
-if(bpp.length===0){bds=0;bdn='五点为空'}
-else{var perP=bpp.map(function(p){return new Set(words(p))});var allW=new Set();perP.forEach(function(s){s.forEach(function(w){allW.add(w)})});var tc=perP.reduce(function(sum,s){return sum+s.size},0);var dr=tc>0?(1-allW.size/tc):0;
-if(bpp.length>=5&&dr<0.4){bds=10;bdn='5 点完整，词分布分散'}else if(bpp.length>=5&&dr<0.6){bds=7;bdn='5 点完整，部分重复'}else if(bpp.length>=3){bds=5;bdn='仅 '+bpp.length+' 点'}else{bds=2;bdn='五点不足'}}
-results.push({key:'bp_distribution',cn:'五点词分布',score:bds,max:10,note:bdn});
-var ltc=0,ltn='';
-if(coreKeywords.length){var fl=coreKeywords.filter(function(kw){return kw.includes(' ')&&full.includes(kw)});ltc=fl.length;ltn=fl.length?'命中长尾词：'+fl.slice(0,5).join(' / '):'未命中长尾词'}
-else{var m=full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g)||[];ltc=Math.min(m.length,15);ltn='检测到约 '+m.length+' 个双词组合'}
-results.push({key:'long_tail',cn:'长尾词覆盖',score:Math.min(10,ltc*2),max:10,note:ltn});
-var scF=A9_SCENE_WORDS.filter(function(w){return full.includes(w)});
-results.push({key:'scene_words',cn:'场景词覆盖',score:Math.min(10,scF.length*2),max:10,note:scF.length?'命中：'+scF.slice(0,8).join(' / '):'未检测到场景词'});
-var atF=A9_ATTR_WORDS.filter(function(w){return full.includes(w)});
-results.push({key:'attr_words',cn:'属性词覆盖',score:Math.min(10,atF.length*1.5),max:10,note:atF.length?'命中：'+atF.slice(0,8).join(' / '):'未检测到属性词'});
-var sts=0,stn='';
-if(!s.trim()){sts=0;stn='搜索词为空'}
-else{var sw=new Set(words(s)),tw=new Set([].concat(words(t),words(b),words(d)));var nw=Array.from(sw).filter(function(w){return !tw.has(w)});
-if(nw.length>=6){sts=10;stn='补充了 '+nw.length+' 个新词'}else if(nw.length>=3){sts=7;stn='补充了 '+nw.length+' 个新词'}else if(nw.length>=1){sts=4;stn='补充仅 '+nw.length+' 个新词'}else{sts=1;stn='与标题/五点完全重复'}}
-results.push({key:'st_supplement',cn:'搜索词补充',score:sts,max:10,note:stn});
-var vc=0;
-[['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases'],['watch','watches'],['tray','trays']].forEach(function(pair){if(full.includes(pair[0])&&full.includes(pair[1]))vc++});
-results.push({key:'word_variants',cn:'词形变体',score:Math.min(10,vc*3),max:10,note:vc?'检测到 '+vc+' 组词形变体':'未检测到单复数变体'});
-var nss=10,nsn='未检测到堆砌';
-if(coreKeywords.length){var mr=0;coreKeywords.forEach(function(kw){var esc=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');var c=(full.match(new RegExp('\\b'+esc+'\\b','gi'))||[]).length;if(c>mr)mr=c});
-if(mr<=3){nss=10;nsn='核心词最大重复 '+mr+' 次'}else if(mr<=5){nss=6;nsn='核心词重复 '+mr+' 次'}else{nss=2;nsn='核心词重复 '+mr+' 次，堆砌风险'}}
-results.push({key:'no_stuffing',cn:'无关键词堆砌',score:nss,max:10,note:nsn});
-var total=results.reduce(function(s,r){return s+r.score},0);
-var grade,lv;
-if(total>=90){grade='A+';lv='lv-a'}else if(total>=80){grade='A';lv='lv-a'}else if(total>=70){grade='B+';lv='lv-b'}else if(total>=60){grade='B';lv='lv-b'}else if(total>=50){grade='C';lv='lv-c'}else{grade='D';lv='lv-d'}
-return {totalScore:total,grade:grade,lv:lv,dimensions:results}
+function scoreA9(title, bp, desc, st, hotKeywords){
+    const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = (desc || '').toLowerCase(), s = (st || '').toLowerCase();
+    const full = t + ' ' + b + ' ' + d + ' ' + s;
+    const coreKeywords = (hotKeywords || []).map(k => k.toLowerCase());
+    function words(str){ return str.split(/\s+/).map(w => w.replace(/[^a-z0-9-]/g,'')).filter(w => w.length > 2 && !A9_STOP_WORDS.has(w)); }
+    const results = [];
+    let tcs = 0, tcn = '';
+    if (coreKeywords.length){
+        const found = coreKeywords.filter(kw => t.includes(kw));
+        if (found.length >= 3) tcs = 10; else if (found.length === 2) tcs = 8; else if (found.length === 1) tcs = 5; else tcs = 2;
+        tcn = found.length ? '命中热词：' + found.slice(0,5).join(' / ') : '标题未命中热词';
+    } else { const wt = words(t); tcs = wt.length >= 4 ? 8 : (wt.length >= 2 ? 6 : 3); tcn = '未提供热词库'; }
+    results.push({ key:'title_core', cn:'标题核心词', score:tcs, max:10, note:tcn });
+    const first80 = t.substring(0, 80);
+    let tfs = 0, tfn = '';
+    if (coreKeywords.length){
+        const f = coreKeywords.filter(kw => first80.includes(kw));
+        if (f.length >= 2) tfs = 10; else if (f.length === 1) tfs = 7; else tfs = 3;
+        tfn = f.length ? '首屏命中：' + f.join(' / ') : '前 80 字符未命中';
+    } else { tfs = t.length >= 30 ? 6 : 4; tfn = '未提供热词库'; }
+    results.push({ key:'title_front', cn:'标题首屏权重', score:tfs, max:10, note:tfn });
+    const tl = (title || '').length;
+    let tls, tln;
+    if (tl === 0){ tls = 0; tln = '标题为空'; }
+    else if (tl < 30){ tls = 4; tln = '标题仅 ' + tl + ' 字符'; }
+    else if (tl < 60){ tls = 7; tln = '标题 ' + tl + ' 字符'; }
+    else if (tl <= C.titleMax){ tls = 10; tln = '标题 ' + tl + ' 字符，符合规范'; }
+    else if (tl <= 100){ tls = 6; tln = '标题 ' + tl + ' 字符，超规范'; }
+    else { tls = 3; tln = '标题 ' + tl + ' 字符，严重超长'; }
+    results.push({ key:'title_length', cn:'标题长度规范', score:tls, max:10, note:tln });
+    const bpp = b.split(/\n\s*\n|\n/).filter(p => p.trim().length > 0);
+    let bds = 0, bdn = '';
+    if (bpp.length === 0){ bds = 0; bdn = '五点为空'; }
+    else {
+        const perP = bpp.map(p => new Set(words(p)));
+        const allW = new Set(); perP.forEach(s => s.forEach(w => allW.add(w)));
+        const tc = perP.reduce((sum,s) => sum + s.size, 0);
+        const dr = tc > 0 ? (1 - allW.size / tc) : 0;
+        if (bpp.length >= 5 && dr < 0.4){ bds = 10; bdn = '5 点完整，词分布分散'; }
+        else if (bpp.length >= 5 && dr < 0.6){ bds = 7; bdn = '5 点完整，部分重复'; }
+        else if (bpp.length >= 3){ bds = 5; bdn = '仅 ' + bpp.length + ' 点'; }
+        else { bds = 2; bdn = '五点不足'; }
+    }
+    results.push({ key:'bp_distribution', cn:'五点词分布', score:bds, max:10, note:bdn });
+    let ltc = 0, ltn = '';
+    if (coreKeywords.length){
+        const f = coreKeywords.filter(kw => kw.includes(' ') && full.includes(kw));
+        ltc = f.length; ltn = f.length ? '命中长尾词：' + f.slice(0,5).join(' / ') : '未命中长尾词';
+    } else { const m = full.match(/\b[a-z]{3,}\s+[a-z]{3,}\b/g) || []; ltc = Math.min(m.length,15); ltn = '检测到约 ' + m.length + ' 个双词组合'; }
+    results.push({ key:'long_tail', cn:'长尾词覆盖', score:Math.min(10, ltc*2), max:10, note:ltn });
+    const scF = A9_SCENE_WORDS.filter(w => full.includes(w));
+    results.push({ key:'scene_words', cn:'场景词覆盖', score:Math.min(10, scF.length*2), max:10, note: scF.length ? '命中：' + scF.slice(0,8).join(' / ') : '未检测到场景词' });
+    const atF = A9_ATTR_WORDS.filter(w => full.includes(w));
+    results.push({ key:'attr_words', cn:'属性词覆盖', score:Math.min(10, atF.length*1.5), max:10, note: atF.length ? '命中：' + atF.slice(0,8).join(' / ') : '未检测到属性词' });
+    let sts = 0, stn = '';
+    if (!s.trim()){ sts = 0; stn = '搜索词为空'; }
+    else {
+        const sw = new Set(words(s)), tw = new Set([...words(t), ...words(b), ...words(d)]);
+        const nw = [...sw].filter(w => !tw.has(w));
+        if (nw.length >= 6){ sts = 10; stn = '补充了 ' + nw.length + ' 个新词'; }
+        else if (nw.length >= 3){ sts = 7; stn = '补充了 ' + nw.length + ' 个新词'; }
+        else if (nw.length >= 1){ sts = 4; stn = '补充仅 ' + nw.length + ' 个新词'; }
+        else { sts = 1; stn = '与标题/五点完全重复'; }
+    }
+    results.push({ key:'st_supplement', cn:'搜索词补充', score:sts, max:10, note:stn });
+    let vc = 0;
+    [['mat','mats'],['rug','rugs'],['pad','pads'],['door','doors'],['glass','glasses'],['box','boxes'],['case','cases'],['watch','watches'],['tray','trays']].forEach(([s1,p1]) => { if (full.includes(s1) && full.includes(p1)) vc++; });
+    results.push({ key:'word_variants', cn:'词形变体', score:Math.min(10, vc*3), max:10, note: vc ? '检测到 ' + vc + ' 组词形变体' : '未检测到单复数变体' });
+    let nss = 10, nsn = '未检测到堆砌';
+    if (coreKeywords.length){
+        let mr = 0;
+        coreKeywords.forEach(kw => {
+            const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const c = (full.match(new RegExp('\\b' + esc + '\\b', 'gi')) || []).length;
+            if (c > mr) mr = c;
+        });
+        if (mr <= 3){ nss = 10; nsn = '核心词最大重复 ' + mr + ' 次'; }
+        else if (mr <= 5){ nss = 6; nsn = '核心词重复 ' + mr + ' 次'; }
+        else { nss = 2; nsn = '核心词重复 ' + mr + ' 次，堆砌风险'; }
+    }
+    results.push({ key:'no_stuffing', cn:'无关键词堆砌', score:nss, max:10, note:nsn });
+    const total = results.reduce((s,r) => s + r.score, 0);
+    let grade, lv;
+    if (total >= 90){ grade='A+'; lv='lv-a'; }
+    else if (total >= 80){ grade='A'; lv='lv-a'; }
+    else if (total >= 70){ grade='B+'; lv='lv-b'; }
+    else if (total >= 60){ grade='B'; lv='lv-b'; }
+    else if (total >= 50){ grade='C'; lv='lv-c'; }
+    else { grade='D'; lv='lv-d'; }
+    return { totalScore: total, grade, lv, dimensions: results };
+}
+function scoreText(title, bp, desc, st){
+    const full = [title, bp, desc, st].join(' \n ').toLowerCase();
+    let raw = 0, g = 0, y = 0, r = 0;
+    const anchorResults = [];
+    ANCHORS.forEach(a => {
+        const hits = uniq(a.kws.filter(k => full.includes(k)));
+        let level, score;
+        if (hits.length === 0){ level='red'; score=0; r++; }
+        else if (hits.length <= 2){ level='yellow'; score=hits.length===1?4:5; y++; }
+        else { level='green'; score=7; g++; }
+        raw += score;
+        anchorResults.push({ ...a, level, score, hits });
+    });
+    const total = Math.round(raw / 105 * 100);
+    let grade, lv;
+    if (total >= 95){ grade='A+'; lv='lv-a'; }
+    else if (total >= 90){ grade='A'; lv='lv-a'; }
+    else if (total >= 80){ grade='B+'; lv='lv-b'; }
+    else if (total >= 70){ grade='B'; lv='lv-b'; }
+    else if (total >= 60){ grade='C'; lv='lv-c'; }
+    else { grade='D'; lv='lv-d'; }
+    return { totalScore: total, grade, lv, green: g, yellow: y, red: r, anchorResults };
 }
 
-function scoreText(title,bp,desc,st){
-var full=[title,bp,desc,st].join(' \n ').toLowerCase();
-var raw=0,g=0,y=0,r=0;
-var anchorResults=[];
-ANCHORS.forEach(function(a){var hits=uniq(a.kws.filter(function(k){return full.includes(k)}));var level,score;
-if(hits.length===0){level='red';score=0;r++}else if(hits.length<=2){level='yellow';score=hits.length===1?4:5;y++}else{level='green';score=7;g++}
-raw+=score;anchorResults.push(Object.assign({},a,{level:level,score:score,hits:hits}));
-});
-var total=Math.round(raw/105*100);
-var grade,lv;
-if(total>=95){grade='A+';lv='lv-a'}else if(total>=90){grade='A';lv='lv-a'}else if(total>=80){grade='B+';lv='lv-b'}else if(total>=70){grade='B';lv='lv-b'}else if(total>=60){grade='C';lv='lv-c'}else{grade='D';lv='lv-d'}
-return {totalScore:total,grade:grade,lv:lv,green:g,yellow:y,red:r,anchorResults:anchorResults}
+function updateCounter(id, cid, max, unit, min){
+    const el = $(id), c = $(cid);
+    if (!el || !c) return;
+    const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
+    c.textContent = len + ' / ' + max + ' ' + unit + (min ? '（下限 ' + min + '）' : '');
+    let cls = 'byte-counter';
+    if (len > max) cls += ' over';
+    else if (min && len < min) cls += ' under';
+    c.className = cls;
+    if (el.classList.contains('optimized-textarea') && min) el.classList.toggle('undersized', len > 0 && len < min);
 }
-
-function updateCounter(id,cid,max,unit,min){var el=$(id),c=$(cid);if(!el||!c)return;var len=unit==='字节'?getByteLength(el.value):el.value.length;c.textContent=len+' / '+max+' '+unit+(min?'（下限 '+min+'）':'');var cls='byte-counter';if(len>max)cls+=' over';else if(min&&len<min)cls+=' under';c.className=cls}
-function updateBpTotal(){var total=0;for(var i=0;i<5;i++){var el=$('optBp'+i);if(el)total+=el.value.length}var c=$('bpTotalCounter');if(c){c.textContent='总字符：'+total+' / '+C.bulletTotal;c.className='byte-counter'+(total>C.bulletTotal?' over':'')}}
+function updateBpTotal(){
+    let total = 0;
+    for (let i = 0; i < 5; i++){ const el = $('optBp'+i); if (el) total += el.value.length; }
+    const c = $('bpTotalCounter');
+    if (c){ c.textContent = '总字符：' + total + ' / ' + C.bulletTotal; c.className = 'byte-counter' + (total > C.bulletTotal ? ' over' : ''); }
+}
 function initCounters(){
-[['optTitleText','titleCounter',C.titleMax,'字符',C.titleMin],['optIhText','ihCounter',C.ihMax,'字符',C.ihMin],['optDescText','descCounter',C.descMax,'字符',C.descMin],['optStText','stCounter',C.stMax,'字节',null]].forEach(function(b){var el=$(b[0]);if(!el)return;el.addEventListener('input',function(){updateCounter(b[0],b[1],b[2],b[3],b[4])})});
-for(var i=0;i<5;i++){(function(idx){var el=$('optBp'+idx);if(!el)return;el.addEventListener('input',function(){updateCounter('optBp'+idx,'bpCounter'+idx,C.bulletMax,'字符',C.bulletMin);updateBpTotal()})})(i)}
+    [['optTitleText','titleCounter',C.titleMax,'字符',C.titleMin],['optIhText','ihCounter',C.ihMax,'字符',C.ihMin],['optDescText','descCounter',C.descMax,'字符',C.descMin],['optStText','stCounter',C.stMax,'字节',null]].forEach(b => {
+        const el = $(b[0]); if (!el) return;
+        const h = () => updateCounter(b[0], b[1], b[2], b[3], b[4]);
+        el.addEventListener('input', h);
+        el.addEventListener('paste', () => setTimeout(h, 0));
+    });
+    for (let i = 0; i < 5; i++){
+        (function(idx){
+            const el = $('optBp' + idx); if (!el) return;
+            const h = () => {
+                updateCounter('optBp'+idx, 'bpCounter'+idx, C.bulletMax, '字符', C.bulletMin);
+                updateBpTotal();
+                const item = el.closest('.bp-item');
+                if (item) item.classList.toggle('undersized', el.value.length > 0 && el.value.length < C.bulletMin);
+            };
+            el.addEventListener('input', h);
+            el.addEventListener('paste', () => setTimeout(h, 0));
+        })(i);
+    }
 }
 function buildBulletUI(){
-var roles=[{text:'规格 + 包装',isSpec:true},{text:'材质保护',isSpec:false},{text:'尺寸空间',isSpec:false},{text:'便携运输',isSpec:false},{text:'日常使用',isSpec:false}];
-var c=$('bulletPointsContainer');if(!c)return;
-c.innerHTML='';
-for(var i=0;i<5;i++){
-var item=document.createElement('div');
-item.className='bp-item';
-item.innerHTML='<div class="bp-item-header"><span><span class="bp-label">第 '+(i+1)+' 点</span><span class="bp-role'+(roles[i].isSpec?' spec':'')+'">'+roles[i].text+'</span></span><button class="copy-btn" onclick="copyText(\'optBp'+i+'\', this)">复制</button></div><textarea id="optBp'+i+'" placeholder="等待生成..."></textarea><div id="bpCounter'+i+'" class="byte-counter">0 / 255 字符</div>';
-c.appendChild(item);
+    const roles = [
+        { text: '规格 + 包装', isSpec: true }, { text: '材质保护', isSpec: false },
+        { text: '尺寸空间', isSpec: false }, { text: '便携运输', isSpec: false }, { text: '日常使用', isSpec: false }
+    ];
+    const c = $('bulletPointsContainer');
+    if (!c) return;
+    c.innerHTML = '';
+    for (let i = 0; i < 5; i++){
+        const item = document.createElement('div');
+        item.className = 'bp-item';
+        item.innerHTML = '<div class="bp-item-header"><span><span class="bp-label">第 ' + (i+1) + ' 点</span><span class="bp-role' + (roles[i].isSpec ? ' spec' : '') + '">' + roles[i].text + '</span></span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div>' +
+            '<textarea id="optBp' + i + '" placeholder="等待生成..."></textarea>' +
+            '<div id="bpCounter' + i + '" class="byte-counter">0 / 255 字符</div>';
+        c.appendChild(item);
+    }
 }
+function renderA9Table(r){
+    const tbody = $('a9MatrixBody');
+    if (!tbody) return;
+    tbody.innerHTML = r.dimensions.map(d => {
+        let sc, st;
+        const ratio = d.score / d.max;
+        if (ratio >= 0.8){ sc='status-green'; st='🟢 优秀'; }
+        else if (ratio >= 0.5){ sc='status-yellow'; st='🟡 待优化'; }
+        else { sc='status-red'; st='🔴 需补充'; }
+        return '<tr><td><span class="cluster-tag a9">A9</span></td><td><span class="anchor-name">'+escapeHtml(d.cn)+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+d.score+' / '+d.max+' 分</span></td><td>'+escapeHtml(d.note)+'</td></tr>';
+    }).join('');
 }
-function renderA9Table(r){var tbody=$('a9MatrixBody');if(!tbody)return;tbody.innerHTML=r.dimensions.map(function(d){var sc,st;var ratio=d.score/d.max;if(ratio>=0.8){sc='status-green';st='🟢 优秀'}else if(ratio>=0.5){sc='status-yellow';st='🟡 待优化'}else{sc='status-red';st='🔴 需补充'}return '<tr><td><span class="cluster-tag a9">A9</span></td><td><span class="anchor-name">'+escapeHtml(d.cn)+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+d.score+' / '+d.max+' 分</span></td><td>'+escapeHtml(d.note)+'</td></tr>'}).join('')}
-function renderCosmoTable(result){var tbody=$('matrixTableBody');if(!tbody)return;if(!result||!result.anchorResults){tbody.innerHTML='';return}tbody.innerHTML=result.anchorResults.map(function(a){var chips=a.hits.slice(0,5).map(function(h){return '<span class="kw-chip hit">'+escapeHtml(h)+'</span>'}).join('');var hitBlock=a.hits.length?'<div style="margin-bottom:5px;">'+chips+'</div><div style="font-size:12px;color:#64748b;">共命中 '+a.hits.length+' 个信号词</div>':'<div style="font-size:12px;color:#b91c1c;">未检测到相关信号词</div>';var sc,st;if(a.level==='red'){sc='status-red';st='🔴 严重缺失'}else if(a.level==='yellow'){sc='status-yellow';st='🟡 部分覆盖'}else{sc='status-green';st='🟢 完美覆盖'}return '<tr><td><span class="cluster-tag">'+a.cluster+'</span></td><td><span class="anchor-name">'+escapeHtml(a.name)+'</span><span class="anchor-cn">'+a.cn+'</span></td><td class="'+sc+'">'+st+'<span class="score-mini">'+a.score+' / 7</span></td><td>'+hitBlock+'</td><td style="font-size:12px;color:#64748b;">'+(a.level==='green'?'✅ 已覆盖':'💡 建议补充相关语义')+'</td></tr>'}).join('')}
-function renderScoreCards(beforeA9,afterA9,beforeCosmo,afterCosmo){
-var a9b=$('a9ScoreBefore'),a9a=$('a9ScoreAfter');
-if(a9b){a9b.className='score-badge '+beforeA9.lv;a9b.textContent=beforeA9.totalScore+' · '+beforeA9.grade}
-if(a9a){a9a.className='score-badge '+afterA9.lv;a9a.textContent=afterA9.totalScore+' · '+afterA9.grade}
-var a9imp=afterA9.totalScore-beforeA9.totalScore;
-var a9impEl=$('a9ScoreImprove');
-if(a9impEl){if(a9imp>0){a9impEl.textContent='⬆ A9 提升 +'+a9imp+' 分';a9impEl.style.color='#6d28d9'}else if(a9imp===0){a9impEl.textContent='→ A9 持平';a9impEl.style.color='#64748b'}else{a9impEl.textContent='↓ A9 下降 '+a9imp+' 分';a9impEl.style.color='#b91c1c'}}
-var cb=$('scoreBefore'),ca=$('scoreAfter');
-if(cb){cb.className='score-badge '+beforeCosmo.lv;cb.textContent=beforeCosmo.totalScore+' · '+beforeCosmo.grade}
-if(ca){ca.className='score-badge '+afterCosmo.lv;ca.textContent=afterCosmo.totalScore+' · '+afterCosmo.grade}
-var cImp=afterCosmo.totalScore-beforeCosmo.totalScore;
-var cImpEl=$('scoreImprove');
-if(cImpEl){if(cImp>0){cImpEl.textContent='⬆ COSMO 提升 +'+cImp+' 分';cImpEl.style.color='#047857'}else if(cImp===0){cImpEl.textContent='→ COSMO 持平';cImpEl.style.color='#64748b'}else{cImpEl.textContent='↓ COSMO 下降 '+cImp+' 分';cImpEl.style.color='#b91c1c'}}
-var sg=$('statGreen'),sy=$('statYellow'),sr=$('statRed');
-if(sg)sg.textContent='🟢 完美覆盖 '+afterCosmo.green;
-if(sy)sy.textContent='🟡 部分覆盖 '+afterCosmo.yellow;
-if(sr)sr.textContent='🔴 严重缺失 '+afterCosmo.red;
+function renderCosmoTable(result){
+    const tbody = $('matrixTableBody');
+    if (!tbody) return;
+    if (!result || !result.anchorResults){ tbody.innerHTML = ''; return; }
+    tbody.innerHTML = result.anchorResults.map(a => {
+        const chips = a.hits.slice(0,5).map(h => '<span class="kw-chip hit">' + escapeHtml(h) + '</span>').join('') +
+            (a.hits.length > 5 ? '<span class="kw-chip miss">+' + (a.hits.length-5) + '</span>' : '');
+        const hitBlock = a.hits.length
+            ? '<div style="margin-bottom:5px;">' + chips + '</div><div style="font-size:12px;color:#64748b;">共命中 ' + a.hits.length + ' 个信号词</div>'
+            : '<div style="font-size:12px;color:#b91c1c;">未检测到相关信号词</div>';
+        let sc, st;
+        if (a.level === 'red'){ sc='status-red'; st='🔴 严重缺失'; }
+        else if (a.level === 'yellow'){ sc='status-yellow'; st='🟡 部分覆盖'; }
+        else { sc='status-green'; st='🟢 完美覆盖'; }
+        return '<tr><td><span class="cluster-tag">' + a.cluster + '</span></td>' +
+            '<td><span class="anchor-name">' + escapeHtml(a.name) + '</span><span class="anchor-cn">' + a.cn + '</span></td>' +
+            '<td class="' + sc + '">' + st + '<span class="score-mini">' + a.score + ' / 7</span></td>' +
+            '<td>' + hitBlock + '</td>' +
+            '<td style="font-size:12px;color:#64748b;">' + (a.level === 'green' ? '✅ 已覆盖' : '💡 建议补充相关语义') + '</td></tr>';
+    }).join('');
 }
-function renderValidationReport(issues,warnings,rounds){
-var report=$('validationReport');
-var all=[];
-issues.forEach(function(i){all.push(Object.assign({},i,{severity:'error'}))});
-warnings.forEach(function(w){all.push(Object.assign({},w,{severity:'warn'}))});
-if(all.length===0){report.className='validation-report';report.innerHTML='<div class="report-ttl">✅ 全部合格 · '+rounds+'</div>';report.classList.remove('hidden');return}
-report.className='validation-report has-errors';
-var html='<div class="report-ttl">⚠️ 共 '+all.length+' 项问题（'+rounds+'）</div>';
-all.forEach(function(i){html+='<div class="issue-row '+i.severity+'"><span class="module-tag">'+escapeHtml(i.module||'未知')+'</span>'+escapeHtml(i.msg||i.message||'')+'</div>'});
-report.innerHTML=html;report.classList.remove('hidden');
+function renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo){
+    const a9b = $('a9ScoreBefore'), a9a = $('a9ScoreAfter');
+    if (a9b){ a9b.className = 'score-badge ' + beforeA9.lv; a9b.textContent = beforeA9.totalScore + ' · ' + beforeA9.grade; }
+    if (a9a){ a9a.className = 'score-badge ' + afterA9.lv; a9a.textContent = afterA9.totalScore + ' · ' + afterA9.grade; }
+    const a9imp = afterA9.totalScore - beforeA9.totalScore;
+    const a9impEl = $('a9ScoreImprove');
+    if (a9impEl){
+        if (a9imp > 0){ a9impEl.textContent = '⬆ A9 提升 +' + a9imp + ' 分'; a9impEl.style.color = '#6d28d9'; }
+        else if (a9imp === 0){ a9impEl.textContent = '→ A9 持平'; a9impEl.style.color = '#64748b'; }
+        else { a9impEl.textContent = '↓ A9 下降 ' + a9imp + ' 分'; a9impEl.style.color = '#b91c1c'; }
+    }
+    const cb = $('scoreBefore'), ca = $('scoreAfter');
+    if (cb){ cb.className = 'score-badge ' + beforeCosmo.lv; cb.textContent = beforeCosmo.totalScore + ' · ' + beforeCosmo.grade; }
+    if (ca){ ca.className = 'score-badge ' + afterCosmo.lv; ca.textContent = afterCosmo.totalScore + ' · ' + afterCosmo.grade; }
+    const cImp = afterCosmo.totalScore - beforeCosmo.totalScore;
+    const cImpEl = $('scoreImprove');
+    if (cImpEl){
+        if (cImp > 0){ cImpEl.textContent = '⬆ COSMO 提升 +' + cImp + ' 分'; cImpEl.style.color = '#047857'; }
+        else if (cImp === 0){ cImpEl.textContent = '→ COSMO 持平'; cImpEl.style.color = '#64748b'; }
+        else { cImpEl.textContent = '↓ COSMO 下降 ' + cImp + ' 分'; cImpEl.style.color = '#b91c1c'; }
+    }
+    const sg = $('statGreen'), sy = $('statYellow'), sr = $('statRed');
+    if (sg) sg.textContent = '🟢 完美覆盖 ' + afterCosmo.green;
+    if (sy) sy.textContent = '🟡 部分覆盖 ' + afterCosmo.yellow;
+    if (sr) sr.textContent = '🔴 严重缺失 ' + afterCosmo.red;
 }
-function renderKwHitReport(hotKeywords){var report=$('kwHitReport');if(!report)return;if(!hotKeywords.length){report.classList.add('hidden');return}var t=$('optTitleText').value||'',ih=$('optIhText').value||'';var bp='';for(var i=0;i<5;i++)bp+=($('optBp'+i).value||'')+' ';var d=$('optDescText').value||'',st=$('optStText').value||'';var full=[t,ih,bp,d,st].join(' ').toLowerCase();var used=[],miss=[];hotKeywords.forEach(function(kw){var esc=kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');if(new RegExp('\\b'+esc+'\\b','i').test(full))used.push(kw);else miss.push(kw)});report.className='validation-report';var html='<div class="report-ttl">🎯 热词埋词（'+used.length+' / '+hotKeywords.length+'）</div>';if(used.length)html+='<div style="margin-bottom:6px;">'+used.map(function(k){return '<span class="kw-chip hit">✓ '+escapeHtml(k)+'</span>'}).join('')+'</div>';if(miss.length)html+='<div style="margin-top:6px;font-size:11.5px;color:#991b1b;">未埋入：'+miss.map(function(k){return '<span class="kw-chip miss">✗ '+escapeHtml(k)+'</span>'}).join('')+'</div>';report.innerHTML=html;report.classList.remove('hidden')}
-function parseHotKeywords(){var raw=($('hotKeywords').value||'').trim();if(!raw)return[];return raw.split(/[\n,;|\t]+/).map(function(w){return w.trim().toLowerCase()}).filter(function(w){return w.length>=2&&w.length<=60}).filter(function(w,i,a){return a.indexOf(w)===i})}
-function updateExpandBar(){var bar=$('expandBar'),msg=$('expandMsg');var t=$('optTitleText').value,ih=$('optIhText').value,d=$('optDescText').value;var shortCount=0;if(t&&t.length<C.titleMin)shortCount++;if(ih&&ih.length<C.ihMin)shortCount++;for(var i=0;i<5;i++){var b=$('optBp'+i).value;if(b&&b.length<C.bulletMin)shortCount++}if(d&&d.length<C.descMin)shortCount++;if(shortCount>0){bar.classList.remove('hidden');msg.textContent='检测到 '+shortCount+' 处字数不足，可一键补全'}else bar.classList.add('hidden')}
+function renderValidationReport(issues, warnings, rounds){
+    const report = $('validationReport');
+    const all = [];
+    issues.forEach(i => all.push({ ...i, severity: 'error' }));
+    warnings.forEach(w => all.push({ ...w, severity: 'warn' }));
+    if (all.length === 0){
+        report.className = 'validation-report';
+        report.innerHTML = '<div class="report-ttl">✅ 全部合格 · ' + rounds + '</div>';
+        report.classList.remove('hidden'); return;
+    }
+    report.className = 'validation-report has-errors';
+    let html = '<div class="report-ttl">⚠️ 共 ' + all.length + ' 项问题（' + rounds + '）</div>';
+    all.forEach(i => { html += '<div class="issue-row ' + i.severity + '"><span class="module-tag">' + escapeHtml(i.module || '未知') + '</span>' + escapeHtml(i.msg || i.message || '') + '</div>'; });
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+function renderKwHitReport(hotKeywords){
+    const report = $('kwHitReport');
+    if (!report) return;
+    if (!hotKeywords.length){ report.classList.add('hidden'); return; }
+    const t = $('optTitleText').value || '', ih = $('optIhText').value || '';
+    let bp = '';
+    for (let i = 0; i < 5; i++) bp += ($('optBp'+i).value || '') + ' ';
+    const d = $('optDescText').value || '', st = $('optStText').value || '';
+    const full = [t, ih, bp, d, st].join(' ').toLowerCase();
+    const used = [], miss = [];
+    hotKeywords.forEach(kw => {
+        const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (new RegExp('\\b' + esc + '\\b', 'i').test(full)) used.push(kw); else miss.push(kw);
+    });
+    report.className = 'validation-report';
+    let html = '<div class="report-ttl">🎯 热词埋词（' + used.length + ' / ' + hotKeywords.length + '）</div>';
+    if (used.length) html += '<div style="margin-bottom:6px;">' + used.map(k => '<span class="kw-chip hit">✓ ' + escapeHtml(k) + '</span>').join('') + '</div>';
+    if (miss.length) html += '<div style="margin-top:6px;font-size:11.5px;color:#991b1b;">未埋入：' + miss.map(k => '<span class="kw-chip miss">✗ ' + escapeHtml(k) + '</span>').join('') + '</div>';
+    report.innerHTML = html;
+    report.classList.remove('hidden');
+}
+function parseHotKeywords(){
+    const raw = ($('hotKeywords').value || '').trim();
+    if (!raw) return [];
+    return raw.split(/[\n,;|\t]+/).map(w => w.trim().toLowerCase()).filter(w => w.length >= 2 && w.length <= 60).filter((w,i,a) => a.indexOf(w) === i);
+}
+function updateExpandBar(){
+    const bar = $('expandBar');
+    const msg = $('expandMsg');
+    const t = $('optTitleText').value, ih = $('optIhText').value, d = $('optDescText').value;
+    let shortCount = 0;
+    if (t && t.length < C.titleMin) shortCount++;
+    if (ih && ih.length < C.ihMin) shortCount++;
+    for (let i = 0; i < 5; i++){ const b = $('optBp' + i).value; if (b && b.length < C.bulletMin) shortCount++; }
+    if (d && d.length < C.descMin) shortCount++;
+    if (shortCount > 0){ bar.classList.remove('hidden'); msg.textContent = '检测到 ' + shortCount + ' 处字数不足，可一键补全'; }
+    else bar.classList.add('hidden');
+}
 function reScoreAndRender(){
-var hotKeywords=parseHotKeywords();
-var origTitle=$('origTitleView').value||'',origBp=$('origBpView').value||'',origDesc=$('origDescView').value||'',origSt=$('origStView').value||'';
-var beforeA9=scoreA9(origTitle,origBp,origDesc,origSt,hotKeywords);
-var beforeCosmo=scoreText(origTitle,origBp,origDesc,origSt);
-var t=$('optTitleText').value||'';
-var bpText='';for(var i=0;i<5;i++)bpText+=($('optBp'+i).value||'')+'\n';
-var d=$('optDescText').value||'',st=$('optStText').value||'';
-var afterA9=scoreA9(t,bpText,d,st,hotKeywords);
-var afterCosmo=scoreText(t,bpText,d,st);
-renderScoreCards(beforeA9,afterA9,beforeCosmo,afterCosmo);
-renderA9Table(afterA9);renderCosmoTable(afterCosmo);
+    const hotKeywords = parseHotKeywords();
+    const origTitle = $('origTitleView').value || '';
+    const origBp = $('origBpView').value || '';
+    const origDesc = $('origDescView').value || '';
+    const origSt = $('origStView').value || '';
+    const beforeA9 = scoreA9(origTitle, origBp, origDesc, origSt, hotKeywords);
+    const beforeCosmo = scoreText(origTitle, origBp, origDesc, origSt);
+
+    const t = $('optTitleText').value || '';
+    let bpText = '';
+    for (let i = 0; i < 5; i++) bpText += ($('optBp'+i).value || '') + '\n';
+    const d = $('optDescText').value || '';
+    const st = $('optStText').value || '';
+    const afterA9 = scoreA9(t, bpText, d, st, hotKeywords);
+    const afterCosmo = scoreText(t, bpText, d, st);
+
+    renderScoreCards(beforeA9, afterA9, beforeCosmo, afterCosmo);
+    renderA9Table(afterA9);
+    renderCosmoTable(afterCosmo);
 }
 
 async function expandAll(){
-var btn=$('expandBtn');btn.disabled=true;btn.textContent='⏳ 补全中…';
-try{
-var cur={title:$('optTitleText').value.trim(),itemHighlights:$('optIhText').value.trim(),bullets:[0,1,2,3,4].map(function(i){return $('optBp'+i).value.trim()}),description:$('optDescText').value.trim(),searchTerms:$('optStText').value.trim()};
-var prompt='你是亚马逊 Listing 扩写专家。以下部分字数不足，请扩写（不改事实）。\n\n标题：'+cur.title+'\nIH：'+cur.itemHighlights+'\n五点：\n'+cur.bullets.map(function(b,i){return '第 '+(i+1)+' 点：'+b}).join('\n')+'\n描述：'+cur.description+'\n\n必须输出全部 9 个标记。\n[TITLE][/TITLE][IH][/IH][BULLET1][/BULLET1][BULLET2][/BULLET2][BULLET3][/BULLET3][BULLET4][/BULLET4][BULLET5][/BULLET5][DESC][/DESC][ST][/ST]';
-var resp=await callGeminiWithFallback([{role:'system',content:'你是亚马逊 Listing 扩写专家。五点保持大写小标题格式。必须输出全部 9 个标记。'},{role:'user',content:prompt}]);
-var parsed=parseStructuredOutput(resp.text);
-if(parsed.title)$('optTitleText').value=parsed.title;
-if(parsed.itemHighlights)$('optIhText').value=parsed.itemHighlights;
-for(var i=0;i<5;i++){if(parsed.bullets[i])$('optBp'+i).value=parsed.bullets[i]}
-if(parsed.description)$('optDescText').value=parsed.description;
-reScoreAndRender();updateExpandBar();updateBpTotal();
-showToast('补全完成');
-}catch(err){showToast('补全失败：'+err.message)}
-finally{btn.disabled=false;btn.textContent='✨ 一键补全字数'}
+    const btn = $('expandBtn');
+    btn.disabled = true; btn.textContent = '⏳ 补全中…';
+    try {
+        const cur = {
+            title: $('optTitleText').value.trim(), itemHighlights: $('optIhText').value.trim(),
+            bullets: [0,1,2,3,4].map(i => $('optBp' + i).value.trim()),
+            description: $('optDescText').value.trim(), searchTerms: $('optStText').value.trim()
+        };
+        const shortItems = [];
+        if (cur.title && cur.title.length < C.titleMin) shortItems.push({ module:'标题', msg:'仅 ' + cur.title.length + ' 字符' });
+        if (cur.itemHighlights && cur.itemHighlights.length < C.ihMin) shortItems.push({ module:'亮点', msg:'仅 ' + cur.itemHighlights.length + ' 字符' });
+        cur.bullets.forEach((b, i) => { if (b && b.length < C.bulletMin) shortItems.push({ module:'五点', msg:'第 ' + (i+1) + ' 点仅 ' + b.length + ' 字符' }); });
+        if (cur.description && cur.description.length < C.descMin) shortItems.push({ module:'描述', msg:'仅 ' + cur.description.length + ' 字符' });
+        if (shortItems.length === 0){ showToast('所有模块都已达标'); btn.disabled = false; btn.textContent = '✨ 一键补全字数'; return; }
+
+        const customNote = $('reqBp').value.trim() ? '\n⚠️ 用户对第 1 点的格式要求（必须保持）：' + $('reqBp').value.trim() + '\n' : '';
+        const prompt = `你是亚马逊 Listing 扩写专家。以下 Listing 的某些部分字数不足，请在不改变原文事实、不编造新信息的前提下扩写。
+${customNote}
+⚠️ 五点每条必须保持大写小标题格式（BENEFIT TITLE: description）
+⚠️ 第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记
+⚠️⚠️ 必须完整输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少！
+
+【当前内容】
+标题（${cur.title.length}字符）：${cur.title}
+
+Item Highlights（${cur.itemHighlights.length}字符）：${cur.itemHighlights}
+
+五点：
+${cur.bullets.map((b, i) => '第 ' + (i+1) + ' 点（' + b.length + '字符）：' + b).join('\n')}
+
+描述（${cur.description.length}字符）：
+${cur.description}
+
+【字数要求】
+· 标题：${C.titleMin}-${C.titleMax} 字符
+· IH：${C.ihMin}-${C.ihMax} 字符
+· 五点：每条 ≥${C.bulletMin} 字符
+· 描述：≥${C.descMin} 字符
+
+【扩写原则】
+1. 保持原文事实不变，严禁编造
+2. 只做"扩写"，不做"改写"
+3. 通过添加细节描述、举例场景、补充受益点来增加字数
+4. 只输出字数不足的部分
+5. 每条结尾不加句号
+6. ⚠️ 五点每条必须保留大写小标题格式，第 1 点必须用方括号字段标记
+7. ⚠️ 所有板块都要完整输出，禁止截断
+
+【输出格式】
+[TITLE]
+[/TITLE]
+[IH]
+[/IH]
+[BULLET1]
+[/BULLET1]
+[BULLET2]
+[/BULLET2]
+[BULLET3]
+[/BULLET3]
+[BULLET4]
+[/BULLET4]
+[BULLET5]
+[/BULLET5]
+[DESC]
+[/DESC]
+[ST]
+[/ST]`;
+
+        const { text: rawText } = await callGeminiWithFallback([
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部 9 个标记，一个都不能少。只输出指定格式。' },
+            { role: 'user', content: prompt }
+        ]);
+        const parsed = parseStructuredOutput(rawText);
+        if (parsed.title && parsed.title.length >= C.titleMin && cur.title.length < C.titleMin) $('optTitleText').value = parsed.title;
+        if (parsed.itemHighlights && parsed.itemHighlights.length >= C.ihMin && cur.itemHighlights.length < C.ihMin) $('optIhText').value = parsed.itemHighlights;
+        for (let i = 0; i < 5; i++){ if (parsed.bullets[i] && parsed.bullets[i].length >= C.bulletMin && cur.bullets[i].length < C.bulletMin) $('optBp' + i).value = parsed.bullets[i]; }
+        if (parsed.description && parsed.description.length >= C.descMin && cur.description.length < C.descMin) $('optDescText').value = parsed.description;
+
+        updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
+        updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
+        for (let i = 0; i < 5; i++) updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
+        updateBpTotal();
+        updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
+        updateExpandBar();
+        reScoreAndRender();
+        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value });
+        renderValidationReport(v.errors, v.warnings, '补全后');
+        showToast('补全完成');
+    } catch (err){
+        console.error('补全失败', err);
+        showToast('补全失败：' + err.message);
+    } finally {
+        btn.disabled = false; btn.textContent = '✨ 一键补全字数';
+    }
 }
 
-async function copyText(elementId,btn){
-var el=$(elementId);var text=el.value||'';
-if(!text.trim()){showToast('内容为空');return}
-var ok=false;
-if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(text);ok=true}catch(e){}}
-if(!ok){try{el.focus();el.select();el.setSelectionRange(0,text.length);ok=document.execCommand('copy');window.getSelection().removeAllRanges()}catch(e){}}
-if(!ok){showToast('复制失败');return}
-var o=btn.dataset.label||btn.innerText;btn.dataset.label=o;
-btn.innerText='复制成功 ✓';setTimeout(function(){btn.innerText=o},1500);
+async function copyText(elementId, btn){
+    const el = $(elementId); const text = el.value || '';
+    if (!text.trim()){ showToast('内容为空'); return; }
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){ try { await navigator.clipboard.writeText(text); ok = true; } catch(e){} }
+    if (!ok){ try { el.focus(); el.select(); el.setSelectionRange(0, text.length); ok = document.execCommand('copy'); window.getSelection().removeAllRanges(); } catch(e){} }
+    if (!ok){ showToast('复制失败'); return; }
+    const o = btn.dataset.label || btn.innerText; btn.dataset.label = o;
+    btn.innerText = '复制成功 ✓';
+    setTimeout(() => { btn.innerText = o; }, 1500);
 }
 async function copyAllBullets(btn){
-var parts=[];for(var i=0;i<5;i++){var el=$('optBp'+i);if(el&&el.value.trim())parts.push(el.value.trim())}
-if(!parts.length){showToast('五点为空');return}
-var text=parts.join('\n\n');
-var ok=false;
-if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(text);ok=true}catch(e){}}
-if(!ok){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta)}
-if(ok){var o=btn.dataset.label||btn.innerText;btn.dataset.label=o;btn.innerText='复制成功 ✓';setTimeout(function(){btn.innerText=o},1500)}else showToast('复制失败')
+    const parts = [];
+    for (let i = 0; i < 5; i++){ const el = $('optBp' + i); if (el && el.value.trim()) parts.push(el.value.trim()); }
+    if (!parts.length){ showToast('五点为空'); return; }
+    const text = parts.join('\n\n');
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){ try { await navigator.clipboard.writeText(text); ok = true; } catch(e){} }
+    if (!ok){
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta);
+    }
+    if (ok){
+        const o = btn.dataset.label || btn.innerText; btn.dataset.label = o;
+        btn.innerText = '复制成功 ✓';
+        setTimeout(() => { btn.innerText = o; }, 1500);
+    } else showToast('复制失败');
 }
-function clearAll(){['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(function(id){var el=$(id);if(el)el.value=''});var rc=$('resultCard');if(rc)rc.classList.add('hidden');showToast('已清空')}
+
+function clearAll(){
+    ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+    const rc = $('resultCard'); if (rc) rc.classList.add('hidden');
+    showToast('已清空');
+}
 
 async function runAnalysis(){
-var titleRaw=$('productTitle').value.trim();
-var bpRaw=$('bulletPoints').value.trim();
-var descRaw=$('description').value.trim();
-var stRaw=$('searchTerms').value.trim();
-var hotKeywords=parseHotKeywords();
-var customReqs={title:$('reqTitle').value.trim(),ih:$('reqIh').value.trim(),bp:$('reqBp').value.trim(),desc:$('reqDesc').value.trim(),st:$('reqSt').value.trim()};
-if(!titleRaw&&!bpRaw&&!descRaw){showToast('请至少填写标题或商品信息');return}
-if(!getGeminiKey()){showToast('⚠️ 未配置 Gemini API Key');return}
-resetPipeline();
-$('validationReport').classList.add('hidden');
-$('expandBar').classList.add('hidden');
-$('origTitleView').value=titleRaw;$('origBpView').value=bpRaw;
-$('origDescView').value=descRaw;$('origStView').value=stRaw;
-var card=$('resultCard');
-card.classList.remove('hidden');
-card.scrollIntoView({behavior:'smooth',block:'start'});
-var btn=$('analyzeBtn');var status=$('aiStatus');
-btn.disabled=true;btn.textContent='⏳ Gemini 生成中…';
-status.className='ai-status loading';status.classList.remove('hidden');
-try{
-setStep(1,'active');status.textContent='① 输入净化中…';
-var cleaned={title:cleanInput(titleRaw),bp:cleanInput(bpRaw),desc:cleanInput(descRaw),st:cleanInput(stRaw)};
-await new Promise(function(r){setTimeout(r,150)});
-setStep(1,'done');
-setStep(2,'active');status.textContent='② 调用 Gemini 生成中…';
-var genResult=await generateWithSelfFix(cleaned.title,cleaned.bp,cleaned.desc,cleaned.st,hotKeywords,customReqs);
-setStep(2,'done');
-setStep(3,'active');status.textContent='③ 完整性校验与评分中…';
-var rawResult=genResult.result;
-var finalTitle=postTitle(rawResult.title);
-var finalIH=postIH(rawResult.itemHighlights);
-var finalBullets=postBullets(rawResult.bullets);
-var finalDesc=postDesc(rawResult.description);
-var finalST=postST(rawResult.searchTerms);
-$('optTitleText').value=finalTitle;$('optIhText').value=finalIH;
-for(var i=0;i<5;i++)$('optBp'+i).value=finalBullets[i]||'';
-$('optDescText').value=finalDesc;$('optStText').value=finalST;
-updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
-updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
-for(var i=0;i<5;i++)updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
-updateBpTotal();
-updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
-updateCounter('optStText','stCounter',C.stMax,'字节',null);
-updateExpandBar();reScoreAndRender();
-var v=validateAll({title:finalTitle,itemHighlights:finalIH,bullets:finalBullets,description:finalDesc,searchTerms:finalST});
-renderValidationReport(v.errors,v.warnings,genResult.rounds+' 轮 · '+genResult.model);
-renderKwHitReport(hotKeywords);
-setStep(3,'done');setStep(4,'active');
-if(v.errors.length===0){status.className='ai-status done';status.textContent='✅ 生成完整（'+genResult.rounds+' 轮 · '+genResult.model+'）'}
-else{status.className='ai-status error';status.textContent='⚠️ 生成完成，但仍有 '+v.errors.length+' 项问题'}
-}catch(err){console.error('生成失败',err);status.className='ai-status error';status.textContent='⚠️ 失败：'+err.message;showToast('失败：'+err.message)}
-finally{btn.disabled=false;btn.textContent='🚀 用 Gemini 生成高质量 Listing'}
+    const titleRaw = $('productTitle').value.trim();
+    const bpRaw = $('bulletPoints').value.trim();
+    const descRaw = $('description').value.trim();
+    const stRaw = $('searchTerms').value.trim();
+    const hotKeywords = parseHotKeywords();
+    const customReqs = {
+        title: $('reqTitle').value.trim(), ih: $('reqIh').value.trim(),
+        bp: $('reqBp').value.trim(), desc: $('reqDesc').value.trim(), st: $('reqSt').value.trim()
+    };
+
+    if (!titleRaw && !bpRaw && !descRaw){ showToast('请至少填写标题或商品信息'); return; }
+    if (!getGeminiKey()){ showToast('⚠️ 未配置 Gemini API Key，请在页面底部填写'); return; }
+
+    resetPipeline();
+    $('validationReport').classList.add('hidden');
+    $('expandBar').classList.add('hidden');
+
+    $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw;
+    $('origDescView').value = descRaw; $('origStView').value = stRaw;
+
+    const card = $('resultCard');
+    card.classList.remove('hidden'); card.classList.remove('fade-in');
+    void card.offsetWidth; card.classList.add('fade-in');
+    card.scrollIntoView({ behavior:'smooth', block:'start' });
+
+    const btn = $('analyzeBtn'); const status = $('aiStatus');
+    btn.disabled = true; btn.textContent = '⏳ Gemini 生成中…';
+    status.className = 'ai-status loading'; status.classList.remove('hidden');
+
+    try {
+        setStep(1, 'active'); status.textContent = '① 输入净化中…';
+        const cleaned = { title: cleanInput(titleRaw), bp: cleanInput(bpRaw), desc: cleanInput(descRaw), st: cleanInput(stRaw) };
+        await new Promise(r => setTimeout(r, 150));
+        setStep(1, 'done');
+
+        setStep(2, 'active'); status.textContent = '② 调用 Gemini 生成中（如有缺失会自动重试）…';
+        const genResult = await generateWithSelfFix(cleaned.title, cleaned.bp, cleaned.desc, cleaned.st, hotKeywords, customReqs);
+        setStep(2, 'done');
+
+        setStep(3, 'active'); status.textContent = '③ 完整性校验与评分中…';
+        const rawResult = genResult.result;
+        const finalTitle = postTitle(rawResult.title);
+        const finalIH = postIH(rawResult.itemHighlights);
+        const finalBullets = postBullets(rawResult.bullets);
+        const finalDesc = postDesc(rawResult.description);
+        const finalST = postST(rawResult.searchTerms);
+
+        $('optTitleText').value = finalTitle;
+        $('optIhText').value = finalIH;
+        for (let i = 0; i < 5; i++) $('optBp' + i).value = finalBullets[i] || '';
+        $('optDescText').value = finalDesc;
+        $('optStText').value = finalST;
+
+        updateCounter('optTitleText','titleCounter',C.titleMax,'字符',C.titleMin);
+        updateCounter('optIhText','ihCounter',C.ihMax,'字符',C.ihMin);
+        for (let i = 0; i < 5; i++){
+            updateCounter('optBp'+i,'bpCounter'+i,C.bulletMax,'字符',C.bulletMin);
+            const item = $('optBp' + i).closest('.bp-item');
+            if (item) item.classList.toggle('undersized', finalBullets[i] && finalBullets[i].length < C.bulletMin);
+        }
+        updateBpTotal();
+        updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
+        updateCounter('optStText','stCounter',C.stMax,'字节',null);
+        updateExpandBar();
+
+        reScoreAndRender();
+
+        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST });
+        renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮 · ' + genResult.model);
+        renderKwHitReport(hotKeywords);
+        setStep(3, 'done');
+
+        setStep(4, 'active');
+        if (v.errors.length === 0){
+            status.className = 'ai-status done';
+            status.textContent = '✅ 生成完整（' + genResult.rounds + ' 轮 · ' + genResult.model + '）';
+        } else {
+            status.className = 'ai-status error';
+            status.textContent = '⚠️ 生成完成，但仍有 ' + v.errors.length + ' 项问题，请查看下方清单';
+        }
+    } catch (err){
+        console.error('生成失败', err);
+        status.className = 'ai-status error';
+        status.textContent = '⚠️ 失败：' + err.message;
+        showToast('失败：' + err.message);
+    } finally {
+        btn.disabled = false; btn.textContent = '🚀 用 Gemini 生成高质量 Listing';
+    }
 }
 
-document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();runAnalysis()}});
+document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); runAnalysis(); } });
+document.addEventListener('DOMContentLoaded', () => {
+    loadConstraints(); initConstraintListeners();
+    buildBulletUI(); initCounters(); loadCustom();
+    loadGeminiKey();
+});
+if (document.readyState !== 'loading'){
+    loadConstraints(); initConstraintListeners();
+    buildBulletUI(); initCounters(); loadCustom();
+    loadGeminiKey();
+}
 
-var WashTool=(function(){
-var CONCURRENCY=2;
-var files=[],busy=false,removeBgFn=null,imglyLoaded=false,dragFromIdx=-1;
-function $id(id){return document.getElementById(id)}
-function uid(){return 'w'+Math.random().toString(36).slice(2,9)}
-async function ensureImgly(){if(imglyLoaded&&removeBgFn)return removeBgFn;if(!imglyLoaded){imglyLoaded=true;var mod=await import('https://esm.sh/@imgly/background-removal@1.5.5');removeBgFn=mod.removeBackground}return removeBgFn}
-function reassignRoles(){files.forEach(function(f,i){f.role=(i===0)?'main':'sub'})}
-function roleLabel(role){return role==='main'?'主':'副'}
-function loadImage(fileOrBlob){return new Promise(function(resolve,reject){var img=new Image();var url=URL.createObjectURL(fileOrBlob);img.onload=function(){URL.revokeObjectURL(url);resolve(img)};img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('图片加载失败'))};img.src=url})}
-function addNoise(canvas,amount){var ctx=canvas.getContext('2d');var w=canvas.width,h=canvas.height;var imgData=ctx.getImageData(0,0,w,h);var d=imgData.data;for(var i=0;i<d.length;i+=16){var n=(Math.random()-0.5)*amount*2;d[i]=Math.max(0,Math.min(255,d[i]+n));d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));d[i+2]=Math.max(0,Math.min(255,d[i+2]+n))}ctx.putImageData(imgData,0,0);return canvas}
-function applyFilters(canvas,brightness,contrast){var w=canvas.width,h=canvas.height;var out=document.createElement('canvas');out.width=w;out.height=h;var ctx=out.getContext('2d');var filters=[];if(brightness&&brightness!==1)filters.push('brightness('+brightness+')');if(contrast&&contrast!==1)filters.push('contrast('+contrast+')');if(filters.length)ctx.filter=filters.join(' ');ctx.drawImage(canvas,0,0);ctx.filter='none';return out}
-async function processMainImage(file){var removeBg=await ensureImgly();var fgBlob=await removeBg(file,{});var fgImg=await loadImage(fgBlob);var SIZE=2000,TARGET=1700;var canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=SIZE;var ctx=canvas.getContext('2d');ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,SIZE,SIZE);var scale=Math.min(TARGET/fgImg.width,TARGET/fgImg.height);var w=fgImg.width*scale;var h=fgImg.height*scale;ctx.save();ctx.translate(SIZE/2,SIZE/2);ctx.rotate(0.5*Math.PI/180);ctx.drawImage(fgImg,-w/2,-h/2,w,h);ctx.restore();var out=applyFilters(canvas,1.04,1.03);out=addNoise(out,6);return await new Promise(function(res){out.toBlob(res,'image/jpeg',0.90)})}
-async function processSubImage(file){var img=await loadImage(file);var w0=img.naturalWidth,h0=img.naturalHeight;var crop=8,border=30;var cw=Math.max(1,w0-crop*2),ch=Math.max(1,h0-crop*2);var cropped=document.createElement('canvas');cropped.width=cw;cropped.height=ch;cropped.getContext('2d').drawImage(img,crop,crop,cw,ch,0,0,cw,ch);var bw=cw+border*2,bh=ch+border*2;var bordered=document.createElement('canvas');bordered.width=bw;bordered.height=bh;var bctx=bordered.getContext('2d');bctx.fillStyle='#FFFFFF';bctx.fillRect(0,0,bw,bh);bctx.drawImage(cropped,border,border);var out=applyFilters(bordered,1.06,1.05);out=addNoise(out,12);return await new Promise(function(res){out.toBlob(res,'image/jpeg',0.85)})}
-async function washOne(item){return item.role==='main'?await processMainImage(item.file):await processSubImage(item.file)}
-async function run(){if(busy)return;if(!files.length){showToast('请先上传图片');return}reassignRoles();busy=true;var wrap=$id('washProgressWrap'),bar=$id('washProgressBar'),txt=$id('washProgressText');wrap.classList.remove('hidden');var done=0;var total=files.length;var queue=files.slice();
-async function worker(){while(queue.length){var item=queue.shift();if(!item)break;item.status='doing';renderGrid();try{var blob=await washOne(item);item.blob=blob;var suffix=item.role==='main'?'_main':'_sub';item.name=item.file.name.replace(/\.[^.]+$/,'')+suffix+'.jpg';item.status='done'}catch(err){item.status='err'}done++;bar.style.width=(done/total*100)+'%';txt.textContent='处理中 '+done+' / '+total;renderGrid()}}
-await Promise.all(Array.from({length:Math.min(CONCURRENCY,total)},worker));
-txt.textContent='✅ 完成 '+done+' / '+total;busy=false;showToast('洗图完成，共 '+done+' 张')}
-async function downloadZip(){var ready=files.filter(function(f){return f.status==='done'&&f.blob});if(!ready.length){showToast('没有可下载的成品');return}var zip=new JSZip();ready.forEach(function(f){zip.file(f.name,f.blob)});var blob=await zip.generateAsync({type:'blob'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='washed_'+new Date().toISOString().slice(0,10)+'.zip';a.click();URL.revokeObjectURL(a.href);showToast('已打包 '+ready.length+' 张')}
-function clear(){if(busy)return;files=[];renderGrid();var wrap=$id('washProgressWrap');if(wrap)wrap.classList.add('hidden');var bar=$('washProgressBar');if(bar)bar.style.width='0';showToast('已清空')}
-function addFiles(fileList){var arr=Array.from(fileList).filter(function(f){return f.type&&f.type.startsWith('image/')});arr.forEach(function(f){files.push({id:uid(),file:f,role:'sub',status:'wait',blob:null,name:f.name})});reassignRoles();renderGrid()}
-function renderGrid(){var grid=$id('washGrid');if(!grid)return;var statusMap={wait:'·',doing:'⏳',done:'✓',err:'✗'};var statusCls={wait:'wait',doing:'doing',done:'done',err:'err'};grid.innerHTML=files.map(function(f,idx){var src=f.blob?URL.createObjectURL(f.blob):URL.createObjectURL(f.file);return '<div class="wash-thumb" draggable="true" data-idx="'+idx+'"><span class="wt-role '+f.role+'">'+roleLabel(f.role)+'</span><span class="wt-status '+statusCls[f.status]+'">'+statusMap[f.status]+'</span><img src="'+src+'"></div>'}).join('');bindDragEvents()}
-function bindDragEvents(){var grid=$id('washGrid');if(!grid)return;grid.querySelectorAll('.wash-thumb').forEach(function(el){el.addEventListener('dragstart',function(e){if(busy){e.preventDefault();return}dragFromIdx=Number(el.dataset.idx);el.classList.add('dragging')});el.addEventListener('dragend',function(){el.classList.remove('dragging')});el.addEventListener('dragover',function(e){e.preventDefault()});el.addEventListener('drop',function(e){e.preventDefault();var toIdx=Number(el.dataset.idx);if(dragFromIdx<0||dragFromIdx===toIdx)return;var tmp=files[dragFromIdx];files[dragFromIdx]=files[toIdx];files[toIdx]=tmp;reassignRoles();dragFromIdx=-1;renderGrid()})})}
-function init(){var drop=$id('washDrop'),input=$id('washInput');if(!drop||!input)return;drop.addEventListener('click',function(){input.click()});input.addEventListener('change',function(e){addFiles(e.target.files);input.value=''});drop.addEventListener('dragover',function(e){e.preventDefault();drop.classList.add('dragover')});drop.addEventListener('dragleave',function(){drop.classList.remove('dragover')});drop.addEventListener('drop',function(e){e.preventDefault();drop.classList.remove('dragover');if(e.dataTransfer&&e.dataTransfer.files)addFiles(e.dataTransfer.files)})}
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
-return {run:run,clear:clear,downloadZip:downloadZip};
+/* ============================================================
+   洗图工具 v8.1 · 缩略图 100×100
+   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点 → 重编码
+   副图流程：裁剪 8px → 加白边 30px → 调色噪点 → 重编码
+   ============================================================ */
+const WashTool = (() => {
+    const CONCURRENCY = 2;
+    let files = [];
+    let busy = false;
+    let removeBgFn = null;
+    let imglyLoaded = false;
+    let dragFromIdx = -1;
+
+    const $id = id => document.getElementById(id);
+    const uid = () => 'w' + Math.random().toString(36).slice(2, 9);
+
+    async function ensureImgly(){
+        if (imglyLoaded && removeBgFn) return removeBgFn;
+        if (!imglyLoaded){
+            imglyLoaded = true;
+            const txt = $id('washProgressText');
+            if (txt) txt.textContent = '📦 正在加载 AI 抠图模型（首次约 80MB，之后走缓存）…';
+            const mod = await import('https://esm.sh/@imgly/background-removal@1.5.5');
+            removeBgFn = mod.removeBackground;
+        }
+        return removeBgFn;
+    }
+
+    function reassignRoles(){
+        files.forEach((f, i) => { f.role = (i === 0) ? 'main' : 'sub'; });
+    }
+    function roleLabel(role){
+        return role === 'main' ? '主' : '副';
+    }
+
+    function loadImage(fileOrBlob){
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const url = URL.createObjectURL(fileOrBlob);
+            img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+            img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('图片加载失败')); };
+            img.src = url;
+        });
+    }
+
+    function addNoise(canvas, amount){
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const d = imgData.data;
+        for (let i = 0; i < d.length; i += 16){
+            const n = (Math.random() - 0.5) * amount * 2;
+            d[i]   = Math.max(0, Math.min(255, d[i]   + n));
+            d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+        }
+        ctx.putImageData(imgData, 0, 0);
+        return canvas;
+    }
+
+    function applyFilters(canvas, brightness, contrast){
+        const w = canvas.width, h = canvas.height;
+        const out = document.createElement('canvas');
+        out.width = w; out.height = h;
+        const ctx = out.getContext('2d');
+        const filters = [];
+        if (brightness && brightness !== 1) filters.push('brightness(' + brightness + ')');
+        if (contrast && contrast !== 1) filters.push('contrast(' + contrast + ')');
+        if (filters.length) ctx.filter = filters.join(' ');
+        ctx.drawImage(canvas, 0, 0);
+        ctx.filter = 'none';
+        return out;
+    }
+
+    async function processMainImage(file){
+        const removeBg = await ensureImgly();
+
+        const fgBlob = await removeBg(file, {
+            progress: (key, current, total) => {
+                if (key.startsWith('fetch')){
+                    const pct = total > 0 ? Math.round(current / total * 100) : 0;
+                    const txt = $id('washProgressText');
+                    if (txt) txt.textContent = '📦 加载 AI 模型 ' + pct + '%';
+                }
+            }
+        });
+        const fgImg = await loadImage(fgBlob);
+
+        const SIZE = 2000;
+        const TARGET = 1700;
+        const canvas = document.createElement('canvas');
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, SIZE, SIZE);
+
+        const scale = Math.min(TARGET / fgImg.width, TARGET / fgImg.height);
+        const w = fgImg.width * scale;
+        const h = fgImg.height * scale;
+
+        const angle = 0.5 * Math.PI / 180;
+        ctx.save();
+        ctx.translate(SIZE / 2, SIZE / 2);
+        ctx.rotate(angle);
+        ctx.drawImage(fgImg, -w / 2, -h / 2, w, h);
+        ctx.restore();
+
+        let out = applyFilters(canvas, 1.04, 1.03);
+        out = addNoise(out, 6);
+        return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.90));
+    }
+
+    async function processSubImage(file){
+        const img = await loadImage(file);
+        const w0 = img.naturalWidth, h0 = img.naturalHeight;
+        const crop = 8;
+        const border = 30;
+
+        const cw = Math.max(1, w0 - crop * 2);
+        const ch = Math.max(1, h0 - crop * 2);
+        const cropped = document.createElement('canvas');
+        cropped.width = cw;
+        cropped.height = ch;
+        cropped.getContext('2d').drawImage(img, crop, crop, cw, ch, 0, 0, cw, ch);
+
+        const bw = cw + border * 2;
+        const bh = ch + border * 2;
+        const bordered = document.createElement('canvas');
+        bordered.width = bw;
+        bordered.height = bh;
+        const bctx = bordered.getContext('2d');
+        bctx.fillStyle = '#FFFFFF';
+        bctx.fillRect(0, 0, bw, bh);
+        bctx.drawImage(cropped, border, border);
+
+        let out = applyFilters(bordered, 1.06, 1.05);
+        out = addNoise(out, 12);
+        return await new Promise(res => out.toBlob(res, 'image/jpeg', 0.85));
+    }
+
+    async function washOne(item){
+        if (item.role === 'main'){
+            return await processMainImage(item.file);
+        } else {
+            return await processSubImage(item.file);
+        }
+    }
+
+    async function run(){
+        if (busy) return;
+        if (!files.length){ showToast('请先上传图片'); return; }
+
+        reassignRoles();
+
+        busy = true;
+        const wrap = $id('washProgressWrap');
+        const bar = $id('washProgressBar');
+        const txt = $id('washProgressText');
+        wrap.classList.remove('hidden');
+
+        let done = 0;
+        const total = files.length;
+
+        const queue = files.slice();
+        async function worker(){
+            while (queue.length){
+                const item = queue.shift();
+                if (!item) break;
+                item.status = 'doing';
+                renderGrid();
+                try {
+                    const blob = await washOne(item);
+                    item.blob = blob;
+                    const suffix = item.role === 'main' ? '_main' : '_sub';
+                    item.name = item.file.name.replace(/\.[^.]+$/, '') + suffix + '.jpg';
+                    item.status = 'done';
+                } catch (err){
+                    console.warn('洗图失败', item.file.name, err);
+                    item.status = 'err';
+                }
+                done++;
+                bar.style.width = (done / total * 100) + '%';
+                txt.textContent = '处理中 ' + done + ' / ' + total;
+                renderGrid();
+            }
+        }
+
+        await Promise.all(Array.from({ length: Math.min(CONCURRENCY, total) }, worker));
+        txt.textContent = '✅ 完成 ' + done + ' / ' + total;
+        busy = false;
+        showToast('洗图完成，共 ' + done + ' 张');
+    }
+
+    async function downloadZip(){
+        const ready = files.filter(f => f.status === 'done' && f.blob);
+        if (!ready.length){ showToast('没有可下载的成品'); return; }
+
+        if (typeof JSZip === 'undefined'){
+            ready.forEach(f => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(f.blob);
+                a.download = f.name;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+            });
+            showToast('已触发 ' + ready.length + ' 个下载');
+            return;
+        }
+
+        const zip = new JSZip();
+        ready.forEach(f => zip.file(f.name, f.blob));
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'washed_' + new Date().toISOString().slice(0,10) + '.zip';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('已打包 ' + ready.length + ' 张');
+    }
+
+    function clear(){
+        if (busy) return;
+        files = [];
+        renderGrid();
+        const wrap = $id('washProgressWrap');
+        if (wrap) wrap.classList.add('hidden');
+        const bar = $('washProgressBar');
+        if (bar) bar.style.width = '0';
+        showToast('已清空');
+    }
+
+    function addFiles(fileList){
+        const arr = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+        arr.forEach(f => {
+            files.push({ id: uid(), file: f, role: 'sub', status: 'wait', blob: null, name: f.name });
+        });
+        reassignRoles();
+        renderGrid();
+    }
+
+    function renderGrid(){
+        const grid = $id('washGrid');
+        if (!grid) return;
+        const statusMap = { wait:'·', doing:'⏳', done:'✓', err:'✗' };
+        const statusCls = { wait:'wait', doing:'doing', done:'done', err:'err' };
+        grid.innerHTML = files.map((f, idx) => {
+            const src = f.blob ? URL.createObjectURL(f.blob) : URL.createObjectURL(f.file);
+            return '<div class="wash-thumb" draggable="true" data-idx="' + idx + '" title="' + escapeHtml(f.file.name || '') + '">' +
+                '<span class="wt-role ' + f.role + '">' + roleLabel(f.role) + '</span>' +
+                '<span class="wt-status ' + statusCls[f.status] + '">' + statusMap[f.status] + '</span>' +
+                '<img src="' + src + '" loading="lazy">' +
+            '</div>';
+        }).join('');
+        bindDragEvents();
+    }
+
+    function bindDragEvents(){
+        const grid = $id('washGrid');
+        if (!grid) return;
+        const thumbs = grid.querySelectorAll('.wash-thumb');
+
+        thumbs.forEach(el => {
+            el.addEventListener('dragstart', e => {
+                if (busy) { e.preventDefault(); return; }
+                dragFromIdx = Number(el.dataset.idx);
+                el.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                try { e.dataTransfer.setData('text/plain', String(dragFromIdx)); } catch(err){}
+            });
+
+            el.addEventListener('dragend', () => {
+                el.classList.remove('dragging');
+                grid.querySelectorAll('.wash-thumb').forEach(t => t.classList.remove('drag-over'));
+            });
+
+            el.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (Number(el.dataset.idx) !== dragFromIdx) el.classList.add('drag-over');
+            });
+
+            el.addEventListener('dragleave', () => {
+                el.classList.remove('drag-over');
+            });
+
+            el.addEventListener('drop', e => {
+                e.preventDefault();
+                el.classList.remove('drag-over');
+                const toIdx = Number(el.dataset.idx);
+                if (dragFromIdx < 0 || dragFromIdx === toIdx) return;
+
+                const tmp = files[dragFromIdx];
+                files[dragFromIdx] = files[toIdx];
+                files[toIdx] = tmp;
+
+                reassignRoles();
+                dragFromIdx = -1;
+                renderGrid();
+                showToast('已交换位置，角色已更新');
+            });
+        });
+    }
+
+    function init(){
+        const drop = $id('washDrop');
+        const input = $id('washInput');
+        if (!drop || !input) return;
+
+        drop.addEventListener('click', () => input.click());
+        input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
+
+        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+        drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+        drop.addEventListener('drop', e => {
+            e.preventDefault();
+            drop.classList.remove('dragover');
+            if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+        });
+    }
+
+    if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    return { run, clear, downloadZip };
 })();
-
-var EXPORT_CONFIG_KEY='cosmo_export_config_v1';
-var EXPORT_FIELDS=['spu','title','language','brand','product_description','sku','image_url','price','currency','product_weight','product_weight_unit','product_length','product_width','product_height','product_length_unit','package_weight','package_weight_unit','package_length','package_width','package_height','package_length_unit','stock','other_1','other_2','other_...','product_highlights','amazon_bullet_points','amazon_seo','amazon_title','amazon_description'];
-var EXPORT_HEADER_NOTES={product_highlights:'通用商品亮点，每行一点',amazon_bullet_points:'Amazon专用：指定五点描述',amazon_seo:'Amazon专用：指定搜索关键词',amazon_title:'Amazon专用：指定标题',amazon_description:'Amazon专用：指定商品描述'};
-var ENUMS_DATA=[['language','currency','product_weight_unit','package_weight_unit','product_length_unit','package_length_unit'],['en','USD','mg','mg','mm','mm'],['de','RUB','g','g','cm','cm'],['fr','CNY','kg','kg','m','m'],['it','GBP','ton','ton','km','km'],['es','EUR','oz','oz','inch','inch'],['pt','AUD','lb','lb','foot','foot'],['nl','CAD','','','yard','yard'],['sv','JPY','','','mile','mile'],['pl','MXN','','','',''],['tr','BRL','','','',''],['ar','PLN','','','',''],['ja','SGD','','','',''],['ko','','','','',''],['ru','','','','',''],['he','','','','',''],['uk','','','','','']];
-var EXPORT_INPUT_KEYS=['spu','sku','brand','language','price','currency','stock','weight','weight_unit','length','width','height','length_unit','image_url'];
-var EXPORT_QUEUE=[];
-
-function loadExportConfig(){try{var raw=localStorage.getItem(EXPORT_CONFIG_KEY);if(raw){var c=JSON.parse(raw);EXPORT_INPUT_KEYS.forEach(function(k){var el=$('exp_'+k);if(el&&c[k]!==undefined&&c[k]!==null)el.value=c[k]})}}catch(e){}try{var q=localStorage.getItem(EXPORT_CONFIG_KEY+'_queue');if(q)EXPORT_QUEUE=JSON.parse(q)}catch(e){EXPORT_QUEUE=[]}renderQueueCount()}
-function saveExportConfig(){var c={};EXPORT_INPUT_KEYS.forEach(function(k){var el=$('exp_'+k);if(el)c[k]=el.value});try{localStorage.setItem(EXPORT_CONFIG_KEY,JSON.stringify(c))}catch(e){}}
-function initExportInputs(){EXPORT_INPUT_KEYS.forEach(function(k){var el=$('exp_'+k);if(el)el.addEventListener('input',saveExportConfig)})}
-function getExportValue(k){var el=$('exp_'+k);return el?el.value:''}
-
-function snapshotCurrent(){return {title:$('optTitleText').value.trim(),ih:$('optIhText').value.trim(),bullets:[0,1,2,3,4].map(function(i){return $('optBp'+i).value.trim()}),desc:$('optDescText').value.trim(),seo:$('optStText').value.trim(),config:{spu:getExportValue('spu'),sku:getExportValue('sku'),brand:getExportValue('brand'),language:getExportValue('language'),price:getExportValue('price'),currency:getExportValue('currency'),stock:getExportValue('stock'),weight:getExportValue('weight'),weight_unit:getExportValue('weight_unit'),length:getExportValue('length'),width:getExportValue('width'),height:getExportValue('height'),length_unit:getExportValue('length_unit'),image_url:getExportValue('image_url')}}}
-function buildDataRow(snapshot){var cfg=snapshot.config||{};var bullets=snapshot.bullets||['','','','',''];var bulletsText=bullets.filter(function(b){return b&&b.trim()}).join('\n');return {spu:cfg.spu||'',title:snapshot.title||'',language:cfg.language||'en',brand:cfg.brand||'',product_description:snapshot.desc||'',sku:cfg.sku||'',image_url:cfg.image_url||'',price:cfg.price||'',currency:cfg.currency||'USD',product_weight:cfg.weight||'',product_weight_unit:cfg.weight_unit||'g',product_length:cfg.length||'',product_width:cfg.width||'',product_height:cfg.height||'',product_length_unit:cfg.length_unit||'cm',package_weight:'',package_weight_unit:'',package_length:'',package_width:'',package_height:'',package_length_unit:'',stock:cfg.stock||'',other_1:'',other_2:'',other_...:'',product_highlights:bulletsText,amazon_bullet_points:bulletsText,amazon_seo:snapshot.seo||'',amazon_title:snapshot.title||'',amazon_description:snapshot.desc||''}}
-function buildWorkbook(snapshots){var wb=XLSX.utils.book_new();var rows=[EXPORT_FIELDS,EXPORT_FIELDS.map(function(f){return EXPORT_HEADER_NOTES[f]||''})];snapshots.forEach(function(sn){var r=buildDataRow(sn);rows.push(EXPORT_FIELDS.map(function(f){return (r[f]!==undefined&&r[f]!==null)?r[f]:''}))});var ws1=XLSX.utils.aoa_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws1,'Sheet1');var ws2=XLSX.utils.aoa_to_sheet(ENUMS_DATA);XLSX.utils.book_append_sheet(wb,ws2,'_enums');return wb}
-function exportCurrentExcel(){if(typeof XLSX==='undefined'){showToast('❌ xlsx 库未加载');return}var snap=snapshotCurrent();if(!snap.title&&!snap.desc&&!snap.bullets.some(function(b){return b})){showToast('请先生成 Listing');return}var wb=buildWorkbook([snap]);XLSX.writeFile(wb,'listing_'+(snap.config.sku||Date.now())+'.xlsx');showToast('已导出')}
-function addToQueue(){var snap=snapshotCurrent();if(!snap.title&&!snap.desc&&!snap.bullets.some(function(b){return b})){showToast('请先生成 Listing');return}EXPORT_QUEUE.push(snap);persistQueue();renderQueueCount();showToast('已加入队列，当前 '+EXPORT_QUEUE.length+' 条')}
-function persistQueue(){try{localStorage.setItem(EXPORT_CONFIG_KEY+'_queue',JSON.stringify(EXPORT_QUEUE))}catch(e){}}
-function renderQueueCount(){var el=$('queueCount');if(el)el.textContent=EXPORT_QUEUE.length}
-function clearQueue(){if(!EXPORT_QUEUE.length){showToast('队列已空');return}if(!confirm('确定清空（'+EXPORT_QUEUE.length+' 条）吗？'))return;EXPORT_QUEUE=[];persistQueue();renderQueueCount();showToast('已清空')}
-function exportQueueExcel(){if(typeof XLSX==='undefined'){showToast('❌ xlsx 库未加载');return}if(!EXPORT_QUEUE.length){showToast('队列为空');return}var wb=buildWorkbook(EXPORT_QUEUE);XLSX.writeFile(wb,'listing_batch_'+new Date().toISOString().slice(0,10)+'_'+EXPORT_QUEUE.length+'条.xlsx');showToast('已导出 '+EXPORT_QUEUE.length+' 条')}
-
-function initAll(){loadConstraints();initConstraintListeners();buildBulletUI();initCounters();loadCustom();loadGeminiKey();loadExportConfig();initExportInputs()}
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initAll)}else{initAll()}
 </script>
+
 </body>
 </html>
