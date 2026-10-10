@@ -165,7 +165,6 @@
     #toast{position:fixed;left:50%;bottom:36px;transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:11px 22px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;}
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
-    /* 洗图工具 */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
     .wash-card .wash-title{font-size:14px;font-weight:700;color:#6d28d9;margin:0 0 10px;}
     .wash-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
@@ -193,7 +192,6 @@
     .wash-progress .wp-bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#a78bfa);transition:width .3s;}
     .wash-progress-text{font-size:11.5px;color:#6d28d9;font-weight:600;text-align:center;margin-top:4px;}
 
-    /* Excel 导出区 */
     .export-box{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;border-radius:12px;padding:16px 18px;margin-top:8px;}
     .export-box .eb-title{font-size:15px;font-weight:700;color:#065f46;margin:0 0 4px;}
     .export-box .eb-sub{font-size:12px;color:#047857;margin-bottom:14px;}
@@ -216,7 +214,6 @@
         <h1>亚马逊 Listing 智能优化系统</h1>
     </header>
 
-    <!-- 洗图工具 -->
     <div class="card wash-card">
         <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
         <div class="wash-row">
@@ -238,7 +235,6 @@
         </div>
     </div>
 
-    <!-- 输入区 -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h2 style="margin:0;">📥 输入商品信息与文案</h2>
@@ -264,7 +260,6 @@
         </div>
     </div>
 
-    <!-- 结果区 -->
     <div id="resultCard" class="card hidden">
         <div class="results-header">
             <div>
@@ -398,7 +393,6 @@
             </table>
         </div>
 
-        <!-- ==================== Excel 导出区 ==================== -->
         <div class="export-box">
             <div class="eb-title">📤 导出 Excel · 可直接上传后台</div>
             <div class="eb-sub">表头与「zizhu_product_template.xlsx」完全一致 · 生成 Sheet1 + _enums 两个工作表</div>
@@ -464,10 +458,8 @@
                 <span class="queue-info">队列：<span id="queueCount">0</span> 条</span>
             </div>
         </div>
-        <!-- ==================== /Excel 导出区 ==================== -->
     </div>
 
-    <!-- Gemini Key -->
     <div class="card apikey-card">
         <h2>🔑 Gemini API Key 配置（只需填一次，自动保存）</h2>
         <div class="key-hint">
@@ -483,7 +475,6 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
             <h2>⚙️ 约束条件（可编辑 · 自动固化到浏览器）</h2>
@@ -538,7 +529,12 @@
 const APP_VERSION = '928版 · 无历史统计';
 const APP_VERSION_DATE = '2024-09-28';
 
-const GEMINI_MODELS = ['gemini-3.8-flash','gemini-3.5-flash','gemini-3.5-flash-lite','gemini-2.5-pro'];
+const GEMINI_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-pro-preview'
+];
 const MAX_RETRIES = 2;
 
 const $ = id => document.getElementById(id);
@@ -565,7 +561,6 @@ function getByteLength(str){
     return len;
 }
 
-/* ============ Gemini Key ============ */
 const GEMINI_KEY_STORAGE = 'cosmo_gemini_api_key';
 function saveGeminiKey(){
     const key = $('geminiApiKey').value.trim();
@@ -611,7 +606,6 @@ async function testGeminiKey(){
     else { $('geminiKeyStatus').textContent = '❌ 所有模型都不可用，请检查 Key 或网络'; }
 }
 
-/* ============ 约束条件 ============ */
 const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
@@ -675,7 +669,6 @@ function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)]
 function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
 function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
 
-/* ============ 自定义要求 ============ */
 const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
 const CUSTOM_DEFAULTS = { reqTitle:'', reqIh:'', reqBp:'', reqDesc:'', reqSt:'' };
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
@@ -1608,9 +1601,6 @@ if (document.readyState !== 'loading'){
     loadExportConfig(); initExportInputs();
 }
 
-/* ============================================================
-   洗图工具 v8.1
-   ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
     let files = [];
@@ -1897,9 +1887,6 @@ const WashTool = (() => {
     return { run, clear, downloadZip };
 })();
 
-/* ============================================================
-   Excel 导出（表头严格按 zizhu_product_template.xlsx）
-   ============================================================ */
 const EXPORT_CONFIG_KEY = 'cosmo_export_config_v1';
 
 const EXPORT_FIELDS = [
