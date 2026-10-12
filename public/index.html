@@ -447,7 +447,8 @@
 </div>
 
 <script>
-const GEMINI_MODELS = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+// 更新为目前真实可用的模型
+const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
 const MAX_RETRIES = 2;
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -466,11 +467,6 @@ function getByteLength(str){
         if (code <= 0x7f) len += 1; else if (code <= 0x7ff) len += 2; else if (code <= 0xffff) len += 3; else len += 4;
     }
     return len;
-}
-function pad2(n){ return n < 10 ? '0' + n : '' + n; }
-function formatDateTime(ts){
-    const d = new Date(ts);
-    return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
 }
 
 /* Gemini API Key */
@@ -499,8 +495,13 @@ async function testGeminiKey(){
     $('geminiKeyStatus').textContent = '⏳ 测试中…';
     for (const model of GEMINI_MODELS){
         try {
-            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(key), {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
+            // 使用 Authorization 头来兼容 AQ. 开头的密钥
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+                method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + key
+                },
                 body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] })
             });
             const data = await r.json();
@@ -601,7 +602,7 @@ function setStep(step, state){
 }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
-/* 精简省 Token 的 Prompt 构建核心 */
+/* Prompt 构建 */
 function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors){
     const hotBlock = hotKeywords.length ? '\n【优先热词】' + hotKeywords.join(', ') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
@@ -643,8 +644,15 @@ async function callGeminiWithFallback(messages){
             const contents = messages.filter(m => m.role !== 'system').map(m => ({ role: m.role==='assistant'?'model':'user', parts:[{ text:m.content }] }));
             const body = { contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
             if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
-            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey), {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            
+            // 使用 Authorization 头来兼容 AQ. 开头的密钥
+            const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+                method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + apiKey
+                }, 
+                body: JSON.stringify(body)
             });
             const data = await r.json();
             if (data.error) throw new Error(data.error.message);
@@ -699,10 +707,6 @@ function postBullets(bullets){ return (bullets || []).map(b => (b || '').trim().
 function postDesc(d){ return (d || '').trim().substring(0, C.descMax); }
 function postST(st){ return (st || '').trim().toLowerCase().substring(0, C.stMax); }
 
-/* 占位评分与统计函数（保持UI完整） */
-function scoreA9(t, b, d, s, hk){ return { totalScore: 88, grade: 'A', lv: 'lv-a', dimensions: [] }; }
-function scoreText(t, b, d, s){ return { totalScore: 92, grade: 'A', lv: 'lv-a', green: 10, yellow: 0, red: 0, anchorResults: [] }; }
-
 function updateCounter(id, cid, max, unit, min){
     const el = $(id), c = $(cid);
     if (!el || !c) return;
@@ -733,23 +737,17 @@ function buildBulletUI(){
         c.innerHTML += '<div class="bp-item"><div class="bp-item-header"><span class="bp-label">第 ' + (i+1) + ' 点</span><button class="copy-btn" onclick="copyText(\'optBp' + i + '\', this)">复制</button></div><textarea id="optBp' + i + '"></textarea><div id="bpCounter' + i + '" class="byte-counter">0 / 220 字符</div></div>';
     }
 }
-function renderA9Table(r){ $('a9MatrixBody').innerHTML = ''; }
-function renderCosmoTable(r){ $('matrixTableBody').innerHTML = ''; }
-function renderScoreCards(){}
 function renderValidationReport(issues, warnings, rounds){
     const report = $('validationReport');
     report.className = 'validation-report';
     report.innerHTML = '<div class="report-ttl">✅ 生成完毕 (' + rounds + ')</div>';
     report.classList.remove('hidden');
 }
-function renderKwHitReport(){}
 function parseHotKeywords(){
     const raw = ($('hotKeywords').value || '').trim();
     if (!raw) return [];
     return raw.split(/[\n,;|\t]+/).map(w => w.trim().toLowerCase()).filter(Boolean);
 }
-function updateExpandBar(){}
-function reScoreAndRender(){}
 async function expandAll(){ showToast('暂无扩写需求'); }
 
 async function copyText(id, btn){
