@@ -94,12 +94,14 @@
     .results-header h2{margin:0 0 6px;font-size:19px;}
     #targetUrlDisplay{margin:0;color:var(--muted);font-size:12.5px;}
     .score-section{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
-    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;}
-    .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;}
-    .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;}
+    .score-card{border-radius:12px;padding:12px 16px;border:1px solid;min-width:280px;display:flex;flex-direction:column;}
+    .score-card.cosmo{background:#eff6ff;border-color:#bfdbfe;flex:1;}
+    .score-card.a9{background:#f5f3ff;border-color:#c4b5fd;flex:1;}
+    .score-card.perf{background:#ecfeff;border-color:#a5f3fc;flex:1;}
     .score-card .sc-ttl{font-size:11.5px;font-weight:700;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
     .score-card.cosmo .sc-ttl{color:#1d4ed8;}
     .score-card.a9 .sc-ttl{color:#6d28d9;}
+    .score-card.perf .sc-ttl{color:#0e7490;}
     .score-pair{display:flex;gap:12px;align-items:center;}
     .score-item{text-align:center;}
     .score-item .score-label{font-size:10.5px;color:var(--muted);margin-bottom:3px;font-weight:600;}
@@ -114,6 +116,17 @@
     .score-improve{font-size:11px;font-weight:700;margin-top:6px;min-height:16px;}
     .score-card.cosmo .score-improve{color:#047857;}
     .score-card.a9 .score-improve{color:#6d28d9;}
+
+    /* ========== 优化耗时面板 ========== */
+    .perf-time{font-size:42px;font-weight:800;color:#0891b2;line-height:1;margin:6px 0 10px;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:6px;}
+    .perf-time .perf-unit{font-size:15px;font-weight:600;color:#0e7490;}
+    .perf-meta{font-size:11.5px;color:#0e7490;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+    .perf-meta b{color:#0891b2;font-weight:800;font-size:13px;}
+    .perf-history{display:flex;gap:3px;align-items:flex-end;height:28px;margin-top:auto;padding-top:8px;}
+    .perf-history .ph-bar{flex:1;background:linear-gradient(180deg,#67e8f9,#0891b2);border-radius:3px 3px 0 0;min-height:2px;transition:height .4s ease;}
+    .perf-history .ph-bar.latest{background:linear-gradient(180deg,#fb923c,#ea580c);}
+    .perf-history .ph-empty{flex:1;text-align:center;font-size:10.5px;color:#94a3b8;font-weight:600;line-height:28px;}
+
     .stat-row{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
     .stat-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
     .stat-line .line-label{font-size:12px;font-weight:700;color:var(--muted);min-width:56px;}
@@ -332,6 +345,21 @@
                 </div>
                 <div id="a9ScoreImprove" class="score-improve"></div>
             </div>
+            <div class="score-card perf">
+                <div class="sc-ttl">⏱️ 本次优化耗时</div>
+                <div class="perf-time">
+                    <span id="perfCurrent">--</span>
+                    <span class="perf-unit">秒</span>
+                </div>
+                <div class="perf-meta">
+                    <span>平均 <b id="perfAvg">--</b> 秒</span>
+                    <span>·</span>
+                    <span>累计 <b id="perfCount">0</b> 次</span>
+                </div>
+                <div id="perfHistory" class="perf-history">
+                    <div class="ph-empty">暂无历史数据</div>
+                </div>
+            </div>
         </div>
 
         <div class="stat-row">
@@ -508,12 +536,7 @@
 const APP_VERSION = '928版 · 历史统计';
 const APP_VERSION_DATE = '2024-09-28';
 
-/* ============================================================
-   Gemini 模型名单（已精简为 2 个 · 降低成本）
-   首选 gemini-3.8-flash：最新稳定版，促销价 $0.75/$3.75（比 3.5-flash 便宜一半）
-   备选 gemini-3.5-flash-lite：最便宜兜底（$0.30/$2.50）
-   已移除：gemini-3.5-flash（贵）、gemini-2.5-pro（即将淘汰 + 最贵）
-   ============================================================ */
+/* Gemini 模型名单（已精简为 2 个 · 降低成本） */
 const GEMINI_MODELS = [
     'gemini-3.8-flash',
     'gemini-3.5-flash-lite'
@@ -522,6 +545,8 @@ const GEMINI_MODELS = [
 const MAX_RETRIES = 2;
 const HISTORY_KEY = 'cosmo_history_v1';
 const MAX_HISTORY = 1000;
+const PERF_KEY = 'cosmo_perf_history_v1';
+const PERF_MAX = 20;
 
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
@@ -552,6 +577,64 @@ function pad2(n){ return n < 10 ? '0' + n : '' + n; }
 function formatDateTime(ts){
     const d = new Date(ts);
     return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+/* ============================================================
+   优化耗时统计（新增）
+   ============================================================ */
+function loadPerfHistory(){
+    try {
+        const raw = localStorage.getItem(PERF_KEY);
+        if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return [];
+}
+function savePerfHistory(arr){
+    try { localStorage.setItem(PERF_KEY, JSON.stringify(arr.slice(0, PERF_MAX))); } catch(e){}
+}
+function renderPerfHistory(arr){
+    const box = $('perfHistory');
+    if (!box) return;
+    if (!arr.length){
+        box.innerHTML = '<div class="ph-empty">暂无历史数据</div>';
+        return;
+    }
+    const max = Math.max.apply(null, arr.concat([1]));
+    const display = arr.slice(0, 12).reverse();
+    box.innerHTML = display.map((v, i) => {
+        const isLatest = i === display.length - 1;
+        const h = Math.max(2, Math.round((v / max) * 28));
+        return '<div class="ph-bar' + (isLatest ? ' latest' : '') + '" style="height:' + h + 'px" title="' + v.toFixed(1) + ' 秒"></div>';
+    }).join('');
+}
+function updatePerfPanel(elapsed){
+    const rounded = Math.round(elapsed * 10) / 10;
+    const history = loadPerfHistory();
+    history.unshift(rounded);
+    const trimmed = history.slice(0, PERF_MAX);
+    savePerfHistory(trimmed);
+
+    const cur = $('perfCurrent');
+    if (cur) cur.textContent = rounded.toFixed(1);
+
+    const avg = trimmed.reduce((a,b) => a + b, 0) / trimmed.length;
+    const avgEl = $('perfAvg');
+    if (avgEl) avgEl.textContent = avg.toFixed(1);
+
+    const cntEl = $('perfCount');
+    if (cntEl) cntEl.textContent = trimmed.length;
+
+    renderPerfHistory(trimmed);
+}
+function initPerfPanel(){
+    const history = loadPerfHistory();
+    if (history.length){
+        const avg = history.reduce((a,b) => a + b, 0) / history.length;
+        if ($('perfAvg')) $('perfAvg').textContent = avg.toFixed(1);
+        if ($('perfCount')) $('perfCount').textContent = history.length;
+        if ($('perfCurrent')) $('perfCurrent').textContent = history[0].toFixed(1);
+        renderPerfHistory(history);
+    }
 }
 
 /* ============================================================
@@ -1128,7 +1211,6 @@ function parseStructuredOutput(text){
         searchTerms: extract('ST')
     };
 
-    // 从 DESC 中提取 QA 用于校验（DESC 内部格式：<p><b>Q: ...</b><br>A: ...</p>）
     const qaList = [];
     const qaRegex = /<p>\s*<b>\s*Q\s*[:：]\s*([\s\S]*?)<\/b>\s*<br\s*\/?>\s*A\s*[:：]\s*([\s\S]*?)<\/p>/gi;
     let m;
@@ -1210,7 +1292,6 @@ function validateAll(r){
     });
     if (bulletTotal > C.bulletTotal) errors.push({ module:'五点', msg:'总字符 ' + bulletTotal + ' 超过 ' + C.bulletTotal });
 
-    // DESC 校验（含 QA + HTML）
     if (!r.description || !r.description.trim()){
         errors.push({ module:'描述', msg:'❌ 详细描述为空（AI 未返回）' });
     } else {
@@ -1218,16 +1299,13 @@ function validateAll(r){
         if (r.description.length < 500) errors.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，明显不完整' });
         else if (r.description.length < C.descMin) warnings.push({ module:'描述', msg:'仅 ' + r.description.length + ' 字符，偏短' });
 
-        // HTML 标签校验
         const lower = r.description.toLowerCase();
         if (/<script|<\/script|<style|<\/style|<iframe|<\/iframe|<img|<a\s|<a>|on\w+\s*=|style\s*=|class\s*=/i.test(lower)){
             errors.push({ module:'描述', msg:'含违规 HTML 标签（只允许 <p> <br> <b> <strong> <i> <em> <ul> <ol> <li> <h1>-<h6>）' });
         }
-        // 检查是否有 <p> 或 <br>
         if (!/<p>|<br/i.test(lower)){
             warnings.push({ module:'描述', msg:'未使用 <p> 或 <br> 段落标签' });
         }
-        // QA 检查
         const qaList = r.qaList || [];
         if (qaList.length < C.qaCount) warnings.push({ module:'描述·QA', msg:'仅 ' + qaList.length + ' / ' + C.qaCount + ' 组 QA' });
         qaList.forEach((qa, i) => {
@@ -1866,6 +1944,9 @@ async function runAnalysis(){
     void card.offsetWidth; card.classList.add('fade-in');
     card.scrollIntoView({ behavior:'smooth', block:'start' });
 
+    /* 计时开始 */
+    const startTs = performance.now();
+
     const btn = $('analyzeBtn'); const status = $('aiStatus');
     btn.disabled = true; btn.textContent = '⏳ Gemini 生成中…';
     status.className = 'ai-status loading'; status.classList.remove('hidden');
@@ -1922,6 +2003,10 @@ async function runAnalysis(){
             status.className = 'ai-status error';
             status.textContent = '⚠️ 生成完成，但仍有 ' + v.errors.length + ' 项问题，请查看下方清单';
         }
+
+        /* 计时结束 + 更新耗时面板（无论成功/有 error，只要生成完成就记录） */
+        const elapsed = (performance.now() - startTs) / 1000;
+        updatePerfPanel(elapsed);
     } catch (err){
         console.error('生成失败', err);
         status.className = 'ai-status error';
@@ -1938,12 +2023,14 @@ document.addEventListener('DOMContentLoaded', () => {
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
     renderHistoryCard();
+    initPerfPanel();
 });
 if (document.readyState !== 'loading'){
     loadConstraints(); initConstraintListeners();
     buildBulletUI(); initCounters(); loadCustom();
     loadGeminiKey();
     renderHistoryCard();
+    initPerfPanel();
 }
 
 /* ============================================================
