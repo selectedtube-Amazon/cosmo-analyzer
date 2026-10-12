@@ -508,11 +508,15 @@
 const APP_VERSION = '928版 · 历史统计';
 const APP_VERSION_DATE = '2024-09-28';
 
+/* ============================================================
+   Gemini 模型名单（已精简为 2 个 · 降低成本）
+   首选 gemini-3.8-flash：最新稳定版，促销价 $0.75/$3.75（比 3.5-flash 便宜一半）
+   备选 gemini-3.5-flash-lite：最便宜兜底（$0.30/$2.50）
+   已移除：gemini-3.5-flash（贵）、gemini-2.5-pro（即将淘汰 + 最贵）
+   ============================================================ */
 const GEMINI_MODELS = [
     'gemini-3.8-flash',
-    'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-2.5-pro'
+    'gemini-3.5-flash-lite'
 ];
 
 const MAX_RETRIES = 2;
@@ -1330,9 +1334,7 @@ function smartTrimBullet1(text, max){
 function postDesc(d){
     if (!d) return '';
     let r = d.trim();
-    // 如果总字符超过 descMax，尝试按 QA 块为单位裁剪（从最后一条 QA 往前删）
     if (r.length > C.descMax){
-        // 策略：先尝试删除最后一个 <p>...</p> 段落，直到 <= descMax
         let safety = 0;
         while (r.length > C.descMax && safety < 50){
             safety++;
@@ -1350,7 +1352,6 @@ function postDesc(d){
 function postST(st){ return trimBytes((st || '').trim().toLowerCase(), C.stMax); }
 
 function scoreA9(title, bp, desc, st, hotKeywords){
-    // DESC 里包含 HTML 标签，评分前先剥离标签，避免 HTML 污染关键词统计
     const descClean = (desc || '').replace(/<[^>]+>/g, ' ');
     const t = (title || '').toLowerCase(), b = (bp || '').toLowerCase(), d = descClean.toLowerCase(), s = (st || '').toLowerCase();
     const full = t + ' ' + b + ' ' + d + ' ' + s;
@@ -1477,7 +1478,6 @@ function updateCounter(id, cid, max, unit, min){
     else if (min && len < min) cls += ' under';
     c.className = cls;
     if (el.classList.contains('optimized-textarea') && min) el.classList.toggle('undersized', len > 0 && len < min);
-    // 若 DESC 内容变化，且预览已展开，实时刷新预览
     if (id === 'optDescText'){
         const p = $('descPreview');
         if (p && !p.classList.contains('hidden')){
@@ -1635,17 +1635,14 @@ function renderKwHitReport(hotKeywords){
 function sanitizeDescHtml(html){
     if (!html) return '';
     let r = String(html);
-    // 移除危险标签和属性
     r = r.replace(/<script[\s\S]*?<\/script>/gi, '');
     r = r.replace(/<style[\s\S]*?<\/style>/gi, '');
     r = r.replace(/<iframe[\s\S]*?<\/iframe>/gi, '');
     r = r.replace(/<img[^>]*>/gi, '');
     r = r.replace(/<a\b[^>]*>/gi, '');
     r = r.replace(/<\/a>/gi, '');
-    // 移除 on 事件
     r = r.replace(/\son\w+\s*=\s*"[^"]*"/gi, '');
     r = r.replace(/\son\w+\s*=\s*'[^']*'/gi, '');
-    // 移除 style/class/id
     r = r.replace(/\sstyle\s*=\s*"[^"]*"/gi, '');
     r = r.replace(/\sstyle\s*=\s*'[^']*'/gi, '');
     r = r.replace(/\sclass\s*=\s*"[^"]*"/gi, '');
