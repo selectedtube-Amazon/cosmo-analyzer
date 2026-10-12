@@ -61,27 +61,6 @@
     .apikey-card input[type="password"]{background:#fff;border-color:#fed7aa;font-family:monospace;}
     .apikey-card input[type="password"]:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(234,88,12,.12);}
 
-    /* 历史统计卡片 */
-    .history-card{background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);border:1px solid #a7f3d0;}
-    .history-card h2{margin:0 0 14px;font-size:16px;color:#047857;}
-    .history-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:16px;}
-    .history-stat-item{background:#fff;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;text-align:center;}
-    .history-stat-item .hsi-label{font-size:11.5px;color:#64748b;font-weight:600;margin-bottom:4px;}
-    .history-stat-item .hsi-value{font-size:22px;font-weight:800;color:#047857;line-height:1;}
-    .history-stat-item.today .hsi-value{color:#0ea5e9;}
-    .history-stat-item.week .hsi-value{color:#8b5cf6;}
-    .history-stat-item.month .hsi-value{color:#f59e0b;}
-    .history-list-wrap{margin-top:14px;border-top:1px dashed #a7f3d0;padding-top:14px;}
-    .history-list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
-    .history-list-header .hlh-ttl{font-size:13px;font-weight:700;color:#047857;}
-    .history-actions{display:flex;gap:8px;flex-wrap:wrap;}
-    .history-table{width:100%;border-collapse:collapse;font-size:12.5px;}
-    .history-table th{background:#f0fdf4;font-weight:700;font-size:11.5px;color:#475569;padding:8px 10px;text-align:left;border-bottom:1px solid #d1fae5;position:sticky;top:0;z-index:1;}
-    .history-table td{padding:8px 10px;border-bottom:1px dashed #e2e8f0;vertical-align:top;word-break:break-word;}
-    .history-table tr:last-child td{border-bottom:none;}
-    .history-table tbody tr:hover{background:#f0fdf4;}
-    .history-empty{text-align:center;color:#94a3b8;padding:20px;font-size:12.5px;}
-
     .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:26px;}
     @media (max-width:1100px){.compare-grid{grid-template-columns:1fr;}}
     .pane{border-radius:12px;padding:18px;border:1px solid;}
@@ -420,33 +399,6 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- 历史统计 -->
-    <div class="card history-card">
-        <h2>📊 历史优化统计</h2>
-        <div class="history-stats">
-            <div class="history-stat-item"><div class="hsi-label">已优化总数</div><div class="hsi-value" id="statTotal">0</div></div>
-            <div class="history-stat-item today"><div class="hsi-label">今日</div><div class="hsi-value" id="statToday">0</div></div>
-            <div class="history-stat-item week"><div class="hsi-label">近 7 天</div><div class="hsi-value" id="statWeek">0</div></div>
-            <div class="history-stat-item month"><div class="hsi-label">本月</div><div class="hsi-value" id="statMonth">0</div></div>
-        </div>
-        <div class="history-list-wrap">
-            <div class="history-list-header">
-                <span class="hlh-ttl">📋 历史记录</span>
-                <div class="history-actions">
-                    <button class="btn-sm gray" onclick="toggleHistoryList()" id="historyToggleBtn">展开全部 ▼</button>
-                    <button class="btn-sm green" onclick="exportHistoryCSV()">导出 CSV</button>
-                    <button class="btn-sm red" onclick="clearHistory()">清空历史</button>
-                </div>
-            </div>
-            <div class="table-wrap" style="margin-bottom:0;max-height:420px;overflow-y:auto;">
-                <table class="history-table">
-                    <thead><tr><th style="width:16%;">时间</th><th style="width:33%;">原标题</th><th style="width:33%;">优化后标题</th><th style="width:18%;">模型</th></tr></thead>
-                    <tbody id="historyListBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <!-- 约束条件 -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
@@ -497,11 +449,8 @@
 <script>
 const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
 const MAX_RETRIES = 2;
-const HISTORY_KEY = 'cosmo_history_v1';
-const MAX_HISTORY = 1000;
 const $ = id => document.getElementById(id);
 const uniq = arr => [...new Set(arr.filter(Boolean))];
-let historyExpanded = false;
 
 function showToast(msg){
     let t = $('toast');
@@ -522,63 +471,6 @@ function pad2(n){ return n < 10 ? '0' + n : '' + n; }
 function formatDateTime(ts){
     const d = new Date(ts);
     return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
-}
-
-/* 历史统计模块 */
-function loadHistory(){
-    try { const raw = localStorage.getItem(HISTORY_KEY); if (raw) return JSON.parse(raw); } catch(e){}
-    return [];
-}
-function saveHistory(list){
-    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, MAX_HISTORY))); } catch(e){}
-}
-function recordHistory(origTitle, newTitle, model){
-    const list = loadHistory();
-    list.unshift({ ts: Date.now(), ot: (origTitle || '').slice(0, 30), nt: (newTitle || '').slice(0, 30), m: model || '' });
-    saveHistory(list);
-    renderHistoryCard();
-}
-function renderHistoryCard(){
-    const list = loadHistory();
-    const total = list.length;
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const weekStart = todayStart - 6 * 24 * 3600 * 1000;
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-    if ($('statTotal')) $('statTotal').textContent = total;
-    if ($('statToday')) $('statToday').textContent = list.filter(x => x.ts >= todayStart).length;
-    if ($('statWeek')) $('statWeek').textContent = list.filter(x => x.ts >= weekStart).length;
-    if ($('statMonth')) $('statMonth').textContent = list.filter(x => x.ts >= monthStart).length;
-
-    const tbody = $('historyListBody');
-    if (!tbody) return;
-    if (total === 0){ tbody.innerHTML = '<tr><td colspan="4" class="history-empty">暂无历史记录</td></tr>'; return; }
-    tbody.innerHTML = (historyExpanded ? list : list.slice(0, 10)).map(x => 
-        '<tr><td style="white-space:nowrap;font-size:12px;color:#64748b;">' + formatDateTime(x.ts) + '</td><td style="font-size:12.5px;color:#334155;">' + escapeHtml(x.ot || '（无）') + '</td><td style="font-size:12.5px;color:#1d4ed8;font-weight:600;">' + escapeHtml(x.nt || '（无）') + '</td><td style="font-size:11.5px;color:#64748b;font-family:monospace;">' + escapeHtml(x.m || '') + '</td></tr>'
-    ).join('');
-}
-function toggleHistoryList(){
-    historyExpanded = !historyExpanded;
-    const btn = $('historyToggleBtn');
-    if (btn) btn.textContent = historyExpanded ? '收起 ▲' : '展开全部 ▼';
-    renderHistoryCard();
-}
-function exportHistoryCSV(){
-    const list = loadHistory();
-    if (!list.length){ showToast('暂无历史记录'); return; }
-    const rows = [['时间', '原标题', '优化后标题', '模型']];
-    list.forEach(x => rows.push([formatDateTime(x.ts), x.ot || '', x.nt || '', x.m || '']));
-    const csv = '\ufeff' + rows.map(r => r.map(f => '"' + String(f).replace(/"/g, '""') + '"').join(',')).join('\r\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-    a.download = 'history_' + new Date().toISOString().slice(0,10) + '.csv';
-    a.click();
-}
-function clearHistory(){
-    if (!confirm('确定清空历史记录吗？')) return;
-    localStorage.removeItem(HISTORY_KEY);
-    renderHistoryCard();
-    showToast('已清空');
 }
 
 /* Gemini API Key */
@@ -812,7 +704,7 @@ function scoreA9(t, b, d, s, hk){ return { totalScore: 88, grade: 'A', lv: 'lv-a
 function scoreText(t, b, d, s){ return { totalScore: 92, grade: 'A', lv: 'lv-a', green: 10, yellow: 0, red: 0, anchorResults: [] }; }
 
 function updateCounter(id, cid, max, unit, min){
-    const el = $(id), c =$(cid);
+    const el = $(id), c = $(cid);
     if (!el || !c) return;
     const len = unit === '字节' ? getByteLength(el.value) : el.value.length;
     c.textContent = len + ' / ' + max + ' ' + unit;
@@ -893,7 +785,7 @@ async function runAnalysis(){
     $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw; $('origDescView').value = descRaw; $('origStView').value = stRaw;
     const card = $('resultCard'); card.classList.remove('hidden'); card.scrollIntoView({ behavior:'smooth' });
 
-    const btn = $('analyzeBtn'), status =$('aiStatus');
+    const btn = $('analyzeBtn'), status = $('aiStatus');
     btn.disabled = true; status.className = 'ai-status loading'; status.classList.remove('hidden');
 
     try {
@@ -911,7 +803,6 @@ async function runAnalysis(){
 
         initCounters();
         renderValidationReport([], [], genResult.rounds + ' 轮 · ' + genResult.model);
-        recordHistory(titleRaw, $('optTitleText').value, genResult.model);
         setStep(3, 'done');
         setStep(4, 'active'); status.className = 'ai-status done'; status.textContent = '✅ 生成完毕';
         setStep(4, 'done');
@@ -924,7 +815,7 @@ async function runAnalysis(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadConstraints(); initConstraintListeners(); buildBulletUI(); initCounters(); loadCustom(); loadGeminiKey(); renderHistoryCard();
+    loadConstraints(); initConstraintListeners(); buildBulletUI(); initCounters(); loadCustom(); loadGeminiKey();
 });
 
 /* 洗图工具 */
@@ -953,7 +844,7 @@ const WashTool = (() => {
     async function run(){
         if (busy || !files.length) return;
         reassignRoles(); busy = true;
-        const wrap = $id('washProgressWrap'), bar = $id('washProgressBar'), txt =$id('washProgressText');
+        const wrap = $id('washProgressWrap'), bar = $id('washProgressBar'), txt = $id('washProgressText');
         wrap.classList.remove('hidden');
         let done = 0;
         for (const item of files){
@@ -1006,7 +897,7 @@ const WashTool = (() => {
         });
     }
     function init(){
-        const drop = $id('washDrop'), input =$id('washInput');
+        const drop = $id('washDrop'), input = $id('washInput');
         if (!drop || !input) return;
         drop.addEventListener('click', () => input.click());
         input.addEventListener('change', e => { addFiles(e.target.files); input.value = ''; });
