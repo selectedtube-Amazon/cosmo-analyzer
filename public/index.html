@@ -447,11 +447,10 @@
 </div>
 
 <script>
-// 更新为目前真实可用的模型
-const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+// 最新可用模型（2026年10月）
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
 const MAX_RETRIES = 2;
 const $ = id => document.getElementById(id);
-const uniq = arr => [...new Set(arr.filter(Boolean))];
 
 function showToast(msg){
     let t = $('toast');
@@ -459,7 +458,6 @@ function showToast(msg){
     t.textContent = msg; t.classList.add('show');
     clearTimeout(t._tid); t._tid = setTimeout(() => t.classList.remove('show'), 2600);
 }
-function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
 function getByteLength(str){
     let len = 0;
     for (let i = 0; i < str.length; i++){
@@ -495,12 +493,11 @@ async function testGeminiKey(){
     $('geminiKeyStatus').textContent = '⏳ 测试中…';
     for (const model of GEMINI_MODELS){
         try {
-            // 使用 Authorization 头来兼容 AQ. 开头的密钥
             const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
                 method: 'POST', 
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + key
+                    'x-goog-api-key': key
                 },
                 body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'hi' }] }] })
             });
@@ -508,6 +505,10 @@ async function testGeminiKey(){
             if (!data.error && data?.candidates?.[0]){
                 $('geminiKeyStatus').textContent = '✅ 正常 (' + model + ')';
                 showToast('连接成功');
+                return;
+            }
+            if (data.error){
+                $('geminiKeyStatus').textContent = '❌ ' + data.error.message.slice(0, 100);
                 return;
             }
         } catch(e){}
@@ -602,7 +603,6 @@ function setStep(step, state){
 }
 function resetPipeline(){ document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active','done','error')); }
 
-/* Prompt 构建 */
 function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, prevErrors){
     const hotBlock = hotKeywords.length ? '\n【优先热词】' + hotKeywords.join(', ') : '';
     const hasCustom = Object.values(customReqs).some(v => v);
@@ -645,12 +645,11 @@ async function callGeminiWithFallback(messages){
             const body = { contents, generationConfig: { temperature: 0.7, maxOutputTokens: 8000 } };
             if (systemMsg) body.systemInstruction = { parts: [{ text: systemMsg.content }] };
             
-            // 使用 Authorization 头来兼容 AQ. 开头的密钥
             const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
                 method: 'POST', 
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + apiKey
+                    'x-goog-api-key': apiKey
                 }, 
                 body: JSON.stringify(body)
             });
