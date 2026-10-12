@@ -186,6 +186,18 @@
     #toast.show{opacity:1;transform:translate(-50%,0);}
 
     /* ============================================================
+       Rufus QA 板块样式
+       ============================================================ */
+    .rufus-card{background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 100%);border:1px solid #c7d2fe;}
+    .rufus-card h2{color:#4338ca;}
+    .qa-item{background:#fff;border:1px solid #c7d2fe;border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+    .qa-item .qa-q{font-size:13.5px;font-weight:700;color:#1e40af;margin-bottom:8px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+    .qa-item .qa-q::before{content:"Q";display:inline-block;background:#4338ca;color:#fff;font-size:11px;width:20px;height:20px;border-radius:4px;text-align:center;line-height:20px;flex-shrink:0;margin-top:2px;}
+    .qa-item .qa-a{font-size:13px;color:#334155;line-height:1.65;display:flex;gap:8px;align-items:flex-start;}
+    .qa-item .qa-a::before{content:"A";display:inline-block;background:#10b981;color:#fff;font-size:11px;width:20px;height:20px;border-radius:4px;text-align:center;line-height:20px;flex-shrink:0;margin-top:2px;}
+    .qa-empty{text-align:center;color:#94a3b8;padding:20px;font-size:12.5px;}
+
+    /* ============================================================
        洗图工具 v8.1 · 缩略图 100×100
        ============================================================ */
     .wash-card{background:linear-gradient(135deg,#faf5ff 0%,#f5f3ff 100%);border:1px solid #ddd6fe;padding:14px 18px;margin-bottom:16px;}
@@ -229,9 +241,7 @@
         <h1>亚马逊 Listing 智能优化系统</h1>
     </header>
 
-    <!-- ============================================================
-         洗图工具 · 紧凑横条（在最上面）
-         ============================================================ -->
+    <!-- 洗图工具 · 紧凑横条 -->
     <div class="card wash-card">
         <div class="wash-title">🧼 一键洗图 · 亚马逊专用策略 <span style="font-weight:400;font-size:11.5px;color:#7c3aed;">（上传后可拖拽小图换位，第 1 位自动为主图）</span></div>
 
@@ -401,6 +411,21 @@
             </div>
         </div>
 
+        <!-- ========== Rufus QA 板块 ========== -->
+        <div id="qaSection" class="card rufus-card hidden" style="margin-top:0;">
+            <div class="results-header" style="border-bottom:1px dashed #c7d2fe;">
+                <div>
+                    <h2>🤖 Rufus 推荐问答（QA）</h2>
+                    <p style="font-size:12.5px;color:#4338ca;margin:0;">将以下内容放入 Q&A 板块，可提升被 AI 购物助手推荐的几率</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="text" id="reqQa" class="custom-req-input" style="border-color:#c7d2fe;color:#4338ca;" placeholder="QA 特殊要求(固化)">
+                    <button class="copy-btn" style="background:#4338ca;" onclick="copyAllQA(this)">复制全部 QA</button>
+                </div>
+            </div>
+            <div id="qaContent"></div>
+        </div>
+
         <h3 style="font-size:16px;margin:0 0 12px;">🔍 A9 关键词策略诊断（10 维度）</h3>
         <div class="table-wrap">
             <table>
@@ -434,52 +459,6 @@
         <div id="geminiKeyStatus" style="font-size:12px;color:#9a3412;margin-top:10px;font-weight:600;"></div>
     </div>
 
-    <!-- ========== 底部：历史统计 ========== -->
-    <div class="card history-card">
-        <h2>📊 历史优化统计</h2>
-        <div class="history-stats">
-            <div class="history-stat-item">
-                <div class="hsi-label">已优化总数</div>
-                <div class="hsi-value" id="statTotal">0</div>
-            </div>
-            <div class="history-stat-item today">
-                <div class="hsi-label">今日</div>
-                <div class="hsi-value" id="statToday">0</div>
-            </div>
-            <div class="history-stat-item week">
-                <div class="hsi-label">近 7 天</div>
-                <div class="hsi-value" id="statWeek">0</div>
-            </div>
-            <div class="history-stat-item month">
-                <div class="hsi-label">本月</div>
-                <div class="hsi-value" id="statMonth">0</div>
-            </div>
-        </div>
-        <div class="history-list-wrap">
-            <div class="history-list-header">
-                <span class="hlh-ttl">📋 历史记录</span>
-                <div class="history-actions">
-                    <button class="btn-sm gray" onclick="toggleHistoryList()" id="historyToggleBtn">展开全部 ▼</button>
-                    <button class="btn-sm green" onclick="exportHistoryCSV()">导出 CSV</button>
-                    <button class="btn-sm red" onclick="clearHistory()">清空历史</button>
-                </div>
-            </div>
-            <div class="table-wrap" style="margin-bottom:0;max-height:420px;overflow-y:auto;">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th style="width:16%;">时间</th>
-                            <th style="width:33%;">原标题</th>
-                            <th style="width:33%;">优化后标题</th>
-                            <th style="width:18%;">模型</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyListBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <!-- ========== 底部：约束条件 ========== -->
     <div class="card constraint-card">
         <div class="constraint-header" onclick="toggleConstraints()">
@@ -500,6 +479,7 @@
                     <div class="num-item"><label>描述 · 最小</label><input type="number" id="c_descMin"></div>
                     <div class="num-item"><label>描述 · 最大</label><input type="number" id="c_descMax"></div>
                     <div class="num-item"><label>ST · 最大字节</label><input type="number" id="c_stMax"></div>
+                    <div class="num-item"><label>QA · 生成组数</label><input type="number" id="c_qaCount"></div>
                 </div>
             </div>
             <div class="constraint-section">
@@ -514,6 +494,7 @@
                 <div class="rule-item"><label>描述规则</label><textarea id="c_ruleDesc"></textarea></div>
                 <div class="rule-item"><label>ST 规则</label><textarea id="c_ruleST"></textarea></div>
                 <div class="rule-item"><label>保真原则</label><textarea id="c_ruleFidelity"></textarea></div>
+                <div class="rule-item"><label>Rufus QA 规则</label><textarea id="c_ruleQA"></textarea></div>
             </div>
             <div class="constraint-section">
                 <div class="sec-title">📖 参考范例</div>
@@ -725,15 +706,16 @@ async function testGeminiKey(){
 }
 
 /* ============================================================
-   约束条件（v16）
+   约束条件（v17 · 新增 Rufus QA）
    ============================================================ */
-const CONSTRAINTS_KEY = 'cosmo_constraints_v16';
+const CONSTRAINTS_KEY = 'cosmo_constraints_v17';
 const DEFAULT_CONSTRAINTS = {
     titleMin: 70, titleMax: 75,
     ihMin: 100, ihMax: 125,
     bulletMin: 150, bulletMax: 220, bulletTotal: 1000,
     descMin: 600, descMax: 2000,
     stMax: 250,
+    qaCount: 5,
     forbidden: `best\ncheapest\namazing\nperfect\ntop\npremium\nhigh quality\nsuperior\nexcellent\nultimate\nunbeatable\nfinest\ngreatest\nincredible\nworld class\nnumber 1\nno.1\n#1\ntop rated\nmost popular\ntrending\nviral\nmust have\nmust-have\nfree shipping\nfree gift\non sale\ndiscount\nsale\nclearance\nlimited time\nbest deal\nwarranty\nguarantee\ncontact us\n24 hours\nhigh-grade\nhigh-class\nhigh-end`,
     ruleTitle: `标题必须 70-75 字符（含空格）。\n首屏（前 70 字符）必须包含核心搜索词。\n不以标点或介词（for/with/in/on/by/to/of/and/or）结尾。\n不含促销、主观夸大词。\n能省字符就省字符：例如 "10-Slot" 比 "10 Compartments" 更优。\n自然流畅，不要逗号堆砌。`,
     ruleIH: `Item Highlights 必须 100-125 字符。\n必须与标题互补，不重复标题已出现的关键信息。\n只输出名词/形容词短语，严禁完整句子（禁 is/are/has/features/provides 等动词）。\n最后一段指向具体用途或受众。`,
@@ -741,7 +723,36 @@ const DEFAULT_CONSTRAINTS = {
     ruleDesc: `必须 600-900 字符。\n分 3-4 个自然段。\n以场景痛点开头。\n展开材质保护、规格尺寸、使用体验。\n最后回到适用场景收束。`,
     ruleST: `≤250 字节（一个英文字母=1字节，一个中文=3字节）。\n全小写，空格分隔。\n\n⚠️ 目标：尽量填满 230-250 字节，字数不够就是浪费权重位！\n\n【必须按以下 8 类补充，每类至少 1-2 个词】\n1. 主词同义词 —— 例：watch box → watch case / watch organizer / watch holder / watch display / watch storage / watch tray\n2. 单复数变体 —— watches / boxes / cases / trays / slots / accessories / organizers\n3. 上下游关联词 —— watch pillow / watch cushion / wristwatch stand / watch travel case / jewelry box\n4. 使用场景词 —— travel / closet / dresser / nightstand / shelf / drawer / tabletop / bedroom / office\n5. 用途/受众词 —— gift / men / women / dad / husband / collector / enthusiast\n6. 材质属性变体 —— leather / pu leather / faux leather / black / dark\n7. 常见外语搜索词（必须至少加 3 个！）—— 西班牙语 reloj / joyero / caja / estuche；法语 montre / boite / coffret；德语 uhr / schmuckkasten；意大利语 orologio / scatola\n8. 常见误拼/变体 —— wristwatch / wrist watch / wrist-watch\n\n⚠️ 严禁照抄参考范例里的 Search Terms，必须基于当前产品重新生成\n⚠️ 不要重复标题/五点/IH 里已经出现的完整短语（单个短词可以重复）\n⚠️ 不含品牌名、ASIN、主观词（best/premium）、时效词（new/sale）\n⚠️⚠️ 必须完整输出 [/ST] 结束标签，不能中途截断！`,
     ruleFidelity: `绝对保真：严禁编造原始信息中没有的任何内容。\n· 原文写 10 格就写 10 格。\n· 原文写 Box 就写 Box。\n· 原文没写防水，绝不写 waterproof。\n· 原文没有重量信息，就不要提具体重量，也不要输出 [WEIGHT] 标记。\n· 原文没有 Package Includes，就不要虚构包装清单，也不要输出 [PACKAGE INCLUDES] 标记。`,
-    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头，第 1 点用 [字段] 标记】\n\n第 1 点：\nPRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces`
+    ruleQA: `【目标】生成能抓住 Rufus 推荐流量的买家问答（Q&A）。Rufus 是亚马逊的 AI 购物助手，它会抓取高质量 Q&A 板块作为推荐依据。
+
+【问题设计 - 覆盖以下 5 类，每类至少 1 条】
+1. 场景匹配型：Is this suitable for [specific scenario]?
+2. 对比选择型：What's the difference between this and [similar product]?
+3. 参数验证型：How long does the [specific part] last? / Is the [dimension] accurate?
+4. 合规属性型：Is this [material]? / Does this [certification]?
+5. 拓展用途型：Can I use this for [unexpected use case]?
+
+【回答硬性要求】
+⭐ 每条回答必须 ≥ 30 个英文单词
+⭐ 每条回答必须自然包含 1-2 个核心关键词（不加堆砌）
+⭐ 每条回答必须包含 1 个具体的数字/参数/场景细节
+⭐ 严禁出现促销词、折扣、联系方式、品牌名
+⭐ 严禁自问自答式营销（例如"别人都买，你还等什么"）
+⭐ 语气要像真实买家之间的交流，不要像卖家推销
+
+【回答结构模板】
+第 1 句：直接回答 Yes/No/It depends（明确表态）
+第 2-3 句：给出具体理由 + 参数/场景细节
+第 4 句：扩展建议或相关提示（加分项）
+
+【反例】
+❌ "This is the best product ever, buy it now!"（促销语气）
+❌ "Yes."（太短，无细节）
+❌ "Our factory has 20 years experience..."（卖家视角）
+
+【正例】
+✅ "Yes, this fits standard 18-inch patio tables. The metal frame supports up to 50 lbs, and the folding mechanism locks in place, so it stays stable on both wood decks and concrete patios. I've used mine on a windy balcony for 6 months with no issues."`,
+    example: `【好的标题】10-Slot PU Leather Watch Box Organizer with Pearl Fleece Lining, Black\n\n【好的 IH】PU leather exterior with soft pearl fleece lining; ideal for storing watches, bracelets, and small jewelry\n\n【好的五点 · 每条以大写小标题开头，第 1 点用 [字段] 标记】\n\n第 1 点：\nPRODUCT SPECS: [SIZE] 9.84 x 7.87 x 3.15 inches; [COLOR] Black; [WEIGHT] 38.8 oz; [PACKAGE INCLUDES] 1 x Watch Storage Box; [MATERIAL] PU leather exterior with pearl fleece lining\n\n第 2 点：\nSCRATCH-FREE LINING: The soft fleece lining protects watch faces and bands from scratches and dust; the PU leather surface wipes clean with a damp cloth\n\n第 3 点：\nCOMPACT DESIGN: Slim enough for a dresser, nightstand, or closet shelf; the low-profile design saves counter space while holding up to 10 watches\n\n第 4 点：\nPORTABLE & LIGHTWEIGHT: At just over 2 pounds, this box moves easily between rooms or travels in a suitcase; the secure lid keeps contents in place\n\n第 5 点：\nQUICK ACCESS: Lift the lid to see all ten watches at a glance; no drawers or clasps to fumble with, making your morning routine faster and simpler\n\n【搜索词格式示范 · 填满版】\nwrist watch holder case display tray boxes slots trays organizers jewelry cushion pillow travel bedroom nightstand desk closet men women dad husband collector gift faux dark reloj joyero caja estuche montre boite timepiece timepieces\n\n【好的 QA 示范】\nQ: Is this watch box suitable for larger watches like 45mm dive watches?\nA: Yes, this box fits watches up to 48mm in diameter. Each slot has a soft fleece pillow that compresses slightly, so 45mm dive watches with thick bands fit comfortably without scratching the case. I keep both a Seiko 45mm and a dress watch in mine, and they stay secure even when I move the box around.`
 };
 let C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS));
 
@@ -756,9 +767,11 @@ function syncFormFromConstraints(){
     $('c_ihMin').value = C.ihMin; $('c_ihMax').value = C.ihMax;
     $('c_bulletMin').value = C.bulletMin; $('c_bulletMax').value = C.bulletMax; $('c_bulletTotal').value = C.bulletTotal;
     $('c_descMin').value = C.descMin; $('c_descMax').value = C.descMax; $('c_stMax').value = C.stMax;
+    $('c_qaCount').value = C.qaCount;
     $('c_forbidden').value = C.forbidden;
     $('c_ruleTitle').value = C.ruleTitle; $('c_ruleIH').value = C.ruleIH; $('c_ruleBullets').value = C.ruleBullets;
     $('c_ruleDesc').value = C.ruleDesc; $('c_ruleST').value = C.ruleST; $('c_ruleFidelity').value = C.ruleFidelity;
+    $('c_ruleQA').value = C.ruleQA;
     $('c_example').value = C.example;
     updateHints();
 }
@@ -769,9 +782,11 @@ function syncConstraintsFromForm(){
     C.bulletTotal = Number($('c_bulletTotal').value) || 0;
     C.descMin = Number($('c_descMin').value) || 0; C.descMax = Number($('c_descMax').value) || 0;
     C.stMax = Number($('c_stMax').value) || 0;
+    C.qaCount = Number($('c_qaCount').value) || 0;
     C.forbidden = $('c_forbidden').value;
     C.ruleTitle = $('c_ruleTitle').value; C.ruleIH = $('c_ruleIH').value; C.ruleBullets = $('c_ruleBullets').value;
     C.ruleDesc = $('c_ruleDesc').value; C.ruleST = $('c_ruleST').value; C.ruleFidelity = $('c_ruleFidelity').value;
+    C.ruleQA = $('c_ruleQA').value;
     C.example = $('c_example').value;
     updateHints(); saveConstraints();
 }
@@ -788,18 +803,19 @@ function toggleConstraints(){ const body = $('constraintBody'), hint = $('constr
 function resetConstraints(){ if (!confirm('确定恢复默认吗？')) return; C = JSON.parse(JSON.stringify(DEFAULT_CONSTRAINTS)); syncFormFromConstraints(); saveConstraints(); showToast('已恢复默认'); }
 function exportConstraints(){ const blob = new Blob([JSON.stringify(C, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'cosmo_constraints_' + new Date().toISOString().slice(0,10) + '.json'; a.click(); URL.revokeObjectURL(url); }
 function importConstraintsPrompt(){ const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = ev => { try { const im = JSON.parse(ev.target.result); C = Object.assign({}, DEFAULT_CONSTRAINTS, im); syncFormFromConstraints(); saveConstraints(); showToast('导入成功'); } catch (err){ showToast('导入失败：' + err.message); } }; r.readAsText(f); }; input.click(); }
-function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
+function initConstraintListeners(){ ['c_titleMin','c_titleMax','c_ihMin','c_ihMax','c_bulletMin','c_bulletMax','c_bulletTotal','c_descMin','c_descMax','c_stMax','c_qaCount','c_forbidden','c_ruleTitle','c_ruleIH','c_ruleBullets','c_ruleDesc','c_ruleST','c_ruleFidelity','c_ruleQA','c_example'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', syncConstraintsFromForm); }); }
 
 /* ============================================================
    自定义要求
    ============================================================ */
-const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt'];
+const CUSTOM_IDS = ['reqTitle','reqIh','reqBp','reqDesc','reqSt','reqQa'];
 const CUSTOM_DEFAULTS = {
     reqTitle: '',
     reqIh: '',
     reqBp: '',
     reqDesc: '',
-    reqSt: ''
+    reqSt: '',
+    reqQa: ''
 };
 function saveCustom(){ CUSTOM_IDS.forEach(id => { const el = $(id); if (el) localStorage.setItem('cosmo_req_' + id, el.value); }); }
 function loadCustom(){
@@ -885,6 +901,7 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         (customReqs.bp ? '· 五点描述：' + customReqs.bp + '\n' : '') +
         (customReqs.desc ? '· 详细描述：' + customReqs.desc + '\n' : '') +
         (customReqs.st ? '· Search Terms：' + customReqs.st + '\n' : '') +
+        (customReqs.qa ? '· Rufus QA：' + customReqs.qa + '\n' : '') +
         '⚠️ 特别是当用户指定了【第 1 点的字段顺序/格式】时，必须严格按用户指定的顺序生成（用方括号形式 [FIELD]）！\n' : '';
 
     let prevErrorBlock = '';
@@ -903,6 +920,11 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         }
         if (prevContent.description) prevErrorBlock += '【DESC】' + prevContent.description.substring(0, 300) + '\n';
         if (prevContent.searchTerms) prevErrorBlock += '【ST】' + prevContent.searchTerms + '\n';
+        if (prevContent.qaList){
+            prevContent.qaList.forEach((qa, i) => {
+                prevErrorBlock += '【QA' + (i+1) + '】' + (qa.question ? 'Q: ' + qa.question + ' A: ' + qa.answer : '❌ 缺失！必须生成') + '\n';
+            });
+        }
         prevErrorBlock += '\n⚠️ 重点补齐上面标有 ❌ 缺失的部分。所有板块都要完整。\n';
     }
 
@@ -911,13 +933,20 @@ function buildPrompt(titleRaw, bpRaw, descRaw, stRaw, hotKeywords, customReqs, p
         '· Item Highlights：' + C.ihMin + '-' + C.ihMax + ' 字符\n' +
         '· 五点描述：每条 ' + C.bulletMin + '-' + C.bulletMax + ' 字符（⭐ 每条必须 ≥' + C.bulletMin + ' 字符）；5 条合计 ≤' + C.bulletTotal + ' 字符\n' +
         '· 详细描述：' + C.descMin + '-' + C.descMax + ' 字符\n' +
-        '· Search Terms：≤' + C.stMax + ' 字节，全小写，尽量填满 230-250 字节';
+        '· Search Terms：≤' + C.stMax + ' 字节，全小写，尽量填满 230-250 字节\n' +
+        '· Rufus QA：共 ' + C.qaCount + ' 组，每组回答 ≥30 个英文单词';
+
+    const qaCount = C.qaCount;
+    let qaFormatBlock = '';
+    for (let i = 1; i <= qaCount; i++){
+        qaFormatBlock += '\n[QA' + i + ']\nQ: 买家问题\nA: 卖家回答（≥30 词）\n[/QA' + i + ']\n';
+    }
 
     return `你是一位连续五年获得亚马逊 Top Reviewer 称号的资深 Listing 文案撰写者。你的文案以信息密度高、语言自然、逻辑清晰著称。
 
 ${customBlock}
 ━━━━━━━━━━━━━━ 任务 ━━━━━━━━━━━━━━
-基于下方原始商品信息，一次性生成完整的高质量 Listing。
+基于下方原始商品信息，一次性生成完整的高质量 Listing（含 Rufus 推荐问答）。
 
 ━━━━━━━━━━━━━━ 原始商品信息 ━━━━━━━━━━━━━━
 标题：${titleRaw || '（未提供）'}
@@ -939,9 +968,10 @@ ${C.example}
 【描述规则】${C.ruleDesc}
 【ST 规则】${C.ruleST}
 【保真原则】${C.ruleFidelity}
+【Rufus QA 规则】${C.ruleQA}
 
 ━━━━━━━━━━━━━━ ⚠️ 完整性红线 ⚠️ ━━━━━━━━━━━━━━
-必须输出全部 8 个标记：TITLE、IH、BULLET1、BULLET2、BULLET3、BULLET4、BULLET5、DESC、ST
+必须输出全部标记：TITLE、IH、BULLET1、BULLET2、BULLET3、BULLET4、BULLET5、DESC、ST，以及 QA1 到 QA${qaCount}
 任何一个标记缺失或内容为空都算失败！禁止输出半截内容！
 
 ━━━━━━━━━━━━━━ 输出格式 ━━━━━━━━━━━━━━
@@ -981,10 +1011,11 @@ Item Highlights
 
 [ST]
 搜索词
-[/ST]`;
+[/ST]
+${qaFormatBlock}`;
 }
 
-const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出，且用方括号形式标记字段（如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]）。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。\n\n【第 1 点格式 · 必须遵守】大写标题后必须用【[字段名] 值】的形式罗列规格，字段名用方括号大写。必须使用的字段：SIZE、COLOR、WEIGHT、PACKAGE INCLUDES、MATERIAL（原文有的才写）。用分号分隔。禁止用 "Size: xxx" 这种冒号形式。\n\n【完整性红线 · 最重要】必须输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
+const SYSTEM_PROMPT = '你是亚马逊 Listing 文案撰写专家。信息密度高、语言自然、逻辑清晰。\n\n【最高优先级】如果用户在【用户自定义要求】部分给出了任何指令，必须严格遵守。尤其是第 1 点的字段顺序或格式，必须严格按指定顺序输出，且用方括号形式标记字段（如 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES]）。\n\n【五点的硬性格式要求 · 非常重要】每条五点都必须以【全大写小标题 + 冒号】开头，格式为 "BENEFIT TITLE: description"。\n\n【第 1 点格式 · 必须遵守】大写标题后必须用【[字段名] 值】的形式罗列规格，字段名用方括号大写。必须使用的字段：SIZE、COLOR、WEIGHT、PACKAGE INCLUDES、MATERIAL（原文有的才写）。用分号分隔。禁止用 "Size: xxx" 这种冒号形式。\n\n【Rufus QA 要求 · 新增】必须生成指定数量的 QA 对（见任务中的 qaCount）。每组 QA 必须以 [QAn]...[/QAn] 标记包裹，内部格式为 "Q: 问题\\nA: 回答"。回答必须 ≥30 个英文单词，自然包含核心关键词，像真实买家交流，严禁促销语气和卖家视角。\n\n【完整性红线 · 最重要】必须输出全部标记（TITLE/IH/BULLET1-5/DESC/ST/QA1-N），一个都不能少。\n\n【其他规则】第 1 点大写标题后只做纯参数列表，绝不用叙事性动词。严禁用 High-grade、Premium 等主观词。Search Terms 必须尽量填满 230-250 字节。只输出指定格式。';
 
 async function callGeminiWithFallback(messages){
     const apiKey = getGeminiKey();
@@ -1041,12 +1072,33 @@ function parseStructuredOutput(text){
         description: extract('DESC'),
         searchTerms: extract('ST')
     };
+
+    // 解析 QA（任意数量，最多支持 20 组）
+    const qaList = [];
+    for (let i = 1; i <= 20; i++){
+        const block = extract('QA' + i);
+        if (!block) continue;
+        const lines = block.split('\n');
+        let q = '', a = '';
+        let mode = '';
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (/^Q\s*[:：]/.test(trimmed)){ mode = 'q'; q = trimmed.replace(/^Q\s*[:：]\s*/, ''); }
+            else if (/^A\s*[:：]/.test(trimmed)){ mode = 'a'; a = trimmed.replace(/^A\s*[:：]\s*/, ''); }
+            else if (mode === 'q' && trimmed){ q += ' ' + trimmed; }
+            else if (mode === 'a' && trimmed){ a += ' ' + trimmed; }
+        });
+        if (q && a) qaList.push({ question: q.trim(), answer: a.trim() });
+    }
+    result.qaList = qaList;
+
     console.log('[解析] 各板块长度：', {
         title: result.title.length,
         ih: result.itemHighlights.length,
         bullets: result.bullets.map(b => b.length),
         desc: result.description.length,
-        st: result.searchTerms.length
+        st: result.searchTerms.length,
+        qa: result.qaList.map(x => ({ q: x.question.length, a: x.answer.length }))
     });
     return result;
 }
@@ -1133,6 +1185,19 @@ function validateAll(r){
         const trunc = hasTruncation(r.searchTerms, '搜索词');
         if (trunc) errors.push({ module:'搜索词', msg: trunc });
     }
+
+    // QA 校验（不达数量要求只警告，不阻断；格式问题报错）
+    const qaList = r.qaList || [];
+    if (qaList.length < C.qaCount){
+        warnings.push({ module:'QA', msg:'仅生成 ' + qaList.length + ' / ' + C.qaCount + ' 组' });
+    }
+    qaList.forEach((qa, i) => {
+        const idx = i + 1;
+        const wordCount = qa.answer.trim().split(/\s+/).filter(Boolean).length;
+        if (wordCount < 30) warnings.push({ module:'QA', msg:'第 ' + idx + ' 组回答仅 ' + wordCount + ' 词，偏短' });
+        const pHits = detectProhibited(qa.question + ' ' + qa.answer);
+        if (pHits.length) errors.push({ module:'QA', msg:'第 ' + idx + ' 组含违禁词：' + pHits.join(', ') });
+    });
 
     return { errors, warnings };
 }
@@ -1485,6 +1550,48 @@ function renderKwHitReport(hotKeywords){
     report.innerHTML = html;
     report.classList.remove('hidden');
 }
+
+// ========== Rufus QA 渲染 ==========
+function renderQASection(qaList){
+    const section = $('qaSection');
+    const content = $('qaContent');
+    if (!section || !content) return;
+    if (!qaList || !qaList.length){ section.classList.add('hidden'); return; }
+    section.classList.remove('hidden');
+    content.innerHTML = qaList.map((qa, i) => {
+        const wordCount = qa.answer.trim().split(/\s+/).filter(Boolean).length;
+        const warn = wordCount < 30 ? '<span style="font-size:11px;color:#b45309;background:#fef3c7;padding:2px 6px;border-radius:4px;margin-left:8px;">⚠️ 仅 ' + wordCount + ' 词</span>' : '';
+        return '<div class="qa-item">' +
+            '<div class="qa-q">' + escapeHtml(qa.question) + warn + '</div>' +
+            '<div class="qa-a">' + escapeHtml(qa.answer) + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+async function copyAllQA(btn){
+    const items = document.querySelectorAll('#qaContent .qa-item');
+    if (!items.length){ showToast('QA 为空'); return; }
+    const parts = [];
+    items.forEach(el => {
+        const q = el.querySelector('.qa-q')?.childNodes[0]?.textContent?.trim() || el.querySelector('.qa-q')?.textContent?.trim() || '';
+        const a = el.querySelector('.qa-a')?.childNodes[0]?.textContent?.trim() || el.querySelector('.qa-a')?.textContent?.trim() || '';
+        parts.push('Q: ' + q + '\nA: ' + a);
+    });
+    const text = parts.join('\n\n');
+    let ok = false;
+    if (navigator.clipboard && window.isSecureContext){ try { await navigator.clipboard.writeText(text); ok = true; } catch(e){} }
+    if (!ok){
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta);
+    }
+    if (ok){
+        const o = btn.dataset.label || btn.innerText; btn.dataset.label = o;
+        btn.innerText = '复制成功 ✓';
+        setTimeout(() => { btn.innerText = o; }, 1500);
+    } else showToast('复制失败');
+}
+
 function parseHotKeywords(){
     const raw = ($('hotKeywords').value || '').trim();
     if (!raw) return [];
@@ -1545,7 +1652,7 @@ async function expandAll(){
 ${customNote}
 ⚠️ 五点每条必须保持大写小标题格式（BENEFIT TITLE: description）
 ⚠️ 第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记
-⚠️⚠️ 必须完整输出全部 9 个标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少！
+⚠️⚠️ 必须完整输出全部标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少！
 
 【当前内容】
 标题（${cur.title.length}字符）：${cur.title}
@@ -1594,7 +1701,7 @@ ${cur.description}
 [/ST]`;
 
         const { text: rawText } = await callGeminiWithFallback([
-            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部 9 个标记，一个都不能少。只输出指定格式。' },
+            { role: 'system', content: '你是亚马逊 Listing 扩写专家。只做扩写不做改写。五点每条必须保持大写小标题格式。第 1 点必须用 [SIZE] [COLOR] [WEIGHT] [PACKAGE INCLUDES] 等方括号字段标记。每条五点必须 ≥' + C.bulletMin + ' 字符。必须输出全部标记（TITLE/IH/BULLET1-5/DESC/ST），一个都不能少。只输出指定格式。' },
             { role: 'user', content: prompt }
         ]);
         const parsed = parseStructuredOutput(rawText);
@@ -1610,7 +1717,7 @@ ${cur.description}
         updateCounter('optDescText','descCounter',C.descMax,'字符',C.descMin);
         updateExpandBar();
         reScoreAndRender();
-        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value });
+        const v = validateAll({ title: $('optTitleText').value, itemHighlights: $('optIhText').value, bullets: [0,1,2,3,4].map(i => $('optBp'+i).value), description: $('optDescText').value, searchTerms: $('optStText').value, qaList: [] });
         renderValidationReport(v.errors, v.warnings, '补全后');
         showToast('补全完成');
     } catch (err){
@@ -1654,6 +1761,7 @@ async function copyAllBullets(btn){
 function clearAll(){
     ['productTitle','bulletPoints','description','searchTerms','hotKeywords'].forEach(id => { const el = $(id); if (el) el.value = ''; });
     const rc = $('resultCard'); if (rc) rc.classList.add('hidden');
+    const qs = $('qaSection'); if (qs) qs.classList.add('hidden');
     showToast('已清空');
 }
 
@@ -1665,7 +1773,8 @@ async function runAnalysis(){
     const hotKeywords = parseHotKeywords();
     const customReqs = {
         title: $('reqTitle').value.trim(), ih: $('reqIh').value.trim(),
-        bp: $('reqBp').value.trim(), desc: $('reqDesc').value.trim(), st: $('reqSt').value.trim()
+        bp: $('reqBp').value.trim(), desc: $('reqDesc').value.trim(), st: $('reqSt').value.trim(),
+        qa: $('reqQa').value.trim()
     };
 
     if (!titleRaw && !bpRaw && !descRaw){ showToast('请至少填写标题或商品信息'); return; }
@@ -1674,6 +1783,7 @@ async function runAnalysis(){
     resetPipeline();
     $('validationReport').classList.add('hidden');
     $('expandBar').classList.add('hidden');
+    $('qaSection').classList.add('hidden');
 
     $('origTitleView').value = titleRaw; $('origBpView').value = bpRaw;
     $('origDescView').value = descRaw; $('origStView').value = stRaw;
@@ -1704,6 +1814,7 @@ async function runAnalysis(){
         const finalBullets = postBullets(rawResult.bullets);
         const finalDesc = postDesc(rawResult.description);
         const finalST = postST(rawResult.searchTerms);
+        const finalQA = rawResult.qaList || [];
 
         $('optTitleText').value = finalTitle;
         $('optIhText').value = finalIH;
@@ -1723,9 +1834,10 @@ async function runAnalysis(){
         updateCounter('optStText','stCounter',C.stMax,'字节',null);
         updateExpandBar();
 
+        renderQASection(finalQA);
         reScoreAndRender();
 
-        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST });
+        const v = validateAll({ title: finalTitle, itemHighlights: finalIH, bullets: finalBullets, description: finalDesc, searchTerms: finalST, qaList: finalQA });
         renderValidationReport(v.errors, v.warnings, genResult.rounds + ' 轮 · ' + genResult.model);
         renderKwHitReport(hotKeywords);
         setStep(3, 'done');
@@ -1765,8 +1877,6 @@ if (document.readyState !== 'loading'){
 
 /* ============================================================
    洗图工具 v8.1 · 缩略图 100×100
-   主图流程：AI 抠图 → 白底 2000×2000（占比 85%）→ 旋转 0.5° → 调色噪点 → 重编码
-   副图流程：裁剪 8px → 加白边 30px → 调色噪点 → 重编码
    ============================================================ */
 const WashTool = (() => {
     const CONCURRENCY = 2;
